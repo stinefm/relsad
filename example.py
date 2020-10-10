@@ -2,6 +2,8 @@ from network.systems import Distribution, Microgrid
 from network.components import Bus, Line, Battery, LoadBreaker, Production, SlackBus, CircuitBreaker
 from plotting.plot_network import plot
 
+#Example network
+
 b1 = Bus(1, [0,0])
 b2 = Bus(2, [0,1])
 b3 = Bus(3, [1,0])
