@@ -50,9 +50,8 @@ class Bus:
     'Common base class for all distribution buses'
     busCount = 0
 
-    def __init__(self, num, coordinate:list, pload=0.0, \
-                qload=0.0, ZIP=[0.0, 0.0 ,1.0], vset=0.0, \
-                iloss=0, pqcostRatio=100):
+    def __init__(self, num, pload=0.0, qload=0.0, coordinate:list=[0,0], \
+                ZIP=[0.0, 0.0 ,1.0], vset=0.0, iloss=0, pqcostRatio=100):
         self.num = num
         self.coordinate = coordinate
         self.pload = pload
@@ -117,12 +116,42 @@ class CircuitBreaker:
 
 
 class Line:
-    'Common base class for all distribution lines'
+    '''
+    A class used to represent an electrical Line
+
+    ...
+
+    Attributes
+    ----------
+    fbus : Bus
+        Sending bus
+    tbus : Bus
+        Receiving bus
+    r : float
+        Resistance \[Ohm\]
+    x : float
+        Reactance \[\]
+    length : float
+        Length of line \[km\]
+    fail_rate : float
+        Failure rate \[fault/year/km\]
+    outage_time : float
+        Outage time \[hours/fault\]
+    capacity : float
+        Line capacity \[MW\]
+    ibstat : bool
+        Line state
+
+    Methods
+    -------
+    add_load_breaker(load_breaker:LoadBreaker)
+        Adds load breaker
+    '''
     lineCount = 0
 
     def __init__(self, fbus:Bus, tbus:Bus, r:float, \
-                x:float, length:float, fail_rate:float, \
-                outage_time:float, capacity:float, ibstat=1):
+                x:float, length:float=1, fail_rate:float=1, \
+                outage_time:float=1, capacity:float=1, ibstat=True):
         self.fbus = fbus
         self.tbus = tbus
         self.r = r

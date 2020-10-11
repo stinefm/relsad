@@ -1,0 +1,68 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+def plot_topology(buses:list,lines:list):
+    fig, ax = plt.subplots(figsize=(3.5, 4.5))
+    for line in lines:
+        lineHandle, = ax.plot([line.fbus.coordinate[0], line.tbus.coordinate[0]], \
+        [line.fbus.coordinate[1], line.tbus.coordinate[1]], \
+        color = 'steelblue')
+
+    for bus in buses:
+        busHandle, = ax.plot(bus.coordinate[0], bus.coordinate[1], \
+            marker = 'o', markeredgewidth=3, markersize=25, linestyle = 'None', \
+            color = 'steelblue')
+        ax.text(bus.coordinate[0], bus.coordinate[1], bus.name, \
+            ha='center', va='center')
+
+    right = 0.85
+    left = 0.15
+
+    fig.subplots_adjust(left=left, bottom=0, right=right, top=None, wspace=None, hspace=None)
+    
+    plt.figlegend([lineHandle, busHandle], \
+                ['Line', 'Bus'], \
+                ncol=3, loc='upper center',bbox_to_anchor=(left+(right-left)/2,0.978),\
+                frameon=False)
+    
+    plt.axis('off')
+
+    plt.show()
+
+def tableplot(table_data, title, columns, rows, columncol=[], rowcol=[]):
+    """
+    Desc:   Make a table of the provided data. There must be a row and a column
+            data correpsonding to the table
+    Input:  table_data  - np.array
+            title - string
+            columns - string vector
+            rows    - string vector
+            columncol - colors of each column label (default [])
+            rowcol - colors of each row lable
+    """
+
+    fig = plt.figure(dpi=150)
+    ax = fig.add_subplot(1, 1, 1)
+
+    tdim = np.shape(table_data)
+    iloop = 0
+    if rowcol == []:
+        while iloop < tdim[0]:
+            rowcol.append('cyan')
+            iloop += 1
+    iloop = 0
+    if columncol == []:
+        while iloop < tdim[1]:
+            columncol.append('cyan')
+            iloop += 1
+
+    table = ax.table(cellText=table_data, rowLabels=rows, colColours=columncol, rowColours=rowcol,
+                        colLabels=columns, loc='center')
+    table.set_fontsize(11)
+    table.scale(1, 1.5)
+    ax.set_title(title, fontsize=14)
+    ax.axis('off')
+    plt.show()
+
+if __name__=="__main__":
+    pass
