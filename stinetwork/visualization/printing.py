@@ -1,6 +1,6 @@
 import numpy as np
-from loadflow.ac import getload
-from visualization.plotting import tableplot
+from stinetwork.loadflow.ac import getload
+from stinetwork.visualization.plotting import tableplot
 
 #
 # Display transmission line flows

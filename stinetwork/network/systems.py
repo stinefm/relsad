@@ -1,4 +1,4 @@
-from network.components import Bus, Line, Battery, LoadBreaker, Production, SlackBus, CircuitBreaker
+from stinetwork.network.components import Bus, Line, Battery, LoadBreaker, Production, SlackBus, CircuitBreaker
 
 class Microgrid:
     """ Class defining a microgrid network type """

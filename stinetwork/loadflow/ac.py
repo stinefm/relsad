@@ -1,5 +1,5 @@
 import numpy as np
-from topology.paths import config, mainstruct
+from stinetwork.topology.paths import config, mainstruct
 
 def DistLoadFlow(BusList,LineList):
     """

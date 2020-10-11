@@ -1,7 +1,7 @@
-from STINetwork.network.components import Bus, Line
-from STINetwork.network.systems import Distribution
-from STINetwork.loadflow.ac import DistLoadFlow
-from STINetwork.visualization.printing import dispVolt, dispFlow
+from stinetwork.network.components import Bus, Line
+from stinetwork.network.systems import Distribution
+from stinetwork.loadflow.ac import DistLoadFlow
+from stinetwork.visualization.printing import dispVolt, dispFlow
 
 # Buses and loads
 Bus1 = Bus(1, 0, 0)
