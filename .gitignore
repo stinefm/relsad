@@ -1,0 +1,6 @@
+# ignore __pycache__ folders
+__pycache__
+# ignore egg-info folder
+*egg-info
+# ignore vscode settings
+.vscode
