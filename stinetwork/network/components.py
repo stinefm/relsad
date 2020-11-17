@@ -61,10 +61,10 @@ class Bus:
         self.iloss = iloss
         self.pqcostRatio = pqcostRatio
         self.comp = 0
-        self.ploadds = 0.0
-        self.qloadds = 0.0
-        self.pblossds = 0.0
-        self.qblossds = 0.0
+        self.ploadds = 0.0      # Active accumulated load at node
+        self.qloadds = 0.0      # Reactive accumulated load at node
+        self.pblossds = 0.0     # Active accumulated line loss at node
+        self.qblossds = 0.0     # Active accumulated line loss at node
         self.dPdV = 0.0
         self.dQdV = 0.0
         self.dVdP = 0.0

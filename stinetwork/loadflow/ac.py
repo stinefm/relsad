@@ -89,7 +89,7 @@ def DistLoadFlow(BusList,LineList):
                 x[0].ploadds = pl1
                 x[0].qloadds = ql1
                 if pl1 != 0:
-                    x[0].dPdV = (x[0].dPdV*(pl1-pla) + dPdV1*pla)/pl1
+                    x[0].dPdV = (x[0].dPdV*(pl1-pla) + dPdV1*pla)/pl1 # Weighting accumulated and bus DPDV
                 if ql1 != 0:
                     x[0].dQdV = (x[0].dQdV*(ql1-qla) + dQdV1*qla)/ql1
                 if x[0].toline:
