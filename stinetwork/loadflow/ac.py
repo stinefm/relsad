@@ -68,7 +68,7 @@ def DistLoadFlow(BusList,LineList):
                     x[0].dQdV = (x[0].dQdV*(ql1-qla) + dQdV1*qla)/ql1
                 if x[0].toline:         # Follow the next node in the main path
                     lobj = x[0].toline
-                    if lobj.ibstat:
+                    if lobj.connected:
                         # ifr = lobj.fbus
                         # itr = lobj.tbus
                         pto = x[0].ploadds + x[0].pblossds      # Find the flow to the downstream bus
@@ -94,7 +94,7 @@ def DistLoadFlow(BusList,LineList):
                     x[0].dQdV = (x[0].dQdV*(ql1-qla) + dQdV1*qla)/ql1
                 if x[0].toline:
                     lobj = x[0].toline
-                    if lobj.ibstat:
+                    if lobj.connected:
                         # ifr = lobj.fbus
                         # itr = lobj.tbus
                         pto = x[0].ploadds + ploss1

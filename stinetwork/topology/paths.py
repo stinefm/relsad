@@ -107,7 +107,7 @@ def config(BusList, LineList):
 
     """
     for lobj in LineList:
-        if lobj.ibstat:
+        if lobj.connected:
             itr = lobj.tbus.num - 1
             ifr = lobj.fbus.num - 1
             BusList[itr].tolinelist.append(lobj)
@@ -115,7 +115,7 @@ def config(BusList, LineList):
             BusList[ifr].fromline = lobj
 
     for lobj in LineList:
-        if lobj.ibstat:
+        if lobj.connected:
             if lobj.fbus.num > 1 and BusList[lobj.fbus.num - 1].toline == 0:  # Identify broken chains in the grid
                 itb = lobj.tbus.num
                 lobj.tbus.num = lobj.fbus.num  # Change direction and identify next line in the chain.
@@ -142,7 +142,7 @@ def config(BusList, LineList):
 
     # Add the topology information needed to define the tree structure
     for lobj in LineList:
-        if lobj.ibstat:
+        if lobj.connected:
             itr = lobj.tbus.num - 1
             ifr = lobj.fbus.num - 1
             BusList[ifr].nextbus.append(BusList[itr])  # Add the next bus to the list of branches of the bus

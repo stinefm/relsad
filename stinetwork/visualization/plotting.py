@@ -8,9 +8,23 @@ def plot_topology(buses:list,lines:list):
         [line.fbus.coordinate[1], line.tbus.coordinate[1]], \
         color = 'steelblue')
 
+        for cb in line.circuitbreakers:
+            cbHandle, = ax.plot(cb.coordinate[0], cb.coordinate[1], \
+            marker = 's', markeredgewidth=3, markersize=3**2, linestyle = 'None', \
+            color = 'black')
+            ax.text(cb.coordinate[0]-0.2, cb.coordinate[1], cb.name, \
+            ha='center', va='center')
+
+        for discon in line.disconnectors:
+            disconHandle, = ax.plot(discon.coordinate[0], discon.coordinate[1], \
+            marker = 'o', markeredgewidth=3, markersize=2**2, linestyle = 'None', \
+            color = 'black')
+            ax.text(discon.coordinate[0]-0.2, discon.coordinate[1], discon.name, \
+            ha='center', va='center')
+
     for bus in buses:
         busHandle, = ax.plot(bus.coordinate[0], bus.coordinate[1], \
-            marker = 'o', markeredgewidth=3, markersize=25, linestyle = 'None', \
+            marker = 'o', markeredgewidth=3, markersize=5**2, linestyle = 'None', \
             color = 'steelblue')
         ax.text(bus.coordinate[0], bus.coordinate[1], bus.name, \
             ha='center', va='center')
@@ -20,8 +34,8 @@ def plot_topology(buses:list,lines:list):
 
     fig.subplots_adjust(left=left, bottom=0, right=right, top=None, wspace=None, hspace=None)
     
-    plt.figlegend([lineHandle, busHandle], \
-                ['Line', 'Bus'], \
+    plt.figlegend([lineHandle, busHandle, cbHandle, disconHandle], \
+                ['Line', 'Bus', 'Circuitbreaker', 'Disconnector'], \
                 ncol=3, loc='upper center',bbox_to_anchor=(left+(right-left)/2,0.978),\
                 frameon=False)
     

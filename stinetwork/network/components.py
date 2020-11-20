@@ -27,33 +27,19 @@ class Production:
         self.qmax = qmax
 
 
-class SlackBus:
-
-    def __init__(self, num:int, coordinate:list, \
-                capacity:float):
-        self.num = num
-        self.name = 'Bus' + str(num)
-        self.coordinate = coordinate
-
-        self.voang = 0.0
-        self.vomag = 1.0
-        self.capacity = capacity
-        
-        self.toline = 0
-        self.fromline = 0
-        self.tolinelist = []
-        self.nextbus = []
-        Bus.busCount += 1
-
-
 class Bus:
     'Common base class for all distribution buses'
     busCount = 0
 
     def __init__(self, num, pload=0.0, qload=0.0, coordinate:list=[0,0], \
                 ZIP=[0.0, 0.0 ,1.0], vset=0.0, iloss=0, pqcostRatio=100):
+        ## Informative attributes
         self.num = num
+        self.name = 'Bus' + str(num)
         self.coordinate = coordinate
+        Bus.busCount += 1
+
+        ## Power flow attributes
         self.pload = pload
         self.qload = qload
         self.ZIP = ZIP
@@ -79,12 +65,15 @@ class Bus:
         self.lossRatioQ = 0.0
         self.voang = 0.0
         self.vomag = 1.0
-        self.name = 'Bus' + str(num)
+
+        ## Topological attributes
         self.toline = 0
         self.fromline = 0
         self.tolinelist = []
         self.nextbus = []
-        Bus.busCount += 1
+
+        ## Status attribute
+        self.activated = True
 
     def add_production(self, production:Production):
         pass
@@ -92,27 +81,11 @@ class Bus:
     def add_battery(self, battery:Battery):
         pass
 
-
-class LoadBreaker:
+    def activate(self):
+        self.activated = True
     
-    def __init__(self, num:int, is_open:bool, fail_rate:float, \
-                outage_time:float):
-        self.num = num
-        self.name = "L-breaker" + str(num)
-        self.is_open = is_open
-        self.fail_rate = fail_rate
-        self.outage_time = outage_time
-
-
-class CircuitBreaker:
-    
-    def __init__(self, num:int, is_open:bool, fail_rate:float, \
-                outage_time:float):
-        self.num = num
-        self.name = "L-breaker" + str(num)
-        self.is_open = is_open
-        self.fail_rate = fail_rate
-        self.outage_time = outage_time
+    def deactivate(self):
+        self.activated = False
 
 
 class Line:
@@ -139,7 +112,7 @@ class Line:
         Outage time \[hours/fault\]
     capacity : float
         Line capacity \[MW\]
-    ibstat : bool
+    connected : bool
         Line state
 
     Methods
@@ -150,23 +123,111 @@ class Line:
     lineCount = 0
 
     def __init__(self, fbus:Bus, tbus:Bus, r:float, \
-                x:float, length:float=1, fail_rate:float=1, \
-                outage_time:float=1, capacity:float=1, ibstat=True):
+                x:float, length:float=1, fail_rate_density:float=1, \
+                outage_time:float=1, capacity:float=1, connected=True):
+        ## Topological attributes
         self.fbus = fbus
         self.tbus = tbus
+        self.disconnectors = list()
+        self.circuitbreakers = list()
+        Line.lineCount += 1
+
+        ##  Power flow attributes
         self.r = r
         self.x = x
         self.length = length
-        self.fail_rate = fail_rate
-        self.outage_time = outage_time
         self.capacity = capacity
-        self.ibstat = ibstat
         self.ploss = 0.0
         self.qloss = 0.0
-        Line.lineCount += 1
 
-    def add_load_breaker(self, load_breaker:LoadBreaker):
-        pass
+        ## Reliabilility attributes
+        self.fail_rate = fail_rate_density*length
+        self.outage_time = outage_time
+
+        ## Status attribute
+        self.connected = connected
+
+    def disconnect(self):
+        self.connected = False
+
+    def connect(self):
+        self.connected = True
+
+class CircuitBreaker:
+    
+    def __init__(self, name:str, line:Line, is_open:bool=False, section_time:float=1, \
+                fail_rate:float=0.014, outage_time:float=1):
+        self.name = name
+
+        dx = line.tbus.coordinate[0]-line.fbus.coordinate[0]
+        dy = line.tbus.coordinate[1]-line.fbus.coordinate[1]
+        self.coordinate = [ \
+            line.fbus.coordinate[0] + dx/2, line.fbus.coordinate[1] + dy/2]
+        self.is_open = is_open
+        self.fail_rate = fail_rate
+        self.outage_time = outage_time
+        self.line = line
+        self.disconnectors = list()
+        self.line.circuitbreakers.append(self)
+        if is_open:
+            self.line.connect()
+        else:
+            self.line.disconnect()
+
+    def close(self):
+        self.is_open = False
+        self.line.disconnect()
+
+    def open(self):
+        self.is_open = True
+        self.line.connect()
+
+class Disconnector:
+    
+    def __init__(self, name:str, line:Line, bus:Bus, \
+                circuit_br:CircuitBreaker, is_open:bool=False, \
+                fail_rate:float=0.014, outage_time:float=1):
+        self.name = name
+        self.is_open = is_open
+        self.fail_rate = fail_rate
+        self.outage_time = outage_time
+        self.line = line
+
+        ## Set coordinate
+        base_bus = bus
+        dx = line.tbus.coordinate[0]-line.fbus.coordinate[0]
+        dy = line.tbus.coordinate[1]-line.fbus.coordinate[1]
+        if bus==line.tbus:
+            dx*=-1
+            dy*=-1
+        if circuit_br == None:
+            line.disconnectors.append(self)
+            self.coordinate = [ \
+                base_bus.coordinate[0] + dx/10, base_bus.coordinate[1] + dy/10]
+        else:
+            circuit_br.disconnectors.append(self)
+            line.disconnectors.append(self)
+            dx = base_bus.coordinate[0]-circuit_br.coordinate[0]
+            dy = base_bus.coordinate[1]-circuit_br.coordinate[1] 
+            self.coordinate = [ \
+                circuit_br.coordinate[0] + dx/10, circuit_br.coordinate[1] + dy/10]
+
+        ## Connect/Disconnect line based on status
+        if is_open:
+            self.line.connect()
+        else:
+            self.line.disconnect()
+
+    def close(self):
+        self.is_open = False
+        self.line.disconnect()
+    
+    def open(self):
+        self.is_open = True
+        self.line.connect()
+
+
+
 
 if __name__=="__main__":
     pass
