@@ -41,16 +41,28 @@ class Distribution:
                 lines(list): List of lines
         """
         self.buses = list()
+        self.comp_dict = dict()
         self.lines = list()
 
     def add_buses(self,buses:list):
         """ Adding buses to distribution network
             Input: buses(list(Bus)) """
+        for bus in buses:
+            self.comp_dict[bus.name] = bus
         self.buses += buses
 
     def add_lines(self, lines:list):
         """ Adding lines to distribution network
             Input: lines(list(Line)) """
+        for line in lines:
+            self.comp_dict[line.name] = line
+            for discon in line.disconnectors:
+                self.comp_dict[discon.name] = discon
+            if line.circuitbreaker != None:
+                cb = line.circuitbreaker
+                self.comp_dict[cb.name] = cb
+                for discon in cb.disconnectors:
+                    self.comp_dict[discon.name] = discon
         self.lines = lines
 
     def add_microgrids(self, microgrids:list):
@@ -59,7 +71,7 @@ class Distribution:
         self.buses += microgrids
 
     def update_buses(self):
-        self.buses = [bus for bus in self.buses if bus.activated] # Will only include activated buses
+        self.buses = [bus for bus in self.buses if not bus.failed] # Will only include not failes buses
 
     def update_lines(self):
         self.lines = [line for line in self.lines if line.connected] # Will only include connected lines
@@ -67,6 +79,11 @@ class Distribution:
     def update_microgrids(self):
         self.microgrids = [microgrid for microgrid in self.microgrids if microgrid.connected] # Will only include connected microgrids
 
+    def get_comp(self, name:str):
+        try:
+            return self.comp_dict[name]
+        except BaseException:
+            print("Component is not part of the network")
 
 
 if __name__=="__main__":
