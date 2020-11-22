@@ -1,3 +1,7 @@
+import matplotlib.patches as mpatches
+import matplotlib.lines as mlines
+import numpy as np
+
 
 class Battery:
     'Common class for Batteries'
@@ -31,11 +35,19 @@ class Bus:
     'Common base class for all distribution buses'
     busCount = 0
 
+    ## Visual attributes
+    color="steelblue"
+    marker="o"
+    size=5**2
+    handle = mlines.Line2D([], [], marker = marker, markeredgewidth=3, \
+                            markersize=size, linestyle = 'None', \
+                            color = color)
+
     def __init__(self, num, pload=0.0, qload=0.0, coordinate:list=[0,0], \
                 ZIP=[0.0, 0.0 ,1.0], vset=0.0, iloss=0, pqcostRatio=100):
         ## Informative attributes
         self.num = num
-        self.name = 'Bus' + str(num)
+        self.name = 'B' + str(num)
         self.coordinate = coordinate
         Bus.busCount += 1
 
@@ -71,9 +83,10 @@ class Bus:
         self.fromline = 0
         self.tolinelist = []
         self.nextbus = []
+        self.connected_lines = list()
 
         ## Status attribute
-        self.activated = True
+        self.failed = False
 
     def add_production(self, production:Production):
         pass
@@ -81,11 +94,20 @@ class Bus:
     def add_battery(self, battery:Battery):
         pass
 
-    def activate(self):
-        self.activated = True
+    def fail(self):
+        self.failed = True
+        for line in self.connected_lines:
+            if len(line.disconnectors)==0:
+                line.circuitbreaker.open()
+            elif len(line.disconnectors)==1:
+                line.disconnectors[0].open()
+            else:
+                for discon in line.disconnectors:
+                    if discon.base_bus == self:
+                        discon.open()
     
-    def deactivate(self):
-        self.activated = False
+    def not_fail(self):
+        self.failed = False
 
 
 class Line:
@@ -122,14 +144,26 @@ class Line:
     '''
     lineCount = 0
 
-    def __init__(self, fbus:Bus, tbus:Bus, r:float, \
+    ## Visual attributes
+    color="steelblue"
+    linestyle="-"
+    handle = mlines.Line2D([], [], linestyle = linestyle, \
+                            color = color)
+
+    def __init__(self, num:int, fbus:Bus, tbus:Bus, r:float, \
                 x:float, length:float=1, fail_rate_density:float=1, \
                 outage_time:float=1, capacity:float=1, connected=True):
+        ## Informative attributes
+        self.num = num
+        self.name = 'L' + str(num)
+
         ## Topological attributes
         self.fbus = fbus
         self.tbus = tbus
+        fbus.connected_lines.append(self)
+        tbus.connected_lines.append(self)
         self.disconnectors = list()
-        self.circuitbreakers = list()
+        self.circuitbreaker = None
         Line.lineCount += 1
 
         ##  Power flow attributes
@@ -146,14 +180,45 @@ class Line:
 
         ## Status attribute
         self.connected = connected
+        self.failes = False
 
     def disconnect(self):
         self.connected = False
+        self.linestyle="--"
 
     def connect(self):
         self.connected = True
+        self.linestyle="-"
+
+    def fail(self):
+        self.disconnect()
+        if len(self.disconnectors) == 1:
+            iso_bus = self.disconnectors[0].base_bus
+            self.disconnectors[0].open()
+            if self.tbus == iso_bus:
+                self.fbus.fail()
+            else:
+                self.tbus.fail()
+        elif len(self.disconnectors) == 2:
+            for discon in self.disconnectors:
+                discon.open()
+
+        if self.circuitbreaker != None:
+            self.circuitbreaker.open()
+
+    def not_fail(self):
+        self.connect()
 
 class CircuitBreaker:
+
+    ## Visual attributes
+    color="black"
+    edgecolor="black"
+    marker="s"
+    size=3**2
+    handle = mlines.Line2D([], [], marker = marker, markeredgewidth=3, \
+                            markersize=size, linestyle = 'None', \
+                            color = color, markeredgecolor=edgecolor)
     
     def __init__(self, name:str, line:Line, is_open:bool=False, section_time:float=1, \
                 fail_rate:float=0.014, outage_time:float=1):
@@ -162,39 +227,62 @@ class CircuitBreaker:
         dx = line.tbus.coordinate[0]-line.fbus.coordinate[0]
         dy = line.tbus.coordinate[1]-line.fbus.coordinate[1]
         self.coordinate = [ \
-            line.fbus.coordinate[0] + dx/2, line.fbus.coordinate[1] + dy/2]
+            line.fbus.coordinate[0] + dx/3, line.fbus.coordinate[1] + dy/3]
         self.is_open = is_open
+        self.failed = False
         self.fail_rate = fail_rate
         self.outage_time = outage_time
         self.line = line
         self.disconnectors = list()
-        self.line.circuitbreakers.append(self)
+        self.line.circuitbreaker = self
         if is_open:
-            self.line.connect()
-        else:
             self.line.disconnect()
+        else:
+            self.line.connect()
 
     def close(self):
         self.is_open = False
-        self.line.disconnect()
+        self.color = "black"
+        self.line.connect()
 
     def open(self):
         self.is_open = True
-        self.line.connect()
+        self.color = "white"
+        self.line.disconnect()
+        for discon in self.disconnectors:
+            discon.open()
+
+    def fail(self):
+        self.failed = True
+        self.open()
+
+    def not_fail(self):
+        self.failed = False
+        self.close()
 
 class Disconnector:
+
+    ## Visual attributes
+    color="black"
+    edgecolor="black"
+    marker="o"
+    size=2**2
+    handle = mlines.Line2D([], [], marker = marker, markeredgewidth=3, \
+                            markersize=size, linestyle = 'None', \
+                            color = color, markeredgecolor=edgecolor)
     
     def __init__(self, name:str, line:Line, bus:Bus, \
-                circuit_br:CircuitBreaker, is_open:bool=False, \
+                circuit_br:CircuitBreaker=None, is_open:bool=False, \
                 fail_rate:float=0.014, outage_time:float=1):
         self.name = name
         self.is_open = is_open
+        self.failed = False
         self.fail_rate = fail_rate
         self.outage_time = outage_time
         self.line = line
 
         ## Set coordinate
-        base_bus = bus
+        self.base_bus = bus
         dx = line.tbus.coordinate[0]-line.fbus.coordinate[0]
         dy = line.tbus.coordinate[1]-line.fbus.coordinate[1]
         if bus==line.tbus:
@@ -203,30 +291,36 @@ class Disconnector:
         if circuit_br == None:
             line.disconnectors.append(self)
             self.coordinate = [ \
-                base_bus.coordinate[0] + dx/10, base_bus.coordinate[1] + dy/10]
+                self.base_bus.coordinate[0] + dx/4, self.base_bus.coordinate[1] + dy/4]
         else:
             circuit_br.disconnectors.append(self)
-            line.disconnectors.append(self)
-            dx = base_bus.coordinate[0]-circuit_br.coordinate[0]
-            dy = base_bus.coordinate[1]-circuit_br.coordinate[1] 
+            #line.disconnectors.append(self)
             self.coordinate = [ \
-                circuit_br.coordinate[0] + dx/10, circuit_br.coordinate[1] + dy/10]
+                circuit_br.coordinate[0] - dx/10, circuit_br.coordinate[1] - dy/10]
 
         ## Connect/Disconnect line based on status
         if is_open:
-            self.line.connect()
-        else:
             self.line.disconnect()
+        else:
+            self.line.connect()
 
     def close(self):
         self.is_open = False
-        self.line.disconnect()
+        self.color = "black"
+        self.line.connect()
     
     def open(self):
         self.is_open = True
-        self.line.connect()
+        self.color = "white"
+        self.line.disconnect()
 
+    def fail(self):
+        self.failed = True
+        self.open()
 
+    def not_fail(self):
+        self.failed = False
+        self.close()
 
 
 if __name__=="__main__":
