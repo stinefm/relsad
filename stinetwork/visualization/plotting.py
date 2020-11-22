@@ -1,31 +1,40 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from stinetwork.network.components import Bus, Line, Disconnector, CircuitBreaker
 
 def plot_topology(buses:list,lines:list):
     fig, ax = plt.subplots(figsize=(3.5, 4.5))
     for line in lines:
-        lineHandle, = ax.plot([line.fbus.coordinate[0], line.tbus.coordinate[0]], \
+        ax.plot([line.fbus.coordinate[0], line.tbus.coordinate[0]], \
         [line.fbus.coordinate[1], line.tbus.coordinate[1]], \
-        color = 'steelblue')
+        color = line.color, linestyle=line.linestyle)
 
-        for cb in line.circuitbreakers:
-            cbHandle, = ax.plot(cb.coordinate[0], cb.coordinate[1], \
-            marker = 's', markeredgewidth=3, markersize=3**2, linestyle = 'None', \
-            color = 'black')
+        if line.circuitbreaker != None:
+            cb = line.circuitbreaker
+            ax.plot(cb.coordinate[0], cb.coordinate[1], \
+            marker = cb.marker, markeredgewidth=1, markersize=cb.size, linestyle = 'None', \
+            color = cb.color, markeredgecolor=cb.edgecolor)
             ax.text(cb.coordinate[0]-0.2, cb.coordinate[1], cb.name, \
             ha='center', va='center')
 
+            for discon in cb.disconnectors:
+                ax.plot(discon.coordinate[0], discon.coordinate[1], \
+                marker = discon.marker, markeredgewidth=1, markersize=discon.size, linestyle = 'None', \
+                color = discon.color, markeredgecolor=discon.edgecolor)
+                ax.text(discon.coordinate[0]-0.2, discon.coordinate[1], discon.name, \
+                ha='center', va='center')
+
         for discon in line.disconnectors:
-            disconHandle, = ax.plot(discon.coordinate[0], discon.coordinate[1], \
-            marker = 'o', markeredgewidth=3, markersize=2**2, linestyle = 'None', \
-            color = 'black')
+            ax.plot(discon.coordinate[0], discon.coordinate[1], \
+            marker = discon.marker, markeredgewidth=1, markersize=discon.size, linestyle = 'None', \
+            color = discon.color, markeredgecolor=discon.edgecolor)
             ax.text(discon.coordinate[0]-0.2, discon.coordinate[1], discon.name, \
             ha='center', va='center')
 
     for bus in buses:
-        busHandle, = ax.plot(bus.coordinate[0], bus.coordinate[1], \
-            marker = 'o', markeredgewidth=3, markersize=5**2, linestyle = 'None', \
-            color = 'steelblue')
+        ax.plot(bus.coordinate[0], bus.coordinate[1], \
+            marker = bus.marker, markeredgewidth=3, markersize=bus.size, linestyle = 'None', \
+            color = bus.color, clip_on=False)
         ax.text(bus.coordinate[0], bus.coordinate[1], bus.name, \
             ha='center', va='center')
 
@@ -34,7 +43,7 @@ def plot_topology(buses:list,lines:list):
 
     fig.subplots_adjust(left=left, bottom=0, right=right, top=None, wspace=None, hspace=None)
     
-    plt.figlegend([lineHandle, busHandle, cbHandle, disconHandle], \
+    plt.figlegend([Line.handle, Bus.handle, CircuitBreaker.handle, Disconnector.handle], \
                 ['Line', 'Bus', 'Circuitbreaker', 'Disconnector'], \
                 ncol=3, loc='upper center',bbox_to_anchor=(left+(right-left)/2,0.978),\
                 frameon=False)
