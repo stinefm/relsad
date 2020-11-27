@@ -2,24 +2,63 @@ import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import numpy as np
 
-
 class Battery:
     'Common class for Batteries'
-    batteryCount = 0
-    def __init__(self, svcstat = 1, vref=0.0, injPmax = 0.0, injPmin = 0.0, injQmax = 0.0, injQmin = 0.0, slopeP = 0.0, slopeQ = 0.0 ):
-        self.stat = svcstat
-        self.vref = vref
-        self.injPmax = injPmax
-        self.injPmin = injPmin
-        self.injQmax = injQmax
-        self.injQmin = injQmin
-        self.Pinj = 0.0
-        self.Qinj = 0.0
-        self.Estorage = 0.0
-        self.slopeP = slopeP
-        self.slopeQ = slopeQ
-        Battery.batteryCount += 1
+    def __init__(self, injPmax, injQmax, E_max, SOC_min, SOC_max, n_battery):
+        
+        self.injPmax = injPmax  # MW
+        self.injQmax = injQmax  # MVar
+        self.E_max = E_max      # MWh
+        self.SOC_min = SOC_min
+        self.SOC_max = SOC_max
+        self.n_battery = n_battery
 
+        self.P_inj = 0.0        # MW
+        self.Q_inj = 0.0        # MVar
+        self.SOC = SOC_min
+        self.E_battery = self.SOC*self.E_max    # MWh
+        self.update_SOC()
+
+    def update_SOC(self):
+        self.SOC = self.E_battery/self.E_max
+
+    def charge(self, P_ch):
+        P_ch_remaining = 0
+        if P_ch > self.injPmax:
+            P_ch_remaining += P_ch - self.injPmax
+            P_ch -= P_ch_remaining
+        dE = self.n_battery*P_ch
+        E_tr = self.E_battery + dE
+        SOC_tr = E_tr/self.E_max
+        dSOC = dE/self.E_max
+        if SOC_tr > self.SOC_max:
+            f = 1-(SOC_tr-self.SOC_max)/dSOC
+            self.E_battery += f*dE
+            P_ch_remaining += (1-f)*P_ch
+        else:
+            self.E_battery += dE
+            P_ch_remaining += 0
+        self.update_SOC()
+        return P_ch_remaining
+
+    def discharge(self, P_dis):
+        P_dis_remaining = 0
+        if P_dis > self.injPmax:
+            P_dis_remaining += P_dis - self.injPmax
+            P_dis -= P_dis_remaining
+        dE = 1/self.n_battery*P_dis
+        E_tr = self.E_battery - dE
+        SOC_tr = E_tr/self.E_max
+        dSOC = dE/self.E_max
+        if SOC_tr < self.SOC_min:
+            f = 1-(self.SOC_min-SOC_tr)/dSOC
+            self.E_battery -= f*dE
+            P_dis_remaining += (1-f)*P_dis
+        else:
+            self.E_battery -= dE
+            P_dis_remaining += 0
+        self.update_SOC()
+        return P_dis_remaining
 
 class Production:
     
@@ -111,7 +150,7 @@ class Bus:
 
 
 class Line:
-    '''
+    r'''
     A class used to represent an electrical Line
 
     ...
