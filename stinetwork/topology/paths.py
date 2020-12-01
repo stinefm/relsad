@@ -1,3 +1,5 @@
+from stinetwork.network.components import Line, Bus
+
 def connectivity(nodelist, linelist):
     ## Initializing dictionaries
     undirectPathDict = dict()
@@ -101,94 +103,106 @@ def connectivity(nodelist, linelist):
 
     return undirectPathDict, directPathDict
 
-def config(BusList, LineList):
-    """Function for making the topology - it sets up the connection between two buses by assigned the line to the to bus
-    and by preparing a list of from bus connections (branching)
-
+def configure(BusList, LineList):
+    """Function that sets up the nested topology array and configures the radial tree according to the slack bus
     """
-    for lobj in LineList:
-        if lobj.connected:
-            itr = lobj.tbus.num - 1
-            ifr = lobj.fbus.num - 1
-            BusList[itr].tolinelist.append(lobj)
-            BusList[itr].toline = lobj  # Add information to each bus of a line abouth which line that connects
-            BusList[ifr].fromline = lobj
 
-    for lobj in LineList:
-        if lobj.connected:
-            if lobj.fbus.num > 1 and BusList[lobj.fbus.num - 1].toline == 0:  # Identify broken chains in the grid
-                itb = lobj.tbus.num
-                lobj.tbus.num = lobj.fbus.num  # Change direction and identify next line in the chain.
-                lobj.fbus.num = itb
-                BusList[lobj.tbus.num - 1].toline = lobj
-                lobj1 = BusList[lobj.fbus.num - 1].fromline  # Keep the next line
+    def line_between_buses(bus1, bus2, LineList):
+        for line in LineList:
+            if (line.tbus == bus1 and line.fbus==bus2) or \
+                (line.tbus == bus2 and line.fbus==bus1):
+                return line
 
-                OneMore = True
-                while OneMore:
-                    if lobj1.tbus.num > lobj1.fbus.num:  # Changes currently too many
-    #                     print('lobj:', lobj1.fbus, lobj1.tbus)
-                        itb = lobj1.tbus.num
-                        lobj1.tbus.num = lobj1.fbus.num
-                        lobj1.fbus.num = itb
-                        BusList[lobj1.tbus.num - 1].toline = lobj1
-                        lobj1 = BusList[lobj1.fbus.num - 1].fromline
-                        if len(BusList[lobj1.tbus.num - 1].tolinelist) == 2:
-                            OneMore = False
-        #         print('lobj:', lobj1.fbus, lobj1.tbus)
-                itb = lobj1.tbus.num
-                lobj1.tbus.num = lobj1.fbus.num
-                lobj1.fbus.num = itb
-                BusList[lobj1.tbus.num - 1].toline = lobj1
+    def change_dir(target_bus, BusList, checked_buses, LineList):
+        if target_bus not in checked_buses:
+            for bus in BusList:
+                if bus not in checked_buses:
+                    if target_bus in bus.nextbus:
+                        #print(target_bus.name, bus.name)
+                        line = line_between_buses(target_bus, bus, LineList)
+                        #print(line.name)
+                        line.change_direction()
+                        checked_buses.append(target_bus)
+                        return bus
 
-    # Add the topology information needed to define the tree structure
-    for lobj in LineList:
-        if lobj.connected:
-            itr = lobj.tbus.num - 1
-            ifr = lobj.fbus.num - 1
-            BusList[ifr].nextbus.append(BusList[itr])  # Add the next bus to the list of branches of the bus
-        #     print('Line: ',lobj.fbus, lobj.tbus, self.BusList[itr].toline.fbus )
+    def get_paths(parent_bus):
+        """Function that finds all downstream paths in a radial tree
 
-    return BusList, LineList
+        Input: 
+        parent_bus(Bus): Parent bus of radial tree
 
-def mainstruct(BusList):
-    """ The algorithm builds up a tree structure based on topology information provided in instances of a node class
-    There can be any number of branching on a bus in the main path.
-    Multiple branching in sublists are possible.
+        Output:
+        paths(list): List of all downstream paths from parent_bus
 
-    The principle is to insert a sublist til the element where the branching appears
-    """
-    mainlist = []
-    mainlist.append([BusList[0]])
-    nextobj = mainlist[-1][0].nextbus
-    while len(nextobj) > 0:
-        if len(nextobj) == 1:
-            mainlist.append(nextobj)            # Add the next element when no branching occurs
-            nextobj = nextobj[0].nextbus
-        if len(nextobj) > 1:
-            branch = nextobj
-            mainlist.append([nextobj[0]])       # Add the next element in the main branch
-            iloop = 1
-            while iloop < len(branch):
-                newpath = [[branch[iloop]]]     # Follow each sub-branch
-                nextobj = newpath[-1][0].nextbus        # The second last element of the main path
-                while len(nextobj) > 0:
-                    if len(nextobj) == 1:
-                        newpath.append(nextobj)             # Add the next element in the new path
-                        nextobj = nextobj[0].nextbus
-                    if len(nextobj) > 1:
-                        sbranch = nextobj
-                        newpath.append([nextobj[0]])        # Add the next object of the subpaths before branching
-                        iloop1 = 1
-                        while iloop1 < len(sbranch):            # Do for all branhces in paths of a node in the subtree
-                            spath = [[sbranch[iloop1]]]
-                            nextobj = spath[-1][0].nextbus
-                            while len(nextobj) > 0:
-                                spath.append(nextobj)   # Add the next element in the new path
-                                nextobj = nextobj[0].nextbus
-                            newpath[-2].append(spath)
-                            iloop1 += 1
-                    nextobj = newpath[-1][0].nextbus
-                mainlist[-2].append(newpath)            # When the newpath is completed add it as a sublist of the branching bus
-                iloop += 1
-        nextobj = mainlist[-1][0].nextbus
-    return mainlist
+        """
+        if len(parent_bus.nextbus)==0:
+            return [[[parent_bus]]]
+        paths = []
+        for nbus in parent_bus.nextbus:
+            for path in get_paths(nbus):
+                paths.append([[parent_bus]]+path)
+        return paths
+
+    def get_topology(paths):
+        """Function that constructs a nested topology array
+
+        Input:
+        paths(list): List of all downstream paths from parent_bus in radial tree
+
+        Output:
+        topology(list): Nested topology list
+        """
+        used_buses = list()
+        main_path = paths[0]
+        used_buses += main_path
+        topology = [main_path]
+        for path in paths[1:]:
+            sub_path = list()
+            for bus in path:
+                if bus not in used_buses:
+                    sub_path.append(bus)
+            used_buses+=sub_path
+            topology.append(sub_path)
+
+        while len(topology) > 1:
+            last_path = topology[-1]
+            top_bus = last_path[0][0]
+            for n, path in enumerate(topology[:-1]):
+                for k, bus in enumerate(path):
+                    if top_bus in bus[0].nextbus:
+                        topology[n][k].append(last_path)
+                        topology.remove(last_path)
+                        break
+
+        topology = topology[0]
+
+        return topology
+
+    ## Find slack bus
+    for i, bus in enumerate(BusList):
+        if bus.is_slack:
+            slack_bus = bus
+            old = BusList[0]
+            BusList[0] = slack_bus
+            BusList[i] = old
+            break
+
+    ## Update directions based on slack bus (making slack bus parent of the radial tree)
+    checked_buses = list()
+    target_bus = change_dir(slack_bus, BusList, checked_buses, LineList)
+    while target_bus != None:
+        target_bus = change_dir(target_bus, BusList, checked_buses, LineList)
+
+    paths = get_paths(slack_bus)
+
+    topology = get_topology(paths)
+
+    return topology, BusList, LineList
+
+def flatten(toflatten):    
+    for element in toflatten:
+        try:
+            yield from flatten(element)
+        except TypeError:
+            yield element
+

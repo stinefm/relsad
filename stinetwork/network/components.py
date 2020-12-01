@@ -2,97 +2,26 @@ import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import numpy as np
 
-class Battery:
-    'Common class for Batteries'
-    def __init__(self, injPmax, injQmax, E_max, SOC_min, SOC_max, n_battery):
-        
-        self.injPmax = injPmax  # MW
-        self.injQmax = injQmax  # MVar
-        self.E_max = E_max      # MWh
-        self.SOC_min = SOC_min
-        self.SOC_max = SOC_max
-        self.n_battery = n_battery
-
-        self.P_inj = 0.0        # MW
-        self.Q_inj = 0.0        # MVar
-        self.SOC = SOC_min
-        self.E_battery = self.SOC*self.E_max    # MWh
-        self.update_SOC()
-
-    def update_SOC(self):
-        self.SOC = self.E_battery/self.E_max
-
-    def charge(self, P_ch):
-        P_ch_remaining = 0
-        if P_ch > self.injPmax:
-            P_ch_remaining += P_ch - self.injPmax
-            P_ch -= P_ch_remaining
-        dE = self.n_battery*P_ch
-        E_tr = self.E_battery + dE
-        SOC_tr = E_tr/self.E_max
-        dSOC = dE/self.E_max
-        if SOC_tr > self.SOC_max:
-            f = 1-(SOC_tr-self.SOC_max)/dSOC
-            self.E_battery += f*dE
-            P_ch_remaining += (1-f)*P_ch
-        else:
-            self.E_battery += dE
-            P_ch_remaining += 0
-        self.update_SOC()
-        return P_ch_remaining
-
-    def discharge(self, P_dis):
-        P_dis_remaining = 0
-        if P_dis > self.injPmax:
-            P_dis_remaining += P_dis - self.injPmax
-            P_dis -= P_dis_remaining
-        dE = 1/self.n_battery*P_dis
-        E_tr = self.E_battery - dE
-        SOC_tr = E_tr/self.E_max
-        dSOC = dE/self.E_max
-        if SOC_tr < self.SOC_min:
-            f = 1-(self.SOC_min-SOC_tr)/dSOC
-            self.E_battery -= f*dE
-            P_dis_remaining += (1-f)*P_dis
-        else:
-            self.E_battery -= dE
-            P_dis_remaining += 0
-        self.update_SOC()
-        return P_dis_remaining
-
-class Production:
-    
-    def __init__(self, pprod:float, qprod:float, \
-                pmax:float, qmax:float):
-        self.pprod = pprod
-        self.qprod = qprod
-        self.pmax = pmax
-        self.qmax = qmax
-
-
 class Bus:
     'Common base class for all distribution buses'
     busCount = 0
 
     ## Visual attributes
-    color="steelblue"
     marker="o"
     size=5**2
     handle = mlines.Line2D([], [], marker = marker, markeredgewidth=3, \
-                            markersize=size, linestyle = 'None', \
-                            color = color)
+                            markersize=size, linestyle = 'None')
 
-    def __init__(self, num, pload=0.0, qload=0.0, coordinate:list=[0,0], \
-                ZIP=[0.0, 0.0 ,1.0], vset=0.0, iloss=0, pqcostRatio=100):
+    def __init__(self, name:str, coordinate:list=[0,0], \
+                ZIP=[0.0, 0.0 ,1.0], vset=0.0, iloss=0, pqcostRatio=100, \
+                is_slack:bool=False):
         ## Informative attributes
-        self.num = num
-        self.name = 'B' + str(num)
+        self.name = name
         self.coordinate = coordinate
-        Bus.busCount += 1
 
         ## Power flow attributes
-        self.pload = pload
-        self.qload = qload
+        self.pload = 0
+        self.qload = 0
         self.ZIP = ZIP
         self.vset = vset
         self.iloss = iloss
@@ -118,20 +47,25 @@ class Bus:
         self.vomag = 1.0
 
         ## Topological attributes
-        self.toline = 0
-        self.fromline = 0
+        self.num = Bus.busCount
+        self.is_slack = is_slack
+        self.toline = None
+        self.fromline = None
         self.tolinelist = []
         self.nextbus = []
         self.connected_lines = list()
+        Bus.busCount += 1
 
         ## Status attribute
         self.failed = False
+        
+        ## Production and battery
+        self.prod = None
+        self.battery = None
 
-    def add_production(self, production:Production):
-        pass
-
-    def add_battery(self, battery:Battery):
-        pass
+    def set_load(self, pload:float, qload:float):
+        self.pload = pload
+        self.qload = qload
 
     def fail(self):
         self.failed = True
@@ -184,23 +118,24 @@ class Line:
     lineCount = 0
 
     ## Visual attributes
-    color="steelblue"
     linestyle="-"
-    handle = mlines.Line2D([], [], linestyle = linestyle, \
-                            color = color)
+    handle = mlines.Line2D([], [], linestyle = linestyle)
 
-    def __init__(self, num:int, fbus:Bus, tbus:Bus, r:float, \
+    def __init__(self, name:str, fbus:Bus, tbus:Bus, r:float, \
                 x:float, length:float=1, fail_rate_density:float=1, \
                 outage_time:float=1, capacity:float=1, connected=True):
         ## Informative attributes
-        self.num = num
-        self.name = 'L' + str(num)
+        self.name = name
 
         ## Topological attributes
         self.fbus = fbus
         self.tbus = tbus
         fbus.connected_lines.append(self)
         tbus.connected_lines.append(self)
+        tbus.toline = self
+        tbus.tolinelist.append(self)
+        fbus.fromline = self
+        fbus.nextbus.append(self.tbus)
         self.disconnectors = list()
         self.circuitbreaker = None
         Line.lineCount += 1
@@ -224,10 +159,35 @@ class Line:
     def disconnect(self):
         self.connected = False
         self.linestyle="--"
+        if self in self.fbus.connected_lines:
+            self.fbus.connected_lines.remove(self)
+        if self in self.tbus.connected_lines:
+            self.tbus.connected_lines.remove(self)
+        if self.fbus.fromline == self:
+            self.fbus.fromline = None
+        if self in self.tbus.tolinelist:
+            self.tbus.tolinelist.remove(self)
+        if self.tbus.toline == self:
+            if len(self.tbus.tolinelist) > 0:
+                self.tbus.toline = self.tbus.tolinelist[0]
+            else:
+                self.tbus.toline = None
+        if self.tbus in self.fbus.nextbus:
+            self.fbus.nextbus.remove(self.tbus)
 
     def connect(self):
         self.connected = True
         self.linestyle="-"
+        if self not in self.fbus.connected_lines:
+            self.fbus.connected_lines.append(self)
+        if self not in self.tbus.connected_lines:
+            self.tbus.connected_lines.append(self)
+        self.tbus.toline = self
+        if self not in self.tbus.tolinelist:
+            self.tbus.tolinelist.append(self)
+        self.fbus.fromline = self
+        if self not in self.fbus.nextbus:
+            self.fbus.nextbus.append(self.tbus)
 
     def fail(self):
         self.disconnect()
@@ -247,6 +207,26 @@ class Line:
 
     def not_fail(self):
         self.connect()
+
+    def change_direction(self):
+        if self.fbus.fromline == self:
+            self.fbus.fromline = None
+        if self in self.tbus.tolinelist:
+            self.tbus.tolinelist.remove(self)
+        if self.tbus.toline == self:
+            self.tbus.toline = None
+        if self.tbus in self.fbus.nextbus:
+            self.fbus.nextbus.remove(self.tbus)
+        i_broken = self.tbus.num
+        self.tbus.num = self.fbus.num
+        self.fbus.num = i_broken
+        bus = self.fbus
+        self.fbus = self.tbus
+        self.tbus = bus
+        self.tbus.toline = self
+        self.tbus.tolinelist.append(self)
+        self.fbus.fromline = self
+        self.fbus.nextbus.append(self.tbus)
 
 class CircuitBreaker:
 
@@ -274,10 +254,6 @@ class CircuitBreaker:
         self.line = line
         self.disconnectors = list()
         self.line.circuitbreaker = self
-        if is_open:
-            self.line.disconnect()
-        else:
-            self.line.connect()
 
     def close(self):
         self.is_open = False
@@ -337,12 +313,6 @@ class Disconnector:
             self.coordinate = [ \
                 circuit_br.coordinate[0] - dx/10, circuit_br.coordinate[1] - dy/10]
 
-        ## Connect/Disconnect line based on status
-        if is_open:
-            self.line.disconnect()
-        else:
-            self.line.connect()
-
     def close(self):
         self.is_open = False
         self.color = "black"
@@ -360,6 +330,92 @@ class Disconnector:
     def not_fail(self):
         self.failed = False
         self.close()
+
+
+class Battery:
+    'Common class for Batteries'
+    def __init__(self, bus:Bus, injPmax:float, injQmax:float, \
+                E_max:float, SOC_min:float, SOC_max:float, n_battery:float):
+        self.bus = bus
+        bus.battery = self
+        self.injPmax = injPmax  # MW
+        self.injQmax = injQmax  # MVar
+        self.E_max = E_max      # MWh
+        self.SOC_min = SOC_min
+        self.SOC_max = SOC_max
+        self.n_battery = n_battery
+
+        self.P_inj = 0.0        # MW
+        self.Q_inj = 0.0        # MVar
+        self.SOC = SOC_min
+        self.E_battery = self.SOC*self.E_max    # MWh
+        self.update_SOC()
+
+    def update_SOC(self):
+        self.SOC = self.E_battery/self.E_max
+
+    def charge(self, P_ch):
+        P_ch_remaining = 0
+        if P_ch > self.injPmax:
+            P_ch_remaining += P_ch - self.injPmax
+            P_ch -= P_ch_remaining
+        dE = self.n_battery*P_ch
+        E_tr = self.E_battery + dE
+        SOC_tr = E_tr/self.E_max
+        dSOC = dE/self.E_max
+        if SOC_tr > self.SOC_max:
+            f = 1-(SOC_tr-self.SOC_max)/dSOC
+            self.E_battery += f*dE
+            P_ch_remaining += (1-f)*P_ch
+        else:
+            self.E_battery += dE
+            P_ch_remaining += 0
+        self.update_SOC()
+        return P_ch_remaining
+
+    def discharge(self, P_dis):
+        P_dis_remaining = 0
+        if P_dis > self.injPmax:
+            P_dis_remaining += P_dis - self.injPmax
+            P_dis -= P_dis_remaining
+        dE = 1/self.n_battery*P_dis
+        E_tr = self.E_battery - dE
+        SOC_tr = E_tr/self.E_max
+        dSOC = dE/self.E_max
+        if SOC_tr < self.SOC_min:
+            f = 1-(self.SOC_min-SOC_tr)/dSOC
+            self.E_battery -= f*dE
+            P_dis_remaining += (1-f)*P_dis
+        else:
+            self.E_battery -= dE
+            P_dis_remaining += 0
+        self.update_SOC()
+        return P_dis_remaining
+
+class Production:
+    
+    def __init__(self, bus:Bus, pmax:float, qmax:float):
+        self.bus = bus
+        bus.prod = self
+        self.pprod = 0
+        self.qprod = 0
+        self.pmax = pmax
+        self.qmax = qmax
+
+    def set_production(self, pprod:float, qprod:float):
+        if pprod > self.pmax:
+            self.pprod = self.pmax
+        else:
+            self.pprod = pprod
+        if qprod > self.qmax:
+            self.qprod = self.qmax
+        else:
+            self.qprod = qprod
+        self.update_bus_load()
+
+    def update_bus_load(self):
+        self.bus.pload -= self.pprod
+        self.bus.qload -= self.qprod
 
 
 if __name__=="__main__":

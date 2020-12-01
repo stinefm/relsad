@@ -30,31 +30,32 @@ def dispFlow(BusList, LineList, fromLine=0, toLine=0, tpres=False):
             toLine = np.minimum(fromLine + 13, toLine)
         inum = fromLine
         for line in LineList[fromLine:toLine]:
-            ifr = line.fbus.num - 1
-            itr = line.tbus.num - 1
-            bsh = 0.0           # No shunts included so far
-            teta1 = BusList[ifr].voang
-            teta2 = BusList[itr].voang
-            v1 = BusList[ifr].vomag
-            v2 = BusList[itr].vomag
-            b = bij(line.r,line.x)
-            g = gij(line.r,line.x)
+            if line.connected:
+                fbus = line.fbus
+                tbus = line.tbus
+                bsh = 0.0           # No shunts included so far
+                teta1 = fbus.voang
+                teta2 = tbus.voang
+                v1 = fbus.vomag
+                v2 = tbus.vomag
+                b = bij(line.r,line.x)
+                g = gij(line.r,line.x)
 
-            Pfrom = g * v1 * v1 - v1 * v2 * tij(g, b, teta1, teta2)
-            Pto = g * v2 * v2 - v1 * v2 * tij(g, b, teta2, teta1)
-            Qfrom = -(b + bsh) * v1 * v1 - v1 * v2 * uij(g, b, teta1, teta2)
-            Qto = -(b + bsh) * v2 * v2 - v1 * v2 * uij(g, b, teta2, teta1)
+                Pfrom = g * v1 * v1 - v1 * v2 * tij(g, b, teta1, teta2)
+                Pto = g * v2 * v2 - v1 * v2 * tij(g, b, teta2, teta1)
+                Qfrom = -(b + bsh) * v1 * v1 - v1 * v2 * uij(g, b, teta1, teta2)
+                Qto = -(b + bsh) * v2 * v2 - v1 * v2 * uij(g, b, teta2, teta1)
 
-            if tpres == False:
-                print(' FromBus :', '{:4.0f}'.format(ifr+1), ' ToBus :', '{:4.0f}'.format(itr+1),
-                        ' Pfrom :', '{:7.4f}'.format(Pfrom), ' Qfrom : ', '{:7.4f}'.format(Qfrom),
-                        ' Pto :', '{:7.4f}'.format(Pto), ' Qto :', '{:7.4f}'.format(Qto))
+                if tpres == False:
+                    print(' FromBus :{} ToBus :{}'.format(line.fbus.name,line.tbus.name),
+                            ' Pfrom :', '{:7.4f}'.format(Pfrom), ' Qfrom : ', '{:7.4f}'.format(Qfrom),
+                            ' Pto :', '{:7.4f}'.format(Pto), ' Qto :', '{:7.4f}'.format(Qto))
 
-            sublist = [ifr+1, itr+1, '{:7.4f}'.format(Pfrom), '{:7.4f}'.format(Qfrom),
-                        '{:7.4f}'.format(Pto), '{:7.4f}'.format(Qfrom)]
-            mainlist.append(sublist)
-            rowno.append('Line ' + str(inum))
-            inum += 1
+                sublist = [line.fbus.num, line.fbus.num, '{:7.4f}'.format(Pfrom), '{:7.4f}'.format(Qfrom),
+                            '{:7.4f}'.format(Pto), '{:7.4f}'.format(Qfrom)]
+                mainlist.append(sublist)
+                rowno.append('Line ' + str(inum))
+                inum += 1
 
         if tpres:
             title = 'Transmission line flow'
@@ -83,11 +84,11 @@ def dispVolt(BusList, fromBus=0, toBus = 0, tpres=False):
     while iloop < toBus:
         oref = BusList[iloop]
         if tpres == False:
-            print(' Bus no :', '{:4.0f}'.format(oref.num),
+            print(' Bus name :', '{}'.format(oref.name),
                     ' Vmag :', '{:7.5f}'.format(oref.vomag),
                     ' Theta :', '{:7.5f}'.format(oref.voang * 180 / np.pi))
         # Prepare for graphics presentation
-        sublist = ['{:4.0f}'.format(oref.num),
+        sublist = ['{}'.format(oref.name),
                     '{:7.5f}'.format(oref.vomag),
                     '{:7.5f}'.format(oref.voang * 180 / np.pi)]
 
@@ -348,13 +349,13 @@ def BackwardSearch(topologyList):
     """
     for x in reversed(topologyList):
         if len(x) > 1:
-            print('Bus' + str(x[0].busnum))
+            print(x[0].name)
             iloop = 1
             while iloop < len(x):           # Do for all branches of a bus
                 BackwardSearch(x[iloop])
                 iloop += 1
         else:
-            print('Bus' + str(x[0].busnum))
+            print(x[0].name)
 
 #
 # Visit all nodes in the forward list.
@@ -364,13 +365,13 @@ def ForwardSearch(topologyList):
     """
     for x in topologyList:
         if len(x) > 1:
-            print('Bus' + str(x[0].busnum))
+            print(x[0].name)
             iloop = 1
             while iloop < len(x):   # Do for all branches of a bus
                 ForwardSearch(x[iloop])
                 iloop += 1
         else:
-            print('Bus' + str(x[0].busnum))
+            print(x[0].name)
 
 if __name__=="__main__":
     pass
