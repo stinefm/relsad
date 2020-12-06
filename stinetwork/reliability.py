@@ -1,0 +1,2 @@
+def relrad(components):
+    pass

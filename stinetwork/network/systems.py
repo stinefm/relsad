@@ -74,6 +74,7 @@ class PowerSystem:
         self.microgrid_network_list.append(microgrid_network)
 
     def find_sub_systems(self):
+        self.update()
         self.sub_systems = list()
         used_buses = list()
         used_lines = list()
@@ -88,7 +89,9 @@ class PowerSystem:
                         used_buses.append(bus)
                     if bus in sub_system["buses"]:
                         for con_line in bus.connected_lines:
-                            if con_line in self.active_lines and con_line not in used_lines+sub_system["lines"]:
+                            if con_line in self.active_lines and \
+                                con_line not in used_lines+sub_system["lines"] and \
+                                con_line.connected:
                                 sub_system["lines"].append(con_line)
                                 used_lines.append(con_line)
                     else:
@@ -97,14 +100,47 @@ class PowerSystem:
                                 sub_system["buses"].append(bus)
                                 used_buses.append(bus)
                                 for con_line in bus.connected_lines:
-                                    if con_line in self.active_lines and con_line not in used_lines+sub_system["lines"]:
+                                    if con_line in self.active_lines and \
+                                        con_line not in used_lines+sub_system["lines"] and \
+                                        con_line.connected:
                                         sub_system["lines"].append(con_line)
                                         used_lines.append(con_line)
-
             self.sub_systems.append(sub_system)
             sub_lines = list()
             sub_buses = list()
-            sub_system = {"buses":sub_buses,"lines":sub_lines}
+            sub_system = {"buses":sub_buses,"lines":sub_lines,"slack":None}
+
+    def update_sub_system_slack(self):
+        for sub_system in self.sub_systems:
+            sub_system["slack"] = None
+            for bus in sub_system["buses"]:
+                if bus.is_slack:
+                    if sub_system["slack"] == None:
+                        sub_system["slack"] = bus
+                    else:
+                        raise Exception("The sub system can only have one slack bus")
+            if sub_system["slack"] == None:
+                self.set_slack(sub_system)
+        for sub_system in self.sub_systems:
+            if sub_system["slack"] == None:
+                self.sub_systems.remove(sub_system)
+
+    def set_slack(self, sub_system):
+        for bus in sub_system["buses"]:
+            if bus.battery != None:
+                bus.is_slack = True
+                sub_system["slack"] = bus
+        if sub_system["slack"] == None:
+            for bus in sub_system["buses"]:
+                if bus.prod != None:
+                    bus.is_slack = True
+                    sub_system["slack"] = bus
+
+    def reset_slack_bus(self):
+        for dist_network in self.dist_network_list:
+            dist_network.reset_slack_bus()
+        for microgrid in self.microgrid_network_list:
+            microgrid.reset_slack_bus()
 
 class Distribution:
     """ Class defining a distribution network type """
@@ -126,6 +162,7 @@ class Distribution:
         self.comp_dict = dict()
         self.active_lines = list()
         self.powerSystem = powerSystem
+        self.slackbus = None
 
     def add_buses(self,buses:list):
         """ Adding buses to power system
@@ -134,6 +171,11 @@ class Distribution:
             self.comp_dict[bus.name] = bus
             bus.handle.color = self.color
             bus.color = self.color
+            if bus.is_slack:
+                if self.slackbus == None:
+                    self.slackbus = bus
+                else:
+                    raise Exception("The distribution network can only have one slack bus")
         self.active_buses += buses
         self.all_buses += buses
         self.powerSystem.add_buses(buses)
@@ -160,13 +202,21 @@ class Distribution:
         self.active_buses = [bus for bus in self.all_buses if not bus.failed] # Will only include not failes buses
         self.active_lines = [line for line in self.all_lines if line.connected] # Will only include connected lines
 
+    def reset_slack_bus(self):
+        for bus in self.all_buses:
+            if bus == self.slackbus:
+                bus.is_slack = True
+            else:
+                bus.is_slack = False
+
+
 class Microgrid:
     """ Class defining a microgrid network type """
 
     ## Visual attributes
     color="seagreen"
 
-    def __init__(self, powerSystem:PowerSystem, connected_line:Line):
+    def __init__(self, distibutionNetwork:Distribution, connected_line:Line):
         """ Initializing microgrid network type content 
             Content:
                 buses(list): List of buses
@@ -179,7 +229,7 @@ class Microgrid:
         self.active_buses = list()
         self.comp_dict = dict()
         self.active_lines = list()
-        self.powerSystem = powerSystem
+        self.distibutionNetwork = distibutionNetwork
         self.connected_line = connected_line
         self.add_lines([connected_line])
 
@@ -192,7 +242,7 @@ class Microgrid:
             bus.color = self.color
         self.active_buses += buses
         self.all_buses += buses
-        self.powerSystem.add_buses(buses)
+        self.distibutionNetwork.powerSystem.add_buses(buses)
 
     def add_lines(self, lines:list):
         """ Adding lines to power system
@@ -210,7 +260,7 @@ class Microgrid:
                     self.comp_dict[discon.name] = discon
         self.active_lines += lines
         self.all_lines += lines
-        self.powerSystem.add_lines(lines)
+        self.distibutionNetwork.powerSystem.add_lines(lines)
 
     def update(self):
         self.active_buses = [bus for bus in self.all_buses if not bus.failed] # Will only include not failes buses
@@ -221,6 +271,10 @@ class Microgrid:
 
     def disconnect(self):
         self.connected_line.disconnect()
+
+    def reset_slack_bus(self):
+        for bus in self.all_buses:
+            bus.is_slack = False
 
 if __name__=="__main__":
     pass

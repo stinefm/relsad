@@ -71,7 +71,10 @@ class Bus:
         self.failed = True
         for line in self.connected_lines:
             if len(line.disconnectors)==0:
-                line.circuitbreaker.open()
+                if line.circuitbreaker != None:
+                    line.circuitbreaker.open()
+                else:
+                    line.connected = False
             elif len(line.disconnectors)==1:
                 line.disconnectors[0].open()
             else:
@@ -159,10 +162,10 @@ class Line:
     def disconnect(self):
         self.connected = False
         self.linestyle="--"
-        if self in self.fbus.connected_lines:
-            self.fbus.connected_lines.remove(self)
-        if self in self.tbus.connected_lines:
-            self.tbus.connected_lines.remove(self)
+        # if self in self.fbus.connected_lines:
+        #     self.fbus.connected_lines.remove(self)
+        # if self in self.tbus.connected_lines:
+        #     self.tbus.connected_lines.remove(self)
         if self.fbus.fromline == self:
             self.fbus.fromline = None
         if self in self.tbus.tolinelist:
@@ -178,10 +181,10 @@ class Line:
     def connect(self):
         self.connected = True
         self.linestyle="-"
-        if self not in self.fbus.connected_lines:
-            self.fbus.connected_lines.append(self)
-        if self not in self.tbus.connected_lines:
-            self.tbus.connected_lines.append(self)
+        # if self not in self.fbus.connected_lines:
+        #     self.fbus.connected_lines.append(self)
+        # if self not in self.tbus.connected_lines:
+        #     self.tbus.connected_lines.append(self)
         self.tbus.toline = self
         if self not in self.tbus.tolinelist:
             self.tbus.tolinelist.append(self)
@@ -227,6 +230,7 @@ class Line:
         self.tbus.tolinelist.append(self)
         self.fbus.fromline = self
         self.fbus.nextbus.append(self.tbus)
+
 
 class CircuitBreaker:
 
@@ -274,6 +278,7 @@ class CircuitBreaker:
     def not_fail(self):
         self.failed = False
         self.close()
+
 
 class Disconnector:
 
@@ -334,8 +339,9 @@ class Disconnector:
 
 class Battery:
     'Common class for Batteries'
-    def __init__(self, bus:Bus, injPmax:float, injQmax:float, \
-                E_max:float, SOC_min:float, SOC_max:float, n_battery:float):
+    def __init__(self, name:str, bus:Bus, injPmax:float=1, injQmax:float=1, \
+                E_max:float=3, SOC_min:float=0.2, SOC_max:float=1, n_battery:float=0.97):
+        self.name = name
         self.bus = bus
         bus.battery = self
         self.injPmax = injPmax  # MW
@@ -392,9 +398,11 @@ class Battery:
         self.update_SOC()
         return P_dis_remaining
 
+
 class Production:
     
-    def __init__(self, bus:Bus, pmax:float, qmax:float):
+    def __init__(self, name:str, bus:Bus, pmax:float=1, qmax:float=0):
+        self.name = name
         self.bus = bus
         bus.prod = self
         self.pprod = 0
