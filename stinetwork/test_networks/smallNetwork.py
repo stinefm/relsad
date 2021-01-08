@@ -25,8 +25,8 @@ def initialize_test_network():
     L5 = Line("L5", B2, B5, 0.057526629463617, 0.029324854498807)
     L6 = Line("L6", B3, B5, 0.057526629463617, 0.029324854498807)
     L7 = Line("L7", B1, M1, 0.057526629463617, 0.029324854498807)
-    ML1 = Line("L8", M1, M2, 0.057526629463617, 0.029324854498807)
-    ML2 = Line("L9", M1, M3, 0.057526629463617, 0.029324854498807)
+    ML1 = Line("ML1", M1, M2, 0.057526629463617, 0.029324854498807)
+    ML2 = Line("ML2", M1, M3, 0.057526629463617, 0.029324854498807)
 
     E1 = CircuitBreaker("E1", L1)
 
@@ -34,13 +34,22 @@ def initialize_test_network():
     Disconnector("L1b", L1, B1, E1)
     Disconnector("L1c", L1, B1)
     Disconnector("L2a", L2, B1)
+    Disconnector("L2b", L2, B2)
     Disconnector("L3a", L3, B1)
     Disconnector("L3b", L3, B3)
     Disconnector("L4a", L4, B3)
+    Disconnector("L4b", L4, B4)
     Disconnector("L5a", L5, B2)
+    Disconnector("L5b", L5, B5)
     Disconnector("L6a", L6, B3)
+    Disconnector("L6b", L6, B5)
     Disconnector("L7a", L7, B1)
     Disconnector("L7b", L7, M1)
+
+    Disconnector("ML1a", ML1, M1)
+    Disconnector("ML1b", ML1, M2)
+    Disconnector("ML2a", ML2, M1)
+    Disconnector("ML2b", ML2, M3)
 
     dn = Distribution(ps)
 
