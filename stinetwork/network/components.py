@@ -57,7 +57,7 @@ class Bus:
         Bus.busCount += 1
 
         ## Status attribute
-        self.failed = False
+        self.trafo_failed = False
         
         ## Production and battery
         self.prod = None
@@ -67,24 +67,23 @@ class Bus:
         self.pload = pload
         self.qload = qload
 
-    def fail(self):
-        self.failed = True
-        for line in self.connected_lines:
-            if len(line.disconnectors)==0:
-                if line.circuitbreaker != None:
-                    line.circuitbreaker.open()
-                else:
-                    line.connected = False
-            elif len(line.disconnectors)==1:
-                line.disconnectors[0].open()
-            else:
-                for discon in line.disconnectors:
-                    if discon.base_bus == self:
-                        discon.open()
+    def trafo_fail(self):
+        """ 
+        Trafo fails, load and generation is set to zero
+        """
+        self.trafo_failed = True
+        self.set_load(0,0)
+        if self.prod != None:
+            self.prod.set_production(0,0)
     
-    def not_fail(self):
-        self.failed = False
+    def trafo_not_fail(self):
+        self.trafo_failed = False
 
+    def get_battery(self):
+        return self.battery
+
+    def get_production(self):
+        return self.prod
 
 class Line:
     r'''
@@ -397,6 +396,18 @@ class Battery:
             P_dis_remaining += 0
         self.update_SOC()
         return P_dis_remaining
+
+    def print_status(self):
+        print("Battery status")
+        print("name: {}".format(self.name))
+        print("parent bus: {}".format(self.bus.name))
+        print("injPmax: {} MW".format(self.injPmax))
+        print("injQmax: {} MVar".format(self.injQmax))
+        print("E_max: {} MWh".format(self.E_max))
+        print("Efficiency: {} %".format(self.n_battery*100))
+        print("SOC_min: {}".format(self.SOC_min))
+        print("SOC_max: {}".format(self.SOC_max))
+        print("SOC: {:.2f}".format(self.SOC))
 
 
 class Production:
