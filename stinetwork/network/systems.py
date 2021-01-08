@@ -54,7 +54,7 @@ class PowerSystem:
         self.all_lines += lines
 
     def update(self):
-        self.active_buses = [bus for bus in self.all_buses if not bus.failed] # Will only include not failes buses
+        self.active_buses = [bus for bus in self.all_buses if not bus.trafo_failed] # Will only include not failes buses
         self.active_lines = [line for line in self.all_lines if line.connected] # Will only include connected lines
         for dist_network in self.dist_network_list:
             dist_network.update()
