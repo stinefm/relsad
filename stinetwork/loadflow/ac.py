@@ -24,11 +24,11 @@ def DistLoadFlow(BusList,LineList):
         iloop = 0
         while iloop < maxit:
             p1,q1, p2, q2 = accload(topology)
-            print('Iter: ',iloop+1, 'Pload:', '{:7.4f}'.format(p1), 'Qload:', '{:7.4f}'.format(q1),
-                    'Ploss:', '{:7.4f}'.format(p2), 'Qloss:', '{:7.4f}'.format(q2))
+            # print('Iter: ',iloop+1, 'Pload:', '{:7.4f}'.format(p1), 'Qload:', '{:7.4f}'.format(q1),
+            #         'Ploss:', '{:7.4f}'.format(p2), 'Qloss:', '{:7.4f}'.format(q2))
             UpdateVolt(topology)
             iloop += 1
-        print('\n',"****** Load flow completed ******",'\n')
+        # print('\n',"****** Load flow completed ******",'\n')
 
         return BusList
 
