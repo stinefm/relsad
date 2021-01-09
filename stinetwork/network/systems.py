@@ -67,6 +67,9 @@ class PowerSystem:
         except BaseException:
             print("Component is not part of the network")
 
+    def get_comp_list(self):
+        return self.all_buses+self.all_lines
+
     def add_distribution_network(self, dist_network):
         self.dist_network_list.append(dist_network)
 
@@ -141,6 +144,14 @@ class PowerSystem:
             dist_network.reset_slack_bus()
         for microgrid in self.microgrid_network_list:
             microgrid.reset_slack_bus()
+
+    def print_status(self):
+        print("Buses:")
+        for bus in self.all_buses:
+            print("name: {}, trafo_failed={}, pload={:.2f}".format(bus.name, bus.trafo_failed, bus.pload))
+        print("Lines:")
+        for line in self.all_lines:
+            print("name: {}, failed={}, connected={}".format(line.name, line.failed, line.connected))
 
 class Distribution:
     """ Class defining a distribution network type """
