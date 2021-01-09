@@ -14,7 +14,8 @@ class Bus:
 
     def __init__(self, name:str, coordinate:list=[0,0], \
                 ZIP=[0.0, 0.0 ,1.0], vset=0.0, iloss=0, pqcostRatio=100, \
-                is_slack:bool=False):
+                is_slack:bool=False, fail_rate_per_year:float=0.5, \
+                outage_time:float=4):
         ## Informative attributes
         self.name = name
         self.coordinate = coordinate
@@ -56,8 +57,14 @@ class Bus:
         self.connected_lines = list()
         Bus.busCount += 1
 
+        ## Reliabilility attributes
+        self.fail_rate_per_year = fail_rate_per_year # failures per year
+        self.fail_rate_per_hour = self.fail_rate_per_year/(365*24)
+        self.outage_time = outage_time # hours
+
         ## Status attribute
         self.trafo_failed = False
+        self.remaining_outage_time = 0
         
         ## Production and battery
         self.prod = None
@@ -72,6 +79,7 @@ class Bus:
         Trafo fails, load and generation is set to zero
         """
         self.trafo_failed = True
+        self.remaining_outage_time = self.outage_time-1
         self.set_load(0,0)
         if self.prod != None:
             self.prod.set_production(0,0)
@@ -84,6 +92,18 @@ class Bus:
 
     def get_production(self):
         return self.prod
+
+    def update_fail_status(self):
+        if self.trafo_fail:
+            self.remaining_outage_time -= 1
+            if self.remaining_outage_time == 0:
+                self.trafo_not_fail()
+        else:
+            p_fail = self.fail_rate_per_hour
+            if np.random.choice([True,False],p=[p_fail,1-p_fail]):
+                self.trafo_fail()
+            else:
+                self.trafo_not_fail()
 
 class Line:
     r'''
@@ -124,10 +144,14 @@ class Line:
     handle = mlines.Line2D([], [], linestyle = linestyle)
 
     def __init__(self, name:str, fbus:Bus, tbus:Bus, r:float, \
-                x:float, length:float=1, fail_rate_density:float=1, \
-                outage_time:float=1, capacity:float=1, connected=True):
+                x:float, length:float=1, fail_rate_density_per_year:float=0.2, \
+                outage_time:float=2, capacity:float=1, connected=True):
         ## Informative attributes
         self.name = name
+
+        ## Backup
+        self.main = self
+        self.backup = list()
 
         ## Topological attributes
         self.fbus = fbus
@@ -151,12 +175,19 @@ class Line:
         self.qloss = 0.0
 
         ## Reliabilility attributes
-        self.fail_rate = fail_rate_density*length
-        self.outage_time = outage_time
+        self.fail_rate_per_year = fail_rate_density_per_year*length # failures per year
+        self.fail_rate_per_hour = self.fail_rate_per_year/(365*24)
+        self.outage_time = outage_time # hours
 
         ## Status attribute
         self.connected = connected
-        self.failes = False
+        self.failed = False
+        self.remaining_outage_time = 0
+
+    def add_backup(self, line):
+        self.backup.append(line)
+        line.main = self
+        line.disconnect()
 
     def disconnect(self):
         self.connected = False
@@ -192,7 +223,9 @@ class Line:
             self.fbus.nextbus.append(self.tbus)
 
     def fail(self):
+        self.failed = True
         self.disconnect()
+        self.remaining_outage_time = self.outage_time-1
         if len(self.disconnectors) == 1:
             iso_bus = self.disconnectors[0].base_bus
             self.disconnectors[0].open()
@@ -208,7 +241,12 @@ class Line:
             self.circuitbreaker.open()
 
     def not_fail(self):
-        self.connect()
+        self.failed = False
+        if self.main != self:
+            if not self.main.connected:
+                self.connect()
+        else:
+            self.connect()
 
     def change_direction(self):
         if self.fbus.fromline == self:
@@ -229,6 +267,34 @@ class Line:
         self.tbus.tolinelist.append(self)
         self.fbus.fromline = self
         self.fbus.nextbus.append(self.tbus)
+
+    def update_fail_status(self):
+        if self.main == self:
+            if self.failed:
+                self.remaining_outage_time -= 1
+                if self.remaining_outage_time == 0:
+                    self.not_fail()
+            else:
+                p_fail = self.fail_rate_per_hour
+                if np.random.choice([True,False],p=[p_fail,1-p_fail]):
+                    self.fail()
+                else:
+                    self.not_fail()
+    
+    def update_backup_fail_status(self):
+        if self.main != self:
+            if self.main.failed:
+                if self.failed:
+                    self.remaining_outage_time -= 1
+                    if self.remaining_outage_time == 0:
+                        self.not_fail()
+                else:
+                    p_fail = self.fail_rate_per_hour
+                    if np.random.choice([True,False],p=[p_fail,1-p_fail]):
+                        self.fail()
+                    else:
+                        self.not_fail()
+
 
 
 class CircuitBreaker:
