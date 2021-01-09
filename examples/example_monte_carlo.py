@@ -3,6 +3,9 @@ from stinetwork.visualization.plotting import plot_topology
 from stinetwork.loadflow.ac import DistLoadFlow
 from stinetwork.visualization.printing import dispVolt, dispFlow, ForwardSearch, BackwardSearch
 from load_and_gen_data import WeatherGen,LoadGen,windGen,PVgeneration
+import time
+
+start = time.time()
 
 ps = initialize_test_network()
 
@@ -38,29 +41,40 @@ PV = PVgeneration(temp_profiles, solar_profiles)
 
 load_house, load_farm, load_industry2, load_trade, load_office = LoadGen(temp_profiles)
 
-# B0.set_load(0.001,0.0006)
-B1.set_load(0.001,0.0006)
-B2.set_load(0.001,0.0006)
-B3.set_load(0.001,0.0006)
-B4.set_load(0.001,0.0006)
-B5.set_load(0.001,0.0006)
-M1.set_load(0.001,0.0006)
-M2.set_load(0.001,0.0006)
-M3.set_load(0.001,0.0006)
 
+N = 1 # Size of Monte Carlo simulation
 
-L2a.open()
-L6a.open()
-L7b.open()
+for i in range(N):
+    for day in range(365):
+        for hour in range(24):
+            print("hour: {}".format(day*24+hour))
+            ## Set load
+            B1.set_load(pload=load_house[day,hour]*10,qload=0.0)
+            B2.set_load(pload=load_house[day,hour]*10,qload=0.0)
+            B3.set_load(pload=load_house[day,hour]*10,qload=0.0)
+            B4.set_load(pload=load_house[day,hour]*10,qload=0.0)
+            B5.set_load(pload=load_house[day,hour]*10,qload=0.0)
+            M1.set_load(pload=load_house[day,hour]*10,qload=0.0)
+            M2.set_load(pload=load_house[day,hour]*10,qload=0.0)
+            M3.set_load(pload=load_house[day,hour]*10,qload=0.0)
+            
+            ## Set fail status
+            for comp in ps.get_comp_list():
+                comp.update_fail_status()
+                
+            ## Set backup lines fail status
+            for comp in ps.all_lines:
+                comp.update_backup_fail_status()
+                
+            ps.find_sub_systems()
+            ps.update_sub_system_slack()
+            
+            ## Load flow
+            for sub_system in ps.sub_systems:
+                buses = DistLoadFlow(sub_system["buses"],sub_system["lines"])
+            
+            ## Print status
+            # ps.print_status()
 
-plot_topology(ps.active_buses,ps.active_lines)
-ps.find_sub_systems()
-
-ps.update_sub_system_slack()
-
-for sub_system in ps.sub_systems:
-    plot_topology(sub_system["buses"],sub_system["lines"])
-    buses = DistLoadFlow(sub_system["buses"],sub_system["lines"])
-
-    dispVolt(buses,tpres=False)
-    dispFlow(buses, sub_system["lines"],tpres=False)
+end = time.time()
+print("Time elapsed: {}".format(end - start))
