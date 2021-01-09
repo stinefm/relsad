@@ -28,6 +28,8 @@ def initialize_test_network():
     ML1 = Line("ML1", M1, M2, 0.057526629463617, 0.029324854498807)
     ML2 = Line("ML2", M1, M3, 0.057526629463617, 0.029324854498807)
 
+    L2.add_backup(L6)
+
     E1 = CircuitBreaker("E1", L1)
 
     Disconnector("L1a", L1, B0, E1)
