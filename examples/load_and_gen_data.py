@@ -55,7 +55,7 @@ def LoadGen(temp):
             load_trade[i,j] = trade_A[j]*temp[i,j] + trade_B[j]
             load_office[i,j] = office_A[j]*temp[i,j] + office_B[j]
     
-    return load_house, load_farm, load_industry2, load_trade, load_office
+    return load_house*1E-3, load_farm*1E-3, load_industry2*1E-3, load_trade*1E-3, load_office*1E-3
 
 def windGen(wind):
     
