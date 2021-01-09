@@ -162,8 +162,9 @@ def configure(BusList, LineList):
                 if bus not in used_buses:
                     sub_path.append(bus)
             used_buses+=sub_path
-            topology.append(sub_path)
-
+            if sub_path != list():
+                topology.append(sub_path)
+                
         while len(topology) > 1:
             last_path = topology[-1]
             top_bus = last_path[0][0]
