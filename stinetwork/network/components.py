@@ -3,7 +3,47 @@ import matplotlib.lines as mlines
 import numpy as np
 
 class Bus:
-    'Common base class for all distribution buses'
+    ''' 
+    Common base class for all distribution buses
+
+    ...
+
+        Attributes
+        ----------
+        name : string
+            Name of the bus
+        coordinate : list
+            Coordinate of the bus
+        pload : float
+            The active load at the bus [MW]
+        qload : float
+            The reactive load at the bus [MVar]
+        ZIP : list
+        vset : float
+        iloss : float
+        pqcostRatio : 
+        comp : 
+        ploadds : float
+        qloadds : float
+        pblossds : float
+        qblossds : float
+        dPdV : float
+        dQdV : float
+        dVdP : float
+        dVdQ : float
+        dPlossdP : float
+        dPlossdQ : float
+        dQlossdP : float
+        dQlossdQ : float
+        dP2lossdP2 : float
+        dP2lossdQ2 : float
+        lossRatioP :
+        lossRatioQ :
+        voang : float
+        vomag : float 
+
+    '''
+    
     busCount = 0
 
     ## Visual attributes
@@ -299,6 +339,37 @@ class Line:
 
 class CircuitBreaker:
 
+    ''' 
+    Common base class for circuit breakers
+
+    ...
+
+        Attributes
+        ----------
+        name : string
+            Name of the circuit breaker
+        coordinate : list
+            Coordinate of the circuit breaker
+        is_open : bool
+            Tells if the switch is open (True) or closed (False)
+        failed : bool
+            True if the circuit breaker is in a failed state, False if not
+        fail_rate : float 
+            The failure rate of the circuit breaker [no of fails per year]
+        outage_time : float
+            The outage time of the circuit breaker [hours]
+        line : Line
+            The line the circuit breaker is connected to
+        disconnecter : list(Disconnectors) 
+            Which disconnectors that are connected to the circuit breaker
+        line.circuitbreaker : 
+
+        Functions 
+        ----------
+        close() :    
+
+        '''
+
     ## Visual attributes
     color="black"
     edgecolor="black"
@@ -346,6 +417,35 @@ class CircuitBreaker:
 
 
 class Disconnector:
+
+    ''' 
+    Common base class for disconnectors
+
+    ...
+
+        Attributes
+        ----------
+        name : string
+            Name of the disconnector
+        is_open : bool
+            Tells if the switch is open (True) or closed (False)
+        failed : bool
+            True if the disconnector is in a failed state, False if not
+        fail_rate : float 
+            The failure rate of the disconnector [no of fails per year]
+        outage_time : float
+            The outage time of the diconnector [hours]
+        line : Line
+            The line the disconnecor is connected to
+        base_bus : Bus 
+            Wich bus the disconnector is closes to (for setting coordinates)
+        
+
+        Functions 
+        ----------
+        close() :    
+
+        '''
 
     ## Visual attributes
     color="black"
@@ -403,7 +503,54 @@ class Disconnector:
 
 
 class Battery:
-    'Common class for Batteries'
+    '''
+    Common class for batteries
+     
+    ...
+     
+    Attributes
+    ----------
+    name : string
+        Name of the battery
+    bus : Bus
+        The bus the battery is connected to
+    injPmax : float
+        The maximum active power that the battery can inject [MW]
+    injQmax : float
+        The maximum reactive power that the battery can inject [MVar]
+    E_max : float
+        The maximum capacity of the battery [MWh]
+    SOC_min : float
+        The minimal state of charge level in the battery 
+    SOC_max : float 
+        The maximum state of charge level in the battery 
+    n_battery : float
+        The battery efficiency  
+    P_inj : float
+        The injected active power in the battery [MW]
+    Q_inj : float
+        The injected reactive power in the battery [MVar]
+    SOC : float
+        The state of charge of the battery 
+    E_battery : float
+        The loading of the battery [MWh]
+    
+    Methods 
+    ----------
+    update_SOC() 
+        Updates the SOC in the battery
+    charge(P_ch)
+        Charge the battery 
+        returns a float telling how much of the wanted charged power that is not charged due to limitations
+    discharge(P_dis)
+        Discharge the battery 
+        returns a float telling how much of the wanted charged power that is not discharged due to limitations
+
+        
+
+
+
+    '''
     def __init__(self, name:str, bus:Bus, injPmax:float=1, injQmax:float=1, \
                 E_max:float=3, SOC_min:float=0.2, SOC_max:float=1, n_battery:float=0.97):
         self.name = name
@@ -477,6 +624,36 @@ class Battery:
 
 
 class Production:
+
+    '''
+    Common class for production 
+     
+    ...
+     
+    Attributes
+    ----------
+    name : string
+        Name of the production unit
+    bus : Bus
+        The bus the production unit is connected to
+    pprod : float
+        The active power produced by the production unit [MW]
+    qprod : float
+        The reactive power produced by the production unit [MVar]
+    pmax : float 
+        The maximum active power that can be produced by the production unit [MW]
+    qmax : float 
+        The maximum reactive power that can be produced by the production unit [MVar]
+
+
+    Methods 
+    ----------
+    set_prodiction(pprod, qprord)
+        Decides how much active and reactive power that will be produced 
+    update_bus_load()
+        Updates the load on the bus with the amount of generated active and reactive power 
+
+    '''
     
     def __init__(self, name:str, bus:Bus, pmax:float=1, qmax:float=0):
         self.name = name

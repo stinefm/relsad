@@ -14,6 +14,7 @@
 # Definition of common classes
 
 class Bus:
+    
     'Common base class for all distribution buses'
     busCount = 0
 
