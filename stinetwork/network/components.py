@@ -339,7 +339,7 @@ class Line:
 
 class CircuitBreaker:
 
-    ''' 
+    """
     Common base class for circuit breakers
 
     ...
@@ -368,7 +368,7 @@ class CircuitBreaker:
         ----------
         close() :    
 
-        '''
+        """
 
     ## Visual attributes
     color="black"
@@ -418,7 +418,7 @@ class CircuitBreaker:
 
 class Disconnector:
 
-    ''' 
+    """
     Common base class for disconnectors
 
     ...
@@ -445,7 +445,7 @@ class Disconnector:
         ----------
         close() :    
 
-        '''
+    """
 
     ## Visual attributes
     color="black"
@@ -503,7 +503,7 @@ class Disconnector:
 
 
 class Battery:
-    '''
+    """
     Common class for batteries
      
     ...
@@ -533,7 +533,7 @@ class Battery:
     SOC : float
         The state of charge of the battery 
     E_battery : float
-        The loading of the battery [MWh]
+        The amount of energy stored in the battery [MWh]
     
     Methods 
     ----------
@@ -541,18 +541,52 @@ class Battery:
         Updates the SOC in the battery
     charge(P_ch)
         Charge the battery 
-        returns a float telling how much of the wanted charged power that is not charged due to limitations
     discharge(P_dis)
         Discharge the battery 
-        returns a float telling how much of the wanted charged power that is not discharged due to limitations
-
+    print_status()
+        Prints the status of the battery
         
 
 
 
-    '''
+    """
+
     def __init__(self, name:str, bus:Bus, injPmax:float=1, injQmax:float=1, \
                 E_max:float=3, SOC_min:float=0.2, SOC_max:float=1, n_battery:float=0.97):
+        
+        """
+        Constructs all the necessary attributes for the production object
+
+        Parameters
+        ----------
+        name : string
+            Name of the battery
+        bus : Bus
+            The bus the battery is connected to
+        injPmax : float
+            The maximum active power that the battery can inject [MW]
+        injQmax : float
+            The maximum reactive power that the battery can inject [MVar]
+        E_max : float
+            The maximum capacity of the battery [MWh]
+        SOC_min : float
+            The minimal state of charge level in the battery 
+        SOC_max : float 
+            The maximum state of charge level in the battery 
+        n_battery : float
+            The battery efficiency  
+        P_inj : float
+            The injected active power in the battery [MW]
+        Q_inj : float
+            The injected reactive power in the battery [MVar]
+        SOC : float
+            The state of charge of the battery 
+        E_battery : float
+            The amount of energy stored in the battery [MWh]
+        
+        
+        """
+        
         self.name = name
         self.bus = bus
         bus.battery = self
@@ -570,9 +604,61 @@ class Battery:
         self.update_SOC()
 
     def update_SOC(self):
+        """
+        Updates the SOC in the battery
+
+        Paramters
+        ----------
+        SOC : float
+            The state of charge of the battery
+        E_battery : float
+            The amount of energy stored in the battery [MWh]
+        E_max : float
+            The maximum capacity of the battery [MWh]
+        
+        Returns
+        ----------
+        None
+
+        """
         self.SOC = self.E_battery/self.E_max
 
     def charge(self, P_ch):
+
+        """
+        Charge the battery 
+        
+        Decides how much the battery can charge based on the available energy that can be stored, the maximum power that can be injected, and the maximum state of charge of the battery
+        
+        Updates the state of charge of the battery
+
+        Returns a float telling how much energy the battery is not able to charge
+        
+
+        Parameters
+        ----------
+        P_ch : float
+            Amount of available energy in the network for the battery to charge [MW]
+        injPmax : float
+            The maximum active power that the battery can inject [MW]
+        P_ch_remaining : float
+            The remaining energy the battery is unable to charge
+        n_battery : float
+            The battery efficiency  
+        E_battery : float
+            The amount of energy stored in the battery [MWh]
+        E_max : float
+            The maximum capacity of the battery [MWh]
+        SOC_max : float
+            The maximum state of charge level in the battery 
+
+        Returns
+        ----------
+        P_ch_remaining
+
+
+        """
+
         P_ch_remaining = 0
         if P_ch > self.injPmax:
             P_ch_remaining += P_ch - self.injPmax
@@ -592,6 +678,40 @@ class Battery:
         return P_ch_remaining
 
     def discharge(self, P_dis):
+
+        """
+        Discharge the battery 
+        
+        Decides how much the battery can discharge based on the available energy in the battery limited by the state of charge, the maximum power that can be injected, and the wanted amount of energy from the battery
+        
+        Updates the state of charge of the battery
+
+        Returns a float telling how much energy the battery is not able to discharge
+        
+
+        Parameters
+        ----------
+        P_dis : float
+            Amount of wanted energy from the network [MW]
+        injPmax : float
+            The maximum active power that the battery can inject/ [MW]
+        P_ch_remaining : float
+            The remaining energy the battery is unable to discharge
+        n_battery : float
+            The battery efficiency  
+        E_battery : float
+            The amount of energy stored in the battery [MWh]
+        E_max : float
+            The maximum capacity of the battery [MWh]
+        SOC_min : float
+            The minimum state of charge level in the battery 
+
+        Returns
+        ----------
+        P_ch_remaining
+
+
+        """
         P_dis_remaining = 0
         if P_dis > self.injPmax:
             P_dis_remaining += P_dis - self.injPmax
@@ -611,6 +731,15 @@ class Battery:
         return P_dis_remaining
 
     def print_status(self):
+
+        """
+        Prints the status of the battery
+        
+        Returns
+        ----------
+        None
+        """
+
         print("Battery status")
         print("name: {}".format(self.name))
         print("parent bus: {}".format(self.bus.name))
@@ -625,7 +754,7 @@ class Battery:
 
 class Production:
 
-    '''
+    """
     Common class for production 
      
     ...
@@ -653,9 +782,28 @@ class Production:
     update_bus_load()
         Updates the load on the bus with the amount of generated active and reactive power 
 
-    '''
+    """
     
     def __init__(self, name:str, bus:Bus, pmax:float=1, qmax:float=0):
+        
+        """
+        Constructs all the necessary attributes for the production object
+        
+        Parameters 
+        ----------
+            name : string
+                Name of the production unit
+            bus : Bus
+                The bus the production unit is connected to
+            pprod : float
+                The active power produced by the production unit [MW]
+            qprod : float
+                The reactive power produced by the production unit [MVar]
+            pmax : float 
+                The maximum active power that can be produced by the production unit [MW]
+            qmax : float 
+                The maximum reactive power that can be produced by the production unit [MVar]
+        """
         self.name = name
         self.bus = bus
         bus.prod = self
@@ -665,6 +813,28 @@ class Production:
         self.qmax = qmax
 
     def set_production(self, pprod:float, qprod:float):
+
+        """
+         Decides how much active and reactive power that will be produced
+         If the produced power exceeds the maximal limit, the produced power is set to maximum limit
+         The function updates the production on the bus by using the function update_bus_load()
+
+         Parameters
+         ----------
+        pprod : float
+            The active power produced by the production unit [MW]
+        qprod : float
+            The reactive power produced by the production unit [MVar]
+        pmax : float 
+            The maximum active power that can be produced by the production unit [MW]
+        qmax : float 
+            The maximum reactive power that can be produced by the production unit [MVar]
+
+         Returns
+         ----------
+         None
+
+        """
         if pprod > self.pmax:
             self.pprod = self.pmax
         else:
@@ -676,6 +846,28 @@ class Production:
         self.update_bus_load()
 
     def update_bus_load(self):
+
+        """
+         Updates the load on the bus with the amount of generated active and reactive power 
+         Sets the active load at the bus equal the active load at the bus minus the generated active power
+         Sets the reactive load at the bus equal the reactive load at the bus minus the generated reactive power
+        
+        Parameters
+        ----------
+        pprod : float
+            The active power produced by the production unit [MW]
+        qprod : float
+            The reactive power produced by the production unit [MVar]
+        pload : float
+            The active load at the bus
+        qload : float 
+            The reactive load at the bus
+
+        Returns
+        ----------
+        None
+
+        """
         self.bus.pload -= self.pprod
         self.bus.qload -= self.qprod
 
