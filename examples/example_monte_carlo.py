@@ -41,12 +41,13 @@ PV = PVgeneration(temp_profiles, solar_profiles)
 
 load_house, load_farm, load_industry2, load_trade, load_office = LoadGen(temp_profiles)
 
+plot_topology(ps.all_buses, ps.all_lines)
 
 N = 1 # Size of Monte Carlo simulation
 
 for i in range(N):
-    for day in range(365):
-        for hour in range(24):
+    for day in range(1):
+        for hour in range(5):
             print("hour: {}".format(day*24+hour))
             ## Set load
             B1.set_load(pload=load_house[day,hour]*10,qload=0.0)
@@ -61,20 +62,23 @@ for i in range(N):
             ## Set fail status
             for comp in ps.get_comp_list():
                 comp.update_fail_status()
-                
-            ## Set backup lines fail status
-            for comp in ps.all_lines:
-                comp.update_backup_fail_status()
+
+            ps.update()
                 
             ps.find_sub_systems()
             ps.update_sub_system_slack()
             
             ## Load flow
             for sub_system in ps.sub_systems:
+                if len(ps.sub_systems) > 0:
+                    # Print status
+                    ps.print_status()
+                    plot_topology(sub_system["buses"],sub_system["lines"])
                 buses = DistLoadFlow(sub_system["buses"],sub_system["lines"])
             
-            ## Print status
-            # ps.print_status()
+            
+            
+            
 
 end = time.time()
 print("Time elapsed: {}".format(end - start))
