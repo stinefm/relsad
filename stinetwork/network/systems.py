@@ -1,4 +1,5 @@
 from stinetwork.network.components import Bus, Line, Battery, Disconnector, Production, CircuitBreaker
+from stinetwork.topology.paths import find_backup_lines_between_sub_systems
 
 class PowerSystem:
 
@@ -20,6 +21,7 @@ class PowerSystem:
         self.active_buses = list()
         self.comp_dict = dict()
         self.active_lines = list()
+        self.backup_lines = list()
         self.dist_network_list = list()
         self.microgrid_network_list = list()
 
@@ -42,6 +44,8 @@ class PowerSystem:
         """ Adding lines to power system
             Input: lines(list(Line)) """
         for line in lines:
+            if line.is_backup:
+                self.backup_lines.append(line)
             self.comp_dict[line.name] = line
             for discon in line.disconnectors:
                 self.comp_dict[discon.name] = discon
@@ -77,67 +81,106 @@ class PowerSystem:
         self.microgrid_network_list.append(microgrid_network)
 
     def find_sub_systems(self):
-        self.update()
+
         self.sub_systems = list()
+        possible_buses = [bus for bus in self.all_buses]# if bus.toline != None or bus.fromline != None]
         used_buses = list()
         used_lines = list()
         sub_lines = list()
         sub_buses = list()
         sub_system = {"buses":sub_buses,"lines":sub_lines}
-        while not len(used_buses+used_lines)==len(self.active_buses+self.active_lines):
-            for bus in self.active_buses:
-                if bus not in used_buses+sub_system["buses"]:
-                    if len(sub_system["buses"]+sub_system["lines"]) == 0:
-                        sub_system["buses"].append(bus)
-                        used_buses.append(bus)
-                    if bus in sub_system["buses"]:
-                        for con_line in bus.connected_lines:
-                            if con_line in self.active_lines and \
-                                con_line not in used_lines+sub_system["lines"] and \
-                                con_line.connected:
-                                sub_system["lines"].append(con_line)
-                                used_lines.append(con_line)
-                    else:
-                        for line in sub_system["lines"]:
-                            if bus in [line.fbus,line.tbus] and bus not in used_buses+sub_system["buses"]:
-                                sub_system["buses"].append(bus)
-                                used_buses.append(bus)
-                                for con_line in bus.connected_lines:
-                                    if con_line in self.active_lines and \
-                                        con_line not in used_lines+sub_system["lines"] and \
-                                        con_line.connected:
-                                        sub_system["lines"].append(con_line)
-                                        used_lines.append(con_line)
-            self.sub_systems.append(sub_system)
-            sub_lines = list()
-            sub_buses = list()
-            sub_system = {"buses":sub_buses,"lines":sub_lines,"slack":None}
+
+        def add_bus(bus):
+            if bus not in used_buses+sub_system["buses"]:
+                sub_system["buses"].append(bus)
+                used_buses.append(bus)
+
+        def try_to_add_connected_lines(bus):
+            for line in bus.connected_lines:
+                if line in self.active_lines and \
+                    line not in used_lines+sub_system["lines"] and \
+                    line.connected:
+                    sub_system["lines"].append(line)
+                    used_lines.append(line)
+
+        while not len(used_buses+used_lines)==len(possible_buses+self.active_lines):
+            for _i in range(2):
+                for bus in possible_buses:
+                    if bus not in used_buses+sub_system["buses"]:
+                        if len(sub_system["buses"]+sub_system["lines"]) == 0:
+                            add_bus(bus)
+                            try_to_add_connected_lines(bus)
+                        if bus in sub_system["buses"]:
+                            try_to_add_connected_lines(bus)
+                        else:
+                            for line in sub_system["lines"]:
+                                if bus in [line.fbus,line.tbus] or line in bus.connected_lines:
+                                    add_bus(bus)
+                                    try_to_add_connected_lines(bus)
+            
+            if sub_system != {"buses":[],"lines":[],"slack":None}:
+                self.sub_systems.append(sub_system)
+                sub_lines = list()
+                sub_buses = list()
+                sub_system = {"buses":sub_buses,"lines":sub_lines,"slack":None}
+            else:
+                break
+        if len(self.sub_systems) > 1:
+            self.update_backup_lines_between_sub_systems()
+
+
+    def update_backup_lines_between_sub_systems(self):
+        update = False
+        for s1 in self.sub_systems:
+            for s2 in self.sub_systems:
+                if s1 != s2:
+                    external_backup_lines = find_backup_lines_between_sub_systems(s1,s2)
+                    for line in external_backup_lines:
+                        if not line.connected and not line.failed:
+                            line.connect()
+                            update = True
+                            break
+                if update:
+                    break
+            if update:
+                break
+        if update:
+            self.update()
+            self.find_sub_systems()
+            
 
     def update_sub_system_slack(self):
         for sub_system in self.sub_systems:
             sub_system["slack"] = None
             for bus in sub_system["buses"]:
-                if bus.is_slack:
-                    if sub_system["slack"] == None:
-                        sub_system["slack"] = bus
-                    else:
-                        raise Exception("The sub system can only have one slack bus")
-            if sub_system["slack"] == None:
-                self.set_slack(sub_system)
+                bus.is_slack = False
+            self.set_slack(sub_system)
         for sub_system in self.sub_systems:
             if sub_system["slack"] == None:
                 self.sub_systems.remove(sub_system)
 
     def set_slack(self, sub_system):
+        ## Distribution network slack buses in sub_system
         for bus in sub_system["buses"]:
-            if bus.battery != None:
-                bus.is_slack = True
-                sub_system["slack"] = bus
+            for dist_network in self.dist_network_list:
+                if bus == dist_network.get_slack_bus():
+                    bus.set_slack()
+                    sub_system["slack"] = bus
+        ## Buses with battery
+        if sub_system["slack"] == None:
+            for bus in sub_system["buses"]:
+                if bus.battery != None:
+                    bus.set_slack()
+                    sub_system["slack"] = bus
+        ## Buses with production
         if sub_system["slack"] == None:
             for bus in sub_system["buses"]:
                 if bus.prod != None:
-                    bus.is_slack = True
+                    bus.set_slack()
                     sub_system["slack"] = bus
+        ## Delete if no possible slack
+        if sub_system["slack"] == None:
+            self.sub_systems.remove(sub_system)
 
     def reset_slack_bus(self):
         for dist_network in self.dist_network_list:
@@ -148,7 +191,8 @@ class PowerSystem:
     def print_status(self):
         print("Buses:")
         for bus in self.all_buses:
-            print("name: {}, trafo_failed={}, pload={:.2f}".format(bus.name, bus.trafo_failed, bus.pload))
+            print("name: {}, trafo_failed={}, pload={:.2f}, is_slack={}, toline={}, fromline={}"\
+                    .format(bus.name, bus.trafo_failed, bus.pload, bus.is_slack, bus.toline if bus.toline==None else bus.toline.name, bus.fromline if bus.fromline == None else bus.fromline.name ))
         print("Lines:")
         for line in self.all_lines:
             print("name: {}, failed={}, connected={}".format(line.name, line.failed, line.connected))
@@ -173,7 +217,7 @@ class Distribution:
         self.comp_dict = dict()
         self.active_lines = list()
         self.powerSystem = powerSystem
-        self.slackbus = None
+        self.slack_bus = None
 
     def add_buses(self,buses:list):
         """ Adding buses to power system
@@ -183,8 +227,8 @@ class Distribution:
             bus.handle.color = self.color
             bus.color = self.color
             if bus.is_slack:
-                if self.slackbus == None:
-                    self.slackbus = bus
+                if self.slack_bus == None:
+                    self.slack_bus = bus
                 else:
                     raise Exception("The distribution network can only have one slack bus")
         self.active_buses += buses
@@ -210,13 +254,16 @@ class Distribution:
         self.powerSystem.add_lines(lines)
 
     def update(self):
-        self.active_buses = [bus for bus in self.all_buses if not bus.failed] # Will only include not failes buses
+        self.active_buses = [bus for bus in self.all_buses if not bus.trafo_failed] # Will only include not failes buses
         self.active_lines = [line for line in self.all_lines if line.connected] # Will only include connected lines
+
+    def get_slack_bus(self):
+        return self.slack_bus
 
     def reset_slack_bus(self):
         for bus in self.all_buses:
-            if bus == self.slackbus:
-                bus.is_slack = True
+            if bus == self.slack_bus:
+                bus.set_slack()
             else:
                 bus.is_slack = False
 
@@ -274,7 +321,7 @@ class Microgrid:
         self.distibutionNetwork.powerSystem.add_lines(lines)
 
     def update(self):
-        self.active_buses = [bus for bus in self.all_buses if not bus.failed] # Will only include not failes buses
+        self.active_buses = [bus for bus in self.all_buses if not bus.trafo_failed] # Will only include not failes buses
         self.active_lines = [line for line in self.all_lines if line.connected] # Will only include connected lines
 
     def connect(self):
