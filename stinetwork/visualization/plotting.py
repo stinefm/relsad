@@ -3,7 +3,7 @@ import numpy as np
 from stinetwork.network.components import Bus, Line, Disconnector, CircuitBreaker
 
 def plot_topology(buses:list,lines:list):
-    fig, ax = plt.subplots(figsize=(3.5, 4.5))
+    fig, ax = plt.subplots()#figsize=(3.5, 4.5))
     for line in lines:
         ax.plot([line.fbus.coordinate[0], line.tbus.coordinate[0]], \
         [line.fbus.coordinate[1], line.tbus.coordinate[1]], \
