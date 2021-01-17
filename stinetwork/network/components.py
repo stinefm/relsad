@@ -145,6 +145,9 @@ class Bus:
             else:
                 self.trafo_not_fail()
 
+    def set_slack(self):
+        self.is_slack = True
+
 class Line:
     r'''
     A class used to represent an electrical Line
@@ -190,8 +193,7 @@ class Line:
         self.name = name
 
         ## Backup
-        self.main = self
-        self.backup = list()
+        self.is_backup = False
 
         ## Topological attributes
         self.fbus = fbus
@@ -224,18 +226,14 @@ class Line:
         self.failed = False
         self.remaining_outage_time = 0
 
-    def add_backup(self, line):
-        self.backup.append(line)
-        line.main = self
-        line.disconnect()
+    def set_backup(self):
+        self.is_backup = True
+        for discon in self.disconnectors:
+            discon.open()
 
     def disconnect(self):
         self.connected = False
         self.linestyle="--"
-        # if self in self.fbus.connected_lines:
-        #     self.fbus.connected_lines.remove(self)
-        # if self in self.tbus.connected_lines:
-        #     self.tbus.connected_lines.remove(self)
         if self.fbus.fromline == self:
             self.fbus.fromline = None
         if self in self.tbus.tolinelist:
@@ -247,45 +245,35 @@ class Line:
                 self.tbus.toline = None
         if self.tbus in self.fbus.nextbus:
             self.fbus.nextbus.remove(self.tbus)
+        for discon in self.disconnectors:
+            if not discon.is_open:
+                discon.open()
+        if self.circuitbreaker != None:
+            if not self.circuitbreaker.is_open:
+                self.circuitbreaker.open()
 
     def connect(self):
         self.connected = True
         self.linestyle="-"
-        # if self not in self.fbus.connected_lines:
-        #     self.fbus.connected_lines.append(self)
-        # if self not in self.tbus.connected_lines:
-        #     self.tbus.connected_lines.append(self)
         self.tbus.toline = self
         if self not in self.tbus.tolinelist:
             self.tbus.tolinelist.append(self)
         self.fbus.fromline = self
-        if self not in self.fbus.nextbus:
+        if self.tbus not in self.fbus.nextbus:
             self.fbus.nextbus.append(self.tbus)
+        for discon in self.disconnectors:
+            discon.close()
+        if self.circuitbreaker != None:
+            self.circuitbreaker.close()
 
     def fail(self):
         self.failed = True
-        self.disconnect()
         self.remaining_outage_time = self.outage_time-1
-        if len(self.disconnectors) == 1:
-            iso_bus = self.disconnectors[0].base_bus
-            self.disconnectors[0].open()
-            if self.tbus == iso_bus:
-                self.fbus.fail()
-            else:
-                self.tbus.fail()
-        elif len(self.disconnectors) == 2:
-            for discon in self.disconnectors:
-                discon.open()
-
-        if self.circuitbreaker != None:
-            self.circuitbreaker.open()
+        self.disconnect()
 
     def not_fail(self):
         self.failed = False
-        if self.main != self:
-            if not self.main.connected:
-                self.connect()
-        else:
+        if not self.is_backup:
             self.connect()
 
     def change_direction(self):
@@ -306,35 +294,22 @@ class Line:
         self.tbus.toline = self
         self.tbus.tolinelist.append(self)
         self.fbus.fromline = self
-        self.fbus.nextbus.append(self.tbus)
+        if self.tbus not in self.fbus.nextbus:
+            self.fbus.nextbus.append(self.tbus)
 
     def update_fail_status(self):
-        if self.main == self:
-            if self.failed:
-                self.remaining_outage_time -= 1
-                if self.remaining_outage_time == 0:
-                    self.not_fail()
+        if self.is_backup:
+            self.disconnect()
+        if self.failed:
+            self.remaining_outage_time -= 1
+            if self.remaining_outage_time == 0:
+                self.not_fail()
+        else:
+            p_fail = self.fail_rate_per_hour
+            if np.random.choice([True,False],p=[p_fail,1-p_fail]):
+                self.fail()
             else:
-                p_fail = self.fail_rate_per_hour
-                if np.random.choice([True,False],p=[p_fail,1-p_fail]):
-                    self.fail()
-                else:
-                    self.not_fail()
-    
-    def update_backup_fail_status(self):
-        if self.main != self:
-            if self.main.failed:
-                if self.failed:
-                    self.remaining_outage_time -= 1
-                    if self.remaining_outage_time == 0:
-                        self.not_fail()
-                else:
-                    p_fail = self.fail_rate_per_hour
-                    if np.random.choice([True,False],p=[p_fail,1-p_fail]):
-                        self.fail()
-                    else:
-                        self.not_fail()
-
+                self.not_fail()
 
 
 class CircuitBreaker:
@@ -398,14 +373,15 @@ class CircuitBreaker:
     def close(self):
         self.is_open = False
         self.color = "black"
-        self.line.connect()
 
     def open(self):
         self.is_open = True
         self.color = "white"
-        self.line.disconnect()
+        if self.line.connected == True:
+            self.line.disconnect()
         for discon in self.disconnectors:
-            discon.open()
+            if not discon.is_open:
+                discon.open()
 
     def fail(self):
         self.failed = True
@@ -457,7 +433,7 @@ class Disconnector:
                             color = color, markeredgecolor=edgecolor)
     
     def __init__(self, name:str, line:Line, bus:Bus, \
-                circuit_br:CircuitBreaker=None, is_open:bool=False, \
+                circuitbreaker:CircuitBreaker=None, is_open:bool=False, \
                 fail_rate:float=0.014, outage_time:float=1):
         self.name = name
         self.is_open = is_open
@@ -465,6 +441,7 @@ class Disconnector:
         self.fail_rate = fail_rate
         self.outage_time = outage_time
         self.line = line
+        self.circuitbreaker = circuitbreaker
 
         ## Set coordinate
         self.base_bus = bus
@@ -473,25 +450,25 @@ class Disconnector:
         if bus==line.tbus:
             dx*=-1
             dy*=-1
-        if circuit_br == None:
+        if self.circuitbreaker == None:
             line.disconnectors.append(self)
             self.coordinate = [ \
                 self.base_bus.coordinate[0] + dx/4, self.base_bus.coordinate[1] + dy/4]
         else:
-            circuit_br.disconnectors.append(self)
+            self.circuitbreaker.disconnectors.append(self)
             #line.disconnectors.append(self)
             self.coordinate = [ \
-                circuit_br.coordinate[0] - dx/10, circuit_br.coordinate[1] - dy/10]
+                circuitbreaker.coordinate[0] - dx/10, circuitbreaker.coordinate[1] - dy/10]
 
     def close(self):
         self.is_open = False
         self.color = "black"
-        self.line.connect()
     
     def open(self):
         self.is_open = True
         self.color = "white"
-        self.line.disconnect()
+        if self.line.connected == True:
+            self.line.disconnect()
 
     def fail(self):
         self.failed = True
@@ -545,9 +522,6 @@ class Battery:
         Discharge the battery 
     print_status()
         Prints the status of the battery
-        
-
-
 
     """
 
