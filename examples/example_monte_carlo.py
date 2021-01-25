@@ -1,7 +1,8 @@
 from stinetwork.test_networks.smallNetwork import initialize_test_network
+from stinetwork.network.systems import find_sub_systems, update_sub_system_slack
 from stinetwork.visualization.plotting import plot_topology
 from stinetwork.loadflow.ac import DistLoadFlow
-from stinetwork.visualization.printing import dispVolt, dispFlow, ForwardSearch, BackwardSearch
+from stinetwork.visualization.printing import dispVolt, dispFlow, ForwardSearch, BackwardSearch, dispLoads
 from load_and_gen_data import WeatherGen,LoadGen,windGen,PVgeneration
 import time
 
@@ -41,13 +42,13 @@ PV = PVgeneration(temp_profiles, solar_profiles)
 
 load_house, load_farm, load_industry2, load_trade, load_office = LoadGen(temp_profiles)
 
-plot_topology(ps.all_buses, ps.all_lines)
+# plot_topology(ps.buses, ps.lines)
 
 N = 1 # Size of Monte Carlo simulation
 
 for i in range(N):
-    for day in range(1):
-        for hour in range(5):
+    for day in range(365):
+        for hour in range(24):
             print("hour: {}".format(day*24+hour))
             ## Set load
             B1.set_load(pload=load_house[day,hour]*10,qload=0.0)
@@ -60,21 +61,22 @@ for i in range(N):
             M3.set_load(pload=load_house[day,hour]*10,qload=0.0)
             
             ## Set fail status
-            for comp in ps.get_comp_list():
+            for comp in ps.get_comp_set():
                 comp.update_fail_status()
 
-            ps.update()
-                
-            ps.find_sub_systems()
-            ps.update_sub_system_slack()
+            # ps.update()
+            find_sub_systems(ps)
+            update_sub_system_slack(ps)
             
             ## Load flow
             for sub_system in ps.sub_systems:
-                if len(ps.sub_systems) > 0:
+                # if len(ps.sub_systems) > 0:
                     # Print status
-                    ps.print_status()
-                    plot_topology(sub_system["buses"],sub_system["lines"])
-                buses = DistLoadFlow(sub_system["buses"],sub_system["lines"])
+                    # ps.print_status()
+                    # plot_topology(sub_system.buses,sub_system.lines)
+                sub_buses = DistLoadFlow(list(sub_system.buses),list(sub_system.lines))
+                # ps.print_status()
+                # dispLoads(sub_buses)
             
             
             
