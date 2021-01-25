@@ -55,13 +55,13 @@ def initialize_test_network():
 
     dn = Distribution(ps)
 
-    dn.add_buses([B0,B1,B2,B3,B4,B5])
-    dn.add_lines([L1,L2,L3,L4,L5,L6])
+    dn.add_buses({B0,B1,B2,B3,B4,B5})
+    dn.add_lines({L1,L2,L3,L4,L5,L6})
 
     m = Microgrid(dn,L7)
 
-    m.add_buses([M1,M2,M3])
-    m.add_lines([ML1,ML2])
+    m.add_buses({M1,M2,M3})
+    m.add_lines({ML1,ML2})
 
     ps.add_distribution_network(dn)
     ps.add_microgrid_network(m)
