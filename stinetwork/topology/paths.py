@@ -218,15 +218,15 @@ def find_backup_lines_between_sub_systems(sub_system1, sub_system2):
         """
         Finds lines connected to sub system buses that are connecte to external sub systems
         """
-        external_backup_lines = list()
-        for bus in sub_system["buses"]:
+        external_backup_lines = set()
+        for bus in sub_system.buses:
             for line in bus.connected_lines:
-                if line not in sub_system["lines"] and line.is_backup:
-                    external_backup_lines.append(line)
+                if line not in sub_system.lines and line.is_backup:
+                    external_backup_lines.add(line)
         return external_backup_lines
 
     external_backup_lines1 = find_external_backup_lines(sub_system1)
     external_backup_lines2 = find_external_backup_lines(sub_system2)
     # Returns 
-    return list(set(external_backup_lines1).intersection(external_backup_lines2))
+    return external_backup_lines1.intersection(external_backup_lines2)
 
