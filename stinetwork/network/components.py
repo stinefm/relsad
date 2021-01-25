@@ -94,7 +94,7 @@ class Bus:
         self.fromline = None
         self.tolinelist = []
         self.nextbus = []
-        self.connected_lines = list()
+        self.connected_lines = set()
         Bus.busCount += 1
 
         ## Reliabilility attributes
@@ -109,6 +109,19 @@ class Bus:
         ## Production and battery
         self.prod = None
         self.battery = None
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f'Bus(name={self.name})'
+
+    def __eq__(self,other):
+        try:return self.name == other.name
+        except:False
+
+    def __hash__(self):
+        return hash(self.name)
 
     def set_load(self, pload:float, qload:float):
         self.pload = pload
@@ -198,8 +211,8 @@ class Line:
         ## Topological attributes
         self.fbus = fbus
         self.tbus = tbus
-        fbus.connected_lines.append(self)
-        tbus.connected_lines.append(self)
+        fbus.connected_lines.add(self)
+        tbus.connected_lines.add(self)
         tbus.toline = self
         tbus.tolinelist.append(self)
         fbus.fromline = self
@@ -225,6 +238,19 @@ class Line:
         self.connected = connected
         self.failed = False
         self.remaining_outage_time = 0
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f'Line(name={self.name})'
+
+    def __eq__(self,other):
+        try:return self.name == other.name
+        except:False
+
+    def __hash__(self):
+        return hash(self.name)
 
     def set_backup(self):
         self.is_backup = True
@@ -370,6 +396,19 @@ class CircuitBreaker:
         self.disconnectors = list()
         self.line.circuitbreaker = self
 
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f'Circuitbreaker(name={self.name})'
+
+    def __eq__(self,other):
+        try:return self.name == other.name
+        except:False
+
+    def __hash__(self):
+        return hash(self.name)
+
     def close(self):
         self.is_open = False
         self.color = "black"
@@ -459,6 +498,19 @@ class Disconnector:
             #line.disconnectors.append(self)
             self.coordinate = [ \
                 circuitbreaker.coordinate[0] - dx/10, circuitbreaker.coordinate[1] - dy/10]
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f'Disconnector(name={self.name})'
+
+    def __eq__(self,other):
+        try:return self.name == other.name
+        except:False
+
+    def __hash__(self):
+        return hash(self.name)
 
     def close(self):
         self.is_open = False
@@ -576,6 +628,19 @@ class Battery:
         self.SOC = SOC_min
         self.E_battery = self.SOC*self.E_max    # MWh
         self.update_SOC()
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f'Battery(name={self.name})'
+
+    def __eq__(self,other):
+        try:return self.name == other.name
+        except:False
+
+    def __hash__(self):
+        return hash(self.name)
 
     def update_SOC(self):
         """
@@ -785,6 +850,19 @@ class Production:
         self.qprod = 0
         self.pmax = pmax
         self.qmax = qmax
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f'Production(name={self.name})'
+
+    def __eq__(self,other):
+        try:return self.name == other.name
+        except:False
+
+    def __hash__(self):
+        return hash(self.name)
 
     def set_production(self, pprod:float, qprod:float):
 
