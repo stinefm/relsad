@@ -321,7 +321,7 @@ def dispLossSensQ(BusList, fromBus=0, toBus=0, tpres=False):
 #
 # Display total losses
 #
-def dispLosses(LineList):
+def dispTotalLosses(LineList):
     pline = 0.0
     qline = 0.0
     for x in LineList:
@@ -331,15 +331,23 @@ def dispLosses(LineList):
 #
 # Display total load (no voltage correction)
 #
-def dispLoad(BusList):
+def dispTotalLoad(BusList):
     aload = 0.0
     rload = 0.0
     for x in BusList:
-        pla, qla = getload(x)
+        pla, qla, _dPdV, _dPdV = getload(x)
         aload += pla  # Add local loads
         rload += qla
-    print('\n','Total load  P: ', aload, '   Q: ', rload, '  Losses: P',
-            BusList[1].pblossds, '   Q: ', BusList[1].qblossds)
+    print('Total load  P: {:.4f}   Q: {:.4f}  Losses: P {:.4f}\
+          Q: {:.4f} '.format(aload, rload, BusList[1].pblossds, BusList[1].qblossds))
+
+#
+# Display bus loads for subsystem
+#
+def dispLoads(BusList):
+    for bus in BusList:
+        print('Name: {}, P: {:.4f}, Q: {:.4f}'.format(bus.name, bus.pload, bus.qload))
+
 
 #
 # Visit all nodes in the reverse list.
