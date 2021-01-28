@@ -92,8 +92,9 @@ class Bus:
         self.is_slack = is_slack
         self.toline = None
         self.fromline = None
-        self.tolinelist = []
-        self.nextbus = []
+        self.tolineset = set()
+        self.fromlineset = set()
+        self.nextbus = set()
         self.connected_lines = set()
         Bus.busCount += 1
 
@@ -160,6 +161,12 @@ class Bus:
 
     def set_slack(self):
         self.is_slack = True
+    
+    def print_status(self):
+        print("name: {:3s}, trafo_failed={}, pload={:.4f}, is_slack={}, toline={}, fromline={}, tolineset={}, fromlineset={}, connected_lines={}"\
+                    .format(self.name, self.trafo_failed, self.pload, self.is_slack, \
+                    self.toline if self.toline==None else self.toline.name, self.fromline if self.fromline == None else self.fromline.name,\
+                    self.tolineset, self.fromlineset, self.connected_lines))
 
 class Line:
     r'''
@@ -214,9 +221,10 @@ class Line:
         fbus.connected_lines.add(self)
         tbus.connected_lines.add(self)
         tbus.toline = self
-        tbus.tolinelist.append(self)
+        tbus.tolineset.add(self)
         fbus.fromline = self
-        fbus.nextbus.append(self.tbus)
+        fbus.fromlineset.add(self)
+        fbus.nextbus.add(self.tbus)
         self.disconnectors = list()
         self.circuitbreaker = None
         Line.lineCount += 1
@@ -260,17 +268,19 @@ class Line:
     def disconnect(self):
         self.connected = False
         self.linestyle="--"
+        self.fbus.fromlineset.discard(self)
         if self.fbus.fromline == self:
-            self.fbus.fromline = None
-        if self in self.tbus.tolinelist:
-            self.tbus.tolinelist.remove(self)
+            if len(self.fbus.fromlineset) > 0:
+                self.fbus.fromline = next(iter(self.fbus.fromlineset))
+            else:
+                self.fbus.fromline = None
+        self.tbus.tolineset.discard(self)
         if self.tbus.toline == self:
-            if len(self.tbus.tolinelist) > 0:
-                self.tbus.toline = self.tbus.tolinelist[0]
+            if len(self.tbus.tolineset) > 0:
+                self.tbus.toline = next(iter(self.tbus.tolineset))
             else:
                 self.tbus.toline = None
-        if self.tbus in self.fbus.nextbus:
-            self.fbus.nextbus.remove(self.tbus)
+        self.fbus.nextbus.discard(self.tbus)
         for discon in self.disconnectors:
             if not discon.is_open:
                 discon.open()
@@ -282,11 +292,10 @@ class Line:
         self.connected = True
         self.linestyle="-"
         self.tbus.toline = self
-        if self not in self.tbus.tolinelist:
-            self.tbus.tolinelist.append(self)
+        self.tbus.tolineset.add(self)
         self.fbus.fromline = self
-        if self.tbus not in self.fbus.nextbus:
-            self.fbus.nextbus.append(self.tbus)
+        self.fbus.fromlineset.add(self)
+        self.fbus.nextbus.add(self.tbus)
         for discon in self.disconnectors:
             discon.close()
         if self.circuitbreaker != None:
@@ -303,25 +312,24 @@ class Line:
             self.connect()
 
     def change_direction(self):
+        self.fbus.fromlineset.discard(self)
+        self.tbus.fromlineset.add(self)
+        self.tbus.tolineset.discard(self)
+        self.fbus.tolineset.add(self)
         if self.fbus.fromline == self:
-            self.fbus.fromline = None
-        if self in self.tbus.tolinelist:
-            self.tbus.tolinelist.remove(self)
+            self.fbus.fromline = next(iter(self.fbus.fromlineset)) if len(self.fbus.fromlineset)>0 else None
         if self.tbus.toline == self:
-            self.tbus.toline = None
-        if self.tbus in self.fbus.nextbus:
-            self.fbus.nextbus.remove(self.tbus)
+            self.tbus.toline = next(iter(self.tbus.tolineset)) if len(self.tbus.tolineset)>0 else None
+        self.fbus.toline = self
+        self.tbus.fromline = self
+        self.fbus.nextbus.discard(self.tbus)
+        self.tbus.nextbus.add(self.fbus)
         i_broken = self.tbus.num
         self.tbus.num = self.fbus.num
         self.fbus.num = i_broken
         bus = self.fbus
         self.fbus = self.tbus
-        self.tbus = bus
-        self.tbus.toline = self
-        self.tbus.tolinelist.append(self)
-        self.fbus.fromline = self
-        if self.tbus not in self.fbus.nextbus:
-            self.fbus.nextbus.append(self.tbus)
+        self.tbus = bus        
 
     def update_fail_status(self):
         if self.is_backup:
@@ -336,6 +344,42 @@ class Line:
                 self.fail()
             else:
                 self.not_fail()
+
+    def get_line_load(self):
+        """ Get the flow on the line
+        """
+
+        def uij(gij,bij,tetai,tetaj):
+            return (gij*np.sin(tetai-tetaj)-bij*np.cos(tetai-tetaj))
+
+        def tij(gij,bij,tetai,tetaj):
+            return (gij*np.cos(tetai-tetaj)+bij*np.sin(tetai-tetaj))
+
+        def bij(R, X):
+            return (1.0 / complex(R, X)).imag
+
+        def gij(R, X):
+            return (1.0 / complex(R, X)).real
+
+        fbus = self.fbus
+        tbus = self.tbus
+        bsh = 0.0           # No shunts included so far
+        teta1 = fbus.voang
+        teta2 = tbus.voang
+        v1 = fbus.vomag
+        v2 = tbus.vomag
+        b = bij(self.r,self.x)
+        g = gij(self.r,self.x)
+
+        Pfrom = g * v1 * v1 - v1 * v2 * tij(g, b, teta1, teta2)
+        Pto = g * v2 * v2 - v1 * v2 * tij(g, b, teta2, teta1)
+        Qfrom = -(b + bsh) * v1 * v1 - v1 * v2 * uij(g, b, teta1, teta2)
+        Qto = -(b + bsh) * v2 * v2 - v1 * v2 * uij(g, b, teta2, teta1)
+
+        return Pfrom,Qfrom,Pto,Qto
+
+    def print_status(self):
+        print("name: {:5s}, failed={:5s}, connected={:5s}".format(self.name, self.failed, self.connected))
 
 
 class CircuitBreaker:
