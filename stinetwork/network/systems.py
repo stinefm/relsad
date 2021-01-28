@@ -1,5 +1,8 @@
 from stinetwork.network.components import Bus, Line, Battery, Disconnector, Production, CircuitBreaker
 from stinetwork.topology.paths import find_backup_lines_between_sub_systems
+from stinetwork.visualization.plotting import plot_topology
+import numpy as np
+from scipy.optimize import linprog
 
 class PowerSystem:
 
@@ -8,6 +11,9 @@ class PowerSystem:
 
     ## Counter
     counter = 0
+
+    ## Load shed configurations
+    shed_configs = set()
 
     def __init__(self):
         """ Initializing power system content 
@@ -38,7 +44,8 @@ class PowerSystem:
         return f'PowerSystem(name={self.name})'
 
     def __eq__(self,other):
-        try:return self.name == other.name
+        try:
+            return self.buses.union(self.lines)==other.buses.union(other.lines)
         except:False
 
     def __hash__(self):
@@ -89,11 +96,97 @@ class PowerSystem:
     def print_status(self):
         print("Buses:")
         for bus in self.buses:
-            print("name: {}, trafo_failed={}, pload={:.2f}, is_slack={}, toline={}, fromline={}"\
-                    .format(bus.name, bus.trafo_failed, bus.pload, bus.is_slack, bus.toline if bus.toline==None else bus.toline.name, bus.fromline if bus.fromline == None else bus.fromline.name ))
+            bus.print_status()
         print("Lines:")
         for line in self.lines:
-            print("name: {}, failed={}, connected={}".format(line.name, line.failed, line.connected))
+            line.print_status()
+
+    def shed_loads(self):
+
+        if len(self.sub_systems) <= 1:
+
+            buses = list(self.buses)
+            lines = [x for x in self.lines if x.connected]
+
+
+            N_D = len(buses)
+
+            N_L = len(lines)
+
+            c = [1]*N_D+[0]*N_L+[0]*N_D
+
+            A = np.zeros((N_D,N_D+N_L+N_D))
+
+            b = list() # Bus load
+            gen = list() # Bus generation
+
+            for j, bus in enumerate(buses):
+                A[j,j] = 1 # lambda_md
+                A[j,N_D+N_L+j] = 1 # mu_md
+                for line in bus.connected_lines:
+                    if line.connected:
+                        index = lines.index(line)
+                        if bus == line.fbus:
+                            A[j,N_D + index] = -1
+                        else:
+                            A[j,N_D + index] = 1
+
+                b.append(bus.pload)
+
+                flag = False
+                for dist_network in self.dist_network_set:
+                    if bus == dist_network.get_slack_bus():
+                        gen.append(np.inf)
+                        flag = True
+                if flag == False:
+                    if bus.prod != None:
+                        gen.append(bus.prod.pprod)
+                    else:
+                        gen.append(0)
+
+            bounds = list()
+            for n in range(N_D+N_L+N_D):
+                if n < N_D:
+                    bounds.append((0, b[n]))
+                elif n >= N_D and n < N_D+N_L:
+                    line = lines[n-N_D]
+                    l_index = lines.index(line)
+                    max_available_flow = line.get_line_load()[0]
+
+                    PL_max = min(line.capacity, abs(max_available_flow))
+                    bounds.append((-PL_max, PL_max))
+                else:
+                    bounds.append((0,gen[n-(N_D+N_L)]))
+
+            res = linprog(c, A_eq=A, b_eq=b, bounds=bounds, method='simplex')
+
+            if res.fun > 0:
+                if len(PowerSystem.shed_configs)==0:
+                    PowerSystem.shed_configs.add(self)
+                add = True
+                for shed_config in PowerSystem.shed_configs:
+                    if self == shed_config:
+                        add = False
+                        break
+                if add:
+                    PowerSystem.shed_configs.add(self)
+
+                # print(buses,lines)
+
+                # print('c:\n', c)
+                # print('A_eq:\n', A)
+                # print('b_eq:\n', b)
+                # print('Bounds:\n', bounds)
+                # print('Results:', res)
+                # fig = plot_topology(list(self.buses),list(self.lines))
+                # fig.show()
+                # try:
+                #     input("Press enter to continue")
+                # except SyntaxError:
+                #     pass
+
+        else:
+            raise(Exception("More than one sub system"))
 
 
 class Distribution:
