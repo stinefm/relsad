@@ -112,17 +112,19 @@ def configure(BusList, LineList):
                 (line.tbus == bus2 and line.fbus==bus1):
                 return line
 
-    def change_dir(target_bus, BusList, checked_buses, LineList):
-        if target_bus not in checked_buses:
-            for bus in BusList:
-                if bus not in checked_buses:
-                    if target_bus in bus.nextbus:
-                        #print(target_bus.name, bus.name)
+    def change_dir(target_buses, BusList, checked_buses, LineList):
+        new_target_buses = set()
+        for target_bus in target_buses:
+            if target_bus not in checked_buses:
+                for bus in BusList:
+                    if bus not in checked_buses and bus != target_bus:
                         line = line_between_buses(target_bus, bus, LineList)
-                        #print(line.name)
-                        line.change_direction()
-                        checked_buses.append(target_bus)
-                        return bus
+                        if line != None:
+                            if target_bus in bus.nextbus:
+                                line.change_direction()
+                            new_target_buses.add(bus)
+                checked_buses.add(target_bus)
+        return new_target_buses
 
     def get_paths(parent_bus):
         """Function that finds all downstream paths in a radial tree
@@ -188,10 +190,10 @@ def configure(BusList, LineList):
             break
    
     ## Update directions based on slack bus (making slack bus parent of the radial tree)
-    checked_buses = list()
-    target_bus = change_dir(slack_bus, BusList, checked_buses, LineList)
-    while target_bus != None:
-        target_bus = change_dir(target_bus, BusList, checked_buses, LineList)
+    checked_buses = set()
+    target_buses = change_dir({slack_bus}, BusList, checked_buses, LineList)
+    while target_buses != set():
+        target_buses = change_dir(target_buses, BusList, checked_buses, LineList)
 
     paths = get_paths(slack_bus)
 
