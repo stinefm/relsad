@@ -1,5 +1,5 @@
 from stinetwork.test_networks.smallNetwork import initialize_test_network
-from stinetwork.network.systems import find_sub_systems, update_sub_system_slack
+from stinetwork.network.systems import find_sub_systems, update_sub_system_slack, PowerSystem
 from stinetwork.visualization.plotting import plot_topology
 from stinetwork.loadflow.ac import DistLoadFlow
 from stinetwork.visualization.printing import dispVolt, dispFlow, ForwardSearch, BackwardSearch, dispLoads
@@ -20,6 +20,17 @@ B5 = ps.get_comp("B5")
 M1 = ps.get_comp("M1")
 M2 = ps.get_comp("M2")
 M3 = ps.get_comp("M3")
+
+# Fetching line-objects
+L1 = ps.get_comp("L1")
+L2 = ps.get_comp("L2")
+L3 = ps.get_comp("L3")
+L4 = ps.get_comp("L4")
+L5 = ps.get_comp("L5")
+L6 = ps.get_comp("L6")
+L7 = ps.get_comp("L7")
+ML1 = ps.get_comp("ML1")
+ML2 = ps.get_comp("ML2")
 
 # Fetching disconnector objects
 L1a = ps.get_comp("L1a")
@@ -42,8 +53,6 @@ PV = PVgeneration(temp_profiles, solar_profiles)
 
 load_house, load_farm, load_industry2, load_trade, load_office = LoadGen(temp_profiles)
 
-# plot_topology(ps.buses, ps.lines)
-
 N = 1 # Size of Monte Carlo simulation
 
 for i in range(N):
@@ -64,23 +73,24 @@ for i in range(N):
             for comp in ps.get_comp_set():
                 comp.update_fail_status()
 
-            # ps.update()
             find_sub_systems(ps)
             update_sub_system_slack(ps)
             
             ## Load flow
-            for sub_system in ps.sub_systems:
-                # if len(ps.sub_systems) > 0:
-                    # Print status
-                    # ps.print_status()
-                    # plot_topology(sub_system.buses,sub_system.lines)
+            for sub_system in ps.sub_systems:         
                 sub_buses = DistLoadFlow(list(sub_system.buses),list(sub_system.lines))
-                # ps.print_status()
-                # dispLoads(sub_buses)
-            
-            
+                sub_system.shed_loads()
+                          
             
             
 
 end = time.time()
 print("Time elapsed: {}".format(end - start))
+
+for sub_system in PowerSystem.shed_configs:
+    fig = plot_topology(list(sub_system.buses),list(sub_system.lines))
+    fig.show()
+try:
+    input("Press enter to continue")
+except SyntaxError:
+    pass
