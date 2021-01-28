@@ -47,7 +47,7 @@ def dispFlow(BusList, LineList, fromLine=0, toLine=0, tpres=False):
                 Qto = -(b + bsh) * v2 * v2 - v1 * v2 * uij(g, b, teta2, teta1)
 
                 if tpres == False:
-                    print(' FromBus :{} ToBus :{}'.format(line.fbus.name,line.tbus.name),
+                    print('Line:{:5s} FromBus :{:5s} ToBus :{:5s}'.format(line.name,line.fbus.name,line.tbus.name),
                             ' Pfrom :', '{:7.4f}'.format(Pfrom), ' Qfrom : ', '{:7.4f}'.format(Qfrom),
                             ' Pto :', '{:7.4f}'.format(Pto), ' Qto :', '{:7.4f}'.format(Qto))
 
@@ -84,9 +84,9 @@ def dispVolt(BusList, fromBus=0, toBus = 0, tpres=False):
     while iloop < toBus:
         oref = BusList[iloop]
         if tpres == False:
-            print(' Bus name :', '{}'.format(oref.name),
+            print(' Bus name :', '{:5s}'.format(oref.name),
                     ' Vmag :', '{:7.5f}'.format(oref.vomag),
-                    ' Theta :', '{:7.5f}'.format(oref.voang * 180 / np.pi))
+                    ' Theta [deg]:', '{:7.5f}'.format(oref.voang * 180 / np.pi))
         # Prepare for graphics presentation
         sublist = ['{}'.format(oref.name),
                     '{:7.5f}'.format(oref.vomag),
