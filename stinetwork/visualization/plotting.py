@@ -87,5 +87,15 @@ def tableplot(table_data, title, columns, rows, columncol=[], rowcol=[]):
     ax.axis('off')
     plt.show()
 
+def plot_history(comp_list:list, attribute:str):
+    fig = plt.figure(dpi=150)
+    ax = fig.add_subplot(1, 1, 1)
+    for comp in comp_list:
+        data = comp.get_history(attribute)
+        ax.plot(data,label=comp.name)
+    ax.set_title(attribute)
+    ax.legend()
+    fig.show()
+
 if __name__=="__main__":
     pass
