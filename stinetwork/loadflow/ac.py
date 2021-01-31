@@ -232,9 +232,12 @@ def getload(busobj):
     Input: The busobject
     Returns: pLoadAct, qLoadAct
     """
-    pLoadAct = busobj.pload*(busobj.ZIP[0]*busobj.vomag**2 + busobj.ZIP[1]*busobj.vomag + busobj.ZIP[2])
-    qLoadAct = busobj.qload*(busobj.ZIP[0]*busobj.vomag**2 + busobj.ZIP[1]*busobj.vomag + busobj.ZIP[2])
-    dPdV = busobj.pload*(busobj.ZIP[0]*2*busobj.vomag + busobj.ZIP[1])
-    dQdV = busobj.qload*(busobj.ZIP[0]*2*busobj.vomag + busobj.ZIP[1])
+    relative_pload = busobj.pload-busobj.pprod # load - production
+    relative_qload = busobj.qload-busobj.qprod # load - production
+
+    pLoadAct = relative_pload*(busobj.ZIP[0]*busobj.vomag**2 + busobj.ZIP[1]*busobj.vomag + busobj.ZIP[2])
+    qLoadAct = relative_qload*(busobj.ZIP[0]*busobj.vomag**2 + busobj.ZIP[1]*busobj.vomag + busobj.ZIP[2])
+    dPdV = relative_pload*(busobj.ZIP[0]*2*busobj.vomag + busobj.ZIP[1])
+    dQdV = relative_qload*(busobj.ZIP[0]*2*busobj.vomag + busobj.ZIP[1])
     return pLoadAct, qLoadAct, dPdV, dQdV
 
