@@ -1,5 +1,6 @@
 import pytest
 from stinetwork.test_networks.smallNetwork import initialize_test_network
+from stinetwork.network.systems import find_sub_systems
 
 class MyError(Exception):
     def __init__(self, m):
@@ -294,9 +295,8 @@ def test_M3_trafo_fail():
 def test_L1_fail():
     ps = initialize_test_network()
     
-    ps.get_comp("L1").fail()
-    ps.update()       
-    ps.find_sub_systems()
+    ps.get_comp("L1").fail()     
+    find_sub_systems(ps)
 
     assert ps.get_comp("L1").connected == False
     assert ps.get_comp("L2").connected == True
@@ -332,8 +332,8 @@ def test_L2_fail():
     ps = initialize_test_network()
     
     ps.get_comp("L2").fail()
-    ps.update()       
-    ps.find_sub_systems()
+          
+    find_sub_systems(ps)
 
     assert ps.get_comp("L1").connected == True
     assert ps.get_comp("L2").connected == False
@@ -369,8 +369,8 @@ def test_L3_fail():
     ps = initialize_test_network()
     
     ps.get_comp("L3").fail()
-    ps.update()       
-    ps.find_sub_systems()
+          
+    find_sub_systems(ps)
 
     assert ps.get_comp("L1").connected == True
     assert ps.get_comp("L2").connected == True
@@ -406,8 +406,8 @@ def test_L4_fail():
     ps = initialize_test_network()
     
     ps.get_comp("L4").fail()
-    ps.update()       
-    ps.find_sub_systems()
+          
+    find_sub_systems(ps)
 
     assert ps.get_comp("L1").connected == True
     assert ps.get_comp("L2").connected == True
@@ -443,8 +443,8 @@ def test_L5_fail():
     ps = initialize_test_network()
     
     ps.get_comp("L5").fail()
-    ps.update()       
-    ps.find_sub_systems()
+          
+    find_sub_systems(ps)
 
     assert ps.get_comp("L1").connected == True
     assert ps.get_comp("L2").connected == True
@@ -480,8 +480,8 @@ def test_L6_fail():
     ps = initialize_test_network()
     
     ps.get_comp("L6").fail()
-    ps.update()       
-    ps.find_sub_systems()
+          
+    find_sub_systems(ps)
 
     assert ps.get_comp("L1").connected == True
     assert ps.get_comp("L2").connected == True
@@ -517,8 +517,8 @@ def test_L7_fail():
     ps = initialize_test_network()
     
     ps.get_comp("L7").fail()
-    ps.update()       
-    ps.find_sub_systems()
+          
+    find_sub_systems(ps)
 
     assert ps.get_comp("L1").connected == True
     assert ps.get_comp("L2").connected == True
@@ -554,8 +554,8 @@ def test_ML1_fail():
     ps = initialize_test_network()
     
     ps.get_comp("ML1").fail()
-    ps.update()       
-    ps.find_sub_systems()
+          
+    find_sub_systems(ps)
 
     assert ps.get_comp("L1").connected == True
     assert ps.get_comp("L2").connected == True
@@ -591,8 +591,8 @@ def test_ML2_fail():
     ps = initialize_test_network()
     
     ps.get_comp("ML2").fail()
-    ps.update()       
-    ps.find_sub_systems()
+          
+    find_sub_systems(ps)
 
     assert ps.get_comp("L1").connected == True
     assert ps.get_comp("L2").connected == True
@@ -628,8 +628,8 @@ def test_E1_fail():
     ps = initialize_test_network()
     
     ps.get_comp("E1").fail()
-    ps.update()       
-    ps.find_sub_systems()
+          
+    find_sub_systems(ps)
 
     assert ps.get_comp("L1").connected == False
     assert ps.get_comp("L2").connected == True
@@ -667,8 +667,8 @@ def test_L2_and_L3_fail():
     
     ps.get_comp("L2").fail()
     ps.get_comp("L3").fail()
-    ps.update()       
-    ps.find_sub_systems()
+          
+    find_sub_systems(ps)
 
     assert ps.get_comp("L1").connected == True
     assert ps.get_comp("L2").connected == False
@@ -705,8 +705,8 @@ def test_L3_and_L5_fail():
     
     ps.get_comp("L3").fail()
     ps.get_comp("L5").fail()
-    ps.update()       
-    ps.find_sub_systems()
+          
+    find_sub_systems(ps)
 
     assert ps.get_comp("L1").connected == True
     assert ps.get_comp("L2").connected == True
