@@ -63,6 +63,8 @@ class Bus:
         ## Power flow attributes
         self.pload = 0
         self.qload = 0
+        self.pprod = 0
+        self.qprod = 0
         self.ZIP = ZIP
         self.vset = vset
         self.iloss = iloss
@@ -111,6 +113,9 @@ class Bus:
         self.prod = None
         self.battery = None
 
+        ## History
+        self.history = {"pload":list(), "qload":list(), "pprod":list(), "qprod":list()}
+
     def __str__(self):
         return self.name
 
@@ -124,6 +129,12 @@ class Bus:
     def __hash__(self):
         return hash(self.name)
 
+    def reset_load_and_prod_attributes(self):
+        self.pload = 0
+        self.qload = 0
+        self.pprod = 0
+        self.qprod = 0
+
     def set_load(self, pload:float, qload:float):
         self.pload = pload
         self.qload = qload
@@ -136,7 +147,7 @@ class Bus:
         self.remaining_outage_time = self.outage_time-1
         self.set_load(0,0)
         if self.prod != None:
-            self.prod.set_production(0,0)
+            self.prod.set_prod(0,0)
     
     def trafo_not_fail(self):
         self.trafo_failed = False
@@ -167,6 +178,15 @@ class Bus:
                     .format(self.name, self.trafo_failed, self.pload, self.is_slack, \
                     self.toline if self.toline==None else self.toline.name, self.fromline if self.fromline == None else self.fromline.name,\
                     self.tolineset, self.fromlineset, self.connected_lines))
+
+    def update_history(self):
+        self.history["pload"].append(self.pload)
+        self.history["qload"].append(self.qload)
+        self.history["pprod"].append(self.pprod)
+        self.history["qprod"].append(self.qprod)
+
+    def get_history(self, attribute:str):
+        return self.history[attribute]
 
 class Line:
     r'''
@@ -208,7 +228,7 @@ class Line:
 
     def __init__(self, name:str, fbus:Bus, tbus:Bus, r:float, \
                 x:float, length:float=1, fail_rate_density_per_year:float=0.2, \
-                outage_time:float=2, capacity:float=1, connected=True):
+                outage_time:float=2, capacity:float=100, connected=True):
         ## Informative attributes
         self.name = name
 
@@ -379,7 +399,7 @@ class Line:
         return Pfrom,Qfrom,Pto,Qto
 
     def print_status(self):
-        print("name: {:5s}, failed={:5s}, connected={:5s}".format(self.name, self.failed, self.connected))
+        print("name: {:5s}, failed={}, connected={}".format(self.name, self.failed, self.connected))
 
 
 class CircuitBreaker:
@@ -621,7 +641,7 @@ class Battery:
 
     """
 
-    def __init__(self, name:str, bus:Bus, injPmax:float=1, injQmax:float=1, \
+    def __init__(self, name:str, bus:Bus, inj_p_max:float=1, inj_q_max:float=1, \
                 E_max:float=3, SOC_min:float=0.2, SOC_max:float=1, n_battery:float=0.97):
         
         """
@@ -633,9 +653,9 @@ class Battery:
             Name of the battery
         bus : Bus
             The bus the battery is connected to
-        injPmax : float
+        inj_p_max : float
             The maximum active power that the battery can inject [MW]
-        injQmax : float
+        inj_q_max : float
             The maximum reactive power that the battery can inject [MVar]
         E_max : float
             The maximum capacity of the battery [MWh]
@@ -660,8 +680,13 @@ class Battery:
         self.name = name
         self.bus = bus
         bus.battery = self
-        self.injPmax = injPmax  # MW
-        self.injQmax = injQmax  # MVar
+
+        self.inj_p_max = inj_p_max  # MW
+        self.inj_q_max = inj_q_max  # MVar
+        self.inj_max = self.inj_p_max
+        self.f_inj_p = 1 # active capacity fraction
+        self.f_inj_q = self.inj_q_max/self.inj_max # reactive capacity fraction
+
         self.E_max = E_max      # MWh
         self.SOC_min = SOC_min
         self.SOC_max = SOC_max
@@ -672,6 +697,9 @@ class Battery:
         self.SOC = SOC_min
         self.E_battery = self.SOC*self.E_max    # MWh
         self.update_SOC()
+
+        ## History
+        self.history = {"SOC":list()}
 
     def __str__(self):
         return self.name
@@ -706,7 +734,7 @@ class Battery:
         """
         self.SOC = self.E_battery/self.E_max
 
-    def charge(self, P_ch):
+    def charge(self, p_ch):
 
         """
         Charge the battery 
@@ -720,47 +748,39 @@ class Battery:
 
         Parameters
         ----------
-        P_ch : float
+        p_ch : float
             Amount of available energy in the network for the battery to charge [MW]
-        injPmax : float
-            The maximum active power that the battery can inject [MW]
-        P_ch_remaining : float
-            The remaining energy the battery is unable to charge
-        n_battery : float
-            The battery efficiency  
-        E_battery : float
-            The amount of energy stored in the battery [MWh]
-        E_max : float
-            The maximum capacity of the battery [MWh]
-        SOC_max : float
-            The maximum state of charge level in the battery 
 
         Returns
         ----------
-        P_ch_remaining
+        P_ch_remaining : float
+            Amount of wanted active energy from the network exceeding battery capacity [MW]
 
 
         """
 
-        P_ch_remaining = 0
-        if P_ch > self.injPmax:
-            P_ch_remaining += P_ch - self.injPmax
-            P_ch -= P_ch_remaining
-        dE = self.n_battery*P_ch
+        p_ch_remaining = 0
+        if p_ch > self.inj_p_max:
+            p_ch_remaining += p_ch - self.inj_p_max
+            if p_ch == np.inf:
+                p_ch = self.inj_p_max
+            else:
+                p_ch -= p_ch_remaining
+        dE = self.n_battery*p_ch
         E_tr = self.E_battery + dE
         SOC_tr = E_tr/self.E_max
         dSOC = dE/self.E_max
         if SOC_tr > self.SOC_max:
             f = 1-(SOC_tr-self.SOC_max)/dSOC
             self.E_battery += f*dE
-            P_ch_remaining += (1-f)*P_ch
+            p_ch_remaining += (1-f)*p_ch
         else:
             self.E_battery += dE
-            P_ch_remaining += 0
+            p_ch_remaining += 0
         self.update_SOC()
-        return P_ch_remaining
+        return p_ch_remaining
 
-    def discharge(self, P_dis):
+    def discharge(self, p_dis, q_dis):
 
         """
         Discharge the battery 
@@ -774,44 +794,50 @@ class Battery:
 
         Parameters
         ----------
-        P_dis : float
-            Amount of wanted energy from the network [MW]
-        injPmax : float
-            The maximum active power that the battery can inject/ [MW]
-        P_ch_remaining : float
-            The remaining energy the battery is unable to discharge
-        n_battery : float
-            The battery efficiency  
-        E_battery : float
-            The amount of energy stored in the battery [MWh]
-        E_max : float
-            The maximum capacity of the battery [MWh]
-        SOC_min : float
-            The minimum state of charge level in the battery 
+        p_dis : float
+            Amount of wanted active energy from the network [MW]
+        q_dis : float
+            Amount of wanted reactive energy from the network [MW]
 
         Returns
         ----------
-        P_ch_remaining
-
+        p_ch_remaining : float
+            Amount of wanted active energy from the network exceeding battery capacity [MW]
+        q_ch_remaining : float
+            Amount of wanted reactive energy from the network exceeding battery capacity [MW]
 
         """
-        P_dis_remaining = 0
-        if P_dis > self.injPmax:
-            P_dis_remaining += P_dis - self.injPmax
-            P_dis -= P_dis_remaining
-        dE = 1/self.n_battery*P_dis
+
+        p_dis_remaining = 0
+        q_dis_remaining = 0
+        if p_dis > self.inj_p_max:
+            p_dis_remaining += p_dis - self.inj_p_max
+            p_dis -= p_dis_remaining
+        if q_dis > self.inj_q_max:
+            q_dis_remaining += q_dis - self.inj_q_max
+            q_dis -= q_dis_remaining
+        if p_dis + q_dis > self.inj_max:
+            f_p = p_dis/(p_dis + q_dis) # active fraction
+            f_q = 1-f_p # reactive fraction
+            diff = p_dis + q_dis - self.inj_max
+            p_dis_remaining += diff*(1-f_p)
+            q_dis_remaining += diff*(1-f_q)
+            p_dis -= diff*(1-f_p)
+            q_dis -= diff*(1-f_q)
+
+        dE = 1/self.n_battery*(p_dis + q_dis)
         E_tr = self.E_battery - dE
         SOC_tr = E_tr/self.E_max
         dSOC = dE/self.E_max
         if SOC_tr < self.SOC_min:
             f = 1-(self.SOC_min-SOC_tr)/dSOC
             self.E_battery -= f*dE
-            P_dis_remaining += (1-f)*P_dis
+            p_dis_remaining += (1-f)*p_dis
+            q_dis_remaining += (1-f)*q_dis
         else:
             self.E_battery -= dE
-            P_dis_remaining += 0
         self.update_SOC()
-        return P_dis_remaining
+        return p_dis_remaining, q_dis_remaining
 
     def print_status(self):
 
@@ -826,14 +852,63 @@ class Battery:
         print("Battery status")
         print("name: {}".format(self.name))
         print("parent bus: {}".format(self.bus.name))
-        print("injPmax: {} MW".format(self.injPmax))
-        print("injQmax: {} MVar".format(self.injQmax))
+        print("inj_p_max: {} MW".format(self.inj_p_max))
+        print("inj_q_max: {} MVar".format(self.inj_q_max))
         print("E_max: {} MWh".format(self.E_max))
         print("Efficiency: {} %".format(self.n_battery*100))
         print("SOC_min: {}".format(self.SOC_min))
         print("SOC_max: {}".format(self.SOC_max))
         print("SOC: {:.2f}".format(self.SOC))
 
+    def update_bus_load_and_prod(self, system_load_balance_p:float, system_load_balance_q:float):
+        """
+         Updates the load and production on the bus based on the system load balance.
+         If the balance is negative, there is a surplus of production, and the battery will charge.
+         If the balance is positive, there is a shortage of production, and the battery will discharge.
+        
+        Parameters 
+        ----------
+            system_load_balance_p : float
+                Active system load balance
+            system_load_balance_q : float
+                Reactive system load balance
+        """
+        p,q = system_load_balance_p, system_load_balance_q
+
+        pprod,qprod,pload,qload = 0,0,0,0
+        if p >= 0 and q >= 0:
+            p_dis, q_dis = self.discharge(p,q)
+            pprod = p - p_dis
+            qprod = q - q_dis
+        if p < 0 and q >= 0:
+            if -p == np.inf:
+                pload = self.inj_p_max - self.charge(self.inj_p_max)
+            else:
+                pload = -p - self.charge(-p)
+            qprod = q - self.discharge(0,q)[1]
+        if p >= 0 and q < 0:
+            pprod = p - self.discharge(p,0)[0]  
+        if p < 0 and q < 0:
+            if -p == np.inf:
+                pload = self.inj_p_max - self.charge(self.inj_p_max)
+            else:
+                pload = -p - self.charge(-p)
+        self.update_history()
+        if self.SOC > self.SOC_min:
+            self.bus.pprod += pprod
+            self.bus.qprod += qprod
+        if self.SOC < self.SOC_max:
+            self.bus.pload += pload
+            self.bus.qload += qload
+        prem = p + pload - pprod
+        qrem = q + qload - qprod
+        return prem, qrem
+
+    def update_history(self):
+        self.history["SOC"].append(self.SOC)
+
+    def get_history(self, attribute:str):
+        return self.history[attribute]
 
 class Production:
 
@@ -860,7 +935,7 @@ class Production:
 
     Methods 
     ----------
-    set_prodiction(pprod, qprord)
+    set_prod(pprod, qprord)
         Decides how much active and reactive power that will be produced 
     update_bus_load()
         Updates the load on the bus with the amount of generated active and reactive power 
@@ -908,7 +983,7 @@ class Production:
     def __hash__(self):
         return hash(self.name)
 
-    def set_production(self, pprod:float, qprod:float):
+    def set_prod(self, pprod:float, qprod:float):
 
         """
          Decides how much active and reactive power that will be produced
@@ -939,33 +1014,17 @@ class Production:
             self.qprod = self.qmax
         else:
             self.qprod = qprod
-        self.update_bus_load()
+        self.update_bus_prod()
 
-    def update_bus_load(self):
-
-        """
-         Updates the load on the bus with the amount of generated active and reactive power 
-         Sets the active load at the bus equal the active load at the bus minus the generated active power
-         Sets the reactive load at the bus equal the reactive load at the bus minus the generated reactive power
-        
-        Parameters
-        ----------
-        pprod : float
-            The active power produced by the production unit [MW]
-        qprod : float
-            The reactive power produced by the production unit [MVar]
-        pload : float
-            The active load at the bus
-        qload : float 
-            The reactive load at the bus
-
-        Returns
-        ----------
-        None
+    def update_bus_prod(self):
 
         """
-        self.bus.pload -= self.pprod
-        self.bus.qload -= self.qprod
+         Updates the production on the bus with the amount of generated active and reactive power 
+         Sets the active production at the bus equal the active production at the bus minus the generated active power
+         Sets the reactive production at the bus equal the reactive production at the bus minus the generated reactive power
+        """
+        self.bus.pprod = self.pprod
+        self.bus.qprod = self.qprod
 
 
 if __name__=="__main__":
