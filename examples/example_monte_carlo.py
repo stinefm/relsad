@@ -4,7 +4,9 @@ from stinetwork.visualization.plotting import plot_topology
 from stinetwork.loadflow.ac import DistLoadFlow
 from stinetwork.visualization.printing import dispVolt, dispFlow, ForwardSearch, BackwardSearch, dispLoads
 from load_and_gen_data import WeatherGen,LoadGen,windGen,PVgeneration
-import time
+import time, os
+
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 start = time.time()
 
@@ -45,6 +47,10 @@ L6a = ps.get_comp("L6a")
 L7a = ps.get_comp("L7a")
 L7b = ps.get_comp("L7b")
 
+# Fetching battery and production objects
+Bat1 = M1.get_battery()
+P1 = M2.get_production()
+P2 = B5.get_production()
 
 temp_profiles, wind_profiles, solar_profiles = WeatherGen()
 
@@ -56,7 +62,7 @@ load_house, load_farm, load_industry2, load_trade, load_office = LoadGen(temp_pr
 N = 1 # Size of Monte Carlo simulation
 
 for i in range(N):
-    for day in range(365):
+    for day in range(100):
         for hour in range(24):
             print("hour: {}".format(day*24+hour))
             ## Set load
@@ -65,9 +71,13 @@ for i in range(N):
             B3.set_load(pload=load_house[day,hour]*10,qload=0.0)
             B4.set_load(pload=load_house[day,hour]*10,qload=0.0)
             B5.set_load(pload=load_house[day,hour]*10,qload=0.0)
-            M1.set_load(pload=load_house[day,hour]*10,qload=0.0)
+            # M1.set_load(pload=load_house[day,hour]*10,qload=0.0)
             M2.set_load(pload=load_house[day,hour]*10,qload=0.0)
             M3.set_load(pload=load_house[day,hour]*10,qload=0.0)
+
+            ## Set production
+            P1.set_prod(pprod=PV[day,hour]+wind[day,hour], qprod=0)
+            P2.set_prod(pprod=wind[day,hour], qprod=0)           
             
             ## Set fail status
             for comp in ps.get_comp_set():
@@ -77,15 +87,24 @@ for i in range(N):
             update_sub_system_slack(ps)
             
             ## Load flow
-            for sub_system in ps.sub_systems:         
+            for sub_system in ps.sub_systems:
+                ## Update batteries and history
+                sub_system.update_batteries()
+                ## Run load flow     
                 sub_buses = DistLoadFlow(list(sub_system.buses),list(sub_system.lines))
+                ## Shed load
                 sub_system.shed_loads()
+            ps.update_history()
                           
             
             
 
 end = time.time()
 print("Time elapsed: {}".format(end - start))
+
+ps.plot_battery_history()
+ps.plot_bus_history()
+ps.plot_load_shed_history()
 
 for sub_system in PowerSystem.shed_configs:
     fig = plot_topology(list(sub_system.buses),list(sub_system.lines))
