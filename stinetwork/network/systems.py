@@ -1,6 +1,6 @@
 from stinetwork.network.components import Bus, Line, Battery, Disconnector, Production, CircuitBreaker
 from stinetwork.topology.paths import find_backup_lines_between_sub_systems
-from stinetwork.visualization.plotting import plot_topology
+from stinetwork.visualization.plotting import plot_topology, plot_history
 import numpy as np
 from scipy.optimize import linprog
 
@@ -14,6 +14,12 @@ class PowerSystem:
 
     ## Load shed configurations
     shed_configs = set()
+
+    ## Load shedding
+    load_shed = 0
+
+    ## History
+    history = {"load_shed":list()}
 
     def __init__(self):
         """ Initializing power system content 
@@ -30,6 +36,7 @@ class PowerSystem:
         self.sub_systems = set()
 
         self.buses = set()
+        self.batteries = set()
         self.lines = set()
 
         self.comp_dict = dict()
@@ -51,26 +58,35 @@ class PowerSystem:
     def __hash__(self):
         return hash(self.name)
 
+    def add_bus(self, bus:Bus):
+        self.comp_dict[bus.name] = bus
+        self.buses.add(bus)
+        if bus.battery != None:
+            self.comp_dict[bus.battery.name] = bus.battery
+            self.batteries.add(bus.battery)
+
     def add_buses(self,buses:set):
         """ Adding buses to power system
             Input: buses(list(Bus)) """
         for bus in buses:
-            self.comp_dict[bus.name] = bus
-            self.buses.add(bus)
+            self.add_bus(bus)
+            
+    def add_line(self, line:Line):
+        self.comp_dict[line.name] = line
+        for discon in line.disconnectors:
+            self.comp_dict[discon.name] = discon
+        if line.circuitbreaker != None:
+            cb = line.circuitbreaker
+            self.comp_dict[cb.name] = cb
+            for discon in cb.disconnectors:
+                self.comp_dict[discon.name] = discon
+        self.lines.add(line)
 
     def add_lines(self, lines:set):
         """ Adding lines to power system
             Input: lines(list(Line)) """
         for line in lines:
-            self.comp_dict[line.name] = line
-            for discon in line.disconnectors:
-                self.comp_dict[discon.name] = discon
-            if line.circuitbreaker != None:
-                cb = line.circuitbreaker
-                self.comp_dict[cb.name] = cb
-                for discon in cb.disconnectors:
-                    self.comp_dict[discon.name] = discon
-            self.lines.add(line)
+            self.add_line(line)
 
     def get_comp(self, name:str):
         try:
@@ -131,7 +147,7 @@ class PowerSystem:
                         else:
                             A[j,N_D + index] = 1
 
-                b.append(bus.pload)
+                b.append(max(0,bus.pload))
 
                 flag = False
                 for dist_network in self.dist_network_set:
@@ -139,10 +155,7 @@ class PowerSystem:
                         gen.append(np.inf)
                         flag = True
                 if flag == False:
-                    if bus.prod != None:
-                        gen.append(bus.prod.pprod)
-                    else:
-                        gen.append(0)
+                    gen.append(max(0,bus.pprod))
 
             bounds = list()
             for n in range(N_D+N_L+N_D):
@@ -158,9 +171,10 @@ class PowerSystem:
                 else:
                     bounds.append((0,gen[n-(N_D+N_L)]))
 
-            res = linprog(c, A_eq=A, b_eq=b, bounds=bounds, method='simplex')
+            res = linprog(c, A_eq=A, b_eq=b, bounds=bounds, method='simplex', options={"tol":1E-10})
 
             if res.fun > 0:
+                PowerSystem.load_shed += res.fun
                 if len(PowerSystem.shed_configs)==0:
                     PowerSystem.shed_configs.add(self)
                 add = True
@@ -172,6 +186,7 @@ class PowerSystem:
                     PowerSystem.shed_configs.add(self)
 
                 # print(buses,lines)
+                # self.print_status()
 
                 # print('c:\n', c)
                 # print('A_eq:\n', A)
@@ -188,6 +203,44 @@ class PowerSystem:
         else:
             raise(Exception("More than one sub system"))
 
+    def get_system_load_balance(self):
+        system_load_balance_p, system_load_balance_q = 0,0
+        for bus in self.buses:
+            for dist_network in self.dist_network_set:
+                if bus == dist_network.get_slack_bus():
+                    system_load_balance_p = -np.inf
+                    system_load_balance_q = 0
+                    return system_load_balance_p, system_load_balance_q
+            system_load_balance_p += bus.pload - bus.pprod
+            system_load_balance_q += bus.qload - bus.qprod
+        return system_load_balance_p, system_load_balance_q
+
+    def update_batteries(self):
+        p, q = self.get_system_load_balance()
+        for battery in self.batteries:
+            p, q = battery.update_bus_load_and_prod(p,q)
+
+    def plot_bus_history(self):
+        plot_history(self.buses, "pload")
+        plot_history(self.buses, "qload")
+        plot_history(self.buses, "pprod")
+        plot_history(self.buses, "qprod")
+
+    def plot_battery_history(self):
+        plot_history(self.batteries, "SOC")
+    
+    def plot_load_shed_history(self):
+        plot_history([self], "load_shed")        
+
+    def update_history(self):
+        PowerSystem.history["load_shed"].append(PowerSystem.load_shed)
+        PowerSystem.load_shed = 0
+        for bus in self.buses:
+            bus.update_history()
+            bus.reset_load_and_prod_attributes()
+    
+    def get_history(self, attribute):
+        return PowerSystem.history[attribute]
 
 class Distribution:
     """ Class defining a distribution network type """
@@ -361,7 +414,7 @@ def find_sub_systems(ps:PowerSystem):
     def try_to_add_connected_lines(bus):
         for line in bus.connected_lines-used_lines:
             if line.connected:
-                sub_system.lines.add(line)
+                sub_system.add_line(line)
                 used_lines.add(line)
                 if line.tbus == bus:
                     add_bus(line.fbus)
@@ -372,7 +425,7 @@ def find_sub_systems(ps:PowerSystem):
 
     def add_bus(bus):
         if bus not in used_buses.union(sub_system.buses):
-            sub_system.buses.add(bus)
+            sub_system.add_bus(bus)
             used_buses.add(bus)
             for dist_network in ps.dist_network_set:
                 for dist_bus in dist_network.buses:
