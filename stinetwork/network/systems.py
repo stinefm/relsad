@@ -122,6 +122,7 @@ class PowerSystem:
         if len(self.sub_systems) <= 1:
 
             buses = list(self.buses)
+            cost = [x.get_cost() for x in buses]
             lines = [x for x in self.lines if x.connected]
 
 
@@ -129,13 +130,14 @@ class PowerSystem:
 
             N_L = len(lines)
 
-            c = [1]*N_D+[0]*N_L+[0]*N_D
+            c = cost+[0]*N_L+[0]*N_D
 
             A = np.zeros((N_D,N_D+N_L+N_D))
 
             b = list() # Bus load
             gen = list() # Bus generation
 
+            # Building A-matrix
             for j, bus in enumerate(buses):
                 A[j,j] = 1 # lambda_md
                 A[j,N_D+N_L+j] = 1 # mu_md
@@ -174,7 +176,7 @@ class PowerSystem:
             res = linprog(c, A_eq=A, b_eq=b, bounds=bounds, method='simplex', options={"tol":1E-10})
 
             if res.fun > 0:
-                PowerSystem.load_shed += res.fun
+                PowerSystem.load_shed += sum(res.x[0:N_D])
                 if len(PowerSystem.shed_configs)==0:
                     PowerSystem.shed_configs.add(self)
                 add = True
