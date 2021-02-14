@@ -165,7 +165,7 @@ class Bus:
         """
         self.trafo_failed = True
         self.remaining_outage_time = self.outage_time-1
-        self.reset_load(0,0)
+        self.reset_load()
         if self.prod != None:
             self.prod.set_prod(0,0)
     
