@@ -62,18 +62,19 @@ load_house, load_farm, load_industry2, load_trade, load_office = LoadGen(temp_pr
 N = 1 # Size of Monte Carlo simulation
 
 for i in range(N):
-    for day in range(100):
+    for day in range(20):
         for hour in range(24):
             print("hour: {}".format(day*24+hour))
             ## Set load
-            B1.set_load(pload=load_house[day,hour]*10,qload=0.0)
-            B2.set_load(pload=load_house[day,hour]*10,qload=0.0)
-            B3.set_load(pload=load_house[day,hour]*10,qload=0.0)
-            B4.set_load(pload=load_house[day,hour]*10,qload=0.0)
-            B5.set_load(pload=load_house[day,hour]*10,qload=0.0)
-            # M1.set_load(pload=load_house[day,hour]*10,qload=0.0)
-            M2.set_load(pload=load_house[day,hour]*10,qload=0.0)
-            M3.set_load(pload=load_house[day,hour]*10,qload=0.0)
+            B1.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0},
+                                    "Industri":{"pload":load_industry2[day,hour]*10,"qload":0.0}})
+            B2.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
+            B3.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
+            B4.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
+            B5.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
+            M2.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
+            M3.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
+
 
             ## Set production
             P1.set_prod(pprod=PV[day,hour]+wind[day,hour], qprod=0)
