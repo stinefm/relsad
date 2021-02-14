@@ -104,6 +104,7 @@ class Bus:
         self.fail_rate_per_year = fail_rate_per_year # failures per year
         self.fail_rate_per_hour = self.fail_rate_per_year/(365*24)
         self.outage_time = outage_time # hours
+        self.cost = 0 # cost
 
         ## Status attribute
         self.trafo_failed = False
@@ -135,9 +136,24 @@ class Bus:
         self.pprod = 0
         self.qprod = 0
 
-    def set_load(self, pload:float, qload:float):
-        self.pload = pload
-        self.qload = qload
+    def set_load(self, load_dict:dict):
+        self.pload = 0
+        self.qload = 0
+        cost_functions = {"Jordbruk":{"A":21.4-17.5,"B":17.5},\
+                        "Industri":{"A":132.6-92.5,"B":92.5},\
+                        "Handel og tjenester":{"A":220.3-102.4,"B":102.4},\
+                        "Offentlig virksomhet":{"A":194.5-31.4,"B":31.4},\
+                        "Husholdning":{"A":8.8,"B":14.7}}
+        for load_type in load_dict:
+            try:
+                type_cost = cost_functions[load_type]
+                A = type_cost["A"]
+                B = type_cost["B"]
+                self.set_cost(A+B*1)
+                self.pload += load_dict[load_type]["pload"]
+                self.qload += load_dict[load_type]["qload"]
+            except:
+                raise KeyError("Load type {} is not in cost_functions".format(load_type))
 
     def trafo_fail(self):
         """ 
@@ -174,10 +190,12 @@ class Bus:
         self.is_slack = True
     
     def print_status(self):
-        print("name: {:3s}, trafo_failed={}, pload={:.4f}, is_slack={}, toline={}, fromline={}, tolineset={}, fromlineset={}, connected_lines={}"\
-                    .format(self.name, self.trafo_failed, self.pload, self.is_slack, \
+        print("name: {:3s}, trafo_failed={}, pload={:.4f}, " \
+            "is_slack={}, toline={}, fromline={}, tolineset={}, " \
+            "fromlineset={}, connected_lines={}, cost={:.4f}"\
+            .format(self.name, self.trafo_failed, self.pload, self.is_slack, \
                     self.toline if self.toline==None else self.toline.name, self.fromline if self.fromline == None else self.fromline.name,\
-                    self.tolineset, self.fromlineset, self.connected_lines))
+                    self.tolineset, self.fromlineset, self.connected_lines, self.cost))
 
     def update_history(self):
         self.history["pload"].append(self.pload)
@@ -187,6 +205,12 @@ class Bus:
 
     def get_history(self, attribute:str):
         return self.history[attribute]
+
+    def set_cost(self, cost:float):
+        self.cost = cost
+    
+    def get_cost(self):
+        return self.cost
 
 class Line:
     r'''
