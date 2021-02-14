@@ -136,6 +136,10 @@ class Bus:
         self.pprod = 0
         self.qprod = 0
 
+    def reset_load(self):
+        self.pload = 0
+        self.qload = 0
+
     def set_load(self, load_dict:dict):
         self.pload = 0
         self.qload = 0
@@ -161,7 +165,7 @@ class Bus:
         """
         self.trafo_failed = True
         self.remaining_outage_time = self.outage_time-1
-        self.set_load(0,0)
+        self.reset_load(0,0)
         if self.prod != None:
             self.prod.set_prod(0,0)
     
