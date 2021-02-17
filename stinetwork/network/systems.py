@@ -1,6 +1,8 @@
 from stinetwork.network.components import Bus, Line, Battery, Disconnector, Production, CircuitBreaker
+from stinetwork.loadflow.ac import DistLoadFlow
 from stinetwork.topology.paths import find_backup_lines_between_sub_systems
 from stinetwork.visualization.plotting import plot_topology, plot_history
+from stinetwork.results.storage import save_history
 import numpy as np
 from scipy.optimize import linprog
 
@@ -41,6 +43,7 @@ class PowerSystem:
 
         self.comp_dict = dict()
 
+        self.trans_network_set = set()
         self.dist_network_set = set()
         self.microgrid_network_set = set()
 
@@ -97,6 +100,9 @@ class PowerSystem:
     def get_comp_set(self):
         return self.buses.union(self.lines)
 
+    def add_transmission_network(self, trans_network):
+        self.trans_network_set.add(trans_network)
+
     def add_distribution_network(self, dist_network):
         self.dist_network_set.add(dist_network)
 
@@ -104,6 +110,8 @@ class PowerSystem:
         self.microgrid_network_set.add(microgrid_network)
 
     def reset_slack_bus(self):
+        for trans_network in self.trans_network_set:
+            trans_network.reset_slack_bus()
         for dist_network in self.dist_network_set:
             dist_network.reset_slack_bus()
         for microgrid in self.microgrid_network_set:
@@ -124,7 +132,6 @@ class PowerSystem:
             buses = list(self.buses)
             cost = [x.get_cost() for x in buses]
             lines = [x for x in self.lines if x.connected]
-
 
             N_D = len(buses)
 
@@ -152,8 +159,8 @@ class PowerSystem:
                 b.append(max(0,bus.pload))
 
                 flag = False
-                for dist_network in self.dist_network_set:
-                    if bus == dist_network.get_slack_bus():
+                for trans_network in self.trans_network_set:
+                    if bus == trans_network.get_slack_bus():
                         gen.append(np.inf)
                         flag = True
                 if flag == False:
@@ -208,8 +215,8 @@ class PowerSystem:
     def get_system_load_balance(self):
         system_load_balance_p, system_load_balance_q = 0,0
         for bus in self.buses:
-            for dist_network in self.dist_network_set:
-                if bus == dist_network.get_slack_bus():
+            for trans_network in self.trans_network_set:
+                if bus == trans_network.get_slack_bus():
                     system_load_balance_p = -np.inf
                     system_load_balance_q = 0
                     return system_load_balance_p, system_load_balance_q
@@ -228,11 +235,23 @@ class PowerSystem:
         plot_history(self.buses, "pprod")
         plot_history(self.buses, "qprod")
 
+    def save_bus_history(self, save_dir:str):
+        save_history(self.buses, "pload", save_dir)
+        save_history(self.buses, "qload", save_dir)
+        save_history(self.buses, "pprod", save_dir)
+        save_history(self.buses, "qprod", save_dir)
+
     def plot_battery_history(self):
         plot_history(self.batteries, "SOC")
+
+    def save_battery_history(self, save_dir:str):
+        save_history(self.batteries, "SOC", save_dir)
     
     def plot_load_shed_history(self):
-        plot_history([self], "load_shed")        
+        plot_history([self], "load_shed")
+
+    def save_load_shed_history(self, save_dir:str):
+        save_history([self], "load_shed", save_dir)
 
     def update_history(self):
         PowerSystem.history["load_shed"].append(PowerSystem.load_shed)
@@ -244,6 +263,77 @@ class PowerSystem:
     def get_history(self, attribute):
         return PowerSystem.history[attribute]
 
+    def run(self):
+        """
+        Runs power system at current state
+        """        
+                
+        ## Set fail status
+        for comp in self.get_comp_set():
+            comp.update_fail_status()
+
+        ## Find sub systems
+        find_sub_systems(self)
+        update_sub_system_slack(self)
+        
+        ## Load flow
+        for sub_system in self.sub_systems:
+            ## Update batteries and history
+            sub_system.update_batteries()
+            ## Run load flow     
+            _sub_buses = DistLoadFlow(list(sub_system.buses),list(sub_system.lines))
+            ## Shed load
+            sub_system.shed_loads()
+        ## Log results
+        self.update_history()
+
+class Transmission:
+    """ Class defining a transmission network type """
+
+    ## Visual attributes
+    color="steelblue"
+
+    ## Counter
+    counter = 0
+
+    def __init__(self, powerSystem:PowerSystem, bus:Bus):
+        """ Initializing transmission network type content 
+            Content:
+                bus(Bus): Bus
+        """
+        Transmission.counter += 1
+        self.name = "trans_network{:d}".format(Transmission.counter)
+
+        self.powerSystem = powerSystem
+        
+        self.bus = bus
+        
+        bus.handle.color = self.color
+        bus.color = self.color
+        self.powerSystem.add_bus(bus)
+
+        bus.set_slack()
+        self.slack_bus = bus
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f'Distribution(name={self.name})'
+
+    def __eq__(self,other):
+        try:return self.name == other.name
+        except:False
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def get_slack_bus(self):
+        return self.slack_bus
+
+    def reset_slack_bus(self):
+        self.bus.set_slack()
+
 class Distribution:
     """ Class defining a distribution network type """
 
@@ -253,7 +343,7 @@ class Distribution:
     ## Counter
     counter = 0
 
-    def __init__(self, powerSystem:PowerSystem):
+    def __init__(self, transmissionNetwork:Transmission, connected_line:Line):
         """ Initializing distributed network type content 
             Content:
                 buses(set): Set of buses
@@ -267,8 +357,20 @@ class Distribution:
         self.buses = set()
         self.lines = set()
         self.comp_dict = dict()
-        self.powerSystem = powerSystem
-        self.slack_bus = None
+        self.transmissionNetwork = transmissionNetwork
+        self.powerSystem = transmissionNetwork.powerSystem
+
+        self.connected_line = connected_line
+        if self.connected_line.circuitbreaker != None:
+            cb = self.connected_line.circuitbreaker
+            self.circuitbreaker = cb
+            self.comp_dict[cb.name] = cb
+            for discon in cb.disconnectors:
+                self.comp_dict[discon.name] = discon
+        else:
+            self.circuitbreaker = None
+        self.add_lines([connected_line])
+
 
     def __str__(self):
         return self.name
@@ -290,11 +392,6 @@ class Distribution:
             self.comp_dict[bus.name] = bus
             bus.handle.color = self.color
             bus.color = self.color
-            if bus.is_slack:
-                if self.slack_bus == None:
-                    self.slack_bus = bus
-                else:
-                    raise Exception("The distribution network can only have one slack bus")
             self.buses.add(bus)
         self.powerSystem.add_buses(buses)
 
@@ -307,23 +404,12 @@ class Distribution:
             self.comp_dict[line.name] = line
             for discon in line.disconnectors:
                 self.comp_dict[discon.name] = discon
-            if line.circuitbreaker != None:
-                cb = line.circuitbreaker
-                self.comp_dict[cb.name] = cb
-                for discon in cb.disconnectors:
-                    self.comp_dict[discon.name] = discon
             self.lines.add(line)
         self.powerSystem.add_lines(lines)
 
-    def get_slack_bus(self):
-        return self.slack_bus
-
     def reset_slack_bus(self):
         for bus in self.buses:
-            if bus == self.slack_bus:
-                bus.set_slack()
-            else:
-                bus.is_slack = False
+            bus.is_slack = False
 
 
 class Microgrid:
@@ -351,6 +437,14 @@ class Microgrid:
         self.comp_dict = dict()
         self.distibutionNetwork = distibutionNetwork
         self.connected_line = connected_line
+        if self.connected_line.circuitbreaker != None:
+            cb = self.connected_line.circuitbreaker
+            self.circuitbreaker = cb
+            self.comp_dict[cb.name] = cb
+            for discon in cb.disconnectors:
+                self.comp_dict[discon.name] = discon
+        else:
+            self.circuitbreaker = None
         self.add_lines([connected_line])
 
     def __str__(self):
@@ -385,20 +479,19 @@ class Microgrid:
             self.comp_dict[line.name] = line
             for discon in line.disconnectors:
                 self.comp_dict[discon.name] = discon
-            if line.circuitbreaker != None:
-                cb = line.circuitbreaker
-                self.comp_dict[cb.name] = cb
-                for discon in cb.disconnectors:
-                    self.comp_dict[discon.name] = discon
             self.lines.add(line)
         self.distibutionNetwork.powerSystem.add_lines(lines)
 
     
     def connect(self):
-        self.connected_line.connect()
+        for discon in self.connected_line.get_disconnectors():
+            if discon.is_open:
+                    discon.close()
 
     def disconnect(self):
-        self.connected_line.disconnect()
+        for discon in self.connected_line.get_disconnectors():
+            if not discon.is_open:
+                    discon.open()
 
     def reset_slack_bus(self):
         for bus in self.buses:
@@ -455,7 +548,9 @@ def update_backup_lines_between_sub_systems(ps:PowerSystem):
                 external_backup_lines = find_backup_lines_between_sub_systems(s1,s2)
                 for line in external_backup_lines:
                     if not line.connected and not line.failed:
-                        line.connect()
+                        for discon in line.get_disconnectors():
+                            if discon.is_open:
+                                discon.close()
                         update = True
                         break
             if update:
@@ -475,10 +570,10 @@ def update_sub_system_slack(ps:PowerSystem):
             ps.sub_systems.remove(sub_system)
 
 def set_slack(ps:PowerSystem):
-    ## Distribution network slack buses in sub_system
+    ## Transmission network slack buses in sub_system
     for bus in ps.buses:
-        for dist_network in ps.dist_network_set:
-            if bus == dist_network.get_slack_bus():
+        for trans_network in ps.trans_network_set:
+            if bus == trans_network.get_slack_bus():
                 bus.set_slack()
                 ps.slack = bus
                 return True
