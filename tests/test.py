@@ -1,10 +1,10 @@
 from stinetwork.network.components import Bus, Line
-from stinetwork.network.systems import PowerSystem, Distribution
+from stinetwork.network.systems import PowerSystem, Transmission, Distribution
 from stinetwork.loadflow.ac import DistLoadFlow
 from stinetwork.visualization.printing import dispVolt, dispFlow
 
 # Buses and loads
-Bus1 =  Bus("B1", is_slack=True)
+Bus1 =  Bus("B1")
 Bus2 =  Bus("B2")
 Bus3 =  Bus("B3")
 Bus4 =  Bus("B4")
@@ -38,39 +38,39 @@ Bus31 = Bus("B31")
 Bus32 = Bus("B32")
 Bus33 = Bus("B33")
 
-Bus1.set_load(0, 0           )
-Bus2.set_load(0.001,  0.0006) 
-Bus3.set_load(0.0009, 0.0004 )
-Bus4.set_load(0.0012, 0.0008 )
-Bus5.set_load(0.0006, 0.0003 )
-Bus6.set_load(0.0006, 0.0002 )
-Bus7.set_load(0.002, 0.001   )
-Bus8.set_load(0.002, 0.001   )
-Bus9.set_load(0.0006, 0.0002 )
-Bus10.set_load(0.0006, 0.0002 )
-Bus11.set_load(0.00045, 0.0003)
-Bus12.set_load(0.0006, 0.00035)
-Bus13.set_load(0.0006, 0.00035)
-Bus14.set_load(0.0012, 0.0008 )
-Bus15.set_load(0.0006, 0.0001 )
-Bus16.set_load(0.0006, 0.0002 )
-Bus17.set_load(0.0006, 0.0002 )
-Bus18.set_load(0.0009, 0.0004 )
-Bus19.set_load(0.0009, 0.0004 )
-Bus20.set_load(0.0009, 0.0004 )
-Bus21.set_load(0.0009, 0.0004 )
-Bus22.set_load(0.0009, 0.0004 )
-Bus23.set_load(0.0009, 0.0005 )
-Bus24.set_load(0.0042, 0.002  )
-Bus25.set_load(0.0042, 0.002  )
-Bus26.set_load(0.0006, 0.00025)
-Bus27.set_load(0.0006, 0.00025)
-Bus28.set_load(0.0006, 0.0002 )
-Bus29.set_load(0.0012, 0.0007 )
-Bus30.set_load(0.002, 0.006   )
-Bus31.set_load(0.0015, 0.0007 )
-Bus32.set_load(0.0021, 0.001  )
-Bus33.set_load(0.0006, 0.0004 )
+Bus1.set_load(load_dict={"Husholdning":{"pload":0     ,"qload":0.0}})
+Bus2.set_load(load_dict={"Husholdning":{"pload":0.001 ,"qload": 0.0006}})
+Bus3.set_load(load_dict={"Husholdning":{"pload":0.0009,"qload": 0.0004}})
+Bus4.set_load(load_dict={"Husholdning":{"pload":0.0012,"qload": 0.0008}})
+Bus5.set_load(load_dict={"Husholdning":{"pload":0.0006,"qload": 0.0003}})
+Bus6.set_load(load_dict={"Husholdning":{"pload":0.0006,"qload": 0.0002}})
+Bus7.set_load(load_dict={"Husholdning":{"pload":0.002 ,"qload": 0.001 }})
+Bus8.set_load(load_dict={"Husholdning":{"pload":0.002 ,"qload": 0.001 }})
+Bus9.set_load(load_dict={"Husholdning":{"pload":0.0006,"qload": 0.0002}})
+Bus10.set_load(load_dict={"Husholdning":{"pload":0.0006 ,"qload":0.0002 }})
+Bus11.set_load(load_dict={"Husholdning":{"pload":0.00045,"qload":0.0003 }})
+Bus12.set_load(load_dict={"Husholdning":{"pload":0.0006 ,"qload":0.00035}})
+Bus13.set_load(load_dict={"Husholdning":{"pload":0.0006 ,"qload":0.00035}})
+Bus14.set_load(load_dict={"Husholdning":{"pload":0.0012 ,"qload":0.0008 }})
+Bus15.set_load(load_dict={"Husholdning":{"pload":0.0006 ,"qload":0.0001 }})
+Bus16.set_load(load_dict={"Husholdning":{"pload":0.0006 ,"qload":0.0002 }})
+Bus17.set_load(load_dict={"Husholdning":{"pload":0.0006 ,"qload":0.0002 }})
+Bus18.set_load(load_dict={"Husholdning":{"pload":0.0009 ,"qload":0.0004 }})
+Bus19.set_load(load_dict={"Husholdning":{"pload":0.0009 ,"qload":0.0004 }})
+Bus20.set_load(load_dict={"Husholdning":{"pload":0.0009 ,"qload":0.0004 }})
+Bus21.set_load(load_dict={"Husholdning":{"pload":0.0009 ,"qload":0.0004 }})
+Bus22.set_load(load_dict={"Husholdning":{"pload":0.0009 ,"qload":0.0004 }})
+Bus23.set_load(load_dict={"Husholdning":{"pload":0.0009 ,"qload":0.0005 }})
+Bus24.set_load(load_dict={"Husholdning":{"pload":0.0042 ,"qload":0.002  }})
+Bus25.set_load(load_dict={"Husholdning":{"pload":0.0042 ,"qload":0.002  }})
+Bus26.set_load(load_dict={"Husholdning":{"pload":0.0006 ,"qload":0.00025}})
+Bus27.set_load(load_dict={"Husholdning":{"pload":0.0006 ,"qload":0.00025}})
+Bus28.set_load(load_dict={"Husholdning":{"pload":0.0006 ,"qload":0.0002 }})
+Bus29.set_load(load_dict={"Husholdning":{"pload":0.0012 ,"qload":0.0007 }})
+Bus30.set_load(load_dict={"Husholdning":{"pload":0.002  ,"qload":0.006  }})
+Bus31.set_load(load_dict={"Husholdning":{"pload":0.0015 ,"qload":0.0007 }})
+Bus32.set_load(load_dict={"Husholdning":{"pload":0.0021 ,"qload":0.001  }})
+Bus33.set_load(load_dict={"Husholdning":{"pload":0.0006 ,"qload":0.0004 }})
 
 
 
@@ -110,19 +110,21 @@ L32 = Line("L32", Bus32, Bus33, 0.212761178384962, 0.330809316069521)
 
 ps = PowerSystem()
 
-distNetwork = Distribution(ps)
+transNetwork = Transmission(ps, Bus1)
 
-distNetwork.add_buses({Bus1, Bus2, Bus3, Bus4, Bus5, Bus6, Bus7, Bus8, Bus9, Bus10,
+distNetwork = Distribution(transNetwork, L1)
+
+distNetwork.add_buses({Bus2, Bus3, Bus4, Bus5, Bus6, Bus7, Bus8, Bus9, Bus10,
                         Bus11, Bus12, Bus13, Bus14, Bus15, Bus16, Bus17, Bus18, Bus19, Bus20,
                         Bus21, Bus22, Bus23, Bus24, Bus25, Bus26, Bus27, Bus28, Bus29, Bus30, Bus31, Bus32, Bus33})
 
-distNetwork.add_lines({L1, L2, L3, L4, L5, L6, L7, L8, L9, L10,
+distNetwork.add_lines({L2, L3, L4, L5, L6, L7, L8, L9, L10,
                         L11, L12, L13, L14, L15, L16, L17, L18, L19, L20,
                         L21, L22, L23, L24, L25, L26, L27, L28, L29, L30, L31, L32})
 
 
-distNetwork.buses = DistLoadFlow(list(distNetwork.buses), list(distNetwork.lines))
+ps.buses = DistLoadFlow(list(ps.buses), list(ps.lines))
 
-dispVolt(list(distNetwork.buses),tpres=False)
-dispFlow(list(distNetwork.buses), list(distNetwork.lines),tpres=False)
+dispVolt(list(ps.buses),tpres=False)
+dispFlow(list(ps.buses), list(ps.lines),tpres=False)
 
