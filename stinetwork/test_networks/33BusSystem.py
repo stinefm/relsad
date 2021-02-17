@@ -1,11 +1,11 @@
 from stinetwork.network.components import Bus, Line, Disconnector, CircuitBreaker, Battery, Production
-from stinetwork.network.systems import PowerSystem, Distribution, Microgrid
+from stinetwork.network.systems import PowerSystem, Transmission, Distribution, Microgrid
 from stinetwork.visualization.plotting import plot_topology
 
 def initialize_33Bus_network():
     ps = PowerSystem()
 
-    B1 = Bus("B1", coordinate=[0, 0], is_slack=True, fail_rate_per_year=0)
+    B1 = Bus("B1", coordinate=[0, 0], fail_rate_per_year=0)
     B2 = Bus("B2", coordinate=[0, -1], fail_rate_per_year=365)
     B3 = Bus("B3", coordinate=[0, -2], fail_rate_per_year=365)
     B4 = Bus("B4", coordinate=[0, -3], fail_rate_per_year=365)
@@ -144,19 +144,20 @@ def initialize_33Bus_network():
     Disconnector("L32a", L32, B32)
     Disconnector("L32b", L32, B33)
 
+    tn = Transmission(ps,B1)
 
+    dn = Distribution(tn,L1)
 
-    dn = Distribution(ps)
-
-    dn.add_buses({B1, B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, B12, B13, B14, B15, B16, \
+    dn.add_buses({B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, B12, B13, B14, B15, B16, \
                 B17, B18, B19, B20, B21, B22, B23, B24, B25, B26, B27, B28, B29, B30, B31, \
                 B32, B33})
 
 
-    dn.add_lines({L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, \
+    dn.add_lines({L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, \
                 L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29, L30, L31, \
                 L32})
 
+    ps.add_transmission_network(tn)
     ps.add_distribution_network(dn)
 
     return ps

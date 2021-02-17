@@ -1,15 +1,20 @@
 from stinetwork.network.components import Bus, Line, Disconnector, CircuitBreaker, Battery, Production
-from stinetwork.network.systems import PowerSystem, Distribution, Microgrid
+from stinetwork.network.systems import PowerSystem, Transmission, Distribution, Microgrid
 
 def initialize_test_network():
     ps = PowerSystem()
 
-    B0 = Bus("B0", coordinate=[0, 0], is_slack=True, fail_rate_per_year=0) #Slack bus
+    ## Transmission network
+    T = Bus("T", coordinate=[0, 0], fail_rate_per_year=0)
+
+    ## Distribution network
     B1 = Bus("B1", coordinate=[0, -1], fail_rate_per_year=20)#0.2)
     B2 = Bus("B2", coordinate=[1, -2], fail_rate_per_year=20)#0.2)
     B3 = Bus("B3", coordinate=[0, -2], fail_rate_per_year=20)#0.2)
     B4 = Bus("B4", coordinate=[0, -3], fail_rate_per_year=20)#0.2)
     B5 = Bus("B5", coordinate=[1, -3], fail_rate_per_year=20)#0.2)
+
+    ## Microgrid
     M1 = Bus("M1", coordinate=[-1, -2], fail_rate_per_year=20)#0.2)
     M2 = Bus("M2", coordinate=[-2, -3], fail_rate_per_year=20)#0.2)
     M3 = Bus("M3", coordinate=[-1, -3], fail_rate_per_year=20)#0.2)
@@ -18,7 +23,7 @@ def initialize_test_network():
     Production("P1",M2)
     Production("P2",B5)
 
-    L1 = Line("L1", B0, B1, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
+    L1 = Line("L1", T, B1, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
     L2 = Line("L2", B1, B2, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
     L3 = Line("L3", B1, B3, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
     L4 = Line("L4", B3, B4, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
@@ -30,7 +35,7 @@ def initialize_test_network():
 
     E1 = CircuitBreaker("E1", L1)
 
-    Disconnector("L1a", L1, B0, E1)
+    Disconnector("L1a", L1, T, E1)
     Disconnector("L1b", L1, B1, E1)
     Disconnector("L1c", L1, B1)
     Disconnector("L2a", L2, B1)
@@ -53,16 +58,19 @@ def initialize_test_network():
 
     L6.set_backup()
 
-    dn = Distribution(ps)
+    tn = Transmission(ps,T)
 
-    dn.add_buses({B0,B1,B2,B3,B4,B5})
-    dn.add_lines({L1,L2,L3,L4,L5,L6})
+    dn = Distribution(tn,L1)
+
+    dn.add_buses({B1,B2,B3,B4,B5})
+    dn.add_lines({L2,L3,L4,L5,L6})
 
     m = Microgrid(dn,L7)
 
     m.add_buses({M1,M2,M3})
     m.add_lines({ML1,ML2})
 
+    ps.add_transmission_network(tn)
     ps.add_distribution_network(dn)
     ps.add_microgrid_network(m)
 
