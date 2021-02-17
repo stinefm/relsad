@@ -13,7 +13,7 @@ start = time.time()
 ps = initialize_test_network()
 
 # Fetching bus-objects
-B0 = ps.get_comp("B0")
+T = ps.get_comp("T")
 B1 = ps.get_comp("B1")
 B2 = ps.get_comp("B2")
 B3 = ps.get_comp("B3")
@@ -62,7 +62,7 @@ load_house, load_farm, load_industry2, load_trade, load_office = LoadGen(temp_pr
 N = 1 # Size of Monte Carlo simulation
 
 for i in range(N):
-    for day in range(20):
+    for day in range(1):
         for hour in range(24):
             print("hour: {}".format(day*24+hour))
             ## Set load
@@ -78,39 +78,21 @@ for i in range(N):
 
             ## Set production
             P1.set_prod(pprod=PV[day,hour]+wind[day,hour], qprod=0)
-            P2.set_prod(pprod=wind[day,hour], qprod=0)           
-            
-            ## Set fail status
-            for comp in ps.get_comp_set():
-                comp.update_fail_status()
+            P2.set_prod(pprod=wind[day,hour], qprod=0)
 
-            find_sub_systems(ps)
-            update_sub_system_slack(ps)
-            
-            ## Load flow
-            for sub_system in ps.sub_systems:
-                ## Update batteries and history
-                sub_system.update_batteries()
-                ## Run load flow     
-                sub_buses = DistLoadFlow(list(sub_system.buses),list(sub_system.lines))
-                ## Shed load
-                sub_system.shed_loads()
-            ps.update_history()
+            ps.run()
                           
-            
-            
-
 end = time.time()
 print("Time elapsed: {}".format(end - start))
 
-ps.plot_battery_history()
-ps.plot_bus_history()
-ps.plot_load_shed_history()
+# ps.plot_battery_history()
+# ps.plot_bus_history()
+# ps.plot_load_shed_history()
+
+ps.save_bus_history(r"C:\Users\stinefm\Desktop\results")
+ps.save_battery_history(r"C:\Users\stinefm\Desktop\results")
+ps.save_load_shed_history(r"C:\Users\stinefm\Desktop\results")
 
 for sub_system in PowerSystem.shed_configs:
     fig = plot_topology(list(sub_system.buses),list(sub_system.lines))
     fig.show()
-try:
-    input("Press enter to continue")
-except SyntaxError:
-    pass
