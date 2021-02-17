@@ -55,7 +55,7 @@ class Bus:
     def __init__(self, name:str, coordinate:list=[0,0], \
                 ZIP=[0.0, 0.0 ,1.0], vset=0.0, iloss=0, pqcostRatio=100, \
                 is_slack:bool=False, fail_rate_per_year:float=0.5, \
-                outage_time:float=4):
+                outage_time:float=8):
         ## Informative attributes
         self.name = name
         self.coordinate = coordinate
@@ -256,7 +256,7 @@ class Line:
 
     def __init__(self, name:str, fbus:Bus, tbus:Bus, r:float, \
                 x:float, length:float=1, fail_rate_density_per_year:float=0.2, \
-                outage_time:float=2, capacity:float=100, connected=True):
+                outage_time:float=4, capacity:float=100, connected=True):
         ## Informative attributes
         self.name = name
 
@@ -329,12 +329,6 @@ class Line:
             else:
                 self.tbus.toline = None
         self.fbus.nextbus.discard(self.tbus)
-        for discon in self.disconnectors:
-            if not discon.is_open:
-                discon.open()
-        if self.circuitbreaker != None:
-            if not self.circuitbreaker.is_open:
-                self.circuitbreaker.open()
 
     def connect(self):
         self.connected = True
@@ -344,20 +338,24 @@ class Line:
         self.fbus.fromline = self
         self.fbus.fromlineset.add(self)
         self.fbus.nextbus.add(self.tbus)
-        for discon in self.disconnectors:
-            discon.close()
-        if self.circuitbreaker != None:
-            self.circuitbreaker.close()
-
+        
     def fail(self):
         self.failed = True
         self.remaining_outage_time = self.outage_time-1
-        self.disconnect()
+        for discon in self.disconnectors:
+            if not discon.is_open:
+                discon.open()
+        if self.circuitbreaker != None:
+            if not self.circuitbreaker.is_open:
+                self.circuitbreaker.open()
 
     def not_fail(self):
         self.failed = False
         if not self.is_backup:
-            self.connect()
+            for discon in self.disconnectors:
+                discon.close()
+            if self.circuitbreaker != None:
+                self.circuitbreaker.close()
 
     def change_direction(self):
         self.fbus.fromlineset.discard(self)
@@ -381,7 +379,9 @@ class Line:
 
     def update_fail_status(self):
         if self.is_backup:
-            self.disconnect()
+            for discon in self.disconnectors:
+                if not discon.is_open:
+                    discon.open()
         if self.failed:
             self.remaining_outage_time -= 1
             if self.remaining_outage_time == 0:
@@ -428,6 +428,9 @@ class Line:
 
     def print_status(self):
         print("name: {:5s}, failed={}, connected={}".format(self.name, self.failed, self.connected))
+
+    def get_disconnectors(self):
+        return self.disconnectors
 
 
 class CircuitBreaker:
@@ -509,7 +512,9 @@ class CircuitBreaker:
         self.is_open = True
         self.color = "white"
         if self.line.connected == True:
-            self.line.disconnect()
+            for discon in self.line.disconnectors:
+                if not discon.is_open:
+                    discon.open()
         for discon in self.disconnectors:
             if not discon.is_open:
                 discon.open()
@@ -607,6 +612,8 @@ class Disconnector:
     def close(self):
         self.is_open = False
         self.color = "black"
+        if self.line.connected == False:
+            self.line.connect()
     
     def open(self):
         self.is_open = True
