@@ -2,10 +2,10 @@
 Module containing the system definition of the package
 """
 
-from stinetwork.network.components import Bus, Line
+from stinetwork.network.components import Bus, Line, CircuitBreaker
 from stinetwork.loadflow.ac import DistLoadFlow
 from stinetwork.topology.paths import find_backup_lines_between_sub_systems
-from stinetwork.visualization.plotting import plot_history
+from stinetwork.visualization.plotting import plot_history, plot_topology
 from stinetwork.results.storage import save_history
 import numpy as np
 from scipy.optimize import linprog
@@ -25,6 +25,11 @@ class PowerSystem:
     load_shed = 0
 
     ## History
+    all_comp_set = set()
+    all_buses = set()
+    all_batteries = set()
+    all_productions = set()
+    all_lines = set()
     history = {"load_shed":list()}
 
     def __init__(self):
@@ -43,13 +48,13 @@ class PowerSystem:
 
         self.buses = set()
         self.batteries = set()
+        self.productions = set()
         self.lines = set()
 
+        self.comp_set = set()
         self.comp_dict = dict()
 
-        self.trans_network_set = set()
-        self.dist_network_set = set()
-        self.microgrid_network_set = set()
+        self.child_network_set = set()
 
     def __str__(self):
         return self.name
@@ -72,10 +77,22 @@ class PowerSystem:
         Input: bus(Bus)
         """
         self.comp_dict[bus.name] = bus
+        self.comp_set.add(bus)
+        PowerSystem.all_comp_set.add(bus)
         self.buses.add(bus)
-        if bus.battery != None:
+        PowerSystem.all_buses.add(bus)
+        if bus.battery is not None:
             self.comp_dict[bus.battery.name] = bus.battery
+            self.comp_set.add(bus.battery)
             self.batteries.add(bus.battery)
+            PowerSystem.all_comp_set.add(bus.battery)
+            PowerSystem.all_batteries.add(bus.battery)
+        if bus.prod is not None:
+            self.comp_dict[bus.prod.name] = bus.prod
+            self.comp_set.add(bus.prod)
+            self.productions.add(bus.prod)
+            PowerSystem.all_comp_set.add(bus.prod)
+            PowerSystem.all_productions.add(bus.prod)
 
     def add_buses(self,buses:set):
         """ Adding buses to power system
@@ -89,14 +106,23 @@ class PowerSystem:
         Input: line(Line)
         """
         self.comp_dict[line.name] = line
+        self.comp_set.add(line)
+        PowerSystem.all_comp_set.add(line)
         for discon in line.disconnectors:
             self.comp_dict[discon.name] = discon
+            self.comp_set.add(discon)
+            PowerSystem.all_comp_set.add(discon)
         if line.circuitbreaker != None:
-            cb = line.circuitbreaker
-            self.comp_dict[cb.name] = cb
-            for discon in cb.disconnectors:
+            c_b = line.circuitbreaker
+            self.comp_dict[c_b.name] = c_b
+            self.comp_set.add(c_b)
+            PowerSystem.all_comp_set.add(c_b)
+            for discon in c_b.disconnectors:
                 self.comp_dict[discon.name] = discon
+                self.comp_set.add(discon)
+                PowerSystem.all_comp_set.add(discon)
         self.lines.add(line)
+        PowerSystem.all_lines.add(line)
 
     def add_lines(self, lines:set):
         """ Adding lines to power system
@@ -111,31 +137,21 @@ class PowerSystem:
         try:
             return self.comp_dict[name]
         except KeyError:
+            print(name)
             print("Component is not part of the network")
+            exit()
 
     def get_comp_set(self):
         """
-        Returns set of buses and lines in power system
+        Returns set of the components in the power system
         """
-        return self.buses.union(self.lines)
+        return self.comp_set
 
-    def add_transmission_network(self, trans_network):
+    def add_child_network(self, network):
         """
-        Adding transmission network to power system
+        Adding child network to power system
         """
-        self.trans_network_set.add(trans_network)
-
-    def add_distribution_network(self, dist_network):
-        """
-        Adding distribution network to power system
-        """
-        self.dist_network_set.add(dist_network)
-
-    def add_microgrid_network(self, microgrid_network):
-        """
-        Adding microgrid network to power system
-        """
-        self.microgrid_network_set.add(microgrid_network)
+        self.child_network_set.add(network)
 
     def reset_slack_bus(self):
         """
@@ -197,10 +213,11 @@ class PowerSystem:
                 b.append(max(0,bus.pload))
 
                 flag = False
-                for trans_network in self.trans_network_set:
-                    if bus == trans_network.get_slack_bus():
-                        gen.append(np.inf)
-                        flag = True
+                for child_network in self.child_network_set:
+                    if type(child_network) == Transmission:
+                        if bus == child_network.get():
+                            gen.append(np.inf)
+                            flag = True
                 if flag == False:
                     gen.append(max(0,bus.pprod))
 
@@ -232,20 +249,22 @@ class PowerSystem:
                 if add:
                     PowerSystem.shed_configs.add(self)
 
-                # print(buses,lines)
-                # self.print_status()
+                print_shed = False
+                if print_shed:
+                    print(buses,lines)
+                    self.print_status()
 
-                # print('c:\n', c)
-                # print('A_eq:\n', A)
-                # print('b_eq:\n', b)
-                # print('Bounds:\n', bounds)
-                # print('Results:', res)
-                # fig = plot_topology(list(self.buses),list(self.lines))
-                # fig.show()
-                # try:
-                #     input("Press enter to continue")
-                # except SyntaxError:
-                #     pass
+                    print('c:\n', c)
+                    print('A_eq:\n', A)
+                    print('b_eq:\n', b)
+                    print('Bounds:\n', bounds)
+                    print('Results:', res)
+                    fig = plot_topology(list(self.buses),list(self.lines))
+                    fig.show()
+                    try:
+                        input("Press enter to continue")
+                    except SyntaxError:
+                        pass
 
         else:
             raise Exception("More than one sub system")
@@ -256,11 +275,12 @@ class PowerSystem:
         """
         system_load_balance_p, system_load_balance_q = 0,0
         for bus in self.buses:
-            for trans_network in self.trans_network_set:
-                if bus == trans_network.get_slack_bus():
-                    system_load_balance_p = -np.inf
-                    system_load_balance_q = 0
-                    return system_load_balance_p, system_load_balance_q
+            for child_network in self.child_network_set:
+                if type(child_network) == Transmission:
+                    if bus == child_network.get():
+                        system_load_balance_p = -np.inf
+                        system_load_balance_q = 0
+                        return system_load_balance_p, system_load_balance_q
             system_load_balance_p += bus.pload - bus.pprod
             system_load_balance_q += bus.qload - bus.qprod
         return system_load_balance_p, system_load_balance_q
@@ -315,14 +335,49 @@ class PowerSystem:
         """
         save_history([self], "load_shed", save_dir)
 
+    def plot_line_history(self):
+        """
+        Plots the history of the line in the power system
+        """
+        plot_history(self.lines, "p_from")
+        plot_history(self.lines, "q_from")
+        plot_history(self.lines, "p_to")
+        plot_history(self.lines, "q_to")
+        plot_history(self.lines, "remaining_outage_time")
+
+    def save_line_history(self, save_dir:str):
+        """
+        Saves the history of the line in the power system
+        """
+        save_history(self.lines, "p_from", save_dir)
+        save_history(self.lines, "q_from", save_dir)
+        save_history(self.lines, "p_to", save_dir)
+        save_history(self.lines, "q_to", save_dir)
+        save_history(self.lines, "remaining_outage_time", save_dir)
+
+    def plot_circuitbreaker_history(self):
+        """
+        Plots the history of the load shedding in the power system
+        """
+        plot_history([x for x in self.comp_set if type(x) == CircuitBreaker], "is_open")
+        plot_history([x for x in self.comp_set if type(x) == CircuitBreaker], "remaining_section_time")
+
+    def save_circuitbreaker_history(self, save_dir:str):
+        """
+        Saves the history of the load shedding in the power system
+        """
+        save_history([x for x in self.comp_set if type(x) == CircuitBreaker], "is_open", save_dir)
+        save_history([x for x in self.comp_set if type(x) == CircuitBreaker], "remaining_section_time", save_dir)
+
     def update_history(self):
         """
         Updates the history variables in the power system
         """
         PowerSystem.history["load_shed"].append(PowerSystem.load_shed)
         PowerSystem.load_shed = 0
-        for bus in self.buses:
-            bus.update_history()
+        for comp in PowerSystem.all_comp_set:
+            comp.update_history()
+        for bus in PowerSystem.all_buses:
             bus.reset_load_and_prod_attributes()
 
     def get_history(self, attribute):
@@ -331,14 +386,13 @@ class PowerSystem:
         """
         return PowerSystem.history[attribute]
 
-    def run(self):
+    def run(self, hour):
         """
         Runs power system at current state
         """
-
         ## Set fail status
         for comp in self.get_comp_set():
-            comp.update_fail_status()
+            comp.update_fail_status(hour)
 
         ## Find sub systems
         find_sub_systems(self)
@@ -354,6 +408,7 @@ class PowerSystem:
             sub_system.shed_loads()
         ## Log results
         self.update_history()
+
 
 class Transmission:
     """ Class defining a transmission network type """
@@ -372,13 +427,16 @@ class Transmission:
         Transmission.counter += 1
         self.name = "trans_network{:d}".format(Transmission.counter)
 
-        self.power_system = power_system
+        self.parent_network = power_system
+        power_system.add_child_network(self)
+        self.child_network_set = set()
 
         self.bus = bus
+        self.buses = {bus}
 
         bus.handle.color = self.color
         bus.color = self.color
-        self.power_system.add_bus(bus)
+        self.parent_network.add_bus(bus)
 
         bus.set_slack()
         self.slack_bus = bus
@@ -387,7 +445,7 @@ class Transmission:
         return self.name
 
     def __repr__(self):
-        return f'Distribution(name={self.name})'
+        return f'Transmission(name={self.name})'
 
     def __eq__(self,other):
         try:
@@ -398,17 +456,24 @@ class Transmission:
     def __hash__(self):
         return hash(self.name)
 
-    def get_slack_bus(self):
+    def get(self):
         """
-        Returns the slack bus of the transmission network
+        Returns the bus of the transmission network
         """
-        return self.slack_bus
+        return self.bus
 
     def reset_slack_bus(self):
         """
         Resets the slack bus of the transmission network
         """
         self.bus.set_slack()
+
+    def add_child_network(self, network):
+        """
+        Adds child network
+        """
+        self.child_network_set.add(network)
+        self.parent_network.add_child_network(network)
 
 class Distribution:
     """ Class defining a distribution network type """
@@ -433,20 +498,20 @@ class Distribution:
         self.buses = set()
         self.lines = set()
         self.comp_dict = dict()
-        self.transmission_network = transmission_network
-        self.power_system = transmission_network.power_system
+        self.parent_network = transmission_network
+        transmission_network.add_child_network(self)
+        self.power_system = transmission_network.parent_network
+        self.child_network_set = set()
 
         self.connected_line = connected_line
-        if self.connected_line.circuitbreaker is not None:
-            c_b = self.connected_line.circuitbreaker
-            self.circuitbreaker = c_b
-            self.comp_dict[c_b.name] = c_b
-            for discon in c_b.disconnectors:
-                self.comp_dict[discon.name] = discon
-        else:
-            self.circuitbreaker = None
-        self.add_lines([connected_line])
-
+        c_b = connected_line.circuitbreaker
+        if self.connected_line.circuitbreaker is None:
+            raise Exception("{} connects the distribution network to the " \
+                            "transmission network, it must contain a circuitbreaker".format(connected_line))
+        self.comp_dict[c_b.name] = c_b
+        for discon in c_b.disconnectors:
+            self.comp_dict[discon.name] = discon
+        self.add_line(connected_line)
 
     def __str__(self):
         return self.name
@@ -463,28 +528,39 @@ class Distribution:
     def __hash__(self):
         return hash(self.name)
 
+    def add_bus(self, bus:Bus):
+        """ Adding bus to distribution
+            Input: bus(Bus) """
+        self.comp_dict[bus.name] = bus
+        bus.handle.color = self.color
+        bus.color = self.color
+        self.buses.add(bus)
+        self.power_system.add_bus(bus)
+
     def add_buses(self,buses:set):
-        """ Adding buses to power system
+        """ Adding buses to distribution
             Input: buses(set(Bus)) """
         for bus in buses:
-            self.comp_dict[bus.name] = bus
-            bus.handle.color = self.color
-            bus.color = self.color
-            self.buses.add(bus)
-        self.power_system.add_buses(buses)
+            self.add_bus(bus)
+
+    def add_line(self, line:Line):
+        """ Adding line to distribution
+            Input: line(Line) """
+        line.handle.color = self.color
+        line.color = self.color
+        self.comp_dict[line.name] = line
+        for discon in line.disconnectors:
+            self.comp_dict[discon.name] = discon
+        self.lines.add(line)
+        line.add_parent_network(self)
+        self.power_system.add_line(line)
 
     def add_lines(self, lines:set):
-        """ Adding lines to power system
+        """ Adding lines to distribution
             Input: lines(set(Line)) """
         for line in lines:
-            line.handle.color = self.color
-            line.color = self.color
-            self.comp_dict[line.name] = line
-            for discon in line.disconnectors:
-                self.comp_dict[discon.name] = discon
-            self.lines.add(line)
-        self.power_system.add_lines(lines)
-
+            self.add_line(line)
+        
     def reset_slack_bus(self):
         """
         Resets the slack bus attribute of the buses in the distribution network
@@ -492,6 +568,12 @@ class Distribution:
         for bus in self.buses:
             bus.is_slack = False
 
+    def add_child_network(self, network):
+        """
+        Adds child network
+        """
+        self.child_network_set.add(network)
+        self.parent_network.add_child_network(network)
 
 class Microgrid:
     """ Class defining a microgrid network type """
@@ -517,16 +599,18 @@ class Microgrid:
         self.lines = set()
         self.comp_dict = dict()
         self.distribution_network = distribution_network
+        self.distribution_network.add_child_network(self)
+        self.child_network_set = None
+
         self.connected_line = connected_line
-        if self.connected_line.circuitbreaker is not None:
-            c_b = self.connected_line.circuitbreaker
-            self.circuitbreaker = c_b
-            self.comp_dict[c_b.name] = c_b
-            for discon in c_b.disconnectors:
-                self.comp_dict[discon.name] = discon
-        else:
-            self.circuitbreaker = None
-        self.add_lines([connected_line])
+        c_b = connected_line.circuitbreaker
+        if self.connected_line.circuitbreaker is None:
+            raise Exception("{} connects the microgrid to the " \
+                            "distribution network, it must contain a circuitbreaker".format(connected_line))
+        self.comp_dict[c_b.name] = c_b
+        for discon in c_b.disconnectors:
+            self.comp_dict[discon.name] = discon
+        self.add_line(connected_line)
 
     def __str__(self):
         return self.name
@@ -543,27 +627,38 @@ class Microgrid:
     def __hash__(self):
         return hash(self.name)
 
+    def add_bus(self, bus:Bus):
+        """ Adding bus to microgrid
+            Input: bus(Bus) """
+        self.comp_dict[bus.name] = bus
+        bus.handle.color = self.color
+        bus.color = self.color
+        self.buses.add(bus)
+        self.distribution_network.power_system.add_bus(bus)
+
     def add_buses(self,buses:list):
-        """ Adding buses to power system
+        """ Adding buses to microgrid
             Input: buses(list(Bus)) """
         for bus in buses:
-            self.comp_dict[bus.name] = bus
-            bus.handle.color = self.color
-            bus.color = self.color
-            self.buses.add(bus)
-        self.distribution_network.power_system.add_buses(buses)
+            self.add_bus(bus)   
+    
+    def add_line(self, line:Line):
+        """ Adding line to microgrid
+            Input: line(Line) """
+        line.handle.color = self.color
+        line.color = self.color
+        self.comp_dict[line.name] = line
+        for discon in line.disconnectors:
+            self.comp_dict[discon.name] = discon
+        self.lines.add(line)
+        line.add_parent_network(self)
+        self.distribution_network.power_system.add_line(line)
 
     def add_lines(self, lines:list):
-        """ Adding lines to power system
+        """ Adding lines to microgrid
             Input: lines(list(Line)) """
         for line in lines:
-            line.handle.color = self.color
-            line.color = self.color
-            self.comp_dict[line.name] = line
-            for discon in line.disconnectors:
-                self.comp_dict[discon.name] = discon
-            self.lines.add(line)
-        self.distribution_network.power_system.add_lines(lines)
+            self.add_line(line)  
 
     def connect(self):
         """
@@ -620,11 +715,10 @@ def find_sub_systems(p_s:PowerSystem):
         if bus not in used_buses.union(sub_system.buses):
             sub_system.add_bus(bus)
             used_buses.add(bus)
-            for dist_network in p_s.dist_network_set:
-                for dist_bus in dist_network.buses:
-                    if bus == dist_bus:
-                        sub_system.add_distribution_network(dist_network)
-                        break
+            for child_network in p_s.child_network_set:
+                if bus in child_network.buses:
+                    sub_system.add_child_network(child_network)
+                
 
     while not (len(used_buses)+len(used_lines))==(len(p_s.buses)+len(active_lines)):
         for bus in p_s.buses:
@@ -681,11 +775,12 @@ def set_slack(p_s:PowerSystem):
     """
     ## Transmission network slack buses in sub_system
     for bus in p_s.buses:
-        for trans_network in p_s.trans_network_set:
-            if bus == trans_network.get_slack_bus():
-                bus.set_slack()
-                p_s.slack = bus
-                return True
+        for child_network in p_s.child_network_set:
+            if type(child_network) == Transmission:
+                if bus == child_network.get():
+                    bus.set_slack()
+                    p_s.slack = bus
+                    return True
     ## Buses with battery
     if p_s.slack is None:
         for bus in p_s.buses:
