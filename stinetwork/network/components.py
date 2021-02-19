@@ -1,9 +1,13 @@
+"""
+Module that contains the component definitions of the package
+"""
+
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import numpy as np
 
 class Bus:
-    ''' 
+    '''
     Common base class for all distribution buses
 
     ...
@@ -21,8 +25,8 @@ class Bus:
         ZIP : list
         vset : float
         iloss : float
-        pqcostRatio : 
-        comp : 
+        pqcostRatio :
+        comp :
         ploadds : float
         qloadds : float
         pblossds : float
@@ -40,10 +44,10 @@ class Bus:
         lossRatioP :
         lossRatioQ :
         voang : float
-        vomag : float 
+        vomag : float
 
     '''
-    
+
     busCount = 0
 
     ## Visual attributes
