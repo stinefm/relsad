@@ -96,3 +96,7 @@ ps.save_load_shed_history(r"C:\Users\stinefm\Desktop\results")
 for sub_system in PowerSystem.shed_configs:
     fig = plot_topology(list(sub_system.buses),list(sub_system.lines))
     fig.show()
+try:
+    input("Press enter to continue")
+except SyntaxError:
+    pass
