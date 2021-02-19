@@ -34,6 +34,7 @@ def initialize_test_network():
     ML2 = Line("ML2", M1, M3, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
 
     E1 = CircuitBreaker("E1", L1)
+    E2 = CircuitBreaker("E2", L7)
 
     Disconnector("L1a", L1, T, E1)
     Disconnector("L1b", L1, B1, E1)
@@ -48,8 +49,9 @@ def initialize_test_network():
     Disconnector("L5b", L5, B5)
     Disconnector("L6a", L6, B3)
     Disconnector("L6b", L6, B5)
-    Disconnector("L7a", L7, B1)
-    Disconnector("L7b", L7, M1)
+    Disconnector("L7a", L7, B1, E2)
+    Disconnector("L7b", L7, M1, E2)
+    Disconnector("L7c", L7, M1)
 
     Disconnector("ML1a", ML1, M1)
     Disconnector("ML1b", ML1, M2)
@@ -69,11 +71,7 @@ def initialize_test_network():
 
     m.add_buses({M1,M2,M3})
     m.add_lines({ML1,ML2})
-
-    ps.add_transmission_network(tn)
-    ps.add_distribution_network(dn)
-    ps.add_microgrid_network(m)
-
+    
     return ps
 
 if __name__=="__main__":

@@ -1,4 +1,4 @@
-from stinetwork.network.components import Bus, Line
+from stinetwork.network.components import Bus, Line, CircuitBreaker, Disconnector
 from stinetwork.network.systems import PowerSystem, Transmission, Distribution
 from stinetwork.loadflow.ac import DistLoadFlow
 from stinetwork.visualization.printing import dispVolt, dispFlow
@@ -107,6 +107,11 @@ L29 = Line("L29", Bus29, Bus30, 0.316646035279672, 0.161286699743439)
 L30 = Line("L30", Bus30, Bus31, 0.60796038773697, 0.600847550688323)
 L31 = Line("L31", Bus31, Bus32, 0.193731219614459, 0.225801379640814)
 L32 = Line("L32", Bus32, Bus33, 0.212761178384962, 0.330809316069521)
+
+E1 = CircuitBreaker("E1", L1)
+
+L1a = Disconnector("L1a", L1, Bus1)
+L1b = Disconnector("L1b", L1, Bus2)
 
 ps = PowerSystem()
 
