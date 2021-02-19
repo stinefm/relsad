@@ -168,7 +168,7 @@ class Bus:
         Trafo fails, load and generation is set to zero
         """
         self.trafo_failed = True
-        self.remaining_outage_time = self.outage_time-1
+        self.remaining_outage_time = self.outage_time
         self.reset_load()
         if self.prod != None:
             self.prod.set_prod(0,0)
@@ -182,8 +182,8 @@ class Bus:
     def get_production(self):
         return self.prod
 
-    def update_fail_status(self):
-        if self.trafo_fail:
+    def update_fail_status(self, hour):
+        if self.trafo_failed:
             self.remaining_outage_time -= 1
             if self.remaining_outage_time == 0:
                 self.trafo_not_fail()
@@ -279,13 +279,14 @@ class Line:
         fbus.nextbus.add(self.tbus)
         self.disconnectors = list()
         self.circuitbreaker = None
+        self.parent_network = None
         Line.lineCount += 1
 
         ##  Power flow attributes
         self.r = r
         self.x = x
         self.length = length
-        self.capacity = capacity
+        self.capacity = capacity # MW
         self.ploss = 0.0
         self.qloss = 0.0
 
@@ -298,6 +299,10 @@ class Line:
         self.connected = connected
         self.failed = False
         self.remaining_outage_time = 0
+
+        ## History
+        self.history = {"p_from":list(), "q_from":list(), "p_to":list(), \
+                        "q_to":list(), "remaining_outage_time":list()}
 
     def __str__(self):
         return self.name
@@ -343,23 +348,19 @@ class Line:
         self.fbus.fromlineset.add(self)
         self.fbus.nextbus.add(self.tbus)
         
-    def fail(self):
+    def fail(self, hour):
         self.failed = True
-        self.remaining_outage_time = self.outage_time-1
+        self.remaining_outage_time = self.outage_time
         for discon in self.disconnectors:
             if not discon.is_open:
                 discon.open()
-        if self.circuitbreaker != None:
-            if not self.circuitbreaker.is_open:
-                self.circuitbreaker.open()
+        self.parent_network.connected_line.circuitbreaker.open(hour)
+        if self.parent_network.child_network_set is not None:
+            for child_network in self.parent_network.child_network_set:
+                child_network.connected_line.circuitbreaker.open(hour)
 
     def not_fail(self):
         self.failed = False
-        if not self.is_backup:
-            for discon in self.disconnectors:
-                discon.close()
-            if self.circuitbreaker != None:
-                self.circuitbreaker.close()
 
     def change_direction(self):
         self.fbus.fromlineset.discard(self)
@@ -381,7 +382,7 @@ class Line:
         self.fbus = self.tbus
         self.tbus = bus        
 
-    def update_fail_status(self):
+    def update_fail_status(self, hour):
         if self.is_backup:
             for discon in self.disconnectors:
                 if not discon.is_open:
@@ -393,7 +394,7 @@ class Line:
         else:
             p_fail = self.fail_rate_per_hour
             if np.random.choice([True,False],p=[p_fail,1-p_fail]):
-                self.fail()
+                self.fail(hour)
             else:
                 self.not_fail()
 
@@ -423,12 +424,12 @@ class Line:
         b = bij(self.r,self.x)
         g = gij(self.r,self.x)
 
-        Pfrom = g * v1 * v1 - v1 * v2 * tij(g, b, teta1, teta2)
-        Pto = g * v2 * v2 - v1 * v2 * tij(g, b, teta2, teta1)
-        Qfrom = -(b + bsh) * v1 * v1 - v1 * v2 * uij(g, b, teta1, teta2)
-        Qto = -(b + bsh) * v2 * v2 - v1 * v2 * uij(g, b, teta2, teta1)
+        p_from = g * v1 * v1 - v1 * v2 * tij(g, b, teta1, teta2)
+        p_to = g * v2 * v2 - v1 * v2 * tij(g, b, teta2, teta1)
+        q_from = -(b + bsh) * v1 * v1 - v1 * v2 * uij(g, b, teta1, teta2)
+        q_to = -(b + bsh) * v2 * v2 - v1 * v2 * uij(g, b, teta2, teta1)
 
-        return Pfrom,Qfrom,Pto,Qto
+        return p_from,q_from,p_to,q_to
 
     def print_status(self):
         print("name: {:5s}, failed={}, connected={}".format(self.name, self.failed, self.connected))
@@ -436,6 +437,22 @@ class Line:
     def get_disconnectors(self):
         return self.disconnectors
 
+    def add_parent_network(self, network):
+        """
+        Adds parent network
+        """
+        self.parent_network = network
+
+    def update_history(self):
+        p_from,q_from,p_to,q_to = self.get_line_load()
+        self.history["p_from"].append(p_from)
+        self.history["q_from"].append(q_from)
+        self.history["p_to"].append(p_to)
+        self.history["q_to"].append(q_to)
+        self.history["remaining_outage_time"].append(self.remaining_outage_time)
+
+    def get_history(self, attribute:str):
+        return self.history[attribute]
 
 class CircuitBreaker:
 
@@ -489,11 +506,17 @@ class CircuitBreaker:
             line.fbus.coordinate[0] + dx/3, line.fbus.coordinate[1] + dy/3]
         self.is_open = is_open
         self.failed = False
+        self.section_time = section_time
+        self.section_hour = 0
+        self.remaining_section_time = 0
         self.fail_rate = fail_rate
         self.outage_time = outage_time
         self.line = line
         self.disconnectors = list()
         self.line.circuitbreaker = self
+
+        ## History
+        self.history = {"is_open":list(), "remaining_section_time":list()}
 
     def __str__(self):
         return self.name
@@ -512,8 +535,10 @@ class CircuitBreaker:
         self.is_open = False
         self.color = "black"
 
-    def open(self):
+    def open(self, hour):
         self.is_open = True
+        self.section_hour = hour
+        self.remaining_section_time = self.section_time
         self.color = "white"
         if self.line.connected == True:
             for discon in self.line.disconnectors:
@@ -523,14 +548,18 @@ class CircuitBreaker:
             if not discon.is_open:
                 discon.open()
 
-    def fail(self):
-        self.failed = True
-        self.open()
-
-    def not_fail(self):
-        self.failed = False
-        self.close()
-
+    def update_fail_status(self, hour):
+        if self.is_open and hour > self.section_hour:
+            self.remaining_section_time -= 1
+            if self.remaining_section_time == 0:
+                self.close()
+    
+    def update_history(self):
+        self.history["is_open"].append(self.is_open)
+        self.history["remaining_section_time"].append(self.remaining_section_time)
+    
+    def get_history(self, attribute:str):
+        return self.history[attribute]
 
 class Disconnector:
 
@@ -600,6 +629,9 @@ class Disconnector:
             self.coordinate = [ \
                 circuitbreaker.coordinate[0] - dx/10, circuitbreaker.coordinate[1] - dy/10]
 
+        ## History
+        self.history = dict()
+
     def __str__(self):
         return self.name
 
@@ -633,6 +665,14 @@ class Disconnector:
         self.failed = False
         self.close()
 
+    def update_fail_status(self, hour):
+        pass
+
+    def update_history(self):
+        pass
+
+    def get_history(self, attribute:str):
+        return self.history[attribute]
 
 class Battery:
     """
@@ -949,6 +989,9 @@ class Battery:
     def get_history(self, attribute:str):
         return self.history[attribute]
 
+    def update_fail_status(self, hour):
+        pass
+
 class Production:
 
     """
@@ -1009,6 +1052,9 @@ class Production:
         self.pmax = pmax
         self.qmax = qmax
 
+        ## History
+        self.history = dict()
+
     def __str__(self):
         return self.name
 
@@ -1065,6 +1111,14 @@ class Production:
         self.bus.pprod = self.pprod
         self.bus.qprod = self.qprod
 
+    def update_fail_status(self, hour):
+        pass
+
+    def update_history(self):
+        pass
+
+    def get_history(self, attribute:str):
+        return self.history[attribute]
 
 if __name__=="__main__":
     pass
