@@ -66,7 +66,7 @@ for i in range(N):
             print("hour: {}".format(run_hour))
             ## Set load
             B1.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0},
-                                    "Industri":{"pload":load_industry2[day,hour]*10,"qload":0.0}})
+                                    "Industri":{"pload":load_industry2[day,hour]*1,"qload":0.0}})
             B2.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
             B3.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
             B4.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
@@ -84,11 +84,11 @@ for i in range(N):
 end = time.time()
 print("Time elapsed: {}".format(end - start))
 
-ps.plot_battery_history()
-# ps.plot_bus_history()
-ps.plot_load_shed_history()
-# ps.plot_line_history()
-ps.plot_circuitbreaker_history()
+ps.plot_bus_history(r"C:\Users\stinefm\Desktop\results\bus")
+ps.plot_battery_history(r"C:\Users\stinefm\Desktop\results\battery")
+ps.plot_load_shed_history(r"C:\Users\stinefm\Desktop\results\load_shed")
+ps.plot_line_history(r"C:\Users\stinefm\Desktop\results\line")
+ps.plot_circuitbreaker_history(r"C:\Users\stinefm\Desktop\results\history")
 
 ps.save_bus_history(r"C:\Users\stinefm\Desktop\results\bus")
 ps.save_battery_history(r"C:\Users\stinefm\Desktop\results\battery")
