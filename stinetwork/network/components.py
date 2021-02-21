@@ -109,6 +109,8 @@ class Bus:
         self.fail_rate_per_hour = self.fail_rate_per_year/(365*24)
         self.outage_time = outage_time # hours
         self.cost = 0 # cost
+        self.p_load_shed_stack = 0
+        self.q_load_shed_stack = 0
 
         ## Status attribute
         self.trafo_failed = False
@@ -119,7 +121,9 @@ class Bus:
         self.battery = None
 
         ## History
-        self.history = {"pload":list(), "qload":list(), "pprod":list(), "qprod":list()}
+        self.history = {"pload":list(), "qload":list(), "pprod":list(), "qprod":list(), \
+                        "remaining_outage_time":list(), "trafo_failed":list(), "p_load_shed_stack":list(), \
+                        "q_load_shed_stack":list()}
 
     def __str__(self):
         return self.name
@@ -169,7 +173,7 @@ class Bus:
         """
         self.trafo_failed = True
         self.remaining_outage_time = self.outage_time
-        self.reset_load()
+        self.shed_load()
         if self.prod != None:
             self.prod.set_prod(0,0)
     
@@ -210,6 +214,11 @@ class Bus:
         self.history["qload"].append(self.qload)
         self.history["pprod"].append(self.pprod)
         self.history["qprod"].append(self.qprod)
+        self.history["remaining_outage_time"].append(self.remaining_outage_time)
+        self.history["trafo_failed"].append(self.trafo_failed)
+        self.history["p_load_shed_stack"].append(self.p_load_shed_stack)
+        self.history["q_load_shed_stack"].append(self.q_load_shed_stack)
+        self.clear_load_shed_stack()
 
     def get_history(self, attribute:str):
         return self.history[attribute]
@@ -220,6 +229,14 @@ class Bus:
     def get_cost(self):
         return self.cost
 
+    def shed_load(self):
+        self.p_load_shed_stack += self.pload
+        self.q_load_shed_stack += self.qload
+        self.reset_load()
+
+    def clear_load_shed_stack(self):
+        self.p_load_shed_stack = 0
+        self.q_load_shed_stack = 0
 class Line:
     r'''
     A class used to represent an electrical Line
@@ -302,7 +319,8 @@ class Line:
 
         ## History
         self.history = {"p_from":list(), "q_from":list(), "p_to":list(), \
-                        "q_to":list(), "remaining_outage_time":list()}
+                        "q_to":list(), "remaining_outage_time":list(), \
+                        "failed":list()}
 
     def __str__(self):
         return self.name
@@ -450,6 +468,7 @@ class Line:
         self.history["p_to"].append(p_to)
         self.history["q_to"].append(q_to)
         self.history["remaining_outage_time"].append(self.remaining_outage_time)
+        self.history["failed"].append(self.failed)
 
     def get_history(self, attribute:str):
         return self.history[attribute]
@@ -507,7 +526,7 @@ class CircuitBreaker:
         self.is_open = is_open
         self.failed = False
         self.section_time = section_time
-        self.section_hour = 0
+        self.prev_section_hour = 0
         self.remaining_section_time = 0
         self.fail_rate = fail_rate
         self.outage_time = outage_time
@@ -516,7 +535,8 @@ class CircuitBreaker:
         self.line.circuitbreaker = self
 
         ## History
-        self.history = {"is_open":list(), "remaining_section_time":list()}
+        self.history = {"is_open":list(), "remaining_section_time":list(), \
+                        "prev_section_hour":list()}
 
     def __str__(self):
         return self.name
@@ -537,7 +557,7 @@ class CircuitBreaker:
 
     def open(self, hour):
         self.is_open = True
-        self.section_hour = hour
+        self.prev_section_hour = hour
         self.remaining_section_time = self.section_time
         self.color = "white"
         if self.line.connected == True:
@@ -549,7 +569,7 @@ class CircuitBreaker:
                 discon.open()
 
     def update_fail_status(self, hour):
-        if self.is_open and hour > self.section_hour:
+        if self.is_open and hour > self.prev_section_hour:
             self.remaining_section_time -= 1
             if self.remaining_section_time == 0:
                 self.close()
@@ -557,6 +577,7 @@ class CircuitBreaker:
     def update_history(self):
         self.history["is_open"].append(self.is_open)
         self.history["remaining_section_time"].append(self.remaining_section_time)
+        self.history["prev_section_hour"].append(self.prev_section_hour)
     
     def get_history(self, attribute:str):
         return self.history[attribute]
@@ -972,7 +993,6 @@ class Battery:
                 pload = self.inj_p_max - self.charge(self.inj_p_max)
             else:
                 pload = -p - self.charge(-p)
-        self.update_history()
         if self.SOC > self.SOC_min:
             self.bus.pprod += pprod
             self.bus.qprod += qprod
