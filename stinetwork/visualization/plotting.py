@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from stinetwork.network.components import Bus, Line, Disconnector, CircuitBreaker
+import os
 
 def plot_topology(buses:list,lines:list,**kwargs):
     fig, ax = plt.subplots(**kwargs)#figsize=(3.5, 4.5))
@@ -87,7 +88,7 @@ def tableplot(table_data, title, columns, rows, columncol=[], rowcol=[]):
     ax.axis('off')
     plt.show()
 
-def plot_history(comp_list:list, attribute:str):
+def plot_history(comp_list:list, attribute:str, save_dir:str):
     fig = plt.figure(dpi=150)
     ax = fig.add_subplot(1, 1, 1)
     for comp in comp_list:
@@ -95,7 +96,8 @@ def plot_history(comp_list:list, attribute:str):
         ax.plot(data,label=comp.name)
     ax.set_title(attribute)
     ax.legend()
-    fig.show()
-
+    #fig.show()
+    fig.savefig(os.path.join(save_dir,attribute+".pdf"), format="pdf")
+    
 if __name__=="__main__":
     pass
