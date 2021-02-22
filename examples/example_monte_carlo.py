@@ -60,7 +60,7 @@ PV = PVgeneration(temp_profiles, solar_profiles)
 load_house, load_farm, load_industry2, load_trade, load_office = LoadGen(temp_profiles)
 N = 1 # Size of Monte Carlo simulation
 for i in range(N):
-    for day in range(20):
+    for day in range(5):
         for hour in range(24):
             run_hour = day*24+hour
             print("hour: {}".format(run_hour))
@@ -70,8 +70,6 @@ for i in range(N):
             B2.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
             B3.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
             B4.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
-            B5.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
-            M2.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
             M3.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
 
 
@@ -88,18 +86,20 @@ ps.plot_bus_history(r"C:\Users\stinefm\Desktop\results\bus")
 ps.plot_battery_history(r"C:\Users\stinefm\Desktop\results\battery")
 ps.plot_load_shed_history(r"C:\Users\stinefm\Desktop\results\load_shed")
 ps.plot_line_history(r"C:\Users\stinefm\Desktop\results\line")
-ps.plot_circuitbreaker_history(r"C:\Users\stinefm\Desktop\results\history")
+ps.plot_circuitbreaker_history(r"C:\Users\stinefm\Desktop\results\circuitbreaker")
+ps.plot_disconnector_history(r"C:\Users\stinefm\Desktop\results\disconnector")
 
 ps.save_bus_history(r"C:\Users\stinefm\Desktop\results\bus")
 ps.save_battery_history(r"C:\Users\stinefm\Desktop\results\battery")
 ps.save_load_shed_history(r"C:\Users\stinefm\Desktop\results\load_shed")
 ps.save_line_history(r"C:\Users\stinefm\Desktop\results\line")
-ps.save_circuitbreaker_history(r"C:\Users\stinefm\Desktop\results\history")
+ps.save_circuitbreaker_history(r"C:\Users\stinefm\Desktop\results\circuitbreaker")
+ps.save_disconnector_history(r"C:\Users\stinefm\Desktop\results\disconnector")
 
-# for sub_system in PowerSystem.shed_configs:
-#     fig = plot_topology(list(sub_system.buses),list(sub_system.lines))
-#     fig.show()
-# try:
-#     input("Press enter to continue")
-# except SyntaxError:
-#     pass
+for sub_system in PowerSystem.shed_configs:
+    fig = plot_topology(list(sub_system.buses),list(sub_system.lines))
+    fig.show()
+try:
+    input("Press enter to continue")
+except SyntaxError:
+    pass
