@@ -145,13 +145,21 @@ def DistLoadFlow(BusList,LineList):
             tbus.dPlossdP = fbus.dPlossdP + dpldp
             tbus.dPlossdQ = fbus.dPlossdQ + dpdq
             tbus.dQlossdP = fbus.dQlossdP + dqdp
-            #                    tbus.dQlossdQ = fbus.dQlossdQ + (2 * tline.x * tqload/tbus.vomag**2) * (1 + 2 * tline.r * tpload/tbus.vomag**2)
             tbus.dQlossdQ = fbus.dQlossdQ + 2 * tline.x * tqload / tbus.vomag ** 2 + 2 * tline.x * tpload * tbus.dPlossdQ / tbus.vomag ** 2
             # Calculate the second-order derivatives
-            tbus.dP2lossdQ2 = fbus.dP2lossdQ2 + dpdq / tqload + (
-                        2 * tline.r * tqload / tbus.vomag ** 2) * 2 * tline.r * dpdq / tbus.vomag ** 2
-            tbus.dP2lossdP2 = fbus.dP2lossdQ2 + dpldp / tpload + (
-                    2 * tline.r * tpload / tbus.vomag ** 2) * 2 * tline.x * dqdp / tbus.vomag ** 2
+            if tqload != 0:
+                tbus.dP2lossdQ2 = fbus.dP2lossdQ2 + dpdq / tqload + (
+                                2 * tline.r * tqload / tbus.vomag ** 2) * 2 * tline.r * dpdq / tbus.vomag ** 2
+            else:
+                tbus.dP2lossdQ2 = fbus.dP2lossdQ2 + dpdq / 1E-9 + (
+                                2 * tline.r * tqload / tbus.vomag ** 2) * 2 * tline.r * dpdq / tbus.vomag ** 2
+            if tpload != 0:
+                tbus.dP2lossdP2 = fbus.dP2lossdQ2 + dpldp / tpload + (
+                                2 * tline.r * tpload / tbus.vomag ** 2) * 2 * tline.x * dqdp / tbus.vomag ** 2
+            else:
+                tbus.dP2lossdP2 = fbus.dP2lossdQ2 + dpldp / 1E-9 + (
+                                2 * tline.r * tpload / tbus.vomag ** 2) * 2 * tline.x * dqdp / tbus.vomag ** 2
+
             tbus.lossRatioQ = tbus.dPlossdQ / tbus.dP2lossdQ2
             tbus.lossRatioP = tbus.dPlossdP / tbus.dP2lossdP2
 
