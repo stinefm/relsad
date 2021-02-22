@@ -8,7 +8,9 @@ from stinetwork.topology.paths import find_backup_lines_between_sub_systems
 from stinetwork.visualization.plotting import plot_history, plot_topology
 from stinetwork.results.storage import save_history
 import numpy as np
-from scipy.optimize import linprog
+from scipy.optimize import linprog, OptimizeWarning
+import warnings
+
 
 class PowerSystem:
 
@@ -184,10 +186,6 @@ class PowerSystem:
 
         if len(self.sub_systems) <= 1:
 
-            for bus in PowerSystem.all_buses:
-                PowerSystem.p_load_shed += bus.p_load_shed_stack
-                PowerSystem.q_load_shed += bus.q_load_shed_stack
-
             buses = list(self.buses)
             cost = [x.get_cost() for x in buses]
             lines = [x for x in self.lines if x.connected]
@@ -244,7 +242,7 @@ class PowerSystem:
                     p_bounds.append((0,p_gen[n-(N_D+N_L)]))
 
             
-            p_res = linprog(c, A_eq=A, b_eq=p_b, bounds=p_bounds, method='simplex', options={"tol":1E-10})
+            
 
             ## Reactive
             # Building A-matrix
@@ -267,55 +265,110 @@ class PowerSystem:
                 elif n >= N_D and n < N_D+N_L:
                     line = lines[n-N_D]
                     l_index = lines.index(line)
-                    max_available_flow = line.get_line_load()[0]
+                    max_available_flow = line.get_line_load()[1]
 
                     PL_max = min(line.capacity, abs(max_available_flow))
                     q_bounds.append((-PL_max, PL_max))
                 else:
                     q_bounds.append((0,q_gen[n-(N_D+N_L)]))
 
-            
-            q_res = linprog(c, A_eq=A, b_eq=q_b, bounds=q_bounds, method='simplex', options={"tol":1E-10})
+            f = False
+            with warnings.catch_warnings():
+                
+                warnings.simplefilter("error", OptimizeWarning)
+                try:
+                    p_res = linprog(c, A_eq=A, b_eq=p_b, bounds=p_bounds, method='simplex', options={"tol":1E-10})
+
+                    if p_res.fun > 0:
+                        for i, bus in enumerate(buses):
+                            bus.p_load_shed_stack += p_res.x[i]
+                        if len(PowerSystem.shed_configs)==0:
+                            PowerSystem.shed_configs.add(self)
+                        add = True
+                        for shed_config in PowerSystem.shed_configs:
+                            if self == shed_config:
+                                add = False
+                                break
+                        if add:
+                            PowerSystem.shed_configs.add(self)
+
+                except OptimizeWarning:
+                    # f = True
+                    # print(buses,lines)
+                    # self.print_status()
+
+                    # print('c:\n', c)
+                    # print('A_eq:\n', A)
+                    # print("Active:\n")
+                    # print('b_eq:\n', p_b)
+                    # print('Bounds:\n', p_bounds)
+                    # #print('Results:', p_res)
+                    # fig = plot_topology(list(self.buses),list(self.lines))
+                    # fig.show()
+                    # try:
+                    #     input("Press enter to continue")
+                    # except SyntaxError:
+                    #     pass
+                    pass
 
 
-            if p_res.fun > 0 or q_res.fun > 0:
-                for i, bus in enumerate(buses):
-                    bus.p_load_shed_stack += p_res.x[i]
-                    bus.q_load_shed_stack += q_res.x[i]
-                PowerSystem.p_load_shed += sum(p_res.x[0:N_D])
-                PowerSystem.q_load_shed += sum(q_res.x[0:N_D])
-                if len(PowerSystem.shed_configs)==0:
-                    PowerSystem.shed_configs.add(self)
-                add = True
-                for shed_config in PowerSystem.shed_configs:
-                    if self == shed_config:
-                        add = False
-                        break
-                if add:
-                    PowerSystem.shed_configs.add(self)
+                try:
+                    q_res = linprog(c, A_eq=A, b_eq=q_b, bounds=q_bounds, method='simplex', options={"tol":1E-10})
 
-                print_shed = False
-                if print_shed:
-                    print(buses,lines)
-                    self.print_status()
+                    if q_res.fun > 0:
+                        for i, bus in enumerate(buses):
+                            bus.q_load_shed_stack += q_res.x[i]
+                        if len(PowerSystem.shed_configs)==0:
+                            PowerSystem.shed_configs.add(self)
+                        add = True
+                        for shed_config in PowerSystem.shed_configs:
+                            if self == shed_config:
+                                add = False
+                                break
+                        if add:
+                            PowerSystem.shed_configs.add(self)
 
-                    print('c:\n', c)
-                    print('A_eq:\n', A)
-                    print("Active:\n")
-                    print('b_eq:\n', p_b)
-                    print('Bounds:\n', p_bounds)
-                    print('Results:', p_res)
-                    print("Reactive:\n")
-                    print('b_eq:\n', q_b)
-                    print('Bounds:\n', q_bounds)
-                    print('Results:', q_res)
-                    fig = plot_topology(list(self.buses),list(self.lines))
-                    fig.show()
-                    try:
-                        input("Press enter to continue")
-                    except SyntaxError:
-                        pass
+                except OptimizeWarning:
+                    # f = True
+                    # print(buses,lines)
+                    # self.print_status()
 
+                    # print('c:\n', c)
+                    # print('A_eq:\n', A)
+                    # print("Reactive:\n")
+                    # print('b_eq:\n', q_b)
+                    # print('Bounds:\n', q_bounds)
+                    # #print('Results:', q_res)
+                    # fig = plot_topology(list(self.buses),list(self.lines))
+                    # fig.show()
+                    # try:
+                    #     input("Press enter to continue")
+                    # except SyntaxError:
+                    #     pass
+                    pass
+
+            if f:
+                p_res = linprog(c, A_eq=A, b_eq=p_b, bounds=p_bounds, method='simplex', options={"tol":1E-10})
+                q_res = linprog(c, A_eq=A, b_eq=q_b, bounds=q_bounds, method='simplex', options={"tol":1E-10})
+
+                print(buses,lines)
+                self.print_status()
+                print("Active:\n")
+                print('b_eq:\n', p_b)
+                print('Bounds:\n', p_bounds)
+                print('Results:', p_res)
+                print('c:\n', c)
+                print('A_eq:\n', A)
+                print("Reactive:\n")
+                print('b_eq:\n', q_b)
+                print('Bounds:\n', q_bounds)
+                print('Results:', q_res)
+
+                try:
+                    input("Press enter to continue")
+                except SyntaxError:
+                    pass
+                    
         else:
             raise Exception("More than one sub system")
 
@@ -437,6 +490,9 @@ class PowerSystem:
         """
         Updates the history variables in the power system
         """
+        for bus in PowerSystem.all_buses:
+            PowerSystem.p_load_shed += bus.p_load_shed_stack
+            PowerSystem.q_load_shed += bus.q_load_shed_stack
         PowerSystem.history["p_load_shed"].append(PowerSystem.p_load_shed)
         PowerSystem.history["q_load_shed"].append(PowerSystem.q_load_shed)
         PowerSystem.p_load_shed = 0
