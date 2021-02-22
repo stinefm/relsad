@@ -2,7 +2,7 @@
 Module containing the system definition of the package
 """
 
-from stinetwork.network.components import Bus, Line, CircuitBreaker
+from stinetwork.network.components import Bus, Line, CircuitBreaker, Disconnector
 from stinetwork.loadflow.ac import DistLoadFlow
 from stinetwork.topology.paths import find_backup_lines_between_sub_systems
 from stinetwork.visualization.plotting import plot_history, plot_topology
@@ -33,7 +33,7 @@ class PowerSystem:
     all_batteries = set()
     all_productions = set()
     all_lines = set()
-    history = {"p_load_shed":list(), "q_load_shed":list()}
+    history = {"p_load_shed":dict(), "q_load_shed":dict()}
 
     def __init__(self):
         """ Initializing power system content
@@ -178,32 +178,22 @@ class PowerSystem:
         for line in self.lines:
             line.print_status()
 
-    def shed_loads(self):
+    def shed_active_loads(self):
         """
-        Sheds the unsupplied loads of the power system using a linear minimization
+        Sheds the unsupplied active loads of the power system using a linear minimization
         problem solved with linear programming
         """
 
         if len(self.sub_systems) <= 1:
-
             buses = list(self.buses)
             cost = [x.get_cost() for x in buses]
             lines = [x for x in self.lines if x.connected]
-
             N_D = len(buses)
-
             N_L = len(lines)
-
             c = cost+[0]*N_L+[0]*N_D
-
             A = np.zeros((N_D,N_D+N_L+N_D))
-
             p_b = list() # Active bus load
-            q_b = list() # Reactive bus load
             p_gen = list() # Active bus generation
-            q_gen = list() # Reactive bus generation
-
-            ## Active
             # Building A-matrix
             for j, bus in enumerate(buses):
                 A[j,j] = 1 # lambda_md
@@ -215,9 +205,7 @@ class PowerSystem:
                             A[j,N_D + index] = -1
                         else:
                             A[j,N_D + index] = 1
-
                 p_b.append(max(0,bus.pload))
-
                 flag = False
                 for child_network in self.child_network_set:
                     if type(child_network) == Transmission:
@@ -226,7 +214,6 @@ class PowerSystem:
                             flag = True
                 if flag == False:
                     p_gen.append(max(0,bus.pprod))
-
             p_bounds = list()
             for n in range(N_D+N_L+N_D):
                 if n < N_D:
@@ -235,42 +222,10 @@ class PowerSystem:
                     line = lines[n-N_D]
                     l_index = lines.index(line)
                     max_available_flow = line.get_line_load()[0]
-
                     PL_max = min(line.capacity, abs(max_available_flow))
                     p_bounds.append((-PL_max, PL_max))
                 else:
                     p_bounds.append((0,p_gen[n-(N_D+N_L)]))
-
-            
-            
-
-            ## Reactive
-            # Building A-matrix
-            for j, bus in enumerate(buses):
-                q_b.append(max(0,bus.qload))
-
-                flag = False
-                for child_network in self.child_network_set:
-                    if type(child_network) == Transmission:
-                        if bus == child_network.get():
-                            q_gen.append(np.inf)
-                            flag = True
-                if flag == False:
-                    q_gen.append(max(0,bus.qprod))
-
-            q_bounds = list()
-            for n in range(N_D+N_L+N_D):
-                if n < N_D:
-                    q_bounds.append((0, q_b[n]))
-                elif n >= N_D and n < N_D+N_L:
-                    line = lines[n-N_D]
-                    l_index = lines.index(line)
-                    max_available_flow = line.get_line_load()[1]
-
-                    PL_max = min(line.capacity, abs(max_available_flow))
-                    q_bounds.append((-PL_max, PL_max))
-                else:
-                    q_bounds.append((0,q_gen[n-(N_D+N_L)]))
 
             f = False
             with warnings.catch_warnings():
@@ -310,11 +265,75 @@ class PowerSystem:
                     # except SyntaxError:
                     #     pass
                     pass
+            if f:
+                p_res = linprog(c, A_eq=A, b_eq=p_b, bounds=p_bounds, method='simplex', options={"tol":1E-10})
+                if p_res.fun > 0:
 
+                    print(buses,lines)
+                    self.print_status()
+                    print("Active:\n")
+                    print('c:\n', c)
+                    print('A_eq:\n', A)
+                    print('b_eq:\n', p_b)
+                    print('Bounds:\n', p_bounds)
+                    print('Results:', p_res)
 
+                    fig = plot_topology(buses,lines)
+                    fig.show()
+
+                    try:
+                        input("Press enter to continue")
+                    except SyntaxError:
+                        pass
+                    
+        else:
+            raise Exception("More than one sub system")
+
+    def shed_reactive_loads(self):
+        """
+        Sheds the unsupplied reactive loads of the power system using a linear minimization
+        problem solved with linear programming
+        """
+
+        if len(self.sub_systems) <= 1:
+            buses = list(self.buses)
+            cost = [x.get_cost() for x in buses]
+            lines = [x for x in self.lines if x.connected]
+            N_D = len(buses)
+            N_L = len(lines)
+            c = cost+[0]*N_L+[0]*N_D
+            A = np.zeros((N_D,N_D+N_L+N_D))
+            q_b = list() # Reactive bus load
+            q_gen = list() # Reactive bus generation
+            # Building A-matrix
+            for j, bus in enumerate(buses):
+                q_b.append(max(0,bus.qload))
+                flag = False
+                for child_network in self.child_network_set:
+                    if type(child_network) == Transmission:
+                        if bus == child_network.get():
+                            q_gen.append(np.inf)
+                            flag = True
+                if flag == False:
+                    q_gen.append(max(0,bus.qprod))
+            q_bounds = list()
+            for n in range(N_D+N_L+N_D):
+                if n < N_D:
+                    q_bounds.append((0, q_b[n]))
+                elif n >= N_D and n < N_D+N_L:
+                    line = lines[n-N_D]
+                    l_index = lines.index(line)
+                    max_available_flow = line.get_line_load()[1]
+                    PL_max = min(line.capacity, abs(max_available_flow))
+                    q_bounds.append((-PL_max, PL_max))
+                else:
+                    q_bounds.append((0,q_gen[n-(N_D+N_L)]))
+            f = False
+            with warnings.catch_warnings():
+                
+                warnings.simplefilter("error", OptimizeWarning)
                 try:
                     q_res = linprog(c, A_eq=A, b_eq=q_b, bounds=q_bounds, method='simplex', options={"tol":1E-10})
-
                     if q_res.fun > 0:
                         for i, bus in enumerate(buses):
                             bus.q_load_shed_stack += q_res.x[i]
@@ -346,28 +365,26 @@ class PowerSystem:
                     # except SyntaxError:
                     #     pass
                     pass
-
             if f:
-                p_res = linprog(c, A_eq=A, b_eq=p_b, bounds=p_bounds, method='simplex', options={"tol":1E-10})
                 q_res = linprog(c, A_eq=A, b_eq=q_b, bounds=q_bounds, method='simplex', options={"tol":1E-10})
+                if q_res.fun > 0:
 
-                print(buses,lines)
-                self.print_status()
-                print("Active:\n")
-                print('b_eq:\n', p_b)
-                print('Bounds:\n', p_bounds)
-                print('Results:', p_res)
-                print('c:\n', c)
-                print('A_eq:\n', A)
-                print("Reactive:\n")
-                print('b_eq:\n', q_b)
-                print('Bounds:\n', q_bounds)
-                print('Results:', q_res)
+                    print(buses,lines)
+                    self.print_status()
+                    print('c:\n', c)
+                    print('A_eq:\n', A)
+                    print("Reactive:\n")
+                    print('b_eq:\n', q_b)
+                    print('Bounds:\n', q_bounds)
+                    print('Results:', q_res)
 
-                try:
-                    input("Press enter to continue")
-                except SyntaxError:
-                    pass
+                    fig = plot_topology(buses,lines)
+                    fig.show()
+
+                    try:
+                        input("Press enter to continue")
+                    except SyntaxError:
+                        pass
                     
         else:
             raise Exception("More than one sub system")
@@ -472,7 +489,7 @@ class PowerSystem:
 
     def plot_circuitbreaker_history(self, save_dir:str):
         """
-        Plots the history of the load shedding in the power system
+        Plots the history of the circuitbreakers in the power system
         """
         plot_history([x for x in self.comp_set if type(x) == CircuitBreaker], "is_open", save_dir)
         plot_history([x for x in self.comp_set if type(x) == CircuitBreaker], "remaining_section_time", save_dir)
@@ -480,25 +497,37 @@ class PowerSystem:
 
     def save_circuitbreaker_history(self, save_dir:str):
         """
-        Saves the history of the load shedding in the power system
+        Saves the history of the circuitbreakers in the power system
         """
         save_history([x for x in self.comp_set if type(x) == CircuitBreaker], "is_open", save_dir)
         save_history([x for x in self.comp_set if type(x) == CircuitBreaker], "remaining_section_time", save_dir)
         save_history([x for x in self.comp_set if type(x) == CircuitBreaker], "prev_section_hour", save_dir)
 
-    def update_history(self):
+    def plot_disconnector_history(self, save_dir:str):
+        """
+        Plots the history of the disconnectors in the power system
+        """
+        plot_history([x for x in self.comp_set if type(x) == Disconnector], "is_open", save_dir)
+
+    def save_disconnector_history(self, save_dir:str):
+        """
+        Saves the history of the disconnectors in the power system
+        """
+        save_history([x for x in self.comp_set if type(x) == Disconnector], "is_open", save_dir)
+
+    def update_history(self, hour):
         """
         Updates the history variables in the power system
         """
         for bus in PowerSystem.all_buses:
             PowerSystem.p_load_shed += bus.p_load_shed_stack
             PowerSystem.q_load_shed += bus.q_load_shed_stack
-        PowerSystem.history["p_load_shed"].append(PowerSystem.p_load_shed)
-        PowerSystem.history["q_load_shed"].append(PowerSystem.q_load_shed)
+        PowerSystem.history["p_load_shed"][hour] = PowerSystem.p_load_shed
+        PowerSystem.history["q_load_shed"][hour] = PowerSystem.q_load_shed
         PowerSystem.p_load_shed = 0
         PowerSystem.q_load_shed = 0
         for comp in PowerSystem.all_comp_set:
-            comp.update_history()
+            comp.update_history(hour)
         for bus in PowerSystem.all_buses:
             bus.reset_load_and_prod_attributes()
 
@@ -527,9 +556,10 @@ class PowerSystem:
             ## Run load flow     
             _sub_buses = DistLoadFlow(list(sub_system.buses),list(sub_system.lines))
             ## Shed load
-            sub_system.shed_loads()
+            sub_system.shed_active_loads()
+            sub_system.shed_reactive_loads()
         ## Log results
-        self.update_history()
+        self.update_history(hour)
 
 
 class Transmission:
