@@ -121,9 +121,9 @@ class Bus:
         self.battery = None
 
         ## History
-        self.history = {"pload":list(), "qload":list(), "pprod":list(), "qprod":list(), \
-                        "remaining_outage_time":list(), "trafo_failed":list(), "p_load_shed_stack":list(), \
-                        "q_load_shed_stack":list()}
+        self.history = {"pload":dict(), "qload":dict(), "pprod":dict(), "qprod":dict(), \
+                        "remaining_outage_time":dict(), "trafo_failed":dict(), "p_load_shed_stack":dict(), \
+                        "q_load_shed_stack":dict()}
 
     def __str__(self):
         return self.name
@@ -191,6 +191,11 @@ class Bus:
             self.remaining_outage_time -= 1
             if self.remaining_outage_time == 0:
                 self.trafo_not_fail()
+            else:
+                self.shed_load()
+                if self.prod != None:
+                    self.prod.set_prod(0,0)
+
         else:
             p_fail = self.fail_rate_per_hour
             if np.random.choice([True,False],p=[p_fail,1-p_fail]):
@@ -203,21 +208,20 @@ class Bus:
     
     def print_status(self):
         print("name: {:3s}, trafo_failed={}, pload={:.4f}, " \
-            "is_slack={}, toline={}, fromline={}, tolineset={}, " \
-            "fromlineset={}, connected_lines={}, cost={:.4f}"\
-            .format(self.name, self.trafo_failed, self.pload, self.is_slack, \
-                    self.toline if self.toline==None else self.toline.name, self.fromline if self.fromline == None else self.fromline.name,\
-                    self.tolineset, self.fromlineset, self.connected_lines, self.cost))
+            "is_slack={}".format(self.name, self.trafo_failed, self.pload, self.is_slack))#, toline={}, fromline={}, tolineset={}, " \
+            #"fromlineset={}, connected_lines={}, cost={:.4f}"\, \
+                    # self.toline if self.toline==None else self.toline.name, self.fromline if self.fromline == None else self.fromline.name,\
+                    # self.tolineset, self.fromlineset, self.connected_lines, self.cost))
 
-    def update_history(self):
-        self.history["pload"].append(self.pload)
-        self.history["qload"].append(self.qload)
-        self.history["pprod"].append(self.pprod)
-        self.history["qprod"].append(self.qprod)
-        self.history["remaining_outage_time"].append(self.remaining_outage_time)
-        self.history["trafo_failed"].append(self.trafo_failed)
-        self.history["p_load_shed_stack"].append(self.p_load_shed_stack)
-        self.history["q_load_shed_stack"].append(self.q_load_shed_stack)
+    def update_history(self, hour):
+        self.history["pload"][hour] = self.pload
+        self.history["qload"][hour] = self.qload
+        self.history["pprod"][hour] = self.pprod
+        self.history["qprod"][hour] = self.qprod
+        self.history["remaining_outage_time"][hour] = self.remaining_outage_time
+        self.history["trafo_failed"][hour] = self.trafo_failed
+        self.history["p_load_shed_stack"][hour] = self.p_load_shed_stack
+        self.history["q_load_shed_stack"][hour] = self.q_load_shed_stack
         self.clear_load_shed_stack()
 
     def get_history(self, attribute:str):
@@ -237,6 +241,8 @@ class Bus:
     def clear_load_shed_stack(self):
         self.p_load_shed_stack = 0
         self.q_load_shed_stack = 0
+
+
 class Line:
     r'''
     A class used to represent an electrical Line
@@ -318,9 +324,9 @@ class Line:
         self.remaining_outage_time = 0
 
         ## History
-        self.history = {"p_from":list(), "q_from":list(), "p_to":list(), \
-                        "q_to":list(), "remaining_outage_time":list(), \
-                        "failed":list()}
+        self.history = {"p_from":dict(), "q_from":dict(), "p_to":dict(), \
+                        "q_to":dict(), "remaining_outage_time":dict(), \
+                        "failed":dict()}
 
     def __str__(self):
         return self.name
@@ -369,16 +375,21 @@ class Line:
     def fail(self, hour):
         self.failed = True
         self.remaining_outage_time = self.outage_time
-        for discon in self.disconnectors:
-            if not discon.is_open:
-                discon.open()
-        self.parent_network.connected_line.circuitbreaker.open(hour)
-        if self.parent_network.child_network_set is not None:
-            for child_network in self.parent_network.child_network_set:
-                child_network.connected_line.circuitbreaker.open(hour)
+        if self.connected:
+            for discon in self.disconnectors:
+                if not discon.is_open:
+                    discon.open()
+            self.parent_network.connected_line.circuitbreaker.open(hour)
+            if self.parent_network.child_network_set is not None:
+                for child_network in self.parent_network.child_network_set:
+                    child_network.connected_line.circuitbreaker.open(hour)
 
     def not_fail(self):
         self.failed = False
+        if not self.is_backup:
+            for discon in self.disconnectors:
+                if discon.is_open:
+                    discon.close()
 
     def change_direction(self):
         self.fbus.fromlineset.discard(self)
@@ -461,14 +472,14 @@ class Line:
         """
         self.parent_network = network
 
-    def update_history(self):
+    def update_history(self, hour):
         p_from,q_from,p_to,q_to = self.get_line_load()
-        self.history["p_from"].append(p_from)
-        self.history["q_from"].append(q_from)
-        self.history["p_to"].append(p_to)
-        self.history["q_to"].append(q_to)
-        self.history["remaining_outage_time"].append(self.remaining_outage_time)
-        self.history["failed"].append(self.failed)
+        self.history["p_from"][hour] = p_from
+        self.history["q_from"][hour] = q_from
+        self.history["p_to"][hour] = p_to
+        self.history["q_to"][hour] = q_to
+        self.history["remaining_outage_time"][hour] = self.remaining_outage_time
+        self.history["failed"][hour] = self.failed
 
     def get_history(self, attribute:str):
         return self.history[attribute]
@@ -535,8 +546,8 @@ class CircuitBreaker:
         self.line.circuitbreaker = self
 
         ## History
-        self.history = {"is_open":list(), "remaining_section_time":list(), \
-                        "prev_section_hour":list()}
+        self.history = {"is_open":dict(), "remaining_section_time":dict(), \
+                        "prev_section_hour":dict()}
 
     def __str__(self):
         return self.name
@@ -574,10 +585,10 @@ class CircuitBreaker:
             if self.remaining_section_time == 0:
                 self.close()
     
-    def update_history(self):
-        self.history["is_open"].append(self.is_open)
-        self.history["remaining_section_time"].append(self.remaining_section_time)
-        self.history["prev_section_hour"].append(self.prev_section_hour)
+    def update_history(self, hour):
+        self.history["is_open"][hour] = self.is_open
+        self.history["remaining_section_time"][hour] = self.remaining_section_time
+        self.history["prev_section_hour"][hour] = self.prev_section_hour
     
     def get_history(self, attribute:str):
         return self.history[attribute]
@@ -651,7 +662,7 @@ class Disconnector:
                 circuitbreaker.coordinate[0] - dx/10, circuitbreaker.coordinate[1] - dy/10]
 
         ## History
-        self.history = dict()
+        self.history = {"is_open":dict()}
 
     def __str__(self):
         return self.name
@@ -689,8 +700,8 @@ class Disconnector:
     def update_fail_status(self, hour):
         pass
 
-    def update_history(self):
-        pass
+    def update_history(self, hour):
+        self.history["is_open"][hour] = self.is_open
 
     def get_history(self, attribute:str):
         return self.history[attribute]
@@ -799,7 +810,7 @@ class Battery:
         self.update_SOC()
 
         ## History
-        self.history = {"SOC":list()}
+        self.history = {"SOC":dict()}
 
     def __str__(self):
         return self.name
@@ -1003,8 +1014,8 @@ class Battery:
         qrem = q + qload - qprod
         return prem, qrem
 
-    def update_history(self):
-        self.history["SOC"].append(self.SOC)
+    def update_history(self, hour):
+        self.history["SOC"][hour] = self.SOC
 
     def get_history(self, attribute:str):
         return self.history[attribute]
@@ -1134,7 +1145,7 @@ class Production:
     def update_fail_status(self, hour):
         pass
 
-    def update_history(self):
+    def update_history(self, hour):
         pass
 
     def get_history(self, attribute:str):
