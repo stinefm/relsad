@@ -1,4 +1,5 @@
 from stinetwork.network.components import Line, Bus
+from stinetwork.utils import unique, intersection
 
 def connectivity(nodelist, linelist):
     ## Initializing dictionaries
@@ -113,7 +114,7 @@ def configure(BusList, LineList):
                 return line
 
     def change_dir(target_buses, BusList, checked_buses, LineList):
-        new_target_buses = set()
+        new_target_buses = list()
         for target_bus in target_buses:
             if target_bus not in checked_buses:
                 for bus in BusList:
@@ -122,8 +123,10 @@ def configure(BusList, LineList):
                         if line != None:
                             if target_bus in bus.nextbus:
                                 line.change_direction()
-                            new_target_buses.add(bus)
-                checked_buses.add(target_bus)
+                            new_target_buses.append(bus)
+                            new_target_buses = unique(new_target_buses)
+                checked_buses.append(target_bus)
+                checked_buses = unique(checked_buses)
         return new_target_buses
 
     def get_paths(parent_bus):
@@ -190,9 +193,9 @@ def configure(BusList, LineList):
             break
    
     ## Update directions based on slack bus (making slack bus parent of the radial tree)
-    checked_buses = set()
+    checked_buses = list()
     target_buses = change_dir({slack_bus}, BusList, checked_buses, LineList)
-    while target_buses != set():
+    while target_buses != list():
         target_buses = change_dir(target_buses, BusList, checked_buses, LineList)
 
     paths = get_paths(slack_bus)
@@ -220,15 +223,16 @@ def find_backup_lines_between_sub_systems(sub_system1, sub_system2):
         """
         Finds lines connected to sub system buses that are connecte to external sub systems
         """
-        external_backup_lines = set()
+        external_backup_lines = list()
         for bus in sub_system.buses:
             for line in bus.connected_lines:
                 if line not in sub_system.lines and line.is_backup:
-                    external_backup_lines.add(line)
+                    external_backup_lines.append(line)
+                    external_backup_lines = unique(external_backup_lines)
         return external_backup_lines
 
     external_backup_lines1 = find_external_backup_lines(sub_system1)
     external_backup_lines2 = find_external_backup_lines(sub_system2)
     # Returns 
-    return external_backup_lines1.intersection(external_backup_lines2)
+    return intersection(external_backup_lines1,external_backup_lines2)
 
