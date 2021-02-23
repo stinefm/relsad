@@ -325,21 +325,18 @@ def initialize_69Bus_network():
 
     dn = Distribution(tn,L1)
 
-    dn.add_buses({B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, B12, B13, B14, B15, B16, \
+    dn.add_buses([B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, B12, B13, B14, B15, B16, \
                 B17, B18, B19, B20, B21, B22, B23, B24, B25, B26, B27, B28, B29, B30, B31, \
                 B32, B33, B34, B35, B36, B37, B38, B39, B40, B41, B42, B43, B44, B45, B46, \
                 B47, B48, B49, B50, B51, B52, B53, B54, B55, B56, B57, B58, B59, B60, B61, \
-                B62, B63, B64, B65, B66, B67, B68, B69})
+                B62, B63, B64, B65, B66, B67, B68, B69])
 
 
-    dn.add_lines({L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, \
+    dn.add_lines([L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, \
                 L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29, L30, L31, \
                 L32, L33, L34, L35, L36, L37, L38, L39, L40, L41, L42, L43, L44, L45, L46, \
                 L47, L48, L49, L50, L51, L52, L53, L54, L55, L56, L57, L58, L59, L60, L61, \
-                L62, L63, L64, L65, L66, L67, L68, L69, L70, L71, L72, L73})
-
-    ps.add_transmission_network(tn)
-    ps.add_distribution_network(dn)
+                L62, L63, L64, L65, L66, L67, L68, L69, L70, L71, L72, L73])
 
     return ps
 
