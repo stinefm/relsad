@@ -8,30 +8,30 @@ def initialize_test_network():
     T = Bus("T", coordinate=[0, 0], fail_rate_per_year=0)
 
     ## Distribution network
-    B1 = Bus("B1", coordinate=[0, -1], fail_rate_per_year=20)#0.2)
-    B2 = Bus("B2", coordinate=[1, -2], fail_rate_per_year=20)#0.2)
-    B3 = Bus("B3", coordinate=[0, -2], fail_rate_per_year=20)#0.2)
-    B4 = Bus("B4", coordinate=[0, -3], fail_rate_per_year=20)#0.2)
-    B5 = Bus("B5", coordinate=[1, -3], fail_rate_per_year=20)#0.2)
+    B1 = Bus("B1", coordinate=[0, -1], fail_rate_per_year=40)#0.2)
+    B2 = Bus("B2", coordinate=[1, -2], fail_rate_per_year=40)#0.2)
+    B3 = Bus("B3", coordinate=[0, -2], fail_rate_per_year=40)#0.2)
+    B4 = Bus("B4", coordinate=[0, -3], fail_rate_per_year=40)#0.2)
+    B5 = Bus("B5", coordinate=[1, -3], fail_rate_per_year=40)#0.2)
 
     ## Microgrid
-    M1 = Bus("M1", coordinate=[-1, -2], fail_rate_per_year=20)#0.2)
-    M2 = Bus("M2", coordinate=[-2, -3], fail_rate_per_year=20)#0.2)
-    M3 = Bus("M3", coordinate=[-1, -3], fail_rate_per_year=20)#0.2)
+    M1 = Bus("M1", coordinate=[-1, -2], fail_rate_per_year=40)#0.2)
+    M2 = Bus("M2", coordinate=[-2, -3], fail_rate_per_year=40)#0.2)
+    M3 = Bus("M3", coordinate=[-1, -3], fail_rate_per_year=40)#0.2)
 
     Battery("Bat1",M1)
     Production("P1",M2)
-    Production("P2",B5)
+    #Production("P2",B5)
 
-    L1 = Line("L1", T, B1, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
-    L2 = Line("L2", B1, B2, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
-    L3 = Line("L3", B1, B3, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
-    L4 = Line("L4", B3, B4, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
-    L5 = Line("L5", B2, B5, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
-    L6 = Line("L6", B3, B5, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
-    L7 = Line("L7", B1, M1, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
-    ML1 = Line("ML1", M1, M2, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
-    ML2 = Line("ML2", M1, M3, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=20)#0.2)
+    L1 = Line("L1", T, B1, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=40)#0.2)
+    L2 = Line("L2", B1, B2, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=40)#0.2)
+    L3 = Line("L3", B1, B3, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=40)#0.2)
+    L4 = Line("L4", B3, B4, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=40)#0.2)
+    L5 = Line("L5", B2, B5, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=40)#0.2)
+    L6 = Line("L6", B3, B5, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=40)#0.2)
+    L7 = Line("L7", B1, M1, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=40)#0.2)
+    ML1 = Line("ML1", M1, M2, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=40)#0.2)
+    ML2 = Line("ML2", M1, M3, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=40)#0.2)
 
     E1 = CircuitBreaker("E1", L1)
     E2 = CircuitBreaker("E2", L7)
@@ -64,13 +64,13 @@ def initialize_test_network():
 
     dn = Distribution(tn,L1)
 
-    dn.add_buses({B1,B2,B3,B4,B5})
-    dn.add_lines({L2,L3,L4,L5,L6})
+    dn.add_buses([B1,B2,B3,B4,B5])
+    dn.add_lines([L2,L3,L4,L5,L6])
 
     m = Microgrid(dn,L7)
 
-    m.add_buses({M1,M2,M3})
-    m.add_lines({ML1,ML2})
+    m.add_buses([M1,M2,M3])
+    m.add_lines([ML1,ML2])
     
     return ps
 
