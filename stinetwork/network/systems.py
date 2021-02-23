@@ -29,7 +29,7 @@ class PowerSystem:
     q_load_shed = 0
 
     ## Random instance
-    ps_random = np.random.default_rng(seed=0)
+    ps_random = None
 
     ## History
     all_comp_list = list()
@@ -78,6 +78,14 @@ class PowerSystem:
     def __hash__(self):
         return hash(self.name)
 
+    def add_random_instance(self, random_instance):
+        """
+        Adds a global numpy random instance
+        """
+        PowerSystem.ps_random = random_instance
+        for comp in PowerSystem.all_comp_list:
+            comp.add_random_seed(PowerSystem.ps_random)
+
     def add_bus(self, bus:Bus):
         """
         Adding bus to power system
@@ -90,7 +98,6 @@ class PowerSystem:
         self.buses = unique(self.buses)
         PowerSystem.all_buses.append(bus)
         PowerSystem.all_buses = unique(PowerSystem.all_buses)
-        bus.add_random_seed(PowerSystem.ps_random)
         if bus.battery is not None:
             self.comp_dict[bus.battery.name] = bus.battery
             self.comp_list.append(bus.battery)
@@ -99,7 +106,6 @@ class PowerSystem:
             PowerSystem.all_comp_list.append(bus.battery)
             PowerSystem.all_batteries.append(bus.battery)
             PowerSystem.all_batteries = unique(PowerSystem.all_batteries)
-            bus.battery.add_random_seed(PowerSystem.ps_random)
         if bus.prod is not None:
             self.comp_dict[bus.prod.name] = bus.prod
             self.comp_list.append(bus.prod)
@@ -108,7 +114,6 @@ class PowerSystem:
             PowerSystem.all_comp_list.append(bus.prod)
             PowerSystem.all_productions.append(bus.prod)
             PowerSystem.all_productions = unique(PowerSystem.all_productions)
-            bus.prod.add_random_seed(PowerSystem.ps_random)
 
         self.comp_list = unique(self.comp_list)
         PowerSystem.all_comp_list = unique(PowerSystem.all_comp_list)
@@ -130,23 +135,19 @@ class PowerSystem:
         self.lines.append(line)
         PowerSystem.all_lines.append(line)
         PowerSystem.all_lines = unique(PowerSystem.all_lines)
-        line.add_random_seed(PowerSystem.ps_random)
         for discon in line.disconnectors:
             self.comp_dict[discon.name] = discon
             self.comp_list.append(discon)
             PowerSystem.all_comp_list.append(discon)
-            discon.add_random_seed(PowerSystem.ps_random)
         if line.circuitbreaker != None:
             c_b = line.circuitbreaker
             self.comp_dict[c_b.name] = c_b
             self.comp_list.append(c_b)
             PowerSystem.all_comp_list.append(c_b)
-            c_b.add_random_seed(PowerSystem.ps_random)
             for discon in c_b.disconnectors:
                 self.comp_dict[discon.name] = discon
                 self.comp_list.append(discon)
                 PowerSystem.all_comp_list.append(discon)
-                discon.add_random_seed(PowerSystem.ps_random)
         
         PowerSystem.all_comp_list = unique(PowerSystem.all_comp_list)
         self.comp_list = unique(self.comp_list)
@@ -561,6 +562,10 @@ class PowerSystem:
         """
         Runs power system at current state
         """
+        if PowerSystem.ps_random is None:
+            print("Warning! No random instance was detected, creating a new one.")
+            self.add_random_instance(np.random.default_rng())
+
         ## Set fail status
         for comp in self.get_comp_list():
             comp.update_fail_status(hour)
@@ -646,6 +651,7 @@ class Transmission:
         """
         self.child_network_list.append(network)
         self.parent_network.add_child_network(network)
+
 
 class Distribution:
     """ Class defining a distribution network type """
@@ -746,6 +752,7 @@ class Distribution:
         """
         self.child_network_list.append(network)
         self.parent_network.add_child_network(network)
+
 
 class Microgrid:
     """ Class defining a microgrid network type """
