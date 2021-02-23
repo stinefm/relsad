@@ -7,6 +7,7 @@ from stinetwork.loadflow.ac import DistLoadFlow
 from stinetwork.topology.paths import find_backup_lines_between_sub_systems
 from stinetwork.visualization.plotting import plot_history, plot_topology
 from stinetwork.results.storage import save_history
+from stinetwork.utils import unique, subtract
 import numpy as np
 from scipy.optimize import linprog, OptimizeWarning
 import warnings
@@ -21,25 +22,28 @@ class PowerSystem:
     counter = 0
 
     ## Load shed configurations
-    shed_configs = set()
+    shed_configs = list()
 
     ## Load shedding
     p_load_shed = 0
     q_load_shed = 0
 
+    ## Random instance
+    ps_random = np.random.default_rng(seed=0)
+
     ## History
-    all_comp_set = set()
-    all_buses = set()
-    all_batteries = set()
-    all_productions = set()
-    all_lines = set()
+    all_comp_list = list()
+    all_buses = list()
+    all_batteries = list()
+    all_productions = list()
+    all_lines = list()
     history = {"p_load_shed":dict(), "q_load_shed":dict()}
 
     def __init__(self):
         """ Initializing power system content
             Content:
-                buses(set): Set of buses
-                lines(set): Set of lines
+                buses(set): List of buses
+                lines(set): List of lines
                 comp_dict(dict): Dictionary of components
         """
         PowerSystem.counter += 1
@@ -47,17 +51,17 @@ class PowerSystem:
 
         self.slack = None
 
-        self.sub_systems = set()
+        self.sub_systems = list()
 
-        self.buses = set()
-        self.batteries = set()
-        self.productions = set()
-        self.lines = set()
+        self.buses = list()
+        self.batteries = list()
+        self.productions = list()
+        self.lines = list()
 
-        self.comp_set = set()
+        self.comp_list = list()
         self.comp_dict = dict()
 
-        self.child_network_set = set()
+        self.child_network_list = list()
 
     def __str__(self):
         return self.name
@@ -67,7 +71,7 @@ class PowerSystem:
 
     def __eq__(self,other):
         try:
-            return self.buses.union(self.lines)==other.buses.union(other.lines)
+            return set(unique(self.buses+self.lines))==set(unique(other.buses+other.lines))
         except:
             return False
 
@@ -80,22 +84,34 @@ class PowerSystem:
         Input: bus(Bus)
         """
         self.comp_dict[bus.name] = bus
-        self.comp_set.add(bus)
-        PowerSystem.all_comp_set.add(bus)
-        self.buses.add(bus)
-        PowerSystem.all_buses.add(bus)
+        self.comp_list.append(bus)
+        PowerSystem.all_comp_list.append(bus)
+        self.buses.append(bus)
+        self.buses = unique(self.buses)
+        PowerSystem.all_buses.append(bus)
+        PowerSystem.all_buses = unique(PowerSystem.all_buses)
+        bus.add_random_seed(PowerSystem.ps_random)
         if bus.battery is not None:
             self.comp_dict[bus.battery.name] = bus.battery
-            self.comp_set.add(bus.battery)
-            self.batteries.add(bus.battery)
-            PowerSystem.all_comp_set.add(bus.battery)
-            PowerSystem.all_batteries.add(bus.battery)
+            self.comp_list.append(bus.battery)
+            self.batteries.append(bus.battery)
+            self.batteries = unique(self.batteries)
+            PowerSystem.all_comp_list.append(bus.battery)
+            PowerSystem.all_batteries.append(bus.battery)
+            PowerSystem.all_batteries = unique(PowerSystem.all_batteries)
+            bus.battery.add_random_seed(PowerSystem.ps_random)
         if bus.prod is not None:
             self.comp_dict[bus.prod.name] = bus.prod
-            self.comp_set.add(bus.prod)
-            self.productions.add(bus.prod)
-            PowerSystem.all_comp_set.add(bus.prod)
-            PowerSystem.all_productions.add(bus.prod)
+            self.comp_list.append(bus.prod)
+            self.productions.append(bus.prod)
+            self.productions = unique(self.productions)
+            PowerSystem.all_comp_list.append(bus.prod)
+            PowerSystem.all_productions.append(bus.prod)
+            PowerSystem.all_productions = unique(PowerSystem.all_productions)
+            bus.prod.add_random_seed(PowerSystem.ps_random)
+
+        self.comp_list = unique(self.comp_list)
+        PowerSystem.all_comp_list = unique(PowerSystem.all_comp_list)
 
     def add_buses(self,buses:set):
         """ Adding buses to power system
@@ -109,23 +125,31 @@ class PowerSystem:
         Input: line(Line)
         """
         self.comp_dict[line.name] = line
-        self.comp_set.add(line)
-        PowerSystem.all_comp_set.add(line)
+        self.comp_list.append(line)
+        PowerSystem.all_comp_list.append(line)
+        self.lines.append(line)
+        PowerSystem.all_lines.append(line)
+        PowerSystem.all_lines = unique(PowerSystem.all_lines)
+        line.add_random_seed(PowerSystem.ps_random)
         for discon in line.disconnectors:
             self.comp_dict[discon.name] = discon
-            self.comp_set.add(discon)
-            PowerSystem.all_comp_set.add(discon)
+            self.comp_list.append(discon)
+            PowerSystem.all_comp_list.append(discon)
+            discon.add_random_seed(PowerSystem.ps_random)
         if line.circuitbreaker != None:
             c_b = line.circuitbreaker
             self.comp_dict[c_b.name] = c_b
-            self.comp_set.add(c_b)
-            PowerSystem.all_comp_set.add(c_b)
+            self.comp_list.append(c_b)
+            PowerSystem.all_comp_list.append(c_b)
+            c_b.add_random_seed(PowerSystem.ps_random)
             for discon in c_b.disconnectors:
                 self.comp_dict[discon.name] = discon
-                self.comp_set.add(discon)
-                PowerSystem.all_comp_set.add(discon)
-        self.lines.add(line)
-        PowerSystem.all_lines.add(line)
+                self.comp_list.append(discon)
+                PowerSystem.all_comp_list.append(discon)
+                discon.add_random_seed(PowerSystem.ps_random)
+        
+        PowerSystem.all_comp_list = unique(PowerSystem.all_comp_list)
+        self.comp_list = unique(self.comp_list)
 
     def add_lines(self, lines:set):
         """ Adding lines to power system
@@ -144,28 +168,24 @@ class PowerSystem:
             print("Component is not part of the network")
             exit()
 
-    def get_comp_set(self):
+    def get_comp_list(self):
         """
-        Returns set of the components in the power system
+        Returns list of the components in the power system
         """
-        return self.comp_set
+        return self.comp_list
 
     def add_child_network(self, network):
         """
         Adding child network to power system
         """
-        self.child_network_set.add(network)
+        self.child_network_list.append(network)
 
     def reset_slack_bus(self):
         """
         Resets the slack bus of the child networks
         """
-        for trans_network in self.trans_network_set:
-            trans_network.reset_slack_bus()
-        for dist_network in self.dist_network_set:
-            dist_network.reset_slack_bus()
-        for microgrid in self.microgrid_network_set:
-            microgrid.reset_slack_bus()
+        for child_network in self.child_network_list:
+            child_network.reset_slack_bus()
 
     def print_status(self):
         """
@@ -207,7 +227,7 @@ class PowerSystem:
                             A[j,N_D + index] = 1
                 p_b.append(max(0,bus.pload))
                 flag = False
-                for child_network in self.child_network_set:
+                for child_network in self.child_network_list:
                     if type(child_network) == Transmission:
                         if bus == child_network.get():
                             p_gen.append(np.inf)
@@ -238,14 +258,14 @@ class PowerSystem:
                         for i, bus in enumerate(buses):
                             bus.p_load_shed_stack += p_res.x[i]
                         if len(PowerSystem.shed_configs)==0:
-                            PowerSystem.shed_configs.add(self)
+                            PowerSystem.shed_configs.append(self)
                         add = True
                         for shed_config in PowerSystem.shed_configs:
                             if self == shed_config:
                                 add = False
                                 break
                         if add:
-                            PowerSystem.shed_configs.add(self)
+                            PowerSystem.shed_configs.append(self)
 
                 except OptimizeWarning:
                     # f = True
@@ -309,7 +329,7 @@ class PowerSystem:
             for j, bus in enumerate(buses):
                 q_b.append(max(0,bus.qload))
                 flag = False
-                for child_network in self.child_network_set:
+                for child_network in self.child_network_list:
                     if type(child_network) == Transmission:
                         if bus == child_network.get():
                             q_gen.append(np.inf)
@@ -338,14 +358,14 @@ class PowerSystem:
                         for i, bus in enumerate(buses):
                             bus.q_load_shed_stack += q_res.x[i]
                         if len(PowerSystem.shed_configs)==0:
-                            PowerSystem.shed_configs.add(self)
+                            PowerSystem.shed_configs.append(self)
                         add = True
                         for shed_config in PowerSystem.shed_configs:
                             if self == shed_config:
                                 add = False
                                 break
                         if add:
-                            PowerSystem.shed_configs.add(self)
+                            PowerSystem.shed_configs.append(self)
 
                 except OptimizeWarning:
                     # f = True
@@ -395,7 +415,7 @@ class PowerSystem:
         """
         system_load_balance_p, system_load_balance_q = 0,0
         for bus in self.buses:
-            for child_network in self.child_network_set:
+            for child_network in self.child_network_list:
                 if type(child_network) == Transmission:
                     if bus == child_network.get():
                         system_load_balance_p = -np.inf
@@ -491,29 +511,29 @@ class PowerSystem:
         """
         Plots the history of the circuitbreakers in the power system
         """
-        plot_history([x for x in self.comp_set if type(x) == CircuitBreaker], "is_open", save_dir)
-        plot_history([x for x in self.comp_set if type(x) == CircuitBreaker], "remaining_section_time", save_dir)
-        plot_history([x for x in self.comp_set if type(x) == CircuitBreaker], "prev_section_hour", save_dir)
+        plot_history([x for x in self.comp_list if type(x) == CircuitBreaker], "is_open", save_dir)
+        plot_history([x for x in self.comp_list if type(x) == CircuitBreaker], "remaining_section_time", save_dir)
+        plot_history([x for x in self.comp_list if type(x) == CircuitBreaker], "prev_section_hour", save_dir)
 
     def save_circuitbreaker_history(self, save_dir:str):
         """
         Saves the history of the circuitbreakers in the power system
         """
-        save_history([x for x in self.comp_set if type(x) == CircuitBreaker], "is_open", save_dir)
-        save_history([x for x in self.comp_set if type(x) == CircuitBreaker], "remaining_section_time", save_dir)
-        save_history([x for x in self.comp_set if type(x) == CircuitBreaker], "prev_section_hour", save_dir)
+        save_history([x for x in self.comp_list if type(x) == CircuitBreaker], "is_open", save_dir)
+        save_history([x for x in self.comp_list if type(x) == CircuitBreaker], "remaining_section_time", save_dir)
+        save_history([x for x in self.comp_list if type(x) == CircuitBreaker], "prev_section_hour", save_dir)
 
     def plot_disconnector_history(self, save_dir:str):
         """
         Plots the history of the disconnectors in the power system
         """
-        plot_history([x for x in self.comp_set if type(x) == Disconnector], "is_open", save_dir)
+        plot_history([x for x in self.comp_list if type(x) == Disconnector], "is_open", save_dir)
 
     def save_disconnector_history(self, save_dir:str):
         """
         Saves the history of the disconnectors in the power system
         """
-        save_history([x for x in self.comp_set if type(x) == Disconnector], "is_open", save_dir)
+        save_history([x for x in self.comp_list if type(x) == Disconnector], "is_open", save_dir)
 
     def update_history(self, hour):
         """
@@ -526,7 +546,7 @@ class PowerSystem:
         PowerSystem.history["q_load_shed"][hour] = PowerSystem.q_load_shed
         PowerSystem.p_load_shed = 0
         PowerSystem.q_load_shed = 0
-        for comp in PowerSystem.all_comp_set:
+        for comp in PowerSystem.all_comp_list:
             comp.update_history(hour)
         for bus in PowerSystem.all_buses:
             bus.reset_load_and_prod_attributes()
@@ -542,11 +562,11 @@ class PowerSystem:
         Runs power system at current state
         """
         ## Set fail status
-        for comp in self.get_comp_set():
+        for comp in self.get_comp_list():
             comp.update_fail_status(hour)
 
         ## Find sub systems
-        find_sub_systems(self)
+        find_sub_systems(self, hour)
         update_sub_system_slack(self)
 
         ## Load flow
@@ -581,10 +601,10 @@ class Transmission:
 
         self.parent_network = power_system
         power_system.add_child_network(self)
-        self.child_network_set = set()
+        self.child_network_list = list()
 
         self.bus = bus
-        self.buses = {bus}
+        self.buses = [bus]
 
         bus.handle.color = self.color
         bus.color = self.color
@@ -624,7 +644,7 @@ class Transmission:
         """
         Adds child network
         """
-        self.child_network_set.add(network)
+        self.child_network_list.append(network)
         self.parent_network.add_child_network(network)
 
 class Distribution:
@@ -639,21 +659,21 @@ class Distribution:
     def __init__(self, transmission_network:Transmission, connected_line:Line):
         """ Initializing distributed network type content
             Content:
-                buses(set): Set of buses
-                lines(set): Set of lines
+                buses(set): List of buses
+                lines(set): List of lines
                 comp_dict(dict): Dictionary of components
                 connected_line(Line): Line connected to distrubution network
         """
         Distribution.counter += 1
         self.name = "dist_network{:d}".format(Distribution.counter)
 
-        self.buses = set()
-        self.lines = set()
+        self.buses = list()
+        self.lines = list()
         self.comp_dict = dict()
         self.parent_network = transmission_network
         transmission_network.add_child_network(self)
         self.power_system = transmission_network.parent_network
-        self.child_network_set = set()
+        self.child_network_list = list()
 
         self.connected_line = connected_line
         c_b = connected_line.circuitbreaker
@@ -686,12 +706,12 @@ class Distribution:
         self.comp_dict[bus.name] = bus
         bus.handle.color = self.color
         bus.color = self.color
-        self.buses.add(bus)
+        self.buses.append(bus)
         self.power_system.add_bus(bus)
 
     def add_buses(self,buses:set):
         """ Adding buses to distribution
-            Input: buses(set(Bus)) """
+            Input: buses(list(Bus)) """
         for bus in buses:
             self.add_bus(bus)
 
@@ -703,13 +723,13 @@ class Distribution:
         self.comp_dict[line.name] = line
         for discon in line.disconnectors:
             self.comp_dict[discon.name] = discon
-        self.lines.add(line)
+        self.lines.append(line)
         line.add_parent_network(self)
         self.power_system.add_line(line)
 
     def add_lines(self, lines:set):
         """ Adding lines to distribution
-            Input: lines(set(Line)) """
+            Input: lines(list(Line)) """
         for line in lines:
             self.add_line(line)
         
@@ -724,7 +744,7 @@ class Distribution:
         """
         Adds child network
         """
-        self.child_network_set.add(network)
+        self.child_network_list.append(network)
         self.parent_network.add_child_network(network)
 
 class Microgrid:
@@ -739,20 +759,20 @@ class Microgrid:
     def __init__(self, distribution_network:Distribution, connected_line:Line):
         """ Initializing microgrid network type content
             Content:
-                buses(set): Set of buses
-                lines(set): Set of lines
+                buses(set): List of buses
+                lines(set): List of lines
                 comp_dict(dict): Dictionary of components
                 connected_line(Line): Line connected to distrubution network
         """
         Microgrid.counter += 1
         self.name = "microgrid{:d}".format(Microgrid.counter)
 
-        self.buses = set()
-        self.lines = set()
+        self.buses = list()
+        self.lines = list()
         self.comp_dict = dict()
         self.distribution_network = distribution_network
         self.distribution_network.add_child_network(self)
-        self.child_network_set = None
+        self.child_network_list = None
 
         self.connected_line = connected_line
         c_b = connected_line.circuitbreaker
@@ -785,7 +805,7 @@ class Microgrid:
         self.comp_dict[bus.name] = bus
         bus.handle.color = self.color
         bus.color = self.color
-        self.buses.add(bus)
+        self.buses.append(bus)
         self.distribution_network.power_system.add_bus(bus)
 
     def add_buses(self,buses:list):
@@ -802,7 +822,7 @@ class Microgrid:
         self.comp_dict[line.name] = line
         for discon in line.disconnectors:
             self.comp_dict[discon.name] = discon
-        self.lines.add(line)
+        self.lines.append(line)
         line.add_parent_network(self)
         self.distribution_network.power_system.add_line(line)
 
@@ -838,53 +858,60 @@ class Microgrid:
             bus.is_slack = False
 
 
-def find_sub_systems(p_s:PowerSystem):
+def find_sub_systems(p_s:PowerSystem, hour):
     """
     Function that find the independent sub systems of the given power system
-    and adds them to the sub_systems set of the power system
+    and adds them to the sub_systems list of the power system
     """
 
-    p_s.sub_systems = set()
+    p_s.sub_systems = list()
     # Will only include connected lines
-    active_lines = {line for line in p_s.lines if line.connected}
-    used_buses = set()
-    used_lines = set()
+    active_lines = [line for line in p_s.lines if line.connected]
+    used_buses = list()
+    used_lines = list()
     sub_system = PowerSystem()
 
-    def try_to_add_connected_lines(bus):
-        for line in bus.connected_lines-used_lines:
+    def try_to_add_connected_lines(bus, sub_system, used_buses, used_lines):
+        for line in subtract(bus.connected_lines,used_lines):
             if line.connected:
                 sub_system.add_line(line)
-                used_lines.add(line)
+                used_lines.append(line)
+                used_lines = unique(used_lines)
                 if line.tbus == bus:
-                    add_bus(line.fbus)
-                    try_to_add_connected_lines(line.fbus)
+                    sub_system, used_buses = add_bus(line.fbus, sub_system, used_buses)
+                    sub_system, used_buses, used_lines = try_to_add_connected_lines(line.fbus, sub_system, used_buses, used_lines)
                 else:
-                    add_bus(line.tbus)
-                    try_to_add_connected_lines(line.tbus)
+                    sub_system, used_buses = add_bus(line.tbus, sub_system, used_buses)
+                    sub_system, used_buses, used_lines = try_to_add_connected_lines(line.tbus, sub_system, used_buses, used_lines)
+        return sub_system, used_buses, used_lines
 
-    def add_bus(bus):
-        if bus not in used_buses.union(sub_system.buses):
+    def add_bus(bus, sub_system, used_buses):
+        if bus not in unique(used_buses+sub_system.buses):
             sub_system.add_bus(bus)
-            used_buses.add(bus)
-            for child_network in p_s.child_network_set:
+            used_buses.append(bus)
+            used_buses = unique(used_buses)
+            for child_network in p_s.child_network_list:
                 if bus in child_network.buses:
                     sub_system.add_child_network(child_network)
+        return sub_system, used_buses
                 
 
     while not (len(used_buses)+len(used_lines))==(len(p_s.buses)+len(active_lines)):
         for bus in p_s.buses:
-            if bus not in used_buses.union(sub_system.buses):
+            if bus not in unique(used_buses+sub_system.buses):
                 if (len(sub_system.buses)+len(sub_system.lines)) == 0:
-                    add_bus(bus)
-                    try_to_add_connected_lines(bus)
-                    p_s.sub_systems.add(sub_system)
+                    sub_system, used_buses = add_bus(bus, sub_system, used_buses)
+                    sub_system, used_buses, used_lines = try_to_add_connected_lines(bus, sub_system, used_buses, used_lines)
+                    p_s.sub_systems.append(sub_system)
+                    p_s.sub_systems = unique(p_s.sub_systems)
+                    if (len(used_buses)+len(used_lines))==(len(p_s.buses)+len(active_lines)):
+                        break
                     sub_system = PowerSystem()
 
     if len(p_s.sub_systems) > 1:
-        update_backup_lines_between_sub_systems(p_s)
+        update_backup_lines_between_sub_systems(p_s, hour)
 
-def update_backup_lines_between_sub_systems(p_s:PowerSystem):
+def update_backup_lines_between_sub_systems(p_s:PowerSystem, hour):
     """
     Function that updates the backup lines between the sub systems of the
     power system if they exist and are not failed
@@ -898,7 +925,7 @@ def update_backup_lines_between_sub_systems(p_s:PowerSystem):
                     if not line.connected and not line.failed:
                         for discon in line.get_disconnectors():
                             if discon.is_open:
-                                discon.close()
+                                discon.close(hour)
                         update = True
                         break
             if update:
@@ -906,7 +933,7 @@ def update_backup_lines_between_sub_systems(p_s:PowerSystem):
         if update:
             break
     if update:
-        find_sub_systems(p_s)
+        find_sub_systems(p_s, hour)
 
 def update_sub_system_slack(p_s:PowerSystem):
     """
@@ -927,7 +954,7 @@ def set_slack(p_s:PowerSystem):
     """
     ## Transmission network slack buses in sub_system
     for bus in p_s.buses:
-        for child_network in p_s.child_network_set:
+        for child_network in p_s.child_network_list:
             if type(child_network) == Transmission:
                 if bus == child_network.get():
                     bus.set_slack()
