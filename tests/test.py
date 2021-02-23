@@ -119,13 +119,13 @@ transNetwork = Transmission(ps, Bus1)
 
 distNetwork = Distribution(transNetwork, L1)
 
-distNetwork.add_buses({Bus2, Bus3, Bus4, Bus5, Bus6, Bus7, Bus8, Bus9, Bus10,
+distNetwork.add_buses([Bus2, Bus3, Bus4, Bus5, Bus6, Bus7, Bus8, Bus9, Bus10,
                         Bus11, Bus12, Bus13, Bus14, Bus15, Bus16, Bus17, Bus18, Bus19, Bus20,
-                        Bus21, Bus22, Bus23, Bus24, Bus25, Bus26, Bus27, Bus28, Bus29, Bus30, Bus31, Bus32, Bus33})
+                        Bus21, Bus22, Bus23, Bus24, Bus25, Bus26, Bus27, Bus28, Bus29, Bus30, Bus31, Bus32, Bus33])
 
-distNetwork.add_lines({L2, L3, L4, L5, L6, L7, L8, L9, L10,
+distNetwork.add_lines([L2, L3, L4, L5, L6, L7, L8, L9, L10,
                         L11, L12, L13, L14, L15, L16, L17, L18, L19, L20,
-                        L21, L22, L23, L24, L25, L26, L27, L28, L29, L30, L31, L32})
+                        L21, L22, L23, L24, L25, L26, L27, L28, L29, L30, L31, L32])
 
 
 ps.buses = DistLoadFlow(list(ps.buses), list(ps.lines))
