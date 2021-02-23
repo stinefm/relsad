@@ -56,6 +56,9 @@ class Bus:
     handle = mlines.Line2D([], [], marker = marker, markeredgewidth=3, \
                             markersize=size, linestyle = 'None')
 
+    ## Random instance
+    ps_random = None
+
     def __init__(self, name:str, coordinate:list=[0,0], \
                 ZIP=[0.0, 0.0 ,1.0], vset=0.0, iloss=0, pqcostRatio=100, \
                 is_slack:bool=False, fail_rate_per_year:float=0.5, \
@@ -98,10 +101,10 @@ class Bus:
         self.is_slack = is_slack
         self.toline = None
         self.fromline = None
-        self.tolineset = set()
-        self.fromlineset = set()
-        self.nextbus = set()
-        self.connected_lines = set()
+        self.tolinelist = list()
+        self.fromlinelist = list()
+        self.nextbus = list()
+        self.connected_lines = list()
         Bus.busCount += 1
 
         ## Reliabilility attributes
@@ -167,7 +170,7 @@ class Bus:
             except:
                 raise KeyError("Load type {} is not in cost_functions".format(load_type))
 
-    def trafo_fail(self):
+    def trafo_fail(self, hour):
         """ 
         Trafo fails, load and generation is set to zero
         """
@@ -177,7 +180,7 @@ class Bus:
         if self.prod != None:
             self.prod.set_prod(0,0)
     
-    def trafo_not_fail(self):
+    def trafo_not_fail(self, hour):
         self.trafo_failed = False
 
     def get_battery(self):
@@ -190,7 +193,7 @@ class Bus:
         if self.trafo_failed:
             self.remaining_outage_time -= 1
             if self.remaining_outage_time == 0:
-                self.trafo_not_fail()
+                self.trafo_not_fail(hour)
             else:
                 self.shed_load()
                 if self.prod != None:
@@ -198,20 +201,20 @@ class Bus:
 
         else:
             p_fail = self.fail_rate_per_hour
-            if np.random.choice([True,False],p=[p_fail,1-p_fail]):
-                self.trafo_fail()
+            if self.ps_random.choice([True,False],p=[p_fail,1-p_fail]):
+                self.trafo_fail(hour)
             else:
-                self.trafo_not_fail()
+                self.trafo_not_fail(hour)
 
     def set_slack(self):
         self.is_slack = True
     
     def print_status(self):
         print("name: {:3s}, trafo_failed={}, pload={:.4f}, " \
-            "is_slack={}".format(self.name, self.trafo_failed, self.pload, self.is_slack))#, toline={}, fromline={}, tolineset={}, " \
-            #"fromlineset={}, connected_lines={}, cost={:.4f}"\, \
+            "is_slack={}".format(self.name, self.trafo_failed, self.pload, self.is_slack))#, toline={}, fromline={}, tolinelist={}, " \
+            #"fromlinelist={}, connected_lines={}, cost={:.4f}"\, \
                     # self.toline if self.toline==None else self.toline.name, self.fromline if self.fromline == None else self.fromline.name,\
-                    # self.tolineset, self.fromlineset, self.connected_lines, self.cost))
+                    # self.tolinelist, self.fromlinelist, self.connected_lines, self.cost))
 
     def update_history(self, hour):
         self.history["pload"][hour] = self.pload
@@ -241,6 +244,12 @@ class Bus:
     def clear_load_shed_stack(self):
         self.p_load_shed_stack = 0
         self.q_load_shed_stack = 0
+
+    def add_random_seed(self, random_gen):
+        """
+        Adds global random seed
+        """
+        self.ps_random = random_gen
 
 
 class Line:
@@ -281,6 +290,9 @@ class Line:
     linestyle="-"
     handle = mlines.Line2D([], [], linestyle = linestyle)
 
+    ## Random instance
+    ps_random = None
+
     def __init__(self, name:str, fbus:Bus, tbus:Bus, r:float, \
                 x:float, length:float=1, fail_rate_density_per_year:float=0.2, \
                 outage_time:float=4, capacity:float=100, connected=True):
@@ -293,13 +305,13 @@ class Line:
         ## Topological attributes
         self.fbus = fbus
         self.tbus = tbus
-        fbus.connected_lines.add(self)
-        tbus.connected_lines.add(self)
+        fbus.connected_lines.append(self)
+        tbus.connected_lines.append(self)
         tbus.toline = self
-        tbus.tolineset.add(self)
+        tbus.tolinelist.append(self)
         fbus.fromline = self
-        fbus.fromlineset.add(self)
-        fbus.nextbus.add(self.tbus)
+        fbus.fromlinelist.append(self)
+        fbus.nextbus.append(self.tbus)
         self.disconnectors = list()
         self.circuitbreaker = None
         self.parent_network = None
@@ -344,33 +356,33 @@ class Line:
     def set_backup(self):
         self.is_backup = True
         for discon in self.disconnectors:
-            discon.open()
+            discon.open(hour=1)
 
     def disconnect(self):
         self.connected = False
         self.linestyle="--"
-        self.fbus.fromlineset.discard(self)
+        self.fbus.fromlinelist.remove(self)
         if self.fbus.fromline == self:
-            if len(self.fbus.fromlineset) > 0:
-                self.fbus.fromline = next(iter(self.fbus.fromlineset))
+            if len(self.fbus.fromlinelist) > 0:
+                self.fbus.fromline = next(iter(self.fbus.fromlinelist))
             else:
                 self.fbus.fromline = None
-        self.tbus.tolineset.discard(self)
+        self.tbus.tolinelist.remove(self)
         if self.tbus.toline == self:
-            if len(self.tbus.tolineset) > 0:
-                self.tbus.toline = next(iter(self.tbus.tolineset))
+            if len(self.tbus.tolinelist) > 0:
+                self.tbus.toline = next(iter(self.tbus.tolinelist))
             else:
                 self.tbus.toline = None
-        self.fbus.nextbus.discard(self.tbus)
+        self.fbus.nextbus.remove(self.tbus)
 
     def connect(self):
         self.connected = True
         self.linestyle="-"
         self.tbus.toline = self
-        self.tbus.tolineset.add(self)
+        self.tbus.tolinelist.append(self)
         self.fbus.fromline = self
-        self.fbus.fromlineset.add(self)
-        self.fbus.nextbus.add(self.tbus)
+        self.fbus.fromlinelist.append(self)
+        self.fbus.nextbus.append(self.tbus)
         
     def fail(self, hour):
         self.failed = True
@@ -378,32 +390,34 @@ class Line:
         if self.connected:
             for discon in self.disconnectors:
                 if not discon.is_open:
-                    discon.open()
+                    discon.open(hour)
             self.parent_network.connected_line.circuitbreaker.open(hour)
-            if self.parent_network.child_network_set is not None:
-                for child_network in self.parent_network.child_network_set:
+            if self.parent_network.child_network_list is not None:
+                for child_network in self.parent_network.child_network_list:
                     child_network.connected_line.circuitbreaker.open(hour)
 
-    def not_fail(self):
+    def not_fail(self, hour):
         self.failed = False
         if not self.is_backup:
             for discon in self.disconnectors:
                 if discon.is_open:
-                    discon.close()
+                    discon.close(hour)
+            if self == self.parent_network.connected_line:
+                self.circuitbreaker.close(hour)
 
     def change_direction(self):
-        self.fbus.fromlineset.discard(self)
-        self.tbus.fromlineset.add(self)
-        self.tbus.tolineset.discard(self)
-        self.fbus.tolineset.add(self)
+        self.fbus.fromlinelist.remove(self)
+        self.tbus.fromlinelist.append(self)
+        self.tbus.tolinelist.remove(self)
+        self.fbus.tolinelist.append(self)
         if self.fbus.fromline == self:
-            self.fbus.fromline = next(iter(self.fbus.fromlineset)) if len(self.fbus.fromlineset)>0 else None
+            self.fbus.fromline = next(iter(self.fbus.fromlinelist)) if len(self.fbus.fromlinelist)>0 else None
         if self.tbus.toline == self:
-            self.tbus.toline = next(iter(self.tbus.tolineset)) if len(self.tbus.tolineset)>0 else None
+            self.tbus.toline = next(iter(self.tbus.tolinelist)) if len(self.tbus.tolinelist)>0 else None
         self.fbus.toline = self
         self.tbus.fromline = self
-        self.fbus.nextbus.discard(self.tbus)
-        self.tbus.nextbus.add(self.fbus)
+        self.fbus.nextbus.remove(self.tbus)
+        self.tbus.nextbus.append(self.fbus)
         i_broken = self.tbus.num
         self.tbus.num = self.fbus.num
         self.fbus.num = i_broken
@@ -415,17 +429,17 @@ class Line:
         if self.is_backup:
             for discon in self.disconnectors:
                 if not discon.is_open:
-                    discon.open()
+                    discon.open(hour)
         if self.failed:
             self.remaining_outage_time -= 1
             if self.remaining_outage_time == 0:
-                self.not_fail()
+                self.not_fail(hour)
         else:
             p_fail = self.fail_rate_per_hour
-            if np.random.choice([True,False],p=[p_fail,1-p_fail]):
+            if self.ps_random.choice([True,False],p=[p_fail,1-p_fail]):
                 self.fail(hour)
             else:
-                self.not_fail()
+                self.not_fail(hour)
 
     def get_line_load(self):
         """ Get the flow on the line
@@ -484,6 +498,12 @@ class Line:
     def get_history(self, attribute:str):
         return self.history[attribute]
 
+    def add_random_seed(self, random_gen):
+        """
+        Adds global random seed
+        """
+        self.ps_random = random_gen
+
 class CircuitBreaker:
 
     """
@@ -513,7 +533,7 @@ class CircuitBreaker:
 
         Functions 
         ----------
-        close() :    
+        close(hour) :    
 
         """
 
@@ -526,6 +546,9 @@ class CircuitBreaker:
                             markersize=size, linestyle = 'None', \
                             color = color, markeredgecolor=edgecolor)
     
+    ## Random instance
+    ps_random = None
+
     def __init__(self, name:str, line:Line, is_open:bool=False, section_time:float=1, \
                 fail_rate:float=0.014, outage_time:float=1):
         self.name = name
@@ -562,9 +585,13 @@ class CircuitBreaker:
     def __hash__(self):
         return hash(self.name)
 
-    def close(self):
-        self.is_open = False
-        self.color = "black"
+    def close(self, hour):
+        if hour > self.prev_section_hour:
+            self.is_open = False
+            self.color = "black"
+            for discon in self.disconnectors:
+                if discon.is_open:
+                    discon.close(hour)
 
     def open(self, hour):
         self.is_open = True
@@ -574,16 +601,16 @@ class CircuitBreaker:
         if self.line.connected == True:
             for discon in self.line.disconnectors:
                 if not discon.is_open:
-                    discon.open()
+                    discon.open(hour)
         for discon in self.disconnectors:
             if not discon.is_open:
-                discon.open()
+                discon.open(hour)
 
     def update_fail_status(self, hour):
         if self.is_open and hour > self.prev_section_hour:
             self.remaining_section_time -= 1
             if self.remaining_section_time == 0:
-                self.close()
+                self.close(hour)
     
     def update_history(self, hour):
         self.history["is_open"][hour] = self.is_open
@@ -592,6 +619,13 @@ class CircuitBreaker:
     
     def get_history(self, attribute:str):
         return self.history[attribute]
+
+    def add_random_seed(self, random_gen):
+        """
+        Adds global random seed
+        """
+        self.ps_random = random_gen
+
 
 class Disconnector:
 
@@ -620,7 +654,7 @@ class Disconnector:
 
         Functions 
         ----------
-        close() :    
+        close(hour) :    
 
     """
 
@@ -633,6 +667,9 @@ class Disconnector:
                             markersize=size, linestyle = 'None', \
                             color = color, markeredgecolor=edgecolor)
     
+    ## Random instance
+    ps_random = None
+
     def __init__(self, name:str, line:Line, bus:Bus, \
                 circuitbreaker:CircuitBreaker=None, is_open:bool=False, \
                 fail_rate:float=0.014, outage_time:float=1):
@@ -641,6 +678,7 @@ class Disconnector:
         self.failed = False
         self.fail_rate = fail_rate
         self.outage_time = outage_time
+        self.prev_open_hour = 0
         self.line = line
         self.circuitbreaker = circuitbreaker
 
@@ -677,25 +715,27 @@ class Disconnector:
     def __hash__(self):
         return hash(self.name)
 
-    def close(self):
+    def close(self, hour):
         self.is_open = False
         self.color = "black"
-        if self.line.connected == False:
-            self.line.connect()
+        if hour > self.prev_open_hour or self.line.is_backup:
+            if self.line.connected == False:
+                self.line.connect()
     
-    def open(self):
+    def open(self, hour):
         self.is_open = True
+        self.prev_open_hour = hour
         self.color = "white"
         if self.line.connected == True:
             self.line.disconnect()
 
-    def fail(self):
+    def fail(self, hour):
         self.failed = True
-        self.open()
+        self.open(hour)
 
-    def not_fail(self):
+    def not_fail(self, hour):
         self.failed = False
-        self.close()
+        self.close(hour)
 
     def update_fail_status(self, hour):
         pass
@@ -705,6 +745,12 @@ class Disconnector:
 
     def get_history(self, attribute:str):
         return self.history[attribute]
+
+    def add_random_seed(self, random_gen):
+        """
+        Adds global random seed
+        """
+        self.ps_random = random_gen
 
 class Battery:
     """
@@ -751,6 +797,9 @@ class Battery:
         Prints the status of the battery
 
     """
+
+    ## Random instance
+    ps_random = None
 
     def __init__(self, name:str, bus:Bus, inj_p_max:float=1, inj_q_max:float=1, \
                 E_max:float=3, SOC_min:float=0.2, SOC_max:float=1, n_battery:float=0.97):
@@ -1023,6 +1072,11 @@ class Battery:
     def update_fail_status(self, hour):
         pass
 
+    def add_random_seed(self, random_gen):
+        """
+        Adds global random seed
+        """
+        self.ps_random = random_gen
 class Production:
 
     """
@@ -1054,6 +1108,9 @@ class Production:
         Updates the load on the bus with the amount of generated active and reactive power 
 
     """
+
+    ## Random instance
+    ps_random = None
     
     def __init__(self, name:str, bus:Bus, pmax:float=1, qmax:float=0):
         
@@ -1150,6 +1207,12 @@ class Production:
 
     def get_history(self, attribute:str):
         return self.history[attribute]
+
+    def add_random_seed(self, random_gen):
+        """
+        Adds global random seed
+        """
+        self.ps_random = random_gen
 
 if __name__=="__main__":
     pass
