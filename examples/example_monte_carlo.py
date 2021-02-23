@@ -50,7 +50,7 @@ L7b = ps.get_comp("L7b")
 # Fetching battery and production objects
 Bat1 = M1.get_battery()
 P1 = M2.get_production()
-P2 = B5.get_production()
+#P2 = B5.get_production()
 
 temp_profiles, wind_profiles, solar_profiles = WeatherGen()
 
@@ -60,7 +60,7 @@ PV = PVgeneration(temp_profiles, solar_profiles)
 load_house, load_farm, load_industry2, load_trade, load_office = LoadGen(temp_profiles)
 N = 1 # Size of Monte Carlo simulation
 for i in range(N):
-    for day in range(5):
+    for day in range(3):
         for hour in range(24):
             run_hour = day*24+hour
             print("hour: {}".format(run_hour))
@@ -70,31 +70,35 @@ for i in range(N):
             B2.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
             B3.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
             B4.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
+            B5.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
             M3.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
 
 
             ## Set production
             P1.set_prod(pprod=PV[day,hour]+wind[day,hour], qprod=0)
-            P2.set_prod(pprod=wind[day,hour], qprod=0)
+            #P2.set_prod(pprod=wind[day,hour], qprod=0)
+
 
             ps.run(run_hour)
                           
 end = time.time()
 print("Time elapsed: {}".format(end - start))
 
-ps.plot_bus_history(r"C:\Users\stinefm\Desktop\results\bus")
-ps.plot_battery_history(r"C:\Users\stinefm\Desktop\results\battery")
-ps.plot_load_shed_history(r"C:\Users\stinefm\Desktop\results\load_shed")
-ps.plot_line_history(r"C:\Users\stinefm\Desktop\results\line")
-ps.plot_circuitbreaker_history(r"C:\Users\stinefm\Desktop\results\circuitbreaker")
-ps.plot_disconnector_history(r"C:\Users\stinefm\Desktop\results\disconnector")
+save_dir = r"C:\Users\stinefm\Downloads\results"
 
-ps.save_bus_history(r"C:\Users\stinefm\Desktop\results\bus")
-ps.save_battery_history(r"C:\Users\stinefm\Desktop\results\battery")
-ps.save_load_shed_history(r"C:\Users\stinefm\Desktop\results\load_shed")
-ps.save_line_history(r"C:\Users\stinefm\Desktop\results\line")
-ps.save_circuitbreaker_history(r"C:\Users\stinefm\Desktop\results\circuitbreaker")
-ps.save_disconnector_history(r"C:\Users\stinefm\Desktop\results\disconnector")
+ps.plot_bus_history(os.path.join(save_dir,"bus"))
+ps.plot_battery_history(os.path.join(save_dir,"battery"))
+ps.plot_load_shed_history(os.path.join(save_dir,"load_shed"))
+ps.plot_line_history(os.path.join(save_dir,"line"))
+ps.plot_circuitbreaker_history(os.path.join(save_dir,"circuitbreaker"))
+ps.plot_disconnector_history(os.path.join(save_dir,"disconnector"))
+
+ps.save_bus_history(os.path.join(save_dir,"bus"))
+ps.save_battery_history(os.path.join(save_dir,"battery"))
+ps.save_load_shed_history(os.path.join(save_dir,"load_shed"))
+ps.save_line_history(os.path.join(save_dir,"line"))
+ps.save_circuitbreaker_history(os.path.join(save_dir,"circuitbreaker"))
+ps.save_disconnector_history(os.path.join(save_dir,"disconnector"))
 
 for sub_system in PowerSystem.shed_configs:
     fig = plot_topology(list(sub_system.buses),list(sub_system.lines))
