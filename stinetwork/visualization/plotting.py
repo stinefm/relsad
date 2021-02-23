@@ -98,8 +98,8 @@ def plot_history(comp_list:list, attribute:str, save_dir:str):
         ax.plot(list(data.values()),label=comp.name)
     ax.set_title(attribute)
     ax.legend()
-    #fig.show()
     fig.savefig(os.path.join(save_dir,attribute+".pdf"), format="pdf")
+    plt.close(fig)
     
 if __name__=="__main__":
     pass
