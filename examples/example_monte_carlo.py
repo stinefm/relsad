@@ -3,6 +3,7 @@ from stinetwork.network.systems import find_sub_systems, update_sub_system_slack
 from stinetwork.visualization.plotting import plot_topology
 from stinetwork.loadflow.ac import DistLoadFlow
 from stinetwork.visualization.printing import dispVolt, dispFlow, ForwardSearch, BackwardSearch, dispLoads
+from stinetwork.utils import random_instance
 from load_and_gen_data import WeatherGen,LoadGen,windGen,PVgeneration
 import time, os
 
@@ -11,6 +12,9 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 start = time.time()
 
 ps = initialize_test_network()
+
+## Set seed to get deterministic behavior
+ps.add_random_instance(random_instance(seed=0))
 
 # Fetching bus-objects
 T = ps.get_comp("T")
