@@ -801,8 +801,8 @@ class Battery:
     ## Random instance
     ps_random = None
 
-    def __init__(self, name:str, bus:Bus, inj_p_max:float=1, inj_q_max:float=1, \
-                E_max:float=3, SOC_min:float=0.2, SOC_max:float=1, n_battery:float=0.97):
+    def __init__(self, name:str, bus:Bus, inj_p_max:float=0.5, inj_q_max:float=0.5, \
+                E_max:float=1, SOC_min:float=0.2, SOC_max:float=1, n_battery:float=0.97):
         
         """
         Constructs all the necessary attributes for the production object
