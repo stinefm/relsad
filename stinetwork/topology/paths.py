@@ -194,7 +194,7 @@ def configure(BusList, LineList):
    
     ## Update directions based on slack bus (making slack bus parent of the radial tree)
     checked_buses = list()
-    target_buses = change_dir({slack_bus}, BusList, checked_buses, LineList)
+    target_buses = change_dir([slack_bus], BusList, checked_buses, LineList)
     while target_buses != list():
         target_buses = change_dir(target_buses, BusList, checked_buses, LineList)
 
