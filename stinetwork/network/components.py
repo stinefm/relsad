@@ -2,6 +2,7 @@
 Module that contains the component definitions of the package
 """
 
+from stinetwork.utils import unique
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import numpy as np
@@ -504,6 +505,7 @@ class Line:
         """
         self.ps_random = random_gen
 
+
 class CircuitBreaker:
 
     """
@@ -598,18 +600,17 @@ class CircuitBreaker:
         self.prev_section_hour = hour
         self.remaining_section_time = self.section_time
         self.color = "white"
-        if self.line.connected == True:
-            for discon in self.line.disconnectors:
-                if not discon.is_open:
-                    discon.open(hour)
-        for discon in self.disconnectors:
+        for discon in unique(self.line.disconnectors+self.disconnectors):
             if not discon.is_open:
                 discon.open(hour)
 
     def update_fail_status(self, hour):
         if self.is_open and hour > self.prev_section_hour:
-            self.remaining_section_time -= 1
-            if self.remaining_section_time == 0:
+            if self.remaining_section_time >= 1:
+                self.remaining_section_time -= 1
+                if self.remaining_section_time == 0 and not self.line.failed:
+                    self.close(hour)
+            elif not self.line.failed:
                 self.close(hour)
     
     def update_history(self, hour):
@@ -716,17 +717,17 @@ class Disconnector:
         return hash(self.name)
 
     def close(self, hour):
-        self.is_open = False
-        self.color = "black"
         if hour > self.prev_open_hour or self.line.is_backup:
-            if self.line.connected == False:
+            self.is_open = False
+            self.color = "black"
+            if not self.line.connected:
                 self.line.connect()
     
     def open(self, hour):
         self.is_open = True
         self.prev_open_hour = hour
         self.color = "white"
-        if self.line.connected == True:
+        if self.line.connected:
             self.line.disconnect()
 
     def fail(self, hour):
@@ -751,6 +752,7 @@ class Disconnector:
         Adds global random seed
         """
         self.ps_random = random_gen
+
 
 class Battery:
     """
@@ -840,6 +842,7 @@ class Battery:
         self.name = name
         self.bus = bus
         bus.battery = self
+        bus.set_cost(1) ## Add symbolic cost to shedding battery load
 
         self.inj_p_max = inj_p_max  # MW
         self.inj_q_max = inj_q_max  # MVar
@@ -857,6 +860,8 @@ class Battery:
         self.SOC = SOC_min
         self.E_battery = self.SOC*self.E_max    # MWh
         self.update_SOC()
+
+        self.lock = False
 
         ## History
         self.history = {"SOC":dict()}
@@ -1035,6 +1040,9 @@ class Battery:
         """
         p,q = system_load_balance_p, system_load_balance_q
 
+        if self.lock:
+            return p, q
+
         pprod,qprod,pload,qload = 0,0,0,0
         if p >= 0 and q >= 0:
             p_dis, q_dis = self.discharge(p,q)
@@ -1070,13 +1078,18 @@ class Battery:
         return self.history[attribute]
 
     def update_fail_status(self, hour):
-        pass
+        if self.bus.trafo_failed:
+            self.lock = True
+        else:
+            self.lock = False
 
     def add_random_seed(self, random_gen):
         """
         Adds global random seed
         """
         self.ps_random = random_gen
+
+
 class Production:
 
     """
