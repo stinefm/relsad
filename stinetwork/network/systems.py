@@ -248,64 +248,38 @@ class PowerSystem:
                 else:
                     p_bounds.append((0,p_gen[n-(N_D+N_L)]))
 
-            f = False
-            with warnings.catch_warnings():
-                
-                warnings.simplefilter("error", OptimizeWarning)
-                try:
-                    p_res = linprog(c, A_eq=A, b_eq=p_b, bounds=p_bounds, method='simplex', options={"tol":1E-10})
+            p_res = linprog(c, A_eq=A, b_eq=p_b, bounds=p_bounds, options={"tol":1E-10, "rr_method":"SVD", \
+                                                                            "presolve":True, "lstsq":True, \
+                                                                            "cholesky":False})
+            if p_res.fun > 0:
+                for i, bus in enumerate(buses):
+                    bus.p_load_shed_stack += p_res.x[i]
+                if len(PowerSystem.shed_configs)==0:
+                    PowerSystem.shed_configs.append(self)
+                add = True
+                for shed_config in PowerSystem.shed_configs:
+                    if self == shed_config:
+                        add = False
+                        break
+                if add:
+                    PowerSystem.shed_configs.append(self)
 
-                    if p_res.fun > 0:
-                        for i, bus in enumerate(buses):
-                            bus.p_load_shed_stack += p_res.x[i]
-                        if len(PowerSystem.shed_configs)==0:
-                            PowerSystem.shed_configs.append(self)
-                        add = True
-                        for shed_config in PowerSystem.shed_configs:
-                            if self == shed_config:
-                                add = False
-                                break
-                        if add:
-                            PowerSystem.shed_configs.append(self)
+            #         print(buses,lines)
+            #         self.print_status()
+            #         print("Active:\n")
+            #         print('c:\n', c)
+            #         print('A_eq:\n', A)
+            #         print('b_eq:\n', p_b)
+            #         print('Bounds:\n', p_bounds)
+            #         print('Results:', p_res)
 
-                except OptimizeWarning:
-                    # f = True
-                    # print(buses,lines)
-                    # self.print_status()
+            #         fig = plot_topology(buses,lines)
+            #         fig.show()
 
-                    # print('c:\n', c)
-                    # print('A_eq:\n', A)
-                    # print("Active:\n")
-                    # print('b_eq:\n', p_b)
-                    # print('Bounds:\n', p_bounds)
-                    # #print('Results:', p_res)
-                    # fig = plot_topology(list(self.buses),list(self.lines))
-                    # fig.show()
-                    # try:
-                    #     input("Press enter to continue")
-                    # except SyntaxError:
-                    #     pass
-                    pass
-            if f:
-                p_res = linprog(c, A_eq=A, b_eq=p_b, bounds=p_bounds, method='simplex', options={"tol":1E-10})
-                if p_res.fun > 0:
-
-                    print(buses,lines)
-                    self.print_status()
-                    print("Active:\n")
-                    print('c:\n', c)
-                    print('A_eq:\n', A)
-                    print('b_eq:\n', p_b)
-                    print('Bounds:\n', p_bounds)
-                    print('Results:', p_res)
-
-                    fig = plot_topology(buses,lines)
-                    fig.show()
-
-                    try:
-                        input("Press enter to continue")
-                    except SyntaxError:
-                        pass
+            #         try:
+            #             input("Press enter to continue")
+            #         except SyntaxError:
+            #             pass
                     
         else:
             raise Exception("More than one sub system")
@@ -349,63 +323,39 @@ class PowerSystem:
                     q_bounds.append((-PL_max, PL_max))
                 else:
                     q_bounds.append((0,q_gen[n-(N_D+N_L)]))
-            f = False
-            with warnings.catch_warnings():
-                
-                warnings.simplefilter("error", OptimizeWarning)
-                try:
-                    q_res = linprog(c, A_eq=A, b_eq=q_b, bounds=q_bounds, method='simplex', options={"tol":1E-10})
-                    if q_res.fun > 0:
-                        for i, bus in enumerate(buses):
-                            bus.q_load_shed_stack += q_res.x[i]
-                        if len(PowerSystem.shed_configs)==0:
-                            PowerSystem.shed_configs.append(self)
-                        add = True
-                        for shed_config in PowerSystem.shed_configs:
-                            if self == shed_config:
-                                add = False
-                                break
-                        if add:
-                            PowerSystem.shed_configs.append(self)
 
-                except OptimizeWarning:
-                    # f = True
-                    # print(buses,lines)
-                    # self.print_status()
+            q_res = linprog(c, A_eq=A, b_eq=q_b, bounds=q_bounds, options={"tol":1E-10, "rr_method":"SVD", \
+                                                                            "presolve":True, "lstsq":True, \
+                                                                            "cholesky":False})
+            if q_res.fun > 0:
+                for i, bus in enumerate(buses):
+                    bus.q_load_shed_stack += q_res.x[i]
+                if len(PowerSystem.shed_configs)==0:
+                    PowerSystem.shed_configs.append(self)
+                add = True
+                for shed_config in PowerSystem.shed_configs:
+                    if self == shed_config:
+                        add = False
+                        break
+                if add:
+                    PowerSystem.shed_configs.append(self)
 
-                    # print('c:\n', c)
-                    # print('A_eq:\n', A)
-                    # print("Reactive:\n")
-                    # print('b_eq:\n', q_b)
-                    # print('Bounds:\n', q_bounds)
-                    # #print('Results:', q_res)
-                    # fig = plot_topology(list(self.buses),list(self.lines))
-                    # fig.show()
-                    # try:
-                    #     input("Press enter to continue")
-                    # except SyntaxError:
-                    #     pass
-                    pass
-            if f:
-                q_res = linprog(c, A_eq=A, b_eq=q_b, bounds=q_bounds, method='simplex', options={"tol":1E-10})
-                if q_res.fun > 0:
+            #         print(buses,lines)
+            #         self.print_status()
+            #         print('c:\n', c)
+            #         print('A_eq:\n', A)
+            #         print("Reactive:\n")
+            #         print('b_eq:\n', q_b)
+            #         print('Bounds:\n', q_bounds)
+            #         print('Results:', q_res)
 
-                    print(buses,lines)
-                    self.print_status()
-                    print('c:\n', c)
-                    print('A_eq:\n', A)
-                    print("Reactive:\n")
-                    print('b_eq:\n', q_b)
-                    print('Bounds:\n', q_bounds)
-                    print('Results:', q_res)
+            #         fig = plot_topology(buses,lines)
+            #         fig.show()
 
-                    fig = plot_topology(buses,lines)
-                    fig.show()
-
-                    try:
-                        input("Press enter to continue")
-                    except SyntaxError:
-                        pass
+            #         try:
+            #             input("Press enter to continue")
+            #         except SyntaxError:
+            #             pass
                     
         else:
             raise Exception("More than one sub system")
@@ -578,8 +528,9 @@ class PowerSystem:
         for sub_system in self.sub_systems:
             ## Update batteries and history
             sub_system.update_batteries()
-            ## Run load flow     
-            _sub_buses = DistLoadFlow(list(sub_system.buses),list(sub_system.lines))
+            ## Run load flow
+            if sub_system.slack is not None:
+                sub_system.buses = DistLoadFlow(list(sub_system.buses),list(sub_system.lines))
             ## Shed load
             sub_system.shed_active_loads()
             sub_system.shed_reactive_loads()
@@ -952,8 +903,10 @@ def update_sub_system_slack(p_s:PowerSystem):
         sub_system.slack = None
         for bus in sub_system.buses:
             bus.is_slack = False
-        if not set_slack(sub_system): # Remove sub system if slack is not found
-            p_s.sub_systems.remove(sub_system)
+            if set_slack(sub_system):
+                break
+        # if not set_slack(sub_system): # Remove sub system if slack is not found
+        #     p_s.sub_systems.remove(sub_system)
 
 def set_slack(p_s:PowerSystem):
     """
@@ -981,7 +934,7 @@ def set_slack(p_s:PowerSystem):
                 bus.set_slack()
                 p_s.slack = bus
                 return True
-    ## Delete if no possible slack
+    ## Not slack material
     return False
 
 if __name__=="__main__":
