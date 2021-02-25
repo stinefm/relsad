@@ -127,7 +127,7 @@ class Bus:
         ## History
         self.history = {"pload":dict(), "qload":dict(), "pprod":dict(), "qprod":dict(), \
                         "remaining_outage_time":dict(), "trafo_failed":dict(), "p_load_shed_stack":dict(), \
-                        "q_load_shed_stack":dict()}
+                        "q_load_shed_stack":dict(), "voang":dict(), "vomag":dict()}
 
     def __str__(self):
         return self.name
@@ -226,6 +226,8 @@ class Bus:
         self.history["trafo_failed"][hour] = self.trafo_failed
         self.history["p_load_shed_stack"][hour] = self.p_load_shed_stack
         self.history["q_load_shed_stack"][hour] = self.q_load_shed_stack
+        self.history["voang"][hour] = self.voang
+        self.history["vomag"][hour] = self.vomag
         self.clear_load_shed_stack()
 
     def get_history(self, attribute:str):
@@ -339,7 +341,7 @@ class Line:
         ## History
         self.history = {"p_from":dict(), "q_from":dict(), "p_to":dict(), \
                         "q_to":dict(), "remaining_outage_time":dict(), \
-                        "failed":dict()}
+                        "failed":dict(), "line_loading":dict()}
 
     def __str__(self):
         return self.name
@@ -475,6 +477,12 @@ class Line:
 
         return p_from,q_from,p_to,q_to
 
+    def get_line_loading(self):
+        """ Get the loading on the line in percent
+        """
+        p_from = self.get_line_load()[0]
+        return abs(p_from)/self.capacity*100
+
     def print_status(self):
         print("name: {:5s}, failed={}, connected={}".format(self.name, self.failed, self.connected))
 
@@ -495,6 +503,7 @@ class Line:
         self.history["q_to"][hour] = q_to
         self.history["remaining_outage_time"][hour] = self.remaining_outage_time
         self.history["failed"][hour] = self.failed
+        self.history["line_loading"][hour] = self.get_line_loading()
 
     def get_history(self, attribute:str):
         return self.history[attribute]
