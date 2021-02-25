@@ -14,7 +14,7 @@ start = time.time()
 ps = initialize_test_network()
 
 ## Set seed to get deterministic behavior
-ps.add_random_instance(random_instance(seed=0))
+ps.add_random_instance(random_instance(seed=4))
 
 # Fetching bus-objects
 T = ps.get_comp("T")
@@ -104,10 +104,10 @@ ps.save_line_history(os.path.join(save_dir,"line"))
 ps.save_circuitbreaker_history(os.path.join(save_dir,"circuitbreaker"))
 ps.save_disconnector_history(os.path.join(save_dir,"disconnector"))
 
-for sub_system in PowerSystem.shed_configs:
-    fig = plot_topology(list(sub_system.buses),list(sub_system.lines))
-    fig.show()
-try:
-    input("Press enter to continue")
-except SyntaxError:
-    pass
+# for sub_system in PowerSystem.shed_configs:
+#     fig = plot_topology(list(sub_system.buses),list(sub_system.lines))
+#     fig.show()
+# try:
+#     input("Press enter to continue")
+# except SyntaxError:
+#     pass
