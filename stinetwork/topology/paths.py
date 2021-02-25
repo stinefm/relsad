@@ -127,7 +127,7 @@ def configure(BusList, LineList):
                             new_target_buses = unique(new_target_buses)
                 checked_buses.append(target_bus)
                 checked_buses = unique(checked_buses)
-        return new_target_buses
+        return new_target_buses, checked_buses
 
     def get_paths(parent_bus):
         """Function that finds all downstream paths in a radial tree
@@ -194,9 +194,9 @@ def configure(BusList, LineList):
    
     ## Update directions based on slack bus (making slack bus parent of the radial tree)
     checked_buses = list()
-    target_buses = change_dir([slack_bus], BusList, checked_buses, LineList)
+    target_buses, checked_buses = change_dir([slack_bus], BusList, checked_buses, LineList)
     while target_buses != list():
-        target_buses = change_dir(target_buses, BusList, checked_buses, LineList)
+        target_buses, checked_buses = change_dir(target_buses, BusList, checked_buses, LineList)
 
     paths = get_paths(slack_bus)
 
