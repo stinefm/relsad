@@ -248,9 +248,7 @@ class PowerSystem:
                 else:
                     p_bounds.append((0,p_gen[n-(N_D+N_L)]))
 
-            p_res = linprog(c, A_eq=A, b_eq=p_b, bounds=p_bounds, options={"tol":1E-10, "rr_method":"SVD", \
-                                                                            "presolve":True, "lstsq":True, \
-                                                                            "cholesky":False})
+            p_res = linprog(c, A_eq=A, b_eq=p_b, bounds=p_bounds)
             if p_res.fun > 0:
                 for i, bus in enumerate(buses):
                     bus.p_load_shed_stack += p_res.x[i]
@@ -324,9 +322,7 @@ class PowerSystem:
                 else:
                     q_bounds.append((0,q_gen[n-(N_D+N_L)]))
 
-            q_res = linprog(c, A_eq=A, b_eq=q_b, bounds=q_bounds, options={"tol":1E-10, "rr_method":"SVD", \
-                                                                            "presolve":True, "lstsq":True, \
-                                                                            "cholesky":False})
+            q_res = linprog(c, A_eq=A, b_eq=q_b, bounds=q_bounds)
             if q_res.fun > 0:
                 for i, bus in enumerate(buses):
                     bus.q_load_shed_stack += q_res.x[i]
@@ -396,6 +392,8 @@ class PowerSystem:
         plot_history(self.buses, "trafo_failed", save_dir)
         plot_history(self.buses, "p_load_shed_stack", save_dir)
         plot_history(self.buses, "q_load_shed_stack", save_dir)
+        plot_history(self.buses, "voang", save_dir)
+        plot_history(self.buses, "vomag", save_dir)
 
     def save_bus_history(self, save_dir:str):
         """
@@ -409,6 +407,8 @@ class PowerSystem:
         save_history(self.buses, "trafo_failed", save_dir)
         save_history(self.buses, "p_load_shed_stack", save_dir)
         save_history(self.buses, "q_load_shed_stack", save_dir)
+        save_history(self.buses, "voang", save_dir)
+        save_history(self.buses, "vomag", save_dir)
 
     def plot_battery_history(self, save_dir:str):
         """
@@ -446,6 +446,7 @@ class PowerSystem:
         plot_history(self.lines, "q_to", save_dir)
         plot_history(self.lines, "remaining_outage_time", save_dir)
         plot_history(self.lines, "failed", save_dir)
+        plot_history(self.lines, "line_loading", save_dir)
 
     def save_line_history(self, save_dir:str):
         """
@@ -457,6 +458,7 @@ class PowerSystem:
         save_history(self.lines, "q_to", save_dir)
         save_history(self.lines, "remaining_outage_time", save_dir)
         save_history(self.lines, "failed", save_dir)
+        save_history(self.lines, "line_loading", save_dir)
 
     def plot_circuitbreaker_history(self, save_dir:str):
         """
