@@ -5,7 +5,7 @@ Module containing the system definition of the package
 from stinetwork.network.components import Bus, Line, CircuitBreaker, Disconnector
 from stinetwork.loadflow.ac import DistLoadFlow
 from stinetwork.topology.paths import find_backup_lines_between_sub_systems
-from stinetwork.visualization.plotting import plot_history, plot_topology
+from stinetwork.visualization.plotting import plot_history, plot_history_last_state, plot_topology
 from stinetwork.results.storage import save_history
 from stinetwork.utils import unique, subtract
 import numpy as np
@@ -26,7 +26,9 @@ class PowerSystem:
 
     ## Load shedding
     p_load_shed = 0
+    acc_p_load_shed = 0
     q_load_shed = 0
+    acc_q_load_shed = 0
 
     ## Random instance
     ps_random = None
@@ -37,7 +39,8 @@ class PowerSystem:
     all_batteries = list()
     all_productions = list()
     all_lines = list()
-    history = {"p_load_shed":dict(), "q_load_shed":dict()}
+    history = {"p_load_shed":dict(), "acc_p_load_shed":dict(), "q_load_shed":dict(), \
+                "acc_q_load_shed":dict()}
 
     def __init__(self):
         """ Initializing power system content
@@ -157,6 +160,12 @@ class PowerSystem:
             Input: lines(list(Line)) """
         for line in lines:
             self.add_line(line)
+
+    def get_lines(self):
+        """
+        Returns the lines in the power system
+        """
+        return self.lines
 
     def get_comp(self, name:str):
         """
@@ -391,9 +400,14 @@ class PowerSystem:
         plot_history(self.buses, "remaining_outage_time", save_dir)
         plot_history(self.buses, "trafo_failed", save_dir)
         plot_history(self.buses, "p_load_shed_stack", save_dir)
+        plot_history_last_state(self.buses, "acc_p_load_shed", save_dir)
         plot_history(self.buses, "q_load_shed_stack", save_dir)
+        plot_history_last_state(self.buses, "acc_q_load_shed", save_dir)
         plot_history(self.buses, "voang", save_dir)
         plot_history(self.buses, "vomag", save_dir)
+        plot_history_last_state(self.buses, "avg_fail_rate", save_dir)
+        plot_history_last_state(self.buses, "avg_annual_outage_time", save_dir)
+        plot_history_last_state(self.buses, "avg_outage_time", save_dir)
 
     def save_bus_history(self, save_dir:str):
         """
@@ -406,9 +420,14 @@ class PowerSystem:
         save_history(self.buses, "remaining_outage_time", save_dir)
         save_history(self.buses, "trafo_failed", save_dir)
         save_history(self.buses, "p_load_shed_stack", save_dir)
+        save_history(self.buses, "acc_p_load_shed", save_dir)
         save_history(self.buses, "q_load_shed_stack", save_dir)
+        save_history(self.buses, "acc_q_load_shed", save_dir)
         save_history(self.buses, "voang", save_dir)
         save_history(self.buses, "vomag", save_dir)
+        save_history(self.buses, "avg_fail_rate", save_dir)
+        save_history(self.buses, "avg_annual_outage_time", save_dir)
+        save_history(self.buses, "avg_outage_time", save_dir)
 
     def plot_battery_history(self, save_dir:str):
         """
@@ -427,14 +446,18 @@ class PowerSystem:
         Plots the history of the load shedding in the power system
         """
         plot_history([self], "p_load_shed", save_dir)
+        plot_history_last_state([self], "acc_p_load_shed", save_dir)
         plot_history([self], "q_load_shed", save_dir)
+        plot_history_last_state([self], "acc_q_load_shed", save_dir)
 
     def save_load_shed_history(self, save_dir:str):
         """
         Saves the history of the load shedding in the power system
         """
         save_history([self], "p_load_shed", save_dir)
+        save_history([self], "acc_p_load_shed", save_dir)
         save_history([self], "q_load_shed", save_dir)
+        save_history([self], "acc_q_load_shed", save_dir)
 
     def plot_line_history(self, save_dir:str):
         """
@@ -495,8 +518,12 @@ class PowerSystem:
         for bus in PowerSystem.all_buses:
             PowerSystem.p_load_shed += bus.p_load_shed_stack
             PowerSystem.q_load_shed += bus.q_load_shed_stack
+        PowerSystem.acc_p_load_shed += PowerSystem.p_load_shed
+        PowerSystem.acc_q_load_shed += PowerSystem.q_load_shed
         PowerSystem.history["p_load_shed"][hour] = PowerSystem.p_load_shed
+        PowerSystem.history["acc_p_load_shed"][hour] = PowerSystem.acc_p_load_shed
         PowerSystem.history["q_load_shed"][hour] = PowerSystem.q_load_shed
+        PowerSystem.history["acc_q_load_shed"][hour] = PowerSystem.acc_q_load_shed
         PowerSystem.p_load_shed = 0
         PowerSystem.q_load_shed = 0
         for comp in PowerSystem.all_comp_list:
@@ -605,6 +632,11 @@ class Transmission:
         self.child_network_list.append(network)
         self.parent_network.add_child_network(network)
 
+    def get_lines(self):
+        """
+        Returns the lines in the transmission network
+        """
+        return None
 
 class Distribution:
     """ Class defining a distribution network type """
@@ -665,6 +697,7 @@ class Distribution:
         self.comp_dict[bus.name] = bus
         bus.handle.color = self.color
         bus.color = self.color
+        bus.parent_network = self
         self.buses.append(bus)
         self.power_system.add_bus(bus)
 
@@ -691,7 +724,13 @@ class Distribution:
             Input: lines(list(Line)) """
         for line in lines:
             self.add_line(line)
-        
+
+    def get_lines(self):
+        """
+        Returns the lines in the distribution network
+        """
+        return self.lines
+
     def reset_slack_bus(self):
         """
         Resets the slack bus attribute of the buses in the distribution network
@@ -765,6 +804,7 @@ class Microgrid:
         self.comp_dict[bus.name] = bus
         bus.handle.color = self.color
         bus.color = self.color
+        bus.parent_network = self
         self.buses.append(bus)
         self.distribution_network.power_system.add_bus(bus)
 
@@ -791,6 +831,12 @@ class Microgrid:
             Input: lines(list(Line)) """
         for line in lines:
             self.add_line(line)  
+
+    def get_lines(self):
+        """
+        Returns the lines in the microgrid
+        """
+        return self.lines
 
     def connect(self):
         """
