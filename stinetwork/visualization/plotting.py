@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from stinetwork.network.components import Bus, Line, Disconnector, CircuitBreaker
 import os
 
@@ -96,6 +97,21 @@ def plot_history(comp_list:list, attribute:str, save_dir:str):
     for comp in comp_list:
         data = comp.get_history(attribute)
         ax.plot(list(data.values()),label=comp.name)
+    ax.set_title(attribute)
+    ax.legend()
+    fig.savefig(os.path.join(save_dir,attribute+".pdf"), format="pdf")
+    plt.close(fig)
+
+def plot_history_last_state(comp_list:list, attribute:str, save_dir:str):
+    if not os.path.isdir(save_dir):
+        os.mkdir(save_dir)
+    fig = plt.figure(dpi=150)
+    ax = fig.add_subplot(1, 1, 1)
+    df = pd.DataFrame()
+    for comp in comp_list:
+        data = comp.get_history(attribute)
+        df[comp] = data.values()
+    df.iloc[-1].plot.bar()
     ax.set_title(attribute)
     ax.legend()
     fig.savefig(os.path.join(save_dir,attribute+".pdf"), format="pdf")
