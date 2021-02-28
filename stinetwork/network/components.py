@@ -106,6 +106,7 @@ class Bus:
         self.fromlinelist = list()
         self.nextbus = list()
         self.connected_lines = list()
+        self.parent_network = None
         Bus.busCount += 1
 
         ## Reliabilility attributes
@@ -114,7 +115,11 @@ class Bus:
         self.outage_time = outage_time # hours
         self.cost = 0 # cost
         self.p_load_shed_stack = 0
+        self.acc_p_load_shed = 0 # Accumulated load shed for bus
         self.q_load_shed_stack = 0
+        self.acc_q_load_shed = 0
+        
+        
 
         ## Status attribute
         self.trafo_failed = False
@@ -127,7 +132,9 @@ class Bus:
         ## History
         self.history = {"pload":dict(), "qload":dict(), "pprod":dict(), "qprod":dict(), \
                         "remaining_outage_time":dict(), "trafo_failed":dict(), "p_load_shed_stack":dict(), \
-                        "q_load_shed_stack":dict(), "voang":dict(), "vomag":dict()}
+                        "acc_p_load_shed":dict(), "q_load_shed_stack":dict(), \
+                        "acc_q_load_shed":dict(), "voang":dict(), "vomag":dict(), \
+                        "avg_fail_rate":dict(), "avg_annual_outage_time":dict(), "avg_outage_time":dict()}
 
     def __str__(self):
         return self.name
@@ -218,6 +225,8 @@ class Bus:
                     # self.tolinelist, self.fromlinelist, self.connected_lines, self.cost))
 
     def update_history(self, hour):
+        self.acc_p_load_shed += self.p_load_shed_stack  # Update accumulated load shed for bus
+        self.acc_q_load_shed += self.q_load_shed_stack
         self.history["pload"][hour] = self.pload
         self.history["qload"][hour] = self.qload
         self.history["pprod"][hour] = self.pprod
@@ -225,9 +234,14 @@ class Bus:
         self.history["remaining_outage_time"][hour] = self.remaining_outage_time
         self.history["trafo_failed"][hour] = self.trafo_failed
         self.history["p_load_shed_stack"][hour] = self.p_load_shed_stack
+        self.history["acc_p_load_shed"][hour] = self.acc_p_load_shed
         self.history["q_load_shed_stack"][hour] = self.q_load_shed_stack
+        self.history["acc_q_load_shed"][hour] = self.acc_q_load_shed
         self.history["voang"][hour] = self.voang
         self.history["vomag"][hour] = self.vomag
+        self.history["avg_fail_rate"][hour] = self.get_avg_fail_rate() # Average failure rate (lamda_s)
+        self.history["avg_annual_outage_time"][hour] = self.get_annual_outage_time() # Average annual outage time (U_s)
+        self.history["avg_outage_time"][hour] = self.get_avg_outage_time() # Average outage time (r_s)
         self.clear_load_shed_stack()
 
     def get_history(self, attribute:str):
@@ -254,6 +268,41 @@ class Bus:
         """
         self.ps_random = random_gen
 
+    def get_avg_fail_rate(self):
+        """
+        Returns the average failure rate of the bus
+        """
+        avg_fail_rate = self.fail_rate_per_hour
+        if self.parent_network is not None:
+            for line in self.parent_network.get_lines():
+                avg_fail_rate += line.fail_rate_per_hour
+        return avg_fail_rate
+
+    def get_annual_outage_time(self):
+        """
+        Returns an estimate of the annual outage time of the bus
+        """
+        outage_time = 0
+        shed_dict = self.history["p_load_shed_stack"] # Ignore reactive load shedding
+        days = len(shed_dict)
+        for shed_value in shed_dict.values():
+            if shed_value > 1E-3: # Add tolerance
+                outage_time += 1
+        return outage_time/days*365
+
+    def get_avg_outage_time(self):
+        """
+        Returns the average outage time of the bus
+        """
+        outage_time = 0
+        shed_dict = self.history["p_load_shed_stack"] # Ignore reactive load shedding
+        days = len(shed_dict)
+        for shed_value in shed_dict.values():
+            if shed_value > 1E-3: # Add tolerance
+                outage_time += 1
+        return outage_time/days
+
+        
 
 class Line:
     r'''
