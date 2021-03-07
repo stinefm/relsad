@@ -161,3 +161,7 @@ Sessionx.vim
 tags
 # Persistent undo
 [._]*.un~
+
+## Sphinx
+# sphinx build folder
+ _build
