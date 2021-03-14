@@ -4,55 +4,110 @@ import pandas as pd
 from stinetwork.network.components import Bus, Line, Disconnector, CircuitBreaker
 import os
 
-def plot_topology(buses:list,lines:list,**kwargs):
-    fig, ax = plt.subplots(**kwargs)#figsize=(3.5, 4.5))
+
+def plot_topology(buses: list, lines: list, **kwargs):
+    fig, ax = plt.subplots(**kwargs)  # figsize=(3.5, 4.5))
     for line in lines:
-        ax.plot([line.fbus.coordinate[0], line.tbus.coordinate[0]], \
-        [line.fbus.coordinate[1], line.tbus.coordinate[1]], \
-        color = line.color, linestyle=line.linestyle)
+        ax.plot(
+            [line.fbus.coordinate[0], line.tbus.coordinate[0]],
+            [line.fbus.coordinate[1], line.tbus.coordinate[1]],
+            color=line.color,
+            linestyle=line.linestyle,
+        )
 
         if line.circuitbreaker != None:
             cb = line.circuitbreaker
-            ax.plot(cb.coordinate[0], cb.coordinate[1], \
-            marker = cb.marker, markeredgewidth=1, markersize=cb.size, linestyle = 'None', \
-            color = cb.color, markeredgecolor=cb.edgecolor)
-            ax.text(cb.coordinate[0]-0.2, cb.coordinate[1], cb.name, \
-            ha='center', va='center')
+            ax.plot(
+                cb.coordinate[0],
+                cb.coordinate[1],
+                marker=cb.marker,
+                markeredgewidth=1,
+                markersize=cb.size,
+                linestyle="None",
+                color=cb.color,
+                markeredgecolor=cb.edgecolor,
+            )
+            ax.text(
+                cb.coordinate[0] - 0.2,
+                cb.coordinate[1],
+                cb.name,
+                ha="center",
+                va="center",
+            )
 
             for discon in cb.disconnectors:
-                ax.plot(discon.coordinate[0], discon.coordinate[1], \
-                marker = discon.marker, markeredgewidth=1, markersize=discon.size, linestyle = 'None', \
-                color = discon.color, markeredgecolor=discon.edgecolor)
-                ax.text(discon.coordinate[0]-0.2, discon.coordinate[1], discon.name, \
-                ha='center', va='center')
+                ax.plot(
+                    discon.coordinate[0],
+                    discon.coordinate[1],
+                    marker=discon.marker,
+                    markeredgewidth=1,
+                    markersize=discon.size,
+                    linestyle="None",
+                    color=discon.color,
+                    markeredgecolor=discon.edgecolor,
+                )
+                ax.text(
+                    discon.coordinate[0] - 0.2,
+                    discon.coordinate[1],
+                    discon.name,
+                    ha="center",
+                    va="center",
+                )
 
         for discon in line.disconnectors:
-            ax.plot(discon.coordinate[0], discon.coordinate[1], \
-            marker = discon.marker, markeredgewidth=1, markersize=discon.size, linestyle = 'None', \
-            color = discon.color, markeredgecolor=discon.edgecolor)
-            ax.text(discon.coordinate[0]-0.2, discon.coordinate[1], discon.name, \
-            ha='center', va='center')
+            ax.plot(
+                discon.coordinate[0],
+                discon.coordinate[1],
+                marker=discon.marker,
+                markeredgewidth=1,
+                markersize=discon.size,
+                linestyle="None",
+                color=discon.color,
+                markeredgecolor=discon.edgecolor,
+            )
+            ax.text(
+                discon.coordinate[0] - 0.2,
+                discon.coordinate[1],
+                discon.name,
+                ha="center",
+                va="center",
+            )
 
     for bus in buses:
-        ax.plot(bus.coordinate[0], bus.coordinate[1], \
-            marker = bus.marker, markeredgewidth=3, markersize=bus.size, linestyle = 'None', \
-            color = bus.color, clip_on=False)
-        ax.text(bus.coordinate[0], bus.coordinate[1], bus.name, \
-            ha='center', va='center')
+        ax.plot(
+            bus.coordinate[0],
+            bus.coordinate[1],
+            marker=bus.marker,
+            markeredgewidth=3,
+            markersize=bus.size,
+            linestyle="None",
+            color=bus.color,
+            clip_on=False,
+        )
+        ax.text(
+            bus.coordinate[0], bus.coordinate[1], bus.name, ha="center", va="center"
+        )
 
     right = 0.85
     left = 0.15
 
-    fig.subplots_adjust(left=left, bottom=0, right=right, top=None, wspace=None, hspace=None)
-    
-    plt.figlegend([Line.handle, Bus.handle, CircuitBreaker.handle, Disconnector.handle], \
-                ['Line', 'Bus', 'Circuitbreaker', 'Disconnector'], \
-                ncol=3, loc='upper center',bbox_to_anchor=(left+(right-left)/2,0.978),\
-                frameon=False)
-    
-    plt.axis('off')
+    fig.subplots_adjust(
+        left=left, bottom=0, right=right, top=None, wspace=None, hspace=None
+    )
+
+    plt.figlegend(
+        [Line.handle, Bus.handle, CircuitBreaker.handle, Disconnector.handle],
+        ["Line", "Bus", "Circuitbreaker", "Disconnector"],
+        ncol=3,
+        loc="upper center",
+        bbox_to_anchor=(left + (right - left) / 2, 0.978),
+        frameon=False,
+    )
+
+    plt.axis("off")
 
     return fig
+
 
 def tableplot(table_data, title, columns, rows, columncol=[], rowcol=[]):
     """
@@ -73,36 +128,58 @@ def tableplot(table_data, title, columns, rows, columncol=[], rowcol=[]):
     iloop = 0
     if rowcol == []:
         while iloop < tdim[0]:
-            rowcol.append('cyan')
+            rowcol.append("cyan")
             iloop += 1
     iloop = 0
     if columncol == []:
         while iloop < tdim[1]:
-            columncol.append('cyan')
+            columncol.append("cyan")
             iloop += 1
 
-    table = ax.table(cellText=table_data, rowLabels=rows, colColours=columncol, rowColours=rowcol,
-                        colLabels=columns, loc='center')
+    table = ax.table(
+        cellText=table_data,
+        rowLabels=rows,
+        colColours=columncol,
+        rowColours=rowcol,
+        colLabels=columns,
+        loc="center",
+    )
     table.set_fontsize(11)
     table.scale(1, 1.5)
     ax.set_title(title, fontsize=14)
-    ax.axis('off')
+    ax.axis("off")
     plt.show()
 
-def plot_history(comp_list:list, attribute:str, save_dir:str):
+
+def plot_history(comp_list: list, attribute: str, save_dir: str):
     if not os.path.isdir(save_dir):
         os.mkdir(save_dir)
     fig = plt.figure(dpi=150)
     ax = fig.add_subplot(1, 1, 1)
     for comp in comp_list:
         data = comp.get_history(attribute)
-        ax.plot(list(data.values()),label=comp.name)
+        ax.plot(list(data.values()), label=comp.name)
     ax.set_title(attribute)
     ax.legend()
-    fig.savefig(os.path.join(save_dir,attribute+".pdf"), format="pdf")
+    fig.savefig(os.path.join(save_dir, attribute + ".pdf"), format="pdf")
     plt.close(fig)
 
-def plot_history_last_state(comp_list:list, attribute:str, save_dir:str):
+
+def plot_monte_carlo_history(comp_list: list, attribute: str, save_dir: str):
+    if not os.path.isdir(save_dir):
+        os.mkdir(save_dir)
+    fig = plt.figure(dpi=150)
+    ax = fig.add_subplot(1, 1, 1)
+    for comp in comp_list:
+        data = comp.get_monte_carlo_history(attribute)
+        ax.plot(list(data.values()), label=comp.name)
+    ax.set_title(attribute)
+    ax.legend()
+    fig.savefig(os.path.join(save_dir, attribute + ".pdf"), format="pdf")
+    plt.close(fig)
+
+
+def plot_history_last_state(comp_list: list, attribute: str, save_dir: str):
     if not os.path.isdir(save_dir):
         os.mkdir(save_dir)
     fig = plt.figure(dpi=150)
@@ -114,8 +191,9 @@ def plot_history_last_state(comp_list:list, attribute:str, save_dir:str):
     df.iloc[-1].plot.bar()
     ax.set_title(attribute)
     ax.legend()
-    fig.savefig(os.path.join(save_dir,attribute+".pdf"), format="pdf")
+    fig.savefig(os.path.join(save_dir, attribute + ".pdf"), format="pdf")
     plt.close(fig)
-    
-if __name__=="__main__":
+
+
+if __name__ == "__main__":
     pass
