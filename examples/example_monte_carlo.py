@@ -1,10 +1,6 @@
 from stinetwork.test_networks.smallNetwork import initialize_test_network
-from stinetwork.network.systems import find_sub_systems, update_sub_system_slack, PowerSystem
-from stinetwork.visualization.plotting import plot_topology
-from stinetwork.loadflow.ac import DistLoadFlow
-from stinetwork.visualization.printing import dispVolt, dispFlow, ForwardSearch, BackwardSearch, dispLoads
 from stinetwork.utils import random_instance
-from load_and_gen_data import WeatherGen,LoadGen,windGen,PVgeneration
+from load_and_gen_data import WeatherGen, LoadGen, windGen, PVgeneration
 import time, os
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -14,7 +10,7 @@ start = time.time()
 ps = initialize_test_network()
 
 ## Set seed to get deterministic behavior
-ps.add_random_instance(random_instance(seed=4))
+ps.add_random_instance(random_instance(seed=3))
 
 # Fetching bus-objects
 T = ps.get_comp("T")
@@ -54,7 +50,7 @@ L7b = ps.get_comp("L7b")
 # Fetching battery and production objects
 Bat1 = M1.get_battery()
 P1 = M2.get_production()
-#P2 = B5.get_production()
+# P2 = B5.get_production()
 
 temp_profiles, wind_profiles, solar_profiles = WeatherGen()
 
@@ -62,47 +58,42 @@ wind = windGen(wind_profiles)
 PV = PVgeneration(temp_profiles, solar_profiles)
 
 load_house, load_farm, load_industry2, load_trade, load_office = LoadGen(temp_profiles)
-N = 1 # Size of Monte Carlo simulation
-for i in range(N):
-    for day in range(3):
-        for hour in range(24):
-            run_hour = day*24+hour
-            print("hour: {}".format(run_hour))
-            ## Set load
-            B1.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0},
-                                    "Industri":{"pload":load_industry2[day,hour]*1,"qload":0.0}})
-            B2.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
-            B3.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
-            B4.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
-            B5.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
-            M3.set_load(load_dict={"Husholdning":{"pload":load_house[day,hour]*10,"qload":0.0}})
 
+load_dict = dict()
 
-            ## Set production
-            P1.set_prod(pprod=PV[day,hour]+wind[day,hour], qprod=0)
-            #P2.set_prod(pprod=wind[day,hour], qprod=0)
+load_dict[B1] = {
+    "Husholdning": {"pload": load_house * 10, "qload": load_house * 0},
+    "Industri": {"pload": load_industry2 * 1, "qload": load_industry2 * 0},
+}
+load_dict[B2] = {"Husholdning": {"pload": load_house * 10, "qload": load_house * 0}}
+load_dict[B3] = {"Husholdning": {"pload": load_house * 10, "qload": load_house * 0}}
+load_dict[B4] = {"Husholdning": {"pload": load_house * 10, "qload": load_house * 0}}
+load_dict[B5] = {"Husholdning": {"pload": load_house * 10, "qload": load_house * 0}}
+load_dict[M1] = {"Husholdning": {"pload": load_house * 10, "qload": load_house * 0}}
+load_dict[M2] = {"Husholdning": {"pload": load_house * 10, "qload": load_house * 0}}
+load_dict[M3] = {"Husholdning": {"pload": load_house * 10, "qload": load_house * 0}}
 
+prod_dict = dict()
 
-            ps.run(run_hour)
-                          
+prod_dict[P1] = {"pprod": PV + wind, "qprod": PV * 0}
+
+save_dir = r"C:\Users\stinefm\Documents\results"
+
+ps.run_monte_carlo(
+    iterations=100,
+    increments=10,
+    load_dict=load_dict,
+    prod_dict=prod_dict,
+    save_iterations=[],
+    save_dir=save_dir,
+)
+
 end = time.time()
 print("Time elapsed: {}".format(end - start))
 
-save_dir = r"C:\Users\stinefm\Downloads\results"
 
-ps.plot_bus_history(os.path.join(save_dir,"bus"))
-ps.plot_battery_history(os.path.join(save_dir,"battery"))
-ps.plot_load_shed_history(os.path.join(save_dir,"load_shed"))
-ps.plot_line_history(os.path.join(save_dir,"line"))
-ps.plot_circuitbreaker_history(os.path.join(save_dir,"circuitbreaker"))
-ps.plot_disconnector_history(os.path.join(save_dir,"disconnector"))
-
-ps.save_bus_history(os.path.join(save_dir,"bus"))
-ps.save_battery_history(os.path.join(save_dir,"battery"))
-ps.save_load_shed_history(os.path.join(save_dir,"load_shed"))
-ps.save_line_history(os.path.join(save_dir,"line"))
-ps.save_circuitbreaker_history(os.path.join(save_dir,"circuitbreaker"))
-ps.save_disconnector_history(os.path.join(save_dir,"disconnector"))
+ps.plot_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
+ps.save_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
 
 # for sub_system in PowerSystem.shed_configs:
 #     fig = plot_topology(list(sub_system.buses),list(sub_system.lines))
