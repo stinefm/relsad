@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-class Component(ABC):
 
+class Component(ABC):
     @abstractmethod
     def update_fail_status(self, hour):
         pass
@@ -11,7 +11,7 @@ class Component(ABC):
         pass
 
     @abstractmethod
-    def get_history(self, attribute:str):
+    def get_history(self, attribute: str):
         pass
 
     @abstractmethod
@@ -22,3 +22,6 @@ class Component(ABC):
     def print_status(self):
         pass
 
+    @abstractmethod
+    def reset_status(self):
+        pass

@@ -1,17 +1,14 @@
-from stinetwork.utils import unique
-from .Component import *
-from .Bus import *
-import matplotlib.patches as mpatches
-import matplotlib.lines as mlines
-import numpy as np
+from .Component import Component
+from .Bus import Bus
+
 
 class Production(Component):
 
     """
-    Common class for production 
-     
+    Common class for production
+
     ...
-     
+
     Attributes
     ----------
     name : string
@@ -22,30 +19,30 @@ class Production(Component):
         The active power produced by the production unit [MW]
     qprod : float
         The reactive power produced by the production unit [MVar]
-    pmax : float 
+    pmax : float
         The maximum active power that can be produced by the production unit [MW]
-    qmax : float 
+    qmax : float
         The maximum reactive power that can be produced by the production unit [MVar]
 
 
-    Methods 
+    Methods
     ----------
     set_prod(pprod, qprord)
-        Decides how much active and reactive power that will be produced 
+        Decides how much active and reactive power that will be produced
     update_bus_load()
-        Updates the load on the bus with the amount of generated active and reactive power 
+        Updates the load on the bus with the amount of generated active and reactive power
 
     """
 
     ## Random instance
     ps_random = None
-    
-    def __init__(self, name:str, bus:Bus, pmax:float=1, qmax:float=0):
-        
+
+    def __init__(self, name: str, bus: Bus, pmax: float = 1, qmax: float = 0):
+
         """
         Constructs all the necessary attributes for the production object
-        
-        Parameters 
+
+        Parameters
         ----------
             name : string
                 Name of the production unit
@@ -55,9 +52,9 @@ class Production(Component):
                 The active power produced by the production unit [MW]
             qprod : float
                 The reactive power produced by the production unit [MVar]
-            pmax : float 
+            pmax : float
                 The maximum active power that can be produced by the production unit [MW]
-            qmax : float 
+            qmax : float
                 The maximum reactive power that can be produced by the production unit [MVar]
         """
         self.name = name
@@ -75,16 +72,18 @@ class Production(Component):
         return self.name
 
     def __repr__(self):
-        return f'Production(name={self.name})'
+        return f"Production(name={self.name})"
 
-    def __eq__(self,other):
-        try:return self.name == other.name
-        except:False
+    def __eq__(self, other):
+        try:
+            return self.name == other.name
+        except:
+            False
 
     def __hash__(self):
         return hash(self.name)
 
-    def set_prod(self, pprod:float, qprod:float):
+    def set_prod(self, prod_dict: dict, curr_time):
 
         """
          Decides how much active and reactive power that will be produced
@@ -93,20 +92,21 @@ class Production(Component):
 
          Parameters
          ----------
-        pprod : float
+        prod_dict : dict
+            A dictionary containing the production data for the production unit.
             The active power produced by the production unit [MW]
-        qprod : float
-            The reactive power produced by the production unit [MVar]
-        pmax : float 
-            The maximum active power that can be produced by the production unit [MW]
-        qmax : float 
-            The maximum reactive power that can be produced by the production unit [MVar]
+        curr_time : float
 
          Returns
          ----------
          None
 
         """
+        day = curr_time // 24
+        hour = curr_time % 24
+
+        pprod = prod_dict["pprod"][day, hour]
+        qprod = prod_dict["qprod"][day, hour]
         if pprod > self.pmax:
             self.pprod = self.pmax
         else:
@@ -120,20 +120,20 @@ class Production(Component):
     def update_bus_prod(self):
 
         """
-         Updates the production on the bus with the amount of generated active and reactive power 
-         Sets the active production at the bus equal the active production at the bus minus the generated active power
-         Sets the reactive production at the bus equal the reactive production at the bus minus the generated reactive power
+        Updates the production on the bus with the amount of generated active and reactive power
+        Sets the active production at the bus equal the active production at the bus minus the generated active power
+        Sets the reactive production at the bus equal the reactive production at the bus minus the generated reactive power
         """
         self.bus.pprod = self.pprod
         self.bus.qprod = self.qprod
 
-    def update_fail_status(self, hour):
+    def update_fail_status(self, curr_time):
         pass
 
-    def update_history(self, hour):
+    def update_history(self, curr_time):
         pass
 
-    def get_history(self, attribute:str):
+    def get_history(self, attribute: str):
         return self.history[attribute]
 
     def add_random_seed(self, random_gen):
@@ -145,5 +145,9 @@ class Production(Component):
     def print_status(self):
         pass
 
-if __name__=="__main__":
+    def reset_status(self):
+        self.history = dict()
+
+
+if __name__ == "__main__":
     pass
