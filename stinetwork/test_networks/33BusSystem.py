@@ -1,6 +1,7 @@
-from stinetwork.network.components import Bus, Line, Disconnector, CircuitBreaker, Battery, Production
-from stinetwork.network.systems import PowerSystem, Transmission, Distribution, Microgrid
+from stinetwork.network.components import Bus, CircuitBreaker, Disconnector, Line
+from stinetwork.network.systems import Distribution, PowerSystem, Transmission
 from stinetwork.visualization.plotting import plot_topology
+
 
 def initialize_33Bus_network():
     ps = PowerSystem()
@@ -39,39 +40,257 @@ def initialize_33Bus_network():
     B32 = Bus("B32", coordinate=[-1, -12], fail_rate_per_year=365)
     B33 = Bus("B33", coordinate=[-1, -13], fail_rate_per_year=365)
 
-
-    L1 = Line("L1", B1, B2, 0.057526629463617, 0.029324854498807, fail_rate_density_per_year=365)
-    L2 = Line("L2", B2, B3, 0.307599005700253, 0.156669594992563, fail_rate_density_per_year=365)
-    L3 = Line("L3", B3, B4, 0.228359505246029, 0.11630112507612, fail_rate_density_per_year=365)
-    L4 = Line("L4", B4, B5, 0.237780894670114, 0.121105409749329, fail_rate_density_per_year=365)
-    L5 = Line("L5", B5, B6, 0.511001187968574, 0.441120683630991, fail_rate_density_per_year=365)
-    L6 = Line("L6", B6, B7, 0.116800271535674, 0.386089786465145, fail_rate_density_per_year=365)
-    L7 = Line("L7", B7, B8, 1.06779906360124, 0.770619740244183, fail_rate_density_per_year=365)
-    L8 = Line("L8", B8, B9, 0.642651066675984, 0.4617104750876, fail_rate_density_per_year=365)
-    L9 = Line("L9", B9, B10, 0.651386129718182, 0.4617104750876, fail_rate_density_per_year=365)
-    L10 = Line("L10", B10, B11, 0.122665242435435, 0.040555649838776, fail_rate_density_per_year=365)
-    L11 = Line("L11", B11, B12, 0.233600543071348, 0.077242914616007, fail_rate_density_per_year=365)
-    L12 = Line("L12", B12, B13, 0.915933753281888, 0.720642700981322, fail_rate_density_per_year=365)
-    L13 = Line("L13", B13, B14, 0.337922153118168, 0.444801888770203, fail_rate_density_per_year=365)
-    L14 = Line("L14", B14, B15, 0.368744446995637, 0.328188797156862, fail_rate_density_per_year=365)
-    L15 = Line("L15", B15, B16, 0.465641253456589, 0.340043525571273, fail_rate_density_per_year=365)
-    L16 = Line("L16", B16, B17, 0.804249732956644, 1.07378882111589, fail_rate_density_per_year=365)
-    L17 = Line("L17", B17, B18, 0.456719010492059, 0.358137584730111, fail_rate_density_per_year=365)
-    L18 = Line("L18", B2, B19, 0.102325024208603, 0.097645526150283, fail_rate_density_per_year=365)
-    L19 = Line("L19", B19, B20, 0.938520130576714, 0.84567888909964, fail_rate_density_per_year=365)
-    L20 = Line("L20", B20, B21, 0.255500593984287, 0.298489582813389, fail_rate_density_per_year=365)
-    L21 = Line("L21", B21, B22, 0.442306156472432, 0.584812470675146, fail_rate_density_per_year=365)
-    L22 = Line("L22", B3, B23, 0.281518603188548, 0.192358566850685, fail_rate_density_per_year=365)
-    L23 = Line("L23", B23, B24, 0.560291900849547, 0.442430943087321, fail_rate_density_per_year=365)
-    L24 = Line("L24", B24, B25, 0.559044034700662, 0.437439478491779, fail_rate_density_per_year=365)
-    L25 = Line("L25", B6, B26, 0.126658414111869, 0.064514679897376, fail_rate_density_per_year=365)
-    L26 = Line("L26", B26, B27, 0.177321779756616, 0.090283115871859, fail_rate_density_per_year=365)
-    L27 = Line("L27", B27, B28, 0.660745125834823, 0.582566311607152, fail_rate_density_per_year=365)
-    L28 = Line("L28", B28, B29, 0.501766978466822, 0.437127511954558, fail_rate_density_per_year=365)
-    L29 = Line("L29", B29, B30, 0.316646035279672, 0.161286699743439, fail_rate_density_per_year=365)
-    L30 = Line("L30", B30, B31, 0.60796038773697, 0.600847550688323, fail_rate_density_per_year=365)
-    L31 = Line("L31", B31, B32, 0.193731219614459, 0.225801379640814, fail_rate_density_per_year=365)
-    L32 = Line("L32", B32, B33, 0.212761178384962, 0.330809316069521, fail_rate_density_per_year=365)
+    L1 = Line(
+        "L1",
+        B1,
+        B2,
+        0.057526629463617,
+        0.029324854498807,
+        fail_rate_density_per_year=365,
+    )
+    L2 = Line(
+        "L2",
+        B2,
+        B3,
+        0.307599005700253,
+        0.156669594992563,
+        fail_rate_density_per_year=365,
+    )
+    L3 = Line(
+        "L3",
+        B3,
+        B4,
+        0.228359505246029,
+        0.11630112507612,
+        fail_rate_density_per_year=365,
+    )
+    L4 = Line(
+        "L4",
+        B4,
+        B5,
+        0.237780894670114,
+        0.121105409749329,
+        fail_rate_density_per_year=365,
+    )
+    L5 = Line(
+        "L5",
+        B5,
+        B6,
+        0.511001187968574,
+        0.441120683630991,
+        fail_rate_density_per_year=365,
+    )
+    L6 = Line(
+        "L6",
+        B6,
+        B7,
+        0.116800271535674,
+        0.386089786465145,
+        fail_rate_density_per_year=365,
+    )
+    L7 = Line(
+        "L7",
+        B7,
+        B8,
+        1.06779906360124,
+        0.770619740244183,
+        fail_rate_density_per_year=365,
+    )
+    L8 = Line(
+        "L8", B8, B9, 0.642651066675984, 0.4617104750876, fail_rate_density_per_year=365
+    )
+    L9 = Line(
+        "L9",
+        B9,
+        B10,
+        0.651386129718182,
+        0.4617104750876,
+        fail_rate_density_per_year=365,
+    )
+    L10 = Line(
+        "L10",
+        B10,
+        B11,
+        0.122665242435435,
+        0.040555649838776,
+        fail_rate_density_per_year=365,
+    )
+    L11 = Line(
+        "L11",
+        B11,
+        B12,
+        0.233600543071348,
+        0.077242914616007,
+        fail_rate_density_per_year=365,
+    )
+    L12 = Line(
+        "L12",
+        B12,
+        B13,
+        0.915933753281888,
+        0.720642700981322,
+        fail_rate_density_per_year=365,
+    )
+    L13 = Line(
+        "L13",
+        B13,
+        B14,
+        0.337922153118168,
+        0.444801888770203,
+        fail_rate_density_per_year=365,
+    )
+    L14 = Line(
+        "L14",
+        B14,
+        B15,
+        0.368744446995637,
+        0.328188797156862,
+        fail_rate_density_per_year=365,
+    )
+    L15 = Line(
+        "L15",
+        B15,
+        B16,
+        0.465641253456589,
+        0.340043525571273,
+        fail_rate_density_per_year=365,
+    )
+    L16 = Line(
+        "L16",
+        B16,
+        B17,
+        0.804249732956644,
+        1.07378882111589,
+        fail_rate_density_per_year=365,
+    )
+    L17 = Line(
+        "L17",
+        B17,
+        B18,
+        0.456719010492059,
+        0.358137584730111,
+        fail_rate_density_per_year=365,
+    )
+    L18 = Line(
+        "L18",
+        B2,
+        B19,
+        0.102325024208603,
+        0.097645526150283,
+        fail_rate_density_per_year=365,
+    )
+    L19 = Line(
+        "L19",
+        B19,
+        B20,
+        0.938520130576714,
+        0.84567888909964,
+        fail_rate_density_per_year=365,
+    )
+    L20 = Line(
+        "L20",
+        B20,
+        B21,
+        0.255500593984287,
+        0.298489582813389,
+        fail_rate_density_per_year=365,
+    )
+    L21 = Line(
+        "L21",
+        B21,
+        B22,
+        0.442306156472432,
+        0.584812470675146,
+        fail_rate_density_per_year=365,
+    )
+    L22 = Line(
+        "L22",
+        B3,
+        B23,
+        0.281518603188548,
+        0.192358566850685,
+        fail_rate_density_per_year=365,
+    )
+    L23 = Line(
+        "L23",
+        B23,
+        B24,
+        0.560291900849547,
+        0.442430943087321,
+        fail_rate_density_per_year=365,
+    )
+    L24 = Line(
+        "L24",
+        B24,
+        B25,
+        0.559044034700662,
+        0.437439478491779,
+        fail_rate_density_per_year=365,
+    )
+    L25 = Line(
+        "L25",
+        B6,
+        B26,
+        0.126658414111869,
+        0.064514679897376,
+        fail_rate_density_per_year=365,
+    )
+    L26 = Line(
+        "L26",
+        B26,
+        B27,
+        0.177321779756616,
+        0.090283115871859,
+        fail_rate_density_per_year=365,
+    )
+    L27 = Line(
+        "L27",
+        B27,
+        B28,
+        0.660745125834823,
+        0.582566311607152,
+        fail_rate_density_per_year=365,
+    )
+    L28 = Line(
+        "L28",
+        B28,
+        B29,
+        0.501766978466822,
+        0.437127511954558,
+        fail_rate_density_per_year=365,
+    )
+    L29 = Line(
+        "L29",
+        B29,
+        B30,
+        0.316646035279672,
+        0.161286699743439,
+        fail_rate_density_per_year=365,
+    )
+    L30 = Line(
+        "L30",
+        B30,
+        B31,
+        0.60796038773697,
+        0.600847550688323,
+        fail_rate_density_per_year=365,
+    )
+    L31 = Line(
+        "L31",
+        B31,
+        B32,
+        0.193731219614459,
+        0.225801379640814,
+        fail_rate_density_per_year=365,
+    )
+    L32 = Line(
+        "L32",
+        B32,
+        B33,
+        0.212761178384962,
+        0.330809316069521,
+        fail_rate_density_per_year=365,
+    )
 
     E1 = CircuitBreaker("E1", L1)
 
@@ -110,7 +329,7 @@ def initialize_33Bus_network():
     Disconnector("L16b", L16, B17)
     Disconnector("L17a", L17, B17)
     Disconnector("L17b", L17, B18)
-    
+
     Disconnector("L18a", L18, B2)
     Disconnector("L18b", L18, B19)
     Disconnector("L19a", L19, B19)
@@ -144,24 +363,90 @@ def initialize_33Bus_network():
     Disconnector("L32a", L32, B32)
     Disconnector("L32b", L32, B33)
 
-    tn = Transmission(ps,B1)
+    tn = Transmission(ps, B1)
 
-    dn = Distribution(tn,L1)
+    dn = Distribution(tn, L1)
 
-    dn.add_buses([B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, B12, B13, B14, B15, B16, \
-                B17, B18, B19, B20, B21, B22, B23, B24, B25, B26, B27, B28, B29, B30, B31, \
-                B32, B33])
+    dn.add_buses(
+        [
+            B2,
+            B3,
+            B4,
+            B5,
+            B6,
+            B7,
+            B8,
+            B9,
+            B10,
+            B11,
+            B12,
+            B13,
+            B14,
+            B15,
+            B16,
+            B17,
+            B18,
+            B19,
+            B20,
+            B21,
+            B22,
+            B23,
+            B24,
+            B25,
+            B26,
+            B27,
+            B28,
+            B29,
+            B30,
+            B31,
+            B32,
+            B33,
+        ]
+    )
 
-
-    dn.add_lines([L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, \
-                L17, L18, L19, L20, L21, L22, L23, L24, L25, L26, L27, L28, L29, L30, L31, \
-                L32])
+    dn.add_lines(
+        [
+            L2,
+            L3,
+            L4,
+            L5,
+            L6,
+            L7,
+            L8,
+            L9,
+            L10,
+            L11,
+            L12,
+            L13,
+            L14,
+            L15,
+            L16,
+            L17,
+            L18,
+            L19,
+            L20,
+            L21,
+            L22,
+            L23,
+            L24,
+            L25,
+            L26,
+            L27,
+            L28,
+            L29,
+            L30,
+            L31,
+            L32,
+        ]
+    )
 
     return ps
 
-if __name__=="__main__":
-    import os
-    ps = initialize_33Bus_network()
-    fig = plot_topology(ps.buses,ps.lines,figsize=(40,40))
 
-    fig.savefig(os.path.join(os.path.dirname(os.path.abspath(__file__)),"test33.pdf"))
+if __name__ == "__main__":
+    import os
+
+    ps = initialize_33Bus_network()
+    fig = plot_topology(ps.buses, ps.lines, figsize=(40, 40))
+
+    fig.savefig(os.path.join(os.path.dirname(os.path.abspath(__file__)), "test33.pdf"))
