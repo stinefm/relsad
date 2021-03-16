@@ -236,22 +236,25 @@ class Line(Component):
         def gij(R, X):
             return (1.0 / complex(R, X)).real
 
-        fbus = self.fbus
-        tbus = self.tbus
-        bsh = 0.0  # No shunts included so far
-        teta1 = fbus.voang
-        teta2 = tbus.voang
-        v1 = fbus.vomag
-        v2 = tbus.vomag
-        b = bij(self.r, self.x)
-        g = gij(self.r, self.x)
+        if self.connected:
+            fbus = self.fbus
+            tbus = self.tbus
+            bsh = 0.0  # No shunts included so far
+            teta1 = fbus.voang
+            teta2 = tbus.voang
+            v1 = fbus.vomag
+            v2 = tbus.vomag
+            b = bij(self.r, self.x)
+            g = gij(self.r, self.x)
 
-        p_from = g * v1 * v1 - v1 * v2 * tij(g, b, teta1, teta2)
-        p_to = g * v2 * v2 - v1 * v2 * tij(g, b, teta2, teta1)
-        q_from = -(b + bsh) * v1 * v1 - v1 * v2 * uij(g, b, teta1, teta2)
-        q_to = -(b + bsh) * v2 * v2 - v1 * v2 * uij(g, b, teta2, teta1)
+            p_from = g * v1 * v1 - v1 * v2 * tij(g, b, teta1, teta2)
+            p_to = g * v2 * v2 - v1 * v2 * tij(g, b, teta2, teta1)
+            q_from = -(b + bsh) * v1 * v1 - v1 * v2 * uij(g, b, teta1, teta2)
+            q_to = -(b + bsh) * v2 * v2 - v1 * v2 * uij(g, b, teta2, teta1)
 
-        return p_from, q_from, p_to, q_to
+            return p_from, q_from, p_to, q_to
+        else:
+            return 0,0,0,0
 
     def get_line_loading(self):
         """Get the loading on the line in percent"""
