@@ -2,6 +2,7 @@ from stinetwork.network.components import Bus, Line, CircuitBreaker, Disconnecto
 from stinetwork.network.systems import PowerSystem, Transmission, Distribution
 from stinetwork.loadflow.ac import DistLoadFlow
 from stinetwork.visualization.printing import dispVolt, dispFlow
+import numpy as np
 
 # Buses and loads
 Bus1 = Bus("B1")
@@ -38,39 +39,41 @@ Bus31 = Bus("B31")
 Bus32 = Bus("B32")
 Bus33 = Bus("B33")
 
-Bus1.set_load(load_dict={"Husholdning": {"pload": 0, "qload": 0.0}})
-Bus2.set_load(load_dict={"Husholdning": {"pload": 0.001, "qload": 0.0006}})
-Bus3.set_load(load_dict={"Husholdning": {"pload": 0.0009, "qload": 0.0004}})
-Bus4.set_load(load_dict={"Husholdning": {"pload": 0.0012, "qload": 0.0008}})
-Bus5.set_load(load_dict={"Husholdning": {"pload": 0.0006, "qload": 0.0003}})
-Bus6.set_load(load_dict={"Husholdning": {"pload": 0.0006, "qload": 0.0002}})
-Bus7.set_load(load_dict={"Husholdning": {"pload": 0.002, "qload": 0.001}})
-Bus8.set_load(load_dict={"Husholdning": {"pload": 0.002, "qload": 0.001}})
-Bus9.set_load(load_dict={"Husholdning": {"pload": 0.0006, "qload": 0.0002}})
-Bus10.set_load(load_dict={"Husholdning": {"pload": 0.0006, "qload": 0.0002}})
-Bus11.set_load(load_dict={"Husholdning": {"pload": 0.00045, "qload": 0.0003}})
-Bus12.set_load(load_dict={"Husholdning": {"pload": 0.0006, "qload": 0.00035}})
-Bus13.set_load(load_dict={"Husholdning": {"pload": 0.0006, "qload": 0.00035}})
-Bus14.set_load(load_dict={"Husholdning": {"pload": 0.0012, "qload": 0.0008}})
-Bus15.set_load(load_dict={"Husholdning": {"pload": 0.0006, "qload": 0.0001}})
-Bus16.set_load(load_dict={"Husholdning": {"pload": 0.0006, "qload": 0.0002}})
-Bus17.set_load(load_dict={"Husholdning": {"pload": 0.0006, "qload": 0.0002}})
-Bus18.set_load(load_dict={"Husholdning": {"pload": 0.0009, "qload": 0.0004}})
-Bus19.set_load(load_dict={"Husholdning": {"pload": 0.0009, "qload": 0.0004}})
-Bus20.set_load(load_dict={"Husholdning": {"pload": 0.0009, "qload": 0.0004}})
-Bus21.set_load(load_dict={"Husholdning": {"pload": 0.0009, "qload": 0.0004}})
-Bus22.set_load(load_dict={"Husholdning": {"pload": 0.0009, "qload": 0.0004}})
-Bus23.set_load(load_dict={"Husholdning": {"pload": 0.0009, "qload": 0.0005}})
-Bus24.set_load(load_dict={"Husholdning": {"pload": 0.0042, "qload": 0.002}})
-Bus25.set_load(load_dict={"Husholdning": {"pload": 0.0042, "qload": 0.002}})
-Bus26.set_load(load_dict={"Husholdning": {"pload": 0.0006, "qload": 0.00025}})
-Bus27.set_load(load_dict={"Husholdning": {"pload": 0.0006, "qload": 0.00025}})
-Bus28.set_load(load_dict={"Husholdning": {"pload": 0.0006, "qload": 0.0002}})
-Bus29.set_load(load_dict={"Husholdning": {"pload": 0.0012, "qload": 0.0007}})
-Bus30.set_load(load_dict={"Husholdning": {"pload": 0.002, "qload": 0.006}})
-Bus31.set_load(load_dict={"Husholdning": {"pload": 0.0015, "qload": 0.0007}})
-Bus32.set_load(load_dict={"Husholdning": {"pload": 0.0021, "qload": 0.001}})
-Bus33.set_load(load_dict={"Husholdning": {"pload": 0.0006, "qload": 0.0004}})
+load_dict = dict()
+
+load_dict[Bus1] = {"Husholdning": {"pload": np.array([[0]]), "qload": np.array([[0.0]])}}
+load_dict[Bus2] = {"Husholdning": {"pload": np.array([[0.001]]), "qload": np.array([[0.0006]])}}
+load_dict[Bus3] = {"Husholdning": {"pload": np.array([[0.0009]]), "qload": np.array([[0.0004]])}}
+load_dict[Bus4] = {"Husholdning": {"pload": np.array([[0.0012]]), "qload": np.array([[0.0008]])}}
+load_dict[Bus5] = {"Husholdning": {"pload": np.array([[0.0006]]), "qload": np.array([[0.0003]])}}
+load_dict[Bus6] = {"Husholdning": {"pload": np.array([[0.0006]]), "qload": np.array([[0.0002]])}}
+load_dict[Bus7] = {"Husholdning": {"pload": np.array([[0.002]]), "qload": np.array([[0.001]])}}
+load_dict[Bus8] = {"Husholdning": {"pload": np.array([[0.002]]), "qload": np.array([[0.001]])}}
+load_dict[Bus9] = {"Husholdning": {"pload": np.array([[0.0006]]), "qload": np.array([[0.0002]])}}
+load_dict[Bus10] = {"Husholdning": {"pload": np.array([[0.0006]]), "qload": np.array([[0.0002]])}}
+load_dict[Bus11] = {"Husholdning": {"pload": np.array([[0.00045]]), "qload": np.array([[0.0003]])}}
+load_dict[Bus12] = {"Husholdning": {"pload": np.array([[0.0006]]), "qload": np.array([[0.00035]])}}
+load_dict[Bus13] = {"Husholdning": {"pload": np.array([[0.0006]]), "qload": np.array([[0.00035]])}}
+load_dict[Bus14] = {"Husholdning": {"pload": np.array([[0.0012]]), "qload": np.array([[0.0008]])}}
+load_dict[Bus15] = {"Husholdning": {"pload": np.array([[0.0006]]), "qload": np.array([[0.0001]])}}
+load_dict[Bus16] = {"Husholdning": {"pload": np.array([[0.0006]]), "qload": np.array([[0.0002]])}}
+load_dict[Bus17] = {"Husholdning": {"pload": np.array([[0.0006]]), "qload": np.array([[0.0002]])}}
+load_dict[Bus18] = {"Husholdning": {"pload": np.array([[0.0009]]), "qload": np.array([[0.0004]])}}
+load_dict[Bus19] = {"Husholdning": {"pload": np.array([[0.0009]]), "qload": np.array([[0.0004]])}}
+load_dict[Bus20] = {"Husholdning": {"pload": np.array([[0.0009]]), "qload": np.array([[0.0004]])}}
+load_dict[Bus21] = {"Husholdning": {"pload": np.array([[0.0009]]), "qload": np.array([[0.0004]])}}
+load_dict[Bus22] = {"Husholdning": {"pload": np.array([[0.0009]]), "qload": np.array([[0.0004]])}}
+load_dict[Bus23] = {"Husholdning": {"pload": np.array([[0.0009]]), "qload": np.array([[0.0005]])}}
+load_dict[Bus24] = {"Husholdning": {"pload": np.array([[0.0042]]), "qload": np.array([[0.002]])}}
+load_dict[Bus25] = {"Husholdning": {"pload": np.array([[0.0042]]), "qload": np.array([[0.002]])}}
+load_dict[Bus26] = {"Husholdning": {"pload": np.array([[0.0006]]), "qload": np.array([[0.00025]])}}
+load_dict[Bus27] = {"Husholdning": {"pload": np.array([[0.0006]]), "qload": np.array([[0.00025]])}}
+load_dict[Bus28] = {"Husholdning": {"pload": np.array([[0.0006]]), "qload": np.array([[0.0002]])}}
+load_dict[Bus29] = {"Husholdning": {"pload": np.array([[0.0012]]), "qload": np.array([[0.0007]])}}
+load_dict[Bus30] = {"Husholdning": {"pload": np.array([[0.002]]), "qload": np.array([[0.006]])}}
+load_dict[Bus31] = {"Husholdning": {"pload": np.array([[0.0015]]), "qload": np.array([[0.0007]])}}
+load_dict[Bus32] = {"Husholdning": {"pload": np.array([[0.0021]]), "qload": np.array([[0.001]])}}
+load_dict[Bus33] = {"Husholdning": {"pload": np.array([[0.0006]]), "qload": np.array([[0.0004]])}}
 
 
 # Lines, connections and impedances
@@ -192,7 +195,9 @@ distNetwork.add_lines(
 )
 
 
-ps.buses = DistLoadFlow(list(ps.buses), list(ps.lines))
+#ps.buses = DistLoadFlow(list(ps.buses), list(ps.lines))
+
+ps.run_load_flow(0,load_dict,{})
 
 dispVolt(list(ps.buses), tpres=False)
 dispFlow(list(ps.buses), list(ps.lines), tpres=False)
