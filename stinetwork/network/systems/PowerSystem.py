@@ -610,6 +610,17 @@ class PowerSystem:
         """
         return PowerSystem.monte_carlo_history[attribute]
 
+    def run_load_flow(self, curr_time, load_dict: dict, prod_dict: dict):
+        """
+        Runs load flow in power system
+        """
+
+        ## Run load flow
+        self.buses = DistLoadFlow(
+            list(self.buses), list(self.lines)
+        )
+
+
     def run_increment(self, curr_time, load_dict: dict, prod_dict: dict):
         """
         Runs power system at current state for one time increment
@@ -633,16 +644,14 @@ class PowerSystem:
         ## Find sub systems
         find_sub_systems(self, curr_time)
         update_sub_system_slack(self)
-
+        
         ## Load flow
         for sub_system in self.sub_systems:
             ## Update batteries and history
             sub_system.update_batteries()
             ## Run load flow
             if sub_system.slack is not None:
-                sub_system.buses = DistLoadFlow(
-                    list(sub_system.buses), list(sub_system.lines)
-                )
+                sub_system.run_load_flow(curr_time, load_dict, prod_dict)
             ## Shed load
             sub_system.shed_active_loads()
             sub_system.shed_reactive_loads()
