@@ -59,9 +59,9 @@ class Battery(Component):
         inj_p_max: float = 0.5,
         inj_q_max: float = 0.5,
         E_max: float = 1,
-        SOC_min: float = 0.2,
+        SOC_min: float = 0.1,
         SOC_max: float = 1,
-        n_battery: float = 0.97,
+        n_battery: float = 0.95,
     ):
 
         """
@@ -100,13 +100,15 @@ class Battery(Component):
         self.name = name
         self.bus = bus
         bus.battery = self
-        bus.set_cost(1)  ## Add symbolic cost to shedding battery load
+        bus.set_cost(1)  # Add symbolic cost to shedding battery load
 
         self.inj_p_max = inj_p_max  # MW
         self.inj_q_max = inj_q_max  # MVar
         self.inj_max = self.inj_p_max
         self.f_inj_p = 1  # active capacity fraction
-        self.f_inj_q = self.inj_q_max / self.inj_max  # reactive capacity fraction
+        self.f_inj_q = (
+            self.inj_q_max / self.inj_max
+        )  # reactive capacity fraction
 
         self.E_max = E_max  # MWh
         self.SOC_min = SOC_min
@@ -131,10 +133,10 @@ class Battery(Component):
         return f"Battery(name={self.name})"
 
     def __eq__(self, other):
-        try:
+        if hasattr(other, "name"):
             return self.name == other.name
-        except:
-            False
+        else:
+            return False
 
     def __hash__(self):
         return hash(self.name)
