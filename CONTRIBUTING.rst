@@ -82,9 +82,10 @@ Ready to contribute? Here's how to set up `stinetwork` for local development.
     $ git checkout -b name-of-your-bugfix-or-feature
 
 5. When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.
-   For example, if the package uses the poetry package management library, black formatting style and pytest for testing::
+   For example, if the package uses the poetry package management library, black and flake8 formatting style and pytest for testing::
 
-    $ poetry run black stinetwork
+    $ poetry run black stinetwork examples
+    $ poetry run flake8 stinetwork examples
     $ poetry run pytest
 
 6. Commit your changes and push your branch to GitHub::
