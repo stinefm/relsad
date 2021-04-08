@@ -1,7 +1,13 @@
 from stinetwork.test_networks.smallNetwork import initialize_test_network
 from stinetwork.utils import random_instance
-from load_and_gen_data import WeatherGen, LoadGen, windGen, PVgeneration
-import time, os
+from load_and_gen_data import (
+    WeatherGen,
+    LoadGen,
+    windGen,
+    PVgeneration,
+)
+import time
+import os
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -57,21 +63,37 @@ temp_profiles, wind_profiles, solar_profiles = WeatherGen()
 wind = windGen(wind_profiles)
 PV = PVgeneration(temp_profiles, solar_profiles)
 
-load_house, load_farm, load_industry2, load_trade, load_office = LoadGen(temp_profiles)
+load_house, load_farm, load_industry2, load_trade, load_office = LoadGen(
+    temp_profiles
+)
 
 load_dict = dict()
 
 load_dict[B1] = {
-    "Husholdning": {"pload": load_house * 10, "qload": load_house * 0},
+    "Husholdning": {"pload": load_house * 0, "qload": load_house * 0},
     "Industri": {"pload": load_industry2 * 1, "qload": load_industry2 * 0},
 }
-load_dict[B2] = {"Husholdning": {"pload": load_house * 10, "qload": load_house * 0}}
-load_dict[B3] = {"Husholdning": {"pload": load_house * 10, "qload": load_house * 0}}
-load_dict[B4] = {"Husholdning": {"pload": load_house * 10, "qload": load_house * 0}}
-load_dict[B5] = {"Husholdning": {"pload": load_house * 10, "qload": load_house * 0}}
-load_dict[M1] = {"Husholdning": {"pload": load_house * 10, "qload": load_house * 0}}
-load_dict[M2] = {"Husholdning": {"pload": load_house * 10, "qload": load_house * 0}}
-load_dict[M3] = {"Husholdning": {"pload": load_house * 10, "qload": load_house * 0}}
+load_dict[B2] = {
+    "Husholdning": {"pload": load_house * 70, "qload": load_house * 0}
+}
+load_dict[B3] = {
+    "Husholdning": {"pload": load_house * 100, "qload": load_house * 0}
+}
+load_dict[B4] = {
+    "Husholdning": {"pload": load_house * 90, "qload": load_house * 0}
+}
+load_dict[B5] = {
+    "Husholdning": {"pload": load_house * 100, "qload": load_house * 0}
+}
+load_dict[M1] = {
+    "Husholdning": {"pload": load_house * 0, "qload": load_house * 0}
+}
+load_dict[M2] = {
+    "Husholdning": {"pload": load_house * 0, "qload": load_house * 0}
+}
+load_dict[M3] = {
+    "Husholdning": {"pload": load_house * 100, "qload": load_house * 0}
+}
 
 prod_dict = dict()
 
@@ -80,11 +102,11 @@ prod_dict[P1] = {"pprod": PV + wind, "qprod": PV * 0}
 save_dir = r"C:\Users\stinefm\Documents\results"
 
 ps.run_monte_carlo(
-    iterations=100,
-    increments=10,
+    iterations=1,
+    increments=100,
     load_dict=load_dict,
     prod_dict=prod_dict,
-    save_iterations=[],
+    save_iterations=[0],
     save_dir=save_dir,
 )
 
