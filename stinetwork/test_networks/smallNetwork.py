@@ -85,6 +85,7 @@ def initialize_test_network():
         0.057526629463617,
         0.029324854498807,
         fail_rate_density_per_year=fail_rate,
+        capacity=6,
     )  # 0.2)
     L7 = Line(
         "L7",
