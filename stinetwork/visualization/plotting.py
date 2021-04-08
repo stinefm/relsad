@@ -1,12 +1,17 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from stinetwork.network.components import Bus, Line, Disconnector, CircuitBreaker
+from stinetwork.network.components import (
+    Bus,
+    Line,
+    Disconnector,
+    CircuitBreaker,
+)
 import os
 
 
 def plot_topology(buses: list, lines: list, **kwargs):
-    fig, ax = plt.subplots(**kwargs)  # figsize=(3.5, 4.5))
+    fig, ax = plt.subplots(**kwargs)
     for line in lines:
         ax.plot(
             [line.fbus.coordinate[0], line.tbus.coordinate[0]],
@@ -15,7 +20,7 @@ def plot_topology(buses: list, lines: list, **kwargs):
             linestyle=line.linestyle,
         )
 
-        if line.circuitbreaker != None:
+        if line.circuitbreaker is not None:
             cb = line.circuitbreaker
             ax.plot(
                 cb.coordinate[0],
@@ -27,13 +32,14 @@ def plot_topology(buses: list, lines: list, **kwargs):
                 color=cb.color,
                 markeredgecolor=cb.edgecolor,
             )
-            ax.text(
-                cb.coordinate[0] - 0.2,
-                cb.coordinate[1],
-                cb.name,
-                ha="center",
-                va="center",
-            )
+            # ax.text(
+            #     cb.coordinate[0],
+            #     cb.coordinate[1] - 0.2,
+            #     cb.name,
+            #     ha="center",
+            #     va="center",
+            #     size=6,
+            # )
 
             for discon in cb.disconnectors:
                 ax.plot(
@@ -46,13 +52,14 @@ def plot_topology(buses: list, lines: list, **kwargs):
                     color=discon.color,
                     markeredgecolor=discon.edgecolor,
                 )
-                ax.text(
-                    discon.coordinate[0] - 0.2,
-                    discon.coordinate[1],
-                    discon.name,
-                    ha="center",
-                    va="center",
-                )
+                # ax.text(
+                #     discon.coordinate[0],
+                #     discon.coordinate[1] - 0.2,
+                #     discon.name,
+                #     ha="center",
+                #     va="center",
+                #     size=6,
+                # )
 
         for discon in line.disconnectors:
             ax.plot(
@@ -65,13 +72,14 @@ def plot_topology(buses: list, lines: list, **kwargs):
                 color=discon.color,
                 markeredgecolor=discon.edgecolor,
             )
-            ax.text(
-                discon.coordinate[0] - 0.2,
-                discon.coordinate[1],
-                discon.name,
-                ha="center",
-                va="center",
-            )
+            # ax.text(
+            #     discon.coordinate[0],
+            #     discon.coordinate[1] - 0.2,
+            #     discon.name,
+            #     ha="center",
+            #     va="center",
+            #     size=6,
+            # )
 
     for bus in buses:
         ax.plot(
@@ -85,20 +93,25 @@ def plot_topology(buses: list, lines: list, **kwargs):
             clip_on=False,
         )
         ax.text(
-            bus.coordinate[0], bus.coordinate[1], bus.name, ha="center", va="center"
+            bus.coordinate[0],
+            bus.coordinate[1] - 0.3,
+            bus.name,
+            ha="center",
+            va="center",
+            size=6,
         )
 
-    right = 0.85
-    left = 0.15
+    right = 0.98
+    left = 0.02
 
     fig.subplots_adjust(
-        left=left, bottom=0, right=right, top=None, wspace=None, hspace=None
+        left=left, bottom=0.05, right=right, top=None, wspace=None, hspace=None
     )
 
     plt.figlegend(
         [Line.handle, Bus.handle, CircuitBreaker.handle, Disconnector.handle],
         ["Line", "Bus", "Circuitbreaker", "Disconnector"],
-        ncol=3,
+        ncol=4,
         loc="upper center",
         bbox_to_anchor=(left + (right - left) / 2, 0.978),
         frameon=False,
