@@ -92,7 +92,7 @@ def initialize_69Bus_network():
     B68 = Bus("B68", coordinate=[14, 1], fail_rate_per_year=fail_rate_trafo)
     B69 = Bus("B69", coordinate=[15, 1], fail_rate_per_year=fail_rate_trafo)
     B70 = Bus("B70", coordinate=[15, 1.5], fail_rate_per_year=fail_rate_trafo)
-    B71 = Bus("B71", coordinate=[15, -0.5], fail_rate_per_year=fail_rate_trafo)
+    B71 = Bus("B71", coordinate=[15, 0.5], fail_rate_per_year=fail_rate_trafo)
 
     Battery("Bat1", B68)
     Production("P1", B70)
