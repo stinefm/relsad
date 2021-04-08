@@ -1,6 +1,6 @@
 from stinetwork.utils import unique, intersection
 
-
+# flake8: noqa: C901
 def connectivity(nodelist, linelist):
     ## Initializing dictionaries
     undirectPathDict = dict()
@@ -17,8 +17,12 @@ def connectivity(nodelist, linelist):
             for fromBusNode in [line.from_element]:
                 if not toBusNode == fromBusNode:
                     directPathDict[fromBusNode.name][toBusNode.name] = [[line]]
-                    undirectPathDict[fromBusNode.name][toBusNode.name] = [[line]]
-                    undirectPathDict[toBusNode.name][fromBusNode.name] = [[line]]
+                    undirectPathDict[fromBusNode.name][toBusNode.name] = [
+                        [line]
+                    ]
+                    undirectPathDict[toBusNode.name][fromBusNode.name] = [
+                        [line]
+                    ]
 
     ## Creating directPathDict
     for _ in range(len(nodelist)):
@@ -40,29 +44,46 @@ def connectivity(nodelist, linelist):
                         ]
                         for line in linesConnectedToConnectedNode:
                             for newNode in [line.to_element.name]:
-                                if not node == newNode and not connectedNode == newNode:
+                                if (
+                                    not node == newNode
+                                    and not connectedNode == newNode
+                                ):
                                     lines_nTnn = directPathDict[node][
                                         newNode
                                     ]  # paths between node and newNode
                                     for i in range(len(lines_nTcn)):
                                         accept = True
                                         if (
-                                            lines_nTcn[i] + [line] in lines_nTnn
-                                            or lines_nTnn in lines_nTcn[i] + [line]
+                                            lines_nTcn[i] + [line]
+                                            in lines_nTnn
+                                            or lines_nTnn
+                                            in lines_nTcn[i] + [line]
                                             or line in lines_nTcn[i]
                                         ):
                                             accept = False
                                         toAndFromBuses = list()
-                                        for l in lines_nTcn[i] + [line]:
-                                            for toBusNode in [l.to_element.name]:
-                                                toAndFromBuses.append(toBusNode)
-                                            for fromBusNode in [l.from_element.name]:
-                                                toAndFromBuses.append(fromBusNode)
+                                        for line_nTcn in lines_nTcn[i] + [
+                                            line
+                                        ]:
+                                            for toBusNode in [
+                                                line_nTcn.to_element.name
+                                            ]:
+                                                toAndFromBuses.append(
+                                                    toBusNode
+                                                )
+                                            for fromBusNode in [
+                                                line_nTcn.from_element.name
+                                            ]:
+                                                toAndFromBuses.append(
+                                                    fromBusNode
+                                                )
                                         for e in toAndFromBuses:
                                             if toAndFromBuses.count(e) > 2:
                                                 accept = False
                                         if accept:
-                                            newlines_nTnn = [lines_nTcn[i] + [line]]
+                                            newlines_nTnn = [
+                                                lines_nTcn[i] + [line]
+                                            ]
                                             lines_nTnn += newlines_nTnn
                                     directPathDict[node][
                                         newNode
@@ -95,29 +116,44 @@ def connectivity(nodelist, linelist):
                             else:
                                 break
                             for newNode in newNodes:
-                                if not node == newNode and not connectedNode == newNode:
+                                if (
+                                    not node == newNode
+                                    and not connectedNode == newNode
+                                ):
                                     lines_nTnn = undirectPathDict[node][
                                         newNode
                                     ]  # paths between node and newNode
                                     for i in range(len(lines_nTcn)):
                                         accept = True
                                         if (
-                                            lines_nTcn[i] + [line] in lines_nTnn
-                                            or lines_nTnn in lines_nTcn[i] + [line]
+                                            lines_nTcn[i] + [line]
+                                            in lines_nTnn
+                                            or lines_nTnn
+                                            in lines_nTcn[i] + [line]
                                             or line in lines_nTcn[i]
                                         ):
                                             accept = False
                                         toAndFromBuses = list()
                                         for l in lines_nTcn[i] + [line]:
-                                            for toBusNode in [l.to_element.name]:
-                                                toAndFromBuses.append(toBusNode)
-                                            for fromBusNode in [l.from_element.name]:
-                                                toAndFromBuses.append(fromBusNode)
+                                            for toBusNode in [
+                                                l.to_element.name
+                                            ]:
+                                                toAndFromBuses.append(
+                                                    toBusNode
+                                                )
+                                            for fromBusNode in [
+                                                l.from_element.name
+                                            ]:
+                                                toAndFromBuses.append(
+                                                    fromBusNode
+                                                )
                                         for e in toAndFromBuses:
                                             if toAndFromBuses.count(e) > 2:
                                                 accept = False
                                         if accept:
-                                            newlines_nTnn = [lines_nTcn[i] + [line]]
+                                            newlines_nTnn = [
+                                                lines_nTcn[i] + [line]
+                                            ]
                                             lines_nTnn += newlines_nTnn
                                     undirectPathDict[node][
                                         newNode
@@ -126,12 +162,14 @@ def connectivity(nodelist, linelist):
                                         for path in lines_nTnn:
                                             if (
                                                 not path[::-1]
-                                                in undirectPathDict[newNode][node]
+                                                in undirectPathDict[newNode][
+                                                    node
+                                                ]
                                                 and not path == []
                                             ):
-                                                undirectPathDict[newNode][node].append(
-                                                    path[::-1]
-                                                )
+                                                undirectPathDict[newNode][
+                                                    node
+                                                ].append(path[::-1])
 
     return undirectPathDict, directPathDict
 

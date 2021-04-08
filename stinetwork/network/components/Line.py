@@ -117,10 +117,10 @@ class Line(Component):
         return f"Line(name={self.name})"
 
     def __eq__(self, other):
-        try:
+        if hasattr(other, "name"):
             return self.name == other.name
-        except:
-            False
+        else:
+            return False
 
     def __hash__(self):
         return hash(self.name)
@@ -254,7 +254,7 @@ class Line(Component):
 
             return p_from, q_from, p_to, q_to
         else:
-            return 0,0,0,0
+            return 0, 0, 0, 0
 
     def get_line_loading(self):
         """Get the loading on the line in percent"""
@@ -283,7 +283,9 @@ class Line(Component):
         self.history["q_from"][curr_time] = q_from
         self.history["p_to"][curr_time] = p_to
         self.history["q_to"][curr_time] = q_to
-        self.history["remaining_outage_time"][curr_time] = self.remaining_outage_time
+        self.history["remaining_outage_time"][
+            curr_time
+        ] = self.remaining_outage_time
         self.history["failed"][curr_time] = self.failed
         self.history["line_loading"][curr_time] = self.get_line_loading()
 

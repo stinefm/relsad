@@ -40,9 +40,9 @@ class Transmission(Network):
         return f"Transmission(name={self.name})"
 
     def __eq__(self, other):
-        try:
+        if hasattr(other, "name"):
             return self.name == other.name
-        except:
+        else:
             return False
 
     def __hash__(self):

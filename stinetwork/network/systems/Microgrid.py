@@ -12,7 +12,9 @@ class Microgrid(Network):
     ## Counter
     counter = 0
 
-    def __init__(self, distribution_network: Distribution, connected_line: Line):
+    def __init__(
+        self, distribution_network: Distribution, connected_line: Line
+    ):
         """Initializing microgrid network type content
         Content:
             buses(set): List of buses
@@ -51,9 +53,9 @@ class Microgrid(Network):
         return f"Microgrid(name={self.name})"
 
     def __eq__(self, other):
-        try:
+        if hasattr(other, "name"):
             return self.name == other.name
-        except:
+        else:
             return False
 
     def __hash__(self):

@@ -75,10 +75,10 @@ class Production(Component):
         return f"Production(name={self.name})"
 
     def __eq__(self, other):
-        try:
+        if hasattr(other, "name"):
             return self.name == other.name
-        except:
-            False
+        else:
+            return False
 
     def __hash__(self):
         return hash(self.name)

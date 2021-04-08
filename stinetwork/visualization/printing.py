@@ -2,6 +2,7 @@ import numpy as np
 from stinetwork.loadflow.ac import getload
 from stinetwork.visualization.plotting import tableplot
 
+
 #
 # Display transmission line flows
 #
@@ -45,7 +46,7 @@ def dispFlow(BusList, LineList, fromLine=0, toLine=0, tpres=False):
             Qfrom = -(b + bsh) * v1 * v1 - v1 * v2 * uij(g, b, teta1, teta2)
             Qto = -(b + bsh) * v2 * v2 - v1 * v2 * uij(g, b, teta2, teta1)
 
-            if tpres == False:
+            if tpres is False:
                 print(
                     "Line:{:5s} FromBus :{:5s} ToBus :{:5s}".format(
                         line.name, line.fbus.name, line.tbus.name
@@ -74,7 +75,14 @@ def dispFlow(BusList, LineList, fromLine=0, toLine=0, tpres=False):
 
     if tpres:
         title = "Transmission line flow"
-        colind = ["FromBus :", " ToBus :", "Pfrom :", " Qfrom : ", " Pto :", " Qto :"]
+        colind = [
+            "FromBus :",
+            " ToBus :",
+            "Pfrom :",
+            " Qfrom : ",
+            " Pto :",
+            " Qto :",
+        ]
         tableplot(mainlist, title, colind, rowno, columncol=[], rowcol=[])
 
 
@@ -99,7 +107,7 @@ def dispVolt(BusList, fromBus=0, toBus=0, tpres=False):
     print(" ")
     while iloop < toBus:
         oref = BusList[iloop]
-        if tpres == False:
+        if tpres is False:
             print(
                 " Bus name :",
                 "{:5s}".format(oref.name),
@@ -143,7 +151,7 @@ def dispVoltEst(BusList, bus=0, deltap=0.0, deltaq=0.0, tpres=False):
             + deltap * (1 + busobj.dPlossdP) * busobj.dVdP
             + deltaq * (1 + busobj.dQlossdQ) * busobj.dVdQ
         )
-        if tpres == False:
+        if tpres is False:
             print(
                 " Bus no :",
                 "{:4.0f}".format(busobj.busnum),
@@ -193,7 +201,7 @@ def dispVoltSens(BusList, fromBus=0, toBus=0, tpres=False):
     print(" ")
     while iloop < toBus:
         oref = BusList[iloop]
-        if tpres == False:
+        if tpres is False:
             print(
                 " Bus no :",
                 "{:4.0f}".format(oref.busnum),
@@ -214,7 +222,8 @@ def dispVoltSens(BusList, fromBus=0, toBus=0, tpres=False):
             "{:7.5}".format(oref.dPlossdP),
             "{:7.5}".format(oref.dPlossdQ),
             "{:7.5}".format(
-                oref.dVdQ * np.sqrt((1.0 + oref.dPlossdQ) ** 2 + oref.dQlossdQ ** 2)
+                oref.dVdQ
+                * np.sqrt((1.0 + oref.dPlossdQ) ** 2 + oref.dQlossdQ ** 2)
             ),
             "{:7.5}".format(oref.dQlossdQ),
             "{:7.5}".format(oref.dQlossdP),
@@ -257,7 +266,7 @@ def dispLossSens(BusList, fromBus=0, toBus=0, tpres=False):
     print(" ")
     while iloop < toBus:
         oref = BusList[iloop]
-        if tpres == False:
+        if tpres is False:
             print(
                 " Bus no :",
                 "{:4.0f}".format(oref.busnum),
@@ -318,7 +327,7 @@ def dispLossSensP(BusList, fromBus=0, toBus=0, tpres=False):
     print(" ")
     while iloop < toBus:
         oref = BusList[iloop]
-        if tpres == False:
+        if tpres is False:
             print(
                 " Bus no :",
                 "{:4.0f}".format(oref.busnum),
@@ -344,7 +353,13 @@ def dispLossSensP(BusList, fromBus=0, toBus=0, tpres=False):
     # Present table
     if tpres:
         title = "Bus Voltage sensitivites to changes in load and loss"
-        colind = [" Bus no ", " dV/dP ", " dPloss/dP", " d2Ploss/dP2", " Loss Ratio P"]
+        colind = [
+            " Bus no ",
+            " dV/dP ",
+            " dPloss/dP",
+            " d2Ploss/dP2",
+            " Loss Ratio P",
+        ]
         tableplot(mainlist, title, colind, rowno, columncol=[], rowcol=[])
 
 
@@ -366,14 +381,16 @@ def dispLossSensQ(BusList, fromBus=0, toBus=0, tpres=False):
     print(" ")
     while iloop < toBus:
         oref = BusList[iloop]
-        if tpres == False:
+        if tpres is False:
             print(
                 " Bus no :",
                 "{:4.0f}".format(oref.busnum),
                 " dV/dQ :",
                 "{:7.5}".format(oref.dVdQ * (1.0 + oref.dPlossdQ)),
                 " dPloss/dQ :,{:7.5}".format(oref.dPlossdQ),
-                " dP2loss/dQ2 :,{:7.5}".format(oref.dP2lossdQ2 - 1.0),  # 1.0 ref value
+                " dP2loss/dQ2 :,{:7.5}".format(
+                    oref.dP2lossdQ2 - 1.0
+                ),  # 1.0 ref value
                 " Loss Ratio Q :,{:7.5}".format(oref.lossRatioQ),
             )
 
@@ -392,7 +409,13 @@ def dispLossSensQ(BusList, fromBus=0, toBus=0, tpres=False):
     # Present table
     if tpres:
         title = "Bus Voltage sensitivites to changes in load and loss"
-        colind = [" Bus no ", " dV/dQ ", " dPloss/dQ", " d2Ploss/dQ2", " Loss Ratio Q"]
+        colind = [
+            " Bus no ",
+            " dV/dQ ",
+            " dPloss/dQ",
+            " d2Ploss/dQ2",
+            " Loss Ratio Q",
+        ]
         tableplot(mainlist, title, colind, rowno, columncol=[], rowcol=[])
 
 
@@ -431,7 +454,11 @@ def dispTotalLoad(BusList):
 #
 def dispLoads(BusList):
     for bus in BusList:
-        print("Name: {}, P: {:.4f}, Q: {:.4f}".format(bus.name, bus.pload, bus.qload))
+        print(
+            "Name: {}, P: {:.4f}, Q: {:.4f}".format(
+                bus.name, bus.pload, bus.qload
+            )
+        )
 
 
 #

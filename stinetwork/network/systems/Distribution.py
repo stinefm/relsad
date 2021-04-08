@@ -12,7 +12,9 @@ class Distribution(Network):
     ## Counter
     counter = 0
 
-    def __init__(self, transmission_network: Transmission, connected_line: Line):
+    def __init__(
+        self, transmission_network: Transmission, connected_line: Line
+    ):
         """Initializing distributed network type content
         Content:
             buses(set): List of buses
@@ -52,9 +54,9 @@ class Distribution(Network):
         return f"Distribution(name={self.name})"
 
     def __eq__(self, other):
-        try:
+        if hasattr(other, "name"):
             return self.name == other.name
-        except:
+        else:
             return False
 
     def __hash__(self):

@@ -1,4 +1,9 @@
-from stinetwork.network.components import Bus, CircuitBreaker, Disconnector, Line
+from stinetwork.network.components import (
+    Bus,
+    CircuitBreaker,
+    Disconnector,
+    Line,
+)
 from stinetwork.network.systems import Distribution, PowerSystem, Transmission
 from stinetwork.visualization.plotting import plot_topology
 
@@ -97,7 +102,12 @@ def initialize_33Bus_network():
         fail_rate_density_per_year=365,
     )
     L8 = Line(
-        "L8", B8, B9, 0.642651066675984, 0.4617104750876, fail_rate_density_per_year=365
+        "L8",
+        B8,
+        B9,
+        0.642651066675984,
+        0.4617104750876,
+        fail_rate_density_per_year=365,
     )
     L9 = Line(
         "L9",
@@ -449,4 +459,6 @@ if __name__ == "__main__":
     ps = initialize_33Bus_network()
     fig = plot_topology(ps.buses, ps.lines, figsize=(40, 40))
 
-    fig.savefig(os.path.join(os.path.dirname(os.path.abspath(__file__)), "test33.pdf"))
+    fig.savefig(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "test33.pdf")
+    )

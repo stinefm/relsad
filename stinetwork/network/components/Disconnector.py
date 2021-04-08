@@ -82,7 +82,7 @@ class Disconnector(Component):
         if bus == line.tbus:
             dx *= -1
             dy *= -1
-        if self.circuitbreaker == None:
+        if self.circuitbreaker is None:
             line.disconnectors.append(self)
             self.coordinate = [
                 self.base_bus.coordinate[0] + dx / 4,
@@ -106,16 +106,20 @@ class Disconnector(Component):
         return f"Disconnector(name={self.name})"
 
     def __eq__(self, other):
-        try:
+        if hasattr(other, "name"):
             return self.name == other.name
-        except:
-            False
+        else:
+            return False
 
     def __hash__(self):
         return hash(self.name)
 
     def close(self, curr_time):
-        if curr_time > self.prev_open_time or self.line.is_backup or curr_time == 0:
+        if (
+            curr_time > self.prev_open_time
+            or self.line.is_backup
+            or curr_time == 0
+        ):
             self.is_open = False
             self.color = "black"
             if not self.line.connected:
