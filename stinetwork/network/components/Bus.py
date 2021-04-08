@@ -47,10 +47,15 @@ class Bus(Component):
     busCount = 0
 
     ## Visual attributes
-    marker = "o"
+    marker = "|"
     size = 5 ** 2
     handle = mlines.Line2D(
-        [], [], marker=marker, markeredgewidth=3, markersize=size, linestyle="None"
+        [],
+        [],
+        marker=marker,
+        markeredgewidth=3,
+        markersize=size,
+        linestyle="None",
     )
 
     ## Random instance
@@ -157,10 +162,10 @@ class Bus(Component):
         return f"Bus(name={self.name})"
 
     def __eq__(self, other):
-        try:
+        if hasattr(other, "name"):
             return self.name == other.name
-        except:
-            False
+        else:
+            return False
 
     def __hash__(self):
         return hash(self.name)
@@ -183,6 +188,7 @@ class Bus(Component):
         self.qload = 0
         cost_functions = {
             "Jordbruk": {"A": 21.4 - 17.5, "B": 17.5},
+            "Microgrid": {"A": (21.4 - 17.5) * 1000, "B": 17.5 * 1000},
             "Industri": {"A": 132.6 - 92.5, "B": 92.5},
             "Handel og tjenester": {"A": 220.3 - 102.4, "B": 102.4},
             "Offentlig virksomhet": {"A": 194.5 - 31.4, "B": 31.4},
@@ -196,8 +202,8 @@ class Bus(Component):
                 self.set_cost(A + B * 1)
                 self.pload += load_dict[load_type]["pload"][day, hour]
                 self.qload += load_dict[load_type]["qload"][day, hour]
-            except:
-                raise KeyError(
+            except KeyError:
+                print(
                     "Load type {} is not in cost_functions".format(load_type)
                 )
 
@@ -208,7 +214,7 @@ class Bus(Component):
         self.trafo_failed = True
         self.remaining_outage_time = self.outage_time
         self.shed_load()
-        if self.prod != None:
+        if self.prod is not None:
             self.prod.pprod = 0
             self.prod.qprod = 0
 
@@ -228,7 +234,7 @@ class Bus(Component):
                 self.trafo_not_fail(curr_time)
             else:
                 self.shed_load()
-                if self.prod != None:
+                if self.prod is not None:
                     self.prod.pprod = 0
                     self.prod.qprod = 0
 
@@ -262,7 +268,9 @@ class Bus(Component):
         self.history["qload"][curr_time] = self.qload
         self.history["pprod"][curr_time] = self.pprod
         self.history["qprod"][curr_time] = self.qprod
-        self.history["remaining_outage_time"][curr_time] = self.remaining_outage_time
+        self.history["remaining_outage_time"][
+            curr_time
+        ] = self.remaining_outage_time
         self.history["trafo_failed"][curr_time] = self.trafo_failed
         self.history["p_load_shed_stack"][curr_time] = self.p_load_shed_stack
         self.history["acc_p_load_shed"][curr_time] = self.acc_p_load_shed
@@ -320,7 +328,9 @@ class Bus(Component):
         Returns an estimate of the annual outage time of the bus
         """
         outage_time = 0
-        shed_dict = self.history["p_load_shed_stack"]  # Ignore reactive load shedding
+        shed_dict = self.history[
+            "p_load_shed_stack"
+        ]  # Ignore reactive load shedding
         days = len(shed_dict)
         for shed_value in shed_dict.values():
             if shed_value > 1e-3:  # Add tolerance
@@ -332,7 +342,9 @@ class Bus(Component):
         Returns the average outage time of the bus
         """
         outage_time = 0
-        shed_dict = self.history["p_load_shed_stack"]  # Ignore reactive load shedding
+        shed_dict = self.history[
+            "p_load_shed_stack"
+        ]  # Ignore reactive load shedding
         days = len(shed_dict)
         for shed_value in shed_dict.values():
             if shed_value > 1e-3:  # Add tolerance
