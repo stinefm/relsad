@@ -343,9 +343,14 @@ temp_profiles, wind_profiles, solar_profiles = WeatherGen()
 wind = windGen(wind_profiles)
 PV = PVgeneration(temp_profiles, solar_profiles)
 
-load_house, load_farm, load_industry2, load_trade, load_office = LoadGen(
-    temp_profiles
-)
+(
+    load_house,
+    load_farm,
+    load_microgrid,
+    load_industry2,
+    load_trade,
+    load_office,
+) = LoadGen(temp_profiles)
 
 load_dict = dict()
 
