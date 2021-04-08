@@ -2,6 +2,7 @@ import numpy as np
 from stinetwork.topology.paths import configure
 
 
+# flake8: noqa: C901
 def DistLoadFlow(BusList, LineList):
     """
     Common base class Radial System's (Distribution)  Load Flow
@@ -60,14 +61,20 @@ def DistLoadFlow(BusList, LineList):
                 ql1 += qla
                 branch[
                     0
-                ].ploadds = pl1  # Add accumulated descriptions to the branching node
+                ].ploadds = (
+                    pl1  # Add accumulated descriptions to the branching node
+                )
                 branch[0].qloadds = ql1
                 branch[0].pblossds = ploss1
                 branch[0].qblossds = qloss1
                 if pl1 != 0:
-                    branch[0].dPdV = (branch[0].dPdV * (pl1 - pla) + dPdV1 * pla) / pl1
+                    branch[0].dPdV = (
+                        branch[0].dPdV * (pl1 - pla) + dPdV1 * pla
+                    ) / pl1
                 if ql1 != 0:
-                    branch[0].dQdV = (branch[0].dQdV * (ql1 - qla) + dQdV1 * qla) / ql1
+                    branch[0].dQdV = (
+                        branch[0].dQdV * (ql1 - qla) + dQdV1 * qla
+                    ) / ql1
                 if branch[0].toline:  # Follow the next node in the main path
                     lobj = branch[0].toline
                     if lobj.connected:
@@ -76,16 +83,22 @@ def DistLoadFlow(BusList, LineList):
                         )  # Find the flow to the downstream bus
                         qto = branch[0].qloadds + branch[0].qblossds
                         lobj.ploss = (
-                            lobj.r * (pto ** 2 + qto ** 2) / branch[0].vomag ** 2
+                            lobj.r
+                            * (pto ** 2 + qto ** 2)
+                            / branch[0].vomag ** 2
                         )  # Estimate the losses of the branch
                         lobj.qloss = (
-                            lobj.x * (pto ** 2 + qto ** 2) / branch[0].vomag ** 2
+                            lobj.x
+                            * (pto ** 2 + qto ** 2)
+                            / branch[0].vomag ** 2
                         )
                         ploss1 += lobj.ploss
                         qloss1 += lobj.qloss
                         branch[
                             0
-                        ].pblossds = ploss1  # Add the losses to the downstream bus
+                        ].pblossds = (
+                            ploss1  # Add the losses to the downstream bus
+                        )
                         branch[0].qblossds = qloss1
 
             else:  # No branching at the bus
@@ -99,17 +112,23 @@ def DistLoadFlow(BusList, LineList):
                         branch[0].dPdV * (pl1 - pla) + dPdV1 * pla
                     ) / pl1  # Weighting accumulated and bus DPDV
                 if ql1 != 0:
-                    branch[0].dQdV = (branch[0].dQdV * (ql1 - qla) + dQdV1 * qla) / ql1
+                    branch[0].dQdV = (
+                        branch[0].dQdV * (ql1 - qla) + dQdV1 * qla
+                    ) / ql1
                 if branch[0].toline:
                     lobj = branch[0].toline
                     if lobj.connected:
                         pto = branch[0].ploadds + ploss1
                         qto = branch[0].qloadds + qloss1
                         lobj.ploss = (
-                            lobj.r * (pto ** 2 + qto ** 2) / branch[0].vomag ** 2
+                            lobj.r
+                            * (pto ** 2 + qto ** 2)
+                            / branch[0].vomag ** 2
                         )
                         lobj.qloss = (
-                            lobj.x * (pto ** 2 + qto ** 2) / branch[0].vomag ** 2
+                            lobj.x
+                            * (pto ** 2 + qto ** 2)
+                            / branch[0].vomag ** 2
                         )
                         ploss1 += lobj.ploss
                         qloss1 += lobj.qloss
@@ -159,13 +178,15 @@ def DistLoadFlow(BusList, LineList):
             )  # Update the bus voltage magnitude on the down-stream bus
             # Calculate the sensitivities for changing the load
             dvdp = (
-                -tline.r + tpload * (tline.r ** 2 + tline.x ** 2) / fbus.vomag ** 2
+                -tline.r
+                + tpload * (tline.r ** 2 + tline.x ** 2) / fbus.vomag ** 2
             ) / tbus.vomag
             dpdq = (2 * tline.r * tqload / tbus.vomag ** 2) * (
                 1 + 2 * tline.r * tpload / tbus.vomag ** 2
             )
             dvdq = (
-                -tline.x + tqload * (tline.r ** 2 + tline.x ** 2) / fbus.vomag ** 2
+                -tline.x
+                + tqload * (tline.r ** 2 + tline.x ** 2) / fbus.vomag ** 2
             ) / tbus.vomag
             dqdp = (2 * tline.x * tpload / tbus.vomag ** 2) * (
                 1 + 2 * tline.x * tqload / tbus.vomag ** 2
@@ -261,7 +282,9 @@ def DistLoadFlow(BusList, LineList):
                     nodeVoltSensSP(fbus, tbus, tline, branch)
 
                 iloop = 1
-                while iloop < len(branch):  # Update voltages along the branches
+                while iloop < len(
+                    branch
+                ):  # Update voltages along the branches
                     UpdateVolt(branch[iloop])
                     iloop += 1
             else:  # Continue along the current path
@@ -284,8 +307,12 @@ def DistLoadFlow(BusList, LineList):
             itr = lobj.tbus - 1
             pto = busobjects[itr].ploadds
             qto = busobjects[itr].qloadds
-            lobj.ploss = lobj.r * (pto ** 2 + qto ** 2) / busobjects[itr].vomag ** 2
-            lobj.qloss = lobj.x * (pto ** 2 + qto ** 2) / busobjects[itr].vomag ** 2
+            lobj.ploss = (
+                lobj.r * (pto ** 2 + qto ** 2) / busobjects[itr].vomag ** 2
+            )
+            lobj.qloss = (
+                lobj.x * (pto ** 2 + qto ** 2) / busobjects[itr].vomag ** 2
+            )
             busobjects[ifr].ploadds += lobj.ploss
             busobjects[ifr].qloadds += lobj.qloss
 
@@ -315,10 +342,14 @@ def getload(busobj):
     relative_qload = busobj.qload - busobj.qprod  # load - production
 
     pLoadAct = relative_pload * (
-        busobj.ZIP[0] * busobj.vomag ** 2 + busobj.ZIP[1] * busobj.vomag + busobj.ZIP[2]
+        busobj.ZIP[0] * busobj.vomag ** 2
+        + busobj.ZIP[1] * busobj.vomag
+        + busobj.ZIP[2]
     )
     qLoadAct = relative_qload * (
-        busobj.ZIP[0] * busobj.vomag ** 2 + busobj.ZIP[1] * busobj.vomag + busobj.ZIP[2]
+        busobj.ZIP[0] * busobj.vomag ** 2
+        + busobj.ZIP[1] * busobj.vomag
+        + busobj.ZIP[2]
     )
     dPdV = relative_pload * (busobj.ZIP[0] * 2 * busobj.vomag + busobj.ZIP[1])
     dQdV = relative_qload * (busobj.ZIP[0] * 2 * busobj.vomag + busobj.ZIP[1])
