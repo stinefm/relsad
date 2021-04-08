@@ -62,7 +62,7 @@ class CircuitBreaker(Component):
         line: Line,
         is_open: bool = False,
         section_time: float = 1,
-        fail_rate: float = 0.014,
+        fail_rate: float = 0.0,
         outage_time: float = 1,
     ):
         self.name = name
@@ -99,10 +99,10 @@ class CircuitBreaker(Component):
         return f"Circuitbreaker(name={self.name})"
 
     def __eq__(self, other):
-        try:
+        if hasattr(other, "name"):
             return self.name == other.name
-        except:
-            False
+        else:
+            return False
 
     def __hash__(self):
         return hash(self.name)
@@ -135,7 +135,9 @@ class CircuitBreaker(Component):
 
     def update_history(self, curr_time):
         self.history["is_open"][curr_time] = self.is_open
-        self.history["remaining_section_time"][curr_time] = self.remaining_section_time
+        self.history["remaining_section_time"][
+            curr_time
+        ] = self.remaining_section_time
         self.history["prev_section_time"][curr_time] = self.prev_section_time
 
     def get_history(self, attribute: str):
