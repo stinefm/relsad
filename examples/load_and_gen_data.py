@@ -7,7 +7,9 @@ import os
 def WeatherGen():
 
     # Generating temperatures for a whole year
-    data = pd.read_csv(os.path.join("data", "RyggeData.csv"), header=None, skiprows=1)
+    data = pd.read_csv(
+        os.path.join("data", "RyggeData.csv"), header=None, skiprows=1
+    )
 
     temp_profiles = data[1].values.reshape(365, 24)
     wind_profiles = data[2].values.reshape(365, 24)
@@ -45,6 +47,7 @@ def LoadGen(temp):
 
     load_house = np.zeros_like(temp)
     load_farm = np.zeros_like(temp)
+    load_microgrid = np.zeros_like(temp)
     load_industry2 = np.zeros_like(temp)
     load_trade = np.zeros_like(temp)
     load_office = np.zeros_like(temp)
@@ -56,6 +59,7 @@ def LoadGen(temp):
 
             load_house[i, j] = house_A[j] * temp[i, j] + house_B[j]
             load_farm[i, j] = farm_A[j] * temp[i, j] + farm_B[j]
+            load_microgrid[i, j] = farm_A[j] * temp[i, j] + farm_B[j]
             load_industry2[i, j] = industry2_A[j] * temp[i, j] + industry2_B[j]
             load_trade[i, j] = trade_A[j] * temp[i, j] + trade_B[j]
             load_office[i, j] = office_A[j] * temp[i, j] + office_B[j]
@@ -63,6 +67,7 @@ def LoadGen(temp):
     return (
         load_house * 1e-3,
         load_farm * 1e-3,
+        load_microgrid * 1e-3,
         load_industry2 * 1e-3,
         load_trade * 1e-3,
         load_office * 1e-3,
@@ -83,36 +88,36 @@ def windGen(wind):
     v = np.zeros_like(wind)
     P_out = np.zeros_like(wind)
 
-    v_rated = np.array(
-        [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
-            24,
-            25,
-            25,
-        ]
-    )
+    # v_rated = np.array(
+    #     [
+    #         1,
+    #         2,
+    #         3,
+    #         4,
+    #         5,
+    #         6,
+    #         7,
+    #         8,
+    #         9,
+    #         10,
+    #         11,
+    #         12,
+    #         13,
+    #         14,
+    #         15,
+    #         16,
+    #         17,
+    #         18,
+    #         19,
+    #         20,
+    #         21,
+    #         22,
+    #         23,
+    #         24,
+    #         25,
+    #         25,
+    #     ]
+    # )
 
     P_rated = np.array(
         [
@@ -251,7 +256,9 @@ def PVgeneration(temp, irridation):
                 T_cell[i, j] = temp[i, j] + 273.15
             else:
                 T_cell[i, j] = (
-                    temp[i, j] + ((NOCT - 20) / 800) * irridation[i, j] + 273.15
+                    temp[i, j]
+                    + ((NOCT - 20) / 800) * irridation[i, j]
+                    + 273.15
                 )
 
             if E[i, j] <= 0.0:
@@ -283,6 +290,8 @@ def PVgeneration(temp, irridation):
 
 
 if __name__ == "__main__":
+
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     temp_profiles, wind_profiles, solar_profiles = WeatherGen()
 
     wind = windGen(wind_profiles)
@@ -293,16 +302,33 @@ if __name__ == "__main__":
     ax1.plot(PV.flatten(), label="PV")
     ax1.legend()
 
-    load_house, load_farm, load_industry2, load_trade, load_office = LoadGen(
-        temp_profiles
-    )
+    (
+        load_house,
+        load_farm,
+        load_microgrid,
+        load_industry2,
+        load_trade,
+        load_office,
+    ) = LoadGen(temp_profiles)
 
     fig2, ax2 = plt.subplots()
     ax2.plot(load_house.flatten(), label="house")
     ax2.plot(load_farm.flatten(), label="farm")
+    ax2.plot(load_microgrid.flatten(), label="microgrid")
     ax2.plot(load_industry2.flatten(), label="industry")
     ax2.plot(load_trade.flatten(), label="trade")
     ax2.plot(load_office.flatten(), label="office")
     ax2.legend()
+
+    fig3, ax3 = plt.subplots()
+    ax3.plot(load_microgrid.flatten() * 40, label="load", zorder=3)
+    ax3.plot(wind.flatten() * 2, label="wind")
+    ax3.plot(PV.flatten(), label="PV")
+    ax3.legend()
+
+    # print(np.max(load_microgrid)*40)
+    # print(np.median(load_microgrid)*40)
+    # print(load_microgrid*40)
+    print(np.max(PV))
 
     plt.show()
