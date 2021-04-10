@@ -170,9 +170,9 @@ if True:
 
     L69 = ps.get_comp("L69")
     L70 = ps.get_comp("L70")
-    L71 = ps.get_comp("L71")
+    # L71 = ps.get_comp("L71")
     L72 = ps.get_comp("L72")
-    L73 = ps.get_comp("L73")
+    # L73 = ps.get_comp("L73")
 
 
 if True:
@@ -325,12 +325,12 @@ if True:
     L69b = ps.get_comp("L69b")
     L70a = ps.get_comp("L70a")
     L70b = ps.get_comp("L70b")
-    L71a = ps.get_comp("L71a")
-    L71b = ps.get_comp("L71b")
+    # L71a = ps.get_comp("L71a")
+    # L71b = ps.get_comp("L71b")
     L72a = ps.get_comp("L72a")
     L72b = ps.get_comp("L72b")
-    L73a = ps.get_comp("L73a")
-    L73b = ps.get_comp("L73b")
+    # L73a = ps.get_comp("L73a")
+    # L73b = ps.get_comp("L73b")
 
 
 # Fetching battery and production objects
@@ -614,6 +614,9 @@ prod_dict = dict()
 prod_dict[P1] = {"pprod": 2 * wind, "qprod": PV * 0}
 prod_dict[P2] = {"pprod": PV, "qprod": PV * 0}
 
+ps.add_load_dict(load_dict)
+ps.add_prod_dict(prod_dict)
+
 save_dir = r"C:\Users\stinefm\Documents\results69"
 
 fig = plot_topology(ps.buses, ps.lines, figsize=(6.5, 4.5))
@@ -622,8 +625,6 @@ fig.savefig(os.path.join(save_dir, "topology.pdf"))
 ps.run_monte_carlo(
     iterations=2,
     increments=100,
-    load_dict=load_dict,
-    prod_dict=prod_dict,
     save_iterations=[0, 1],
     save_dir=save_dir,
 )
