@@ -18,6 +18,7 @@ def plot_topology(buses: list, lines: list, **kwargs):
             [line.fbus.coordinate[1], line.tbus.coordinate[1]],
             color=line.color,
             linestyle=line.linestyle,
+            zorder=2,
         )
 
         if line.circuitbreaker is not None:
@@ -31,6 +32,7 @@ def plot_topology(buses: list, lines: list, **kwargs):
                 linestyle="None",
                 color=cb.color,
                 markeredgecolor=cb.edgecolor,
+                zorder=3,
             )
             # ax.text(
             #     cb.coordinate[0],
@@ -51,6 +53,7 @@ def plot_topology(buses: list, lines: list, **kwargs):
                     linestyle="None",
                     color=discon.color,
                     markeredgecolor=discon.edgecolor,
+                    zorder=3,
                 )
                 # ax.text(
                 #     discon.coordinate[0],
@@ -71,6 +74,7 @@ def plot_topology(buses: list, lines: list, **kwargs):
                 linestyle="None",
                 color=discon.color,
                 markeredgecolor=discon.edgecolor,
+                zorder=3,
             )
             # ax.text(
             #     discon.coordinate[0],
@@ -91,6 +95,7 @@ def plot_topology(buses: list, lines: list, **kwargs):
             linestyle="None",
             color=bus.color,
             clip_on=False,
+            zorder=3,
         )
         ax.text(
             bus.coordinate[0],
