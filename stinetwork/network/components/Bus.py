@@ -78,6 +78,7 @@ class Bus(Component):
         self.coordinate = coordinate
 
         ## Power flow attributes
+        self.load_dict = dict()
         self.pload = 0
         self.qload = 0
         self.pprod = 0
@@ -180,7 +181,10 @@ class Bus(Component):
         self.pload = 0
         self.qload = 0
 
-    def set_load(self, load_dict: dict, curr_time):
+    def add_load_dict(self, load_dict: dict):
+        self.load_dict = load_dict
+
+    def set_load(self, curr_time):
         day = curr_time // 24
         hour = curr_time % 24
 
@@ -194,14 +198,14 @@ class Bus(Component):
             "Offentlig virksomhet": {"A": 194.5 - 31.4, "B": 31.4},
             "Husholdning": {"A": 8.8, "B": 14.7},
         }
-        for load_type in load_dict:
+        for load_type in self.load_dict:
             try:
                 type_cost = cost_functions[load_type]
                 A = type_cost["A"]
                 B = type_cost["B"]
                 self.set_cost(A + B * 1)
-                self.pload += load_dict[load_type]["pload"][day, hour]
-                self.qload += load_dict[load_type]["qload"][day, hour]
+                self.pload += self.load_dict[load_type]["pload"][day, hour]
+                self.qload += self.load_dict[load_type]["qload"][day, hour]
             except KeyError:
                 print(
                     "Load type {} is not in cost_functions".format(load_type)
