@@ -17,10 +17,16 @@ class CircuitBreaker(Component):
             Name of the circuit breaker
         coordinate : list
             Coordinate of the circuit breaker
+        initial_state : bool
+            The initial state of the circuit breaker
         is_open : bool
             Tells if the switch is open (True) or closed (False)
         failed : bool
             True if the circuit breaker is in a failed state, False if not
+        section_time : float
+            The section time of the circuit breaker, the time it takes from a line has failed to it is isolated and disconnected
+        prev_section_time : float
+            The section time for the previous time step
         fail_rate : float
             The failure rate of the circuit breaker [no of fails per year]
         outage_time : float
@@ -30,10 +36,26 @@ class CircuitBreaker(Component):
         disconnecter : list(Disconnectors)
             Which disconnectors that are connected to the circuit breaker
         line.circuitbreaker :
+        history : dict
+            Dictonary attribute that stores the historic variables
 
-        Functions
+        Methods
         ----------
-        close(curr_time) :
+        close(curr_time)
+            Closes the circuit breaker and the disconnectors connected to the circuit breaker
+        open(curr_time)
+            Opens the circuit breaker and the disconnectors connected to the circuit breaker
+        update_fail_status(curr_time)
+        update_history(curr_time)
+            Updates the history variables
+        get_history(attribute)
+            Returns the history variables of an attribute
+        add_random_seed(random_gen)
+            Adds global random
+        print_status()
+        reset_status()
+            Resets and sets the status of the system parameters
+
 
     """
 
@@ -66,8 +88,6 @@ class CircuitBreaker(Component):
         outage_time: float = 1,
     ):
         self.name = name
-
-        self.mode = 2
 
         dx = line.tbus.coordinate[0] - line.fbus.coordinate[0]
         dy = line.tbus.coordinate[1] - line.fbus.coordinate[1]
@@ -110,6 +130,19 @@ class CircuitBreaker(Component):
         return hash(self.name)
 
     def close(self, curr_time):
+        """
+        Closes the circuit breaker and the disconnectors connected to the circuit breaker
+
+        Parameters
+        ----------
+        curr_time : int
+            Current time
+
+        Returns
+        ----------
+        None
+
+        """
         if curr_time > self.prev_section_time or curr_time == 0:
             self.is_open = False
             self.color = "black"
@@ -118,6 +151,19 @@ class CircuitBreaker(Component):
                     discon.close(curr_time)
 
     def open(self, curr_time):
+        """
+        Opens the circuit breaker and the disconnectors connected to the circuit breaker
+
+        Parameters
+        ----------
+        curr_time : int
+            Current time
+
+        Returns
+        ----------
+        None
+
+        """
         self.is_open = True
         self.prev_section_time = curr_time
         self.remaining_section_time = self.section_time
@@ -128,23 +174,39 @@ class CircuitBreaker(Component):
 
     def update_fail_status(self, curr_time):
         """
-        Determine if circuitbreaker will close
+
+        Parameters
+        ----------
+        curr_time : int
+            Current time
+
+        Returns
+        ----------
+        None
+
         """
         if self.is_open and curr_time > self.prev_section_time:
-            self.remaining_section_time = max(
-                self.remaining_section_time - 1, 0
-            )
-            if self.remaining_section_time == 0:
-                if not self.line.failed:
-                    if self.mode == 1:  # Only set by Microgrid
-                        if (
-                            not self.line.parent_network.distribution_network.failed_line
-                        ):
-                            self.close(curr_time)
-                    else:
-                        self.close(curr_time)
+            if self.remaining_section_time >= 1:
+                self.remaining_section_time -= 1
+                if self.remaining_section_time == 0 and not self.line.failed:
+                    self.close(curr_time)
+            elif not self.line.failed:
+                self.close(curr_time)
 
     def update_history(self, curr_time):
+        """
+        Updates the history variables
+
+        Parameters
+        ----------
+        curr_time : int
+            Current time
+
+        Returns
+        ----------
+        None
+
+        """
         self.history["is_open"][curr_time] = self.is_open
         self.history["remaining_section_time"][
             curr_time
@@ -152,18 +214,65 @@ class CircuitBreaker(Component):
         self.history["prev_section_time"][curr_time] = self.prev_section_time
 
     def get_history(self, attribute: str):
+        """
+        Returns the history variables of an attribute
+
+        Parameters
+        ----------
+        attribute : str
+            System attribute
+
+        Returns
+        ----------
+        history[attribute] : dict
+            Returns the history variables of an attribute
+
+        """
         return self.history[attribute]
 
     def add_random_seed(self, random_gen):
         """
         Adds global random seed
+
+        Parameters
+        ----------
+        random_gen : int
+            Random number generator
+
+        Returns
+        ----------
+        None
+
         """
         self.ps_random = random_gen
 
     def print_status(self):
+        """
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         pass
 
     def reset_status(self):
+        """
+        Resets and sets the status of the class parameters
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         self.prev_section_time = 0
         self.remaining_section_time = 0
 

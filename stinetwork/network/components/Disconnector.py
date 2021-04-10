@@ -16,6 +16,8 @@ class Disconnector(Component):
         ----------
         name : string
             Name of the disconnector
+        initial_state : book
+            The initial state of the disconnector
         is_open : bool
             Tells if the switch is open (True) or closed (False)
         failed : bool
@@ -24,15 +26,35 @@ class Disconnector(Component):
             The failure rate of the disconnector [no of fails per year]
         outage_time : float
             The outage time of the diconnector [time units]
+        prev_open_time : float
+            The time for the previous time step
         line : Line
             The line the disconnecor is connected to
         base_bus : Bus
             Wich bus the disconnector is closes to (for setting coordinates)
+        history : dict
+            Dictonary attribute that stores the historic variables
 
-
-        Functions
+        Methods
         ----------
-        close(curr_time) :
+        close(curr_time)
+            Closes the disconnector
+        open(curr_time)
+            Opens the disconnector
+        fail(curr_time)
+            Sets the diconnecotr to failed
+        not_fail(curr_time)
+            Sets the doconnector to not failed
+        update_fail_status(curr_time)
+        update_history(curr_time)
+            Updates the history variables
+        get_history(attribute)
+            Returns the history variables of an attribute
+        add_random_seed(random_gen)
+            Adds global random
+        print_status()
+        reset_status()
+            Resets and sets the status of the system parameters
 
     """
 
@@ -115,6 +137,19 @@ class Disconnector(Component):
         return hash(self.name)
 
     def close(self, curr_time):
+        """
+        Closes the disconnector
+
+        Parameters
+        ----------
+        curr_time : int
+            Current time
+
+        Returns
+        ----------
+        None
+
+        """
         if (
             curr_time > self.prev_open_time
             or self.line.is_backup
@@ -126,6 +161,19 @@ class Disconnector(Component):
                 self.line.connect()
 
     def open(self, curr_time):
+        """
+        Opens the disconnector
+
+        Parameters
+        ----------
+        curr_time : int
+            Current time
+
+        Returns
+        ----------
+        None
+
+        """
         self.is_open = True
         self.prev_open_time = curr_time
         self.color = "white"
@@ -133,32 +181,129 @@ class Disconnector(Component):
             self.line.disconnect()
 
     def fail(self, curr_time):
+        """
+        Sets the diconnecotr to failed
+
+        Parameters
+        ----------
+        curr_time : int
+            Current time
+
+        Returns
+        ----------
+        None
+
+        """
         self.failed = True
         self.open(curr_time)
 
     def not_fail(self, curr_time):
+        """
+        Sets the doconnector to not failed
+
+        Parameters
+        ----------
+        curr_time : int
+            Current time
+
+        Returns
+        ----------
+        None
+
+        """
         self.failed = False
         self.close(curr_time)
 
     def update_fail_status(self, curr_time):
+        """
+
+        Parameters
+        ----------
+        curr_time : int
+            Current time
+
+        Returns
+        ----------
+        None
+
+        """
         pass
 
     def update_history(self, curr_time):
+        """
+        Updates the history variables
+
+        Parameters
+        ----------
+        curr_time : int
+            Current time
+
+        Returns
+        ----------
+        None
+
+        """
         self.history["is_open"][curr_time] = self.is_open
 
     def get_history(self, attribute: str):
+        """
+        Returns the history variables of an attribute
+
+        Parameters
+        ----------
+        attribute : str
+            System attribute
+
+        Returns
+        ----------
+        history[attribute] : dict
+            Returns the history variables of an attribute
+
+        """
         return self.history[attribute]
 
     def add_random_seed(self, random_gen):
         """
         Adds global random seed
+
+        Parameters
+        ----------
+        random_gen : int
+            Random number generator
+
+        Returns
+        ----------
+        None
+
         """
         self.ps_random = random_gen
 
     def print_status(self):
+        """
+
+        Parameters
+        ----------
+
+        Returns
+        ----------
+        None
+
+        """
         pass
 
     def reset_status(self):
+        """
+        Resets and sets the status of the class parameters
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         self.prev_open_time = 0
 
         self.not_fail(0)

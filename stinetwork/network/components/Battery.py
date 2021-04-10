@@ -13,12 +13,24 @@ class Battery(Component):
     ----------
     name : string
         Name of the battery
+    mode : int
+        Integer for type of microgrid mode
+    survival_time : int
+        Total amount of hours the microgrid should survive on battery capacity
+    remaining_survival_time : int
+        The time left for the battery to ensure energy for the microgrid load
+    standard_SOC_min : float
+        The minimum State of Charge for the battery which can change based on wanted battery capacity
     bus : Bus
         The bus the battery is connected to
-    injPmax : float
+    inj_p_max : float
         The maximum active power that the battery can inject [MW]
-    injQmax : float
+    inj_q_max : float
         The maximum reactive power that the battery can inject [MVar]
+    inj_max : float
+        The maximum apperent power that the battery can inject [MVa]
+    f_inj_p : float
+    f_inj_q : float
     E_max : float
         The maximum capacity of the battery [MWh]
     SOC_min : float
@@ -35,6 +47,10 @@ class Battery(Component):
         The state of charge of the battery
     E_battery : float
         The amount of energy stored in the battery [MWh]
+    lock : bool
+        Boolean variable that locks the battery if a basestation is failed, locks the functionality of the battery
+    history : dict
+        Dictonary attribute that stores the historic variables
 
     Methods
     ----------
@@ -46,7 +62,22 @@ class Battery(Component):
         Discharge the battery
     print_status()
         Prints the status of the battery
-
+    update_bus_load_and_prod(system_load_balance_p, system_load_balance_q)
+        Updates the load and production on the bus based on the system load balance
+    update_history(hour)
+        Updates the history variables
+    get_history(attribute)
+        Returns the history variables of an attribute
+    update_fail_status(hour)
+        Locks and unlocks the battery functionality based on failure states of the basestation
+    add_random_seed(random_gen)
+        Adds global random seed
+    reset_status()
+        Resets and sets the status of the system parameters
+    set_mode(mode)
+        Sets the microgrid mode
+    start_survival_time()
+        Starts the timer for how long the battery should focus on supporting own load
     """
 
     ## Random instance
@@ -71,12 +102,24 @@ class Battery(Component):
         ----------
         name : string
             Name of the battery
+        mode : int
+            Integer for type of microgrid mode
+        survival_time : int
+            Total amount of hours the microgrid should survive on battery capacity
+        remaining_survival_time : int
+            The time left for the battery to ensure energy for the microgrid load
+        standard_SOC_min : float
+            The minimum State of Charge for the battery which can change based on wanted battery capacity
         bus : Bus
             The bus the battery is connected to
         inj_p_max : float
             The maximum active power that the battery can inject [MW]
         inj_q_max : float
             The maximum reactive power that the battery can inject [MVar]
+        inj_max : float
+            The maximum apperent power that the battery can inject [MVa]
+        f_inj_p : float
+        f_inj_q : float
         E_max : float
             The maximum capacity of the battery [MWh]
         SOC_min : float
@@ -93,6 +136,10 @@ class Battery(Component):
             The state of charge of the battery
         E_battery : float
             The amount of energy stored in the battery [MWh]
+        lock : bool
+            Boolean variable that locks the battery if a basestation is failed, locks the functionality of the battery
+        history : dict
+            Dictonary attribute that stores the historic variables
 
 
         """
@@ -157,12 +204,7 @@ class Battery(Component):
 
         Paramters
         ----------
-        SOC : float
-            The state of charge of the battery
-        E_battery : float
-            The amount of energy stored in the battery [MWh]
-        E_max : float
-            The maximum capacity of the battery [MWh]
+        None
 
         Returns
         ----------
@@ -293,6 +335,10 @@ class Battery(Component):
         """
         Prints the status of the battery
 
+        Parameters
+        ----------
+        None
+
         Returns
         ----------
         None
@@ -316,18 +362,27 @@ class Battery(Component):
          Updates the load and production on the bus based on the system load balance.
          If the balance is negative, there is a surplus of production, and the battery will charge.
          If the balance is positive, there is a shortage of production, and the battery will discharge.
+         Returns the remaining surplus/shortage of power
 
         Parameters
         ----------
-            system_load_balance_p : float
-                Active system load balance
-            system_load_balance_q : float
-                Reactive system load balance
+        system_load_balance_p : float
+            Active system load balance
+        system_load_balance_q : float
+            Reactive system load balance
+
+        Returns
+        ----------
+        p_rem : float
+            Remaining surplus/shortage active power
+        q_rem : float
+            Remianing surplus/shortage reactive power
         """
         p, q = system_load_balance_p, system_load_balance_q
 
         if self.lock:
-            return p, q
+            p_rem, q_rem = p, q
+            return p_rem, q_rem
 
         pprod, qprod, pload, qload = 0, 0, 0, 0
         if p >= 0 and q >= 0:
@@ -353,11 +408,23 @@ class Battery(Component):
         if self.SOC < self.SOC_max:
             self.bus.pload += pload
             self.bus.qload += qload
-        prem = p + pload - pprod
-        qrem = q + qload - qprod
-        return prem, qrem
+        p_rem = p + pload - pprod
+        q_rem = q + qload - qprod
+        return p_rem, q_rem
 
     def update_history(self, hour):
+        """
+        Updates the history variables
+
+        Parameters
+        ----------
+        hour : int
+            Current time
+
+        Returns
+        ----------
+        None
+        """
         self.history["SOC"][hour] = self.SOC
         self.history["SOC_min"][hour] = self.SOC_min
         self.history["remaining_survival_time"][
@@ -365,9 +432,35 @@ class Battery(Component):
         ] = self.remaining_survival_time
 
     def get_history(self, attribute: str):
+        """
+        Returns the history variables of an attribute
+
+        Parameters
+        ----------
+        attribute : str
+            System attribute
+
+        Returns
+        ----------
+        history[attribute] : dict
+            Returns the history variables of an attribute
+        """
         return self.history[attribute]
 
     def update_fail_status(self, hour):
+        """
+        Locks og unlocks the battery functionality based on failure states of the basestation
+
+        Parameters
+        ----------
+        hour : int
+            Current time
+
+        Returns
+        ----------
+        None
+
+        """
         if self.bus.trafo_failed:
             self.lock = True
         else:
@@ -376,10 +469,32 @@ class Battery(Component):
     def add_random_seed(self, random_gen):
         """
         Adds global random seed
+
+        Parameters
+        ----------
+        random_gen : int
+            Random number generator
+
+        Returns
+        ----------
+        None
+
         """
         self.ps_random = random_gen
 
     def reset_status(self):
+        """
+        Resets and sets the status of the class parameters
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         self.SOC = self.standard_SOC_min
         self.E_battery = self.SOC * self.E_max
         self.lock = False
@@ -391,9 +506,34 @@ class Battery(Component):
         }
 
     def set_mode(self, mode):
+        """
+        Sets the microgrid mode
+
+        Parameters
+        ----------
+        mode : int
+            The microgrid mode
+
+        Returns
+        ----------
+        None
+
+        """
         self.mode = mode
 
     def start_survival_time(self):
+        """
+        Starts the timer for how long the battery should focus on supporting own load
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         self.remaining_survival_time = self.survival_time
 
 

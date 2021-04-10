@@ -12,29 +12,83 @@ class Line(Component):
 
     Attributes
     ----------
+    name : str
+        Name of the line
+    is_backup : bool
+        Decides if the line is a backup line
     fbus : Bus
         Sending bus
     tbus : Bus
         Receiving bus
+    disconnectors : list
+        List of disconnectors connected to the line
+    circuitbreaker : Circuitbreaker
+        Circuit breaker connected to the line
+    parent_network : Network
+        The parent network of the line
     r : float
         Resistance \[Ohm\]
     x : float
         Reactance \[\]
     length : float
         Length of line \[km\]
-    fail_rate : float
-        Failure rate \[fault/year/km\]
+    capacity : float
+        The capacity of the line \[MW\]
+    ploss : float
+        The active power loss over the line \[MW\]
+    qloss : float
+        The reactive power loss over the line \[MW\]
+    fail_rate_per_year : float
+        Failure rate per year \[fault/year/km\]
+    fail_rate_per_hour : float
+        Failure rate per hour \[fault/hour/km\]
     outage_time : float
         Outage time \[hours/fault\]
-    capacity : float
-        Line capacity \[MW\]
-    connected : bool
+    connected : str
         Line state
+    failed : bool
+        Failure status of the line
+    remaining_outage_time : float
+        The remaining outage time of the line
+    history : dict
+        Dictonary attribute that stores the historic variables
+
 
     Methods
     -------
-    add_load_breaker(load_breaker:LoadBreaker)
-        Adds load breaker
+    set_backup()
+        Sets the backup lines and opens the disconnectors connected to the backup line
+    disconnect()
+        Disconnects a line and removes the line
+    connect()
+        Connects a line and append the line
+    fail(curr_time)
+        Sets the fail status of the line to True and opens the connected disconnectors and the connected circuit breaker
+    not_fail(curr_time)
+        Sets the fail status of the line to False and closes the connected disconnectors and connected circuit breaker
+    change_direciton()
+        Changes the direction of the line
+    update_fail_status(curr_time)
+        Updates the fail status of the line
+    get_line_load()
+        Gets the power flow over the line
+        Returns the flow over the line
+    get_line_loading()
+        Returns the line loading of the line in percentage
+    print_status()
+        Prints the line status
+    get_disconnetors()
+        Returns the connected disconnectors
+    add_parent_network(network)
+        Adds the parent network to the line
+    update_history(curr_time)
+        Updates the history variables
+    get_history(attribute)
+        Returns the history variables of an attribute
+    add_random_seed(random_gen)
+        Adds global random seed
+    reset_status()
+        Resets and sets the status of the class parameters
     """
     lineCount = 0
 
@@ -126,11 +180,35 @@ class Line(Component):
         return hash(self.name)
 
     def set_backup(self):
+        """
+        Sets the backup lines and opens the disconnectors connected to the backup line
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         self.is_backup = True
         for discon in self.disconnectors:
             discon.open(curr_time=1)
 
     def disconnect(self):
+        """
+        Disconnects a line and removes the line
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         self.connected = False
         self.linestyle = "--"
         self.fbus.fromlinelist.remove(self)
@@ -148,6 +226,18 @@ class Line(Component):
         self.fbus.nextbus.remove(self.tbus)
 
     def connect(self):
+        """
+        Connects a line and append the line
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         self.connected = True
         self.linestyle = "-"
         self.tbus.toline = self
@@ -157,6 +247,19 @@ class Line(Component):
         self.fbus.nextbus.append(self.tbus)
 
     def fail(self, curr_time):
+        """
+        Sets the fail status of the line to False and opens the connected disconnectors and the connected circuit breaker
+
+        Parameters
+        ----------
+        curr_time : int
+            Current time
+
+        Returns
+        ----------
+        None
+
+        """
         self.failed = True
         self.parent_network.failed_line = True
         self.remaining_outage_time = self.outage_time
@@ -170,6 +273,19 @@ class Line(Component):
                     child_network.connected_line.circuitbreaker.open(curr_time)
 
     def not_fail(self, curr_time):
+        """
+        Sets the fail status of the line to False and closes the connected disconnectors and connected circuit breaker
+
+        Parameters
+        ----------
+        curr_time : int
+            Current time
+
+        Returns
+        ----------
+        None
+
+        """
         if (
             sum([line.failed for line in self.parent_network.lines]) == 1
             and self.failed
@@ -182,6 +298,18 @@ class Line(Component):
         #             discon.close(curr_time)
 
     def change_direction(self):
+        """
+        Changes the direction of the line
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         self.fbus.fromlinelist.remove(self)
         self.tbus.fromlinelist.append(self)
         self.tbus.tolinelist.remove(self)
@@ -210,6 +338,19 @@ class Line(Component):
         self.tbus = bus
 
     def update_fail_status(self, curr_time):
+        """
+        Updates the fail status of the line
+
+        Parameters
+        ----------
+        curr_time : int
+            Current time
+
+        Returns
+        ----------
+        None
+
+        """
         if self.is_backup:
             for discon in self.disconnectors:
                 if not discon.is_open:
@@ -226,7 +367,26 @@ class Line(Component):
                 self.not_fail(curr_time)
 
     def get_line_load(self):
-        """Get the flow on the line"""
+        """
+        Gets the power flow over the line
+        Returns the flow over the line
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        p_from : float
+            The active power sent from the line
+        q_from : float
+            The reactive power sent from the line
+        p_to : float
+            The active power sent to the line
+        q_to : float
+            The reactive power sent to the line
+
+        """
 
         def uij(gij, bij, tetai, tetaj):
             return gij * np.sin(tetai - tetaj) - bij * np.cos(tetai - tetaj)
@@ -261,11 +421,37 @@ class Line(Component):
             return 0, 0, 0, 0
 
     def get_line_loading(self):
-        """Get the loading on the line in percent"""
+        """
+        Returns the line loading of the line in percentage
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        line_loading : float
+            The line loading of the line
+
+        """
+
         p_from = self.get_line_load()[0]
-        return abs(p_from) / self.capacity * 100
+        line_loading = abs(p_from) / self.capacity * 100
+        return line_loading
 
     def print_status(self):
+        """
+        Prints the line status
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         print(
             "name: {:5s}, failed={}, connected={}".format(
                 self.name, self.failed, self.connected
@@ -273,15 +459,54 @@ class Line(Component):
         )
 
     def get_disconnectors(self):
+        """
+        Returns the connected disconnectors
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        disconnectors : Disconnector
+            Disconnector connected to the line
+
+        """
         return self.disconnectors
 
     def add_parent_network(self, network):
+        """
+        Adds the parent network to the line
+
+        Parameters
+        ----------
+        network : Network
+            The parent network of the line
+
+        Returns
+        ----------
+        None
+
+        """
         """
         Adds parent network
         """
         self.parent_network = network
 
     def update_history(self, curr_time):
+        """
+        Updates the history variables
+
+        Parameters
+        ----------
+        curr_time : int
+            Current time
+
+        Returns
+        ----------
+        None
+
+        """
         p_from, q_from, p_to, q_to = self.get_line_load()
         self.history["p_from"][curr_time] = p_from
         self.history["q_from"][curr_time] = q_from
@@ -294,15 +519,51 @@ class Line(Component):
         self.history["line_loading"][curr_time] = self.get_line_loading()
 
     def get_history(self, attribute: str):
+        """
+        Returns the history variables of an attribute
+
+        Parameters
+        ----------
+        attribute : str
+            System attribute
+
+        Returns
+        ----------
+        history[attribute] : dict
+            Returns the history variables of an attribute
+
+        """
         return self.history[attribute]
 
     def add_random_seed(self, random_gen):
         """
         Adds global random seed
+
+        Parameters
+        ----------
+        random_gen : int
+            Random number generator
+
+        Returns
+        ----------
+        None
+
         """
         self.ps_random = random_gen
 
     def reset_status(self):
+        """
+        Resets and sets the status of the class parameters
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         self.remaining_outage_time = 0
 
         self.not_fail(0)
