@@ -67,6 +67,8 @@ class CircuitBreaker(Component):
     ):
         self.name = name
 
+        self.mode = 2
+
         dx = line.tbus.coordinate[0] - line.fbus.coordinate[0]
         dy = line.tbus.coordinate[1] - line.fbus.coordinate[1]
         self.coordinate = [
@@ -125,13 +127,22 @@ class CircuitBreaker(Component):
                 discon.open(curr_time)
 
     def update_fail_status(self, curr_time):
+        """
+        Determine if circuitbreaker will close
+        """
         if self.is_open and curr_time > self.prev_section_time:
-            if self.remaining_section_time >= 1:
-                self.remaining_section_time -= 1
-                if self.remaining_section_time == 0 and not self.line.failed:
-                    self.close(curr_time)
-            elif not self.line.failed:
-                self.close(curr_time)
+            self.remaining_section_time = max(
+                self.remaining_section_time - 1, 0
+            )
+            if self.remaining_section_time == 0:
+                if not self.line.failed:
+                    if self.mode == 1:  # Only set by Microgrid
+                        if (
+                            not self.line.parent_network.distribution_network.failed_line
+                        ):
+                            self.close(curr_time)
+                    else:
+                        self.close(curr_time)
 
     def update_history(self, curr_time):
         self.history["is_open"][curr_time] = self.is_open
