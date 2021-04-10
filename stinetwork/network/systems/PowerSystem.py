@@ -450,12 +450,16 @@ class PowerSystem:
         Plots the history of the battery in the power system
         """
         plot_history(self.batteries, "SOC", save_dir)
+        plot_history(self.batteries, "SOC_min", save_dir)
+        plot_history(self.batteries, "remaining_survival_time", save_dir)
 
     def save_battery_history(self, save_dir: str):
         """
         Saves the history of the battery in the power system
         """
         save_history(self.batteries, "SOC", save_dir)
+        save_history(self.batteries, "SOC_min", save_dir)
+        save_history(self.batteries, "remaining_survival_time", save_dir)
 
     def plot_load_shed_history(self, save_dir: str):
         """
@@ -625,7 +629,7 @@ class PowerSystem:
         """
         return PowerSystem.monte_carlo_history[attribute]
 
-    def run_load_flow(self, curr_time, load_dict: dict, prod_dict: dict):
+    def run_load_flow(self):
         """
         Runs load flow in power system
         """
@@ -633,7 +637,16 @@ class PowerSystem:
         ## Run load flow
         self.buses = DistLoadFlow(list(self.buses), list(self.lines))
 
-    def run_increment(self, curr_time, load_dict: dict, prod_dict: dict):
+    def update_fail_status(self, curr_time):
+        for bus in self.buses:
+            bus.update_fail_status(curr_time)
+        for line in self.lines:
+            line.update_fail_status(curr_time)
+        for comp in self.get_comp_list():
+            if comp not in self.buses + self.lines:
+                comp.update_fail_status(curr_time)
+
+    def run_increment(self, curr_time):
         """
         Runs power system at current state for one time increment
         """
@@ -646,14 +659,13 @@ class PowerSystem:
             self.add_random_instance(np.random.default_rng())
 
         ## Set loads
-        self.set_load(load_dict, curr_time)
+        self.set_load(curr_time)
 
         ## Set productions
-        self.set_prod(prod_dict, curr_time)
+        self.set_prod(curr_time)
 
         ## Set fail status
-        for comp in self.get_comp_list():
-            comp.update_fail_status(curr_time)
+        self.update_fail_status(curr_time)
 
         ## Find sub systems
         find_sub_systems(self, curr_time)
@@ -665,26 +677,24 @@ class PowerSystem:
             sub_system.update_batteries()
             ## Run load flow
             if sub_system.slack is not None:
-                sub_system.run_load_flow(curr_time, load_dict, prod_dict)
+                sub_system.run_load_flow()
             ## Shed load
             sub_system.shed_active_loads()
             sub_system.shed_reactive_loads()
         ## Log results
         self.update_history(curr_time)
 
-    def run_sequence(self, increments: int, load_dict: dict, prod_dict: dict):
+    def run_sequence(self, increments: int):
         """
         Runs power system for a sequence of increments
         """
         for curr_time in range(increments):
-            self.run_increment(curr_time, load_dict, prod_dict)
+            self.run_increment(curr_time)
 
     def run_monte_carlo(
         self,
         iterations: int,
         increments: int,
-        load_dict: dict,
-        prod_dict: dict,
         save_iterations: list = [],
         save_dir: str = "results",
     ):
@@ -692,7 +702,7 @@ class PowerSystem:
         for it in range(iterations):
             self.reset_system()
             print("it: {}".format(it))
-            self.run_sequence(increments, load_dict, prod_dict)
+            self.run_sequence(increments)
             PowerSystem.monte_carlo_history["acc_p_load_shed"][
                 it
             ] = PowerSystem.history["acc_p_load_shed"][increments - 1]
@@ -766,14 +776,23 @@ class PowerSystem:
         find_sub_systems(self, 0)
         update_sub_system_slack(self)
 
-    def set_load(self, load_dict: dict, curr_time):
+    def add_load_dict(self, load_dict: dict):
         for bus in self.buses:
             if bus in load_dict:
-                bus.set_load(load_dict[bus], curr_time)
+                bus.add_load_dict(load_dict[bus])
 
-    def set_prod(self, prod_dict: dict, curr_time):
+    def add_prod_dict(self, prod_dict: dict):
         for prod in self.productions:
-            prod.set_prod(prod_dict[prod], curr_time)
+            if prod in prod_dict:
+                prod.add_prod_dict(prod_dict[prod])
+
+    def set_load(self, curr_time):
+        for bus in self.buses:
+            bus.set_load(curr_time)
+
+    def set_prod(self, curr_time):
+        for prod in self.productions:
+            prod.set_prod(curr_time)
 
 
 def find_sub_systems(p_s: PowerSystem, curr_time):
@@ -915,7 +934,18 @@ def set_slack(p_s: PowerSystem):
     ## Buses with battery
     if p_s.slack is None:
         for bus in p_s.buses:
-            if bus.battery is not None:
+            if (
+                bus.battery is not None and bus.battery.mode is None
+            ):  # Battery in Distribution network
+                bus.set_slack()
+                p_s.slack = bus
+                return True
+        for bus in p_s.buses:
+            if (
+                bus.battery is not None and bus.battery.mode is not None
+            ):  # Battery in Microgrid
+                if bus.battery.mode == 3:
+                    bus.battery.start_survival_time()
                 bus.set_slack()
                 p_s.slack = bus
                 return True
