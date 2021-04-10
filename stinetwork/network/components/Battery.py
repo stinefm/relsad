@@ -98,6 +98,12 @@ class Battery(Component):
         """
 
         self.name = name
+
+        self.mode = None
+        self.survival_time = 4
+        self.remaining_survival_time = 0
+        self.standard_SOC_min = SOC_min
+
         self.bus = bus
         bus.battery = self
         bus.set_cost(1)  # Add symbolic cost to shedding battery load
@@ -124,7 +130,11 @@ class Battery(Component):
         self.lock = False
 
         ## History
-        self.history = {"SOC": dict()}
+        self.history = {
+            "SOC": dict(),
+            "SOC_min": dict(),
+            "remaining_survival_time": dict(),
+        }
 
     def __str__(self):
         return self.name
@@ -235,6 +245,18 @@ class Battery(Component):
 
         """
 
+        if self.remaining_survival_time > 0:
+            self.SOC_min = min(
+                self.bus.parent_network.get_max_load()
+                * self.remaining_survival_time
+                / self.E_max
+                + self.standard_SOC_min,
+                self.SOC_max,
+            )
+            self.remaining_survival_time -= 1
+        else:
+            self.SOC_min = self.standard_SOC_min
+
         p_dis_remaining = 0
         q_dis_remaining = 0
         if p_dis > self.inj_p_max:
@@ -337,6 +359,10 @@ class Battery(Component):
 
     def update_history(self, hour):
         self.history["SOC"][hour] = self.SOC
+        self.history["SOC_min"][hour] = self.SOC_min
+        self.history["remaining_survival_time"][
+            hour
+        ] = self.remaining_survival_time
 
     def get_history(self, attribute: str):
         return self.history[attribute]
@@ -354,11 +380,21 @@ class Battery(Component):
         self.ps_random = random_gen
 
     def reset_status(self):
-        self.SOC = self.SOC_min
+        self.SOC = self.standard_SOC_min
         self.E_battery = self.SOC * self.E_max
         self.lock = False
 
-        self.history = {"SOC": dict()}
+        self.history = {
+            "SOC": dict(),
+            "SOC_min": dict(),
+            "remaining_survival_time": dict(),
+        }
+
+    def set_mode(self, mode):
+        self.mode = mode
+
+    def start_survival_time(self):
+        self.remaining_survival_time = self.survival_time
 
 
 if __name__ == "__main__":
