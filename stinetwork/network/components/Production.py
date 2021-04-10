@@ -60,6 +60,7 @@ class Production(Component):
         self.name = name
         self.bus = bus
         bus.prod = self
+        self.prod_dict = dict()
         self.pprod = 0
         self.qprod = 0
         self.pmax = pmax
@@ -83,7 +84,10 @@ class Production(Component):
     def __hash__(self):
         return hash(self.name)
 
-    def set_prod(self, prod_dict: dict, curr_time):
+    def add_prod_dict(self, prod_dict: dict):
+        self.prod_dict = prod_dict
+
+    def set_prod(self, curr_time):
 
         """
          Decides how much active and reactive power that will be produced
@@ -105,8 +109,8 @@ class Production(Component):
         day = curr_time // 24
         hour = curr_time % 24
 
-        pprod = prod_dict["pprod"][day, hour]
-        qprod = prod_dict["qprod"][day, hour]
+        pprod = self.prod_dict["pprod"][day, hour]
+        qprod = self.prod_dict["qprod"][day, hour]
         if pprod > self.pmax:
             self.pprod = self.pmax
         else:
