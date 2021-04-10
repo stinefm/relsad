@@ -37,12 +37,12 @@ def initialize_69Bus_network():
     B15 = Bus("B15", coordinate=[14, 0], fail_rate_per_year=fail_rate_trafo)
     B16 = Bus("B16", coordinate=[15, 0], fail_rate_per_year=fail_rate_trafo)
     B17 = Bus("B17", coordinate=[16, 0], fail_rate_per_year=fail_rate_trafo)
-    B18 = Bus("B18", coordinate=[17, 0], fail_rate_per_year=fail_rate_trafo)
-    B19 = Bus("B19", coordinate=[18, 0], fail_rate_per_year=fail_rate_trafo)
-    B20 = Bus("B20", coordinate=[19, 0], fail_rate_per_year=fail_rate_trafo)
-    B21 = Bus("B21", coordinate=[20, 0], fail_rate_per_year=fail_rate_trafo)
-    B22 = Bus("B22", coordinate=[21, 0], fail_rate_per_year=fail_rate_trafo)
-    B23 = Bus("B23", coordinate=[22, 0], fail_rate_per_year=fail_rate_trafo)
+    B18 = Bus("B18", coordinate=[17, 0.5], fail_rate_per_year=fail_rate_trafo)
+    B19 = Bus("B19", coordinate=[18, 0.5], fail_rate_per_year=fail_rate_trafo)
+    B20 = Bus("B20", coordinate=[19, 0.5], fail_rate_per_year=fail_rate_trafo)
+    B21 = Bus("B21", coordinate=[20, 0.5], fail_rate_per_year=fail_rate_trafo)
+    B22 = Bus("B22", coordinate=[21, 0.5], fail_rate_per_year=fail_rate_trafo)
+    B23 = Bus("B23", coordinate=[22, 0.5], fail_rate_per_year=fail_rate_trafo)
     B24 = Bus("B24", coordinate=[23, 0], fail_rate_per_year=fail_rate_trafo)
     B25 = Bus("B25", coordinate=[24, 0], fail_rate_per_year=fail_rate_trafo)
     B26 = Bus("B26", coordinate=[25, 0], fail_rate_per_year=fail_rate_trafo)
@@ -66,10 +66,10 @@ def initialize_69Bus_network():
     B44 = Bus("B44", coordinate=[11, 2], fail_rate_per_year=fail_rate_trafo)
     B45 = Bus("B45", coordinate=[12, 2], fail_rate_per_year=fail_rate_trafo)
     B46 = Bus("B46", coordinate=[13, 2], fail_rate_per_year=fail_rate_trafo)
-    B47 = Bus("B47", coordinate=[4, -1], fail_rate_per_year=fail_rate_trafo)
-    B48 = Bus("B48", coordinate=[5, -1], fail_rate_per_year=fail_rate_trafo)
-    B49 = Bus("B49", coordinate=[6, -1], fail_rate_per_year=fail_rate_trafo)
-    B50 = Bus("B50", coordinate=[7, -1], fail_rate_per_year=fail_rate_trafo)
+    B47 = Bus("B47", coordinate=[4, -1.5], fail_rate_per_year=fail_rate_trafo)
+    B48 = Bus("B48", coordinate=[5, -1.5], fail_rate_per_year=fail_rate_trafo)
+    B49 = Bus("B49", coordinate=[6, -1.5], fail_rate_per_year=fail_rate_trafo)
+    B50 = Bus("B50", coordinate=[7, -1.5], fail_rate_per_year=fail_rate_trafo)
     B51 = Bus("B51", coordinate=[8, 1], fail_rate_per_year=fail_rate_trafo)
     B52 = Bus("B52", coordinate=[9, 1], fail_rate_per_year=fail_rate_trafo)
     B53 = Bus("B53", coordinate=[9, -1], fail_rate_per_year=fail_rate_trafo)
@@ -78,21 +78,21 @@ def initialize_69Bus_network():
     B56 = Bus("B56", coordinate=[12, -1], fail_rate_per_year=fail_rate_trafo)
     B57 = Bus("B57", coordinate=[13, -1], fail_rate_per_year=fail_rate_trafo)
     B58 = Bus("B58", coordinate=[14, -1], fail_rate_per_year=fail_rate_trafo)
-    B59 = Bus("B59", coordinate=[15, -1], fail_rate_per_year=fail_rate_trafo)
-    B60 = Bus("B60", coordinate=[16, -1], fail_rate_per_year=fail_rate_trafo)
-    B61 = Bus("B61", coordinate=[17, -1], fail_rate_per_year=fail_rate_trafo)
-    B62 = Bus("B62", coordinate=[18, -1], fail_rate_per_year=fail_rate_trafo)
-    B63 = Bus("B63", coordinate=[19, -1], fail_rate_per_year=fail_rate_trafo)
-    B64 = Bus("B64", coordinate=[20, -1], fail_rate_per_year=fail_rate_trafo)
-    B65 = Bus("B65", coordinate=[21, -1], fail_rate_per_year=fail_rate_trafo)
+    B59 = Bus("B59", coordinate=[15, -1.5], fail_rate_per_year=fail_rate_trafo)
+    B60 = Bus("B60", coordinate=[16, -2], fail_rate_per_year=fail_rate_trafo)
+    B61 = Bus("B61", coordinate=[17, -2], fail_rate_per_year=fail_rate_trafo)
+    B62 = Bus("B62", coordinate=[18, -2], fail_rate_per_year=fail_rate_trafo)
+    B63 = Bus("B63", coordinate=[19, -2], fail_rate_per_year=fail_rate_trafo)
+    B64 = Bus("B64", coordinate=[20, -2], fail_rate_per_year=fail_rate_trafo)
+    B65 = Bus("B65", coordinate=[21, -2], fail_rate_per_year=fail_rate_trafo)
     B66 = Bus("B66", coordinate=[11, 1], fail_rate_per_year=fail_rate_trafo)
     B67 = Bus("B67", coordinate=[12, 1], fail_rate_per_year=fail_rate_trafo)
 
     # Microgrid:
-    B68 = Bus("B68", coordinate=[14, 1], fail_rate_per_year=fail_rate_trafo)
-    B69 = Bus("B69", coordinate=[15, 1], fail_rate_per_year=fail_rate_trafo)
-    B70 = Bus("B70", coordinate=[15, 1.5], fail_rate_per_year=fail_rate_trafo)
-    B71 = Bus("B71", coordinate=[15, 0.5], fail_rate_per_year=fail_rate_trafo)
+    B68 = Bus("B68", coordinate=[16, 1.5], fail_rate_per_year=fail_rate_trafo)
+    B69 = Bus("B69", coordinate=[17, 1.5], fail_rate_per_year=fail_rate_trafo)
+    B70 = Bus("B70", coordinate=[17, 2], fail_rate_per_year=fail_rate_trafo)
+    B71 = Bus("B71", coordinate=[17, 1], fail_rate_per_year=fail_rate_trafo)
 
     Battery("Bat1", B68)
     Production("P1", B70)
@@ -631,7 +631,7 @@ def initialize_69Bus_network():
     # Microgrid:
     L67 = Line(
         "L67",
-        B12,
+        B16,
         B68,
         0.004613304,
         0.001524873,
@@ -674,22 +674,22 @@ def initialize_69Bus_network():
     )
     L70 = Line(
         "L70",
-        B13,
-        B21,
+        B17,
+        B24,
         0.0,
         1.0e-08,
         fail_rate_density_per_year=fail_rate_line,
         capacity=3,
     )
-    L71 = Line(
-        "L71",
-        B15,
-        B46,
-        0.0,
-        1.0e-08,
-        fail_rate_density_per_year=fail_rate_line,
-        capacity=3,
-    )
+    # L71 = Line(
+    #     "L71",
+    #     B15,
+    #     B46,
+    #     0.0,
+    #     1.0e-08,
+    #     fail_rate_density_per_year=fail_rate_line,
+    #     capacity=3,
+    # )
     L72 = Line(
         "L72",
         B50,
@@ -699,15 +699,15 @@ def initialize_69Bus_network():
         fail_rate_density_per_year=fail_rate_line,
         capacity=3,
     )
-    L73 = Line(
-        "L73",
-        B27,
-        B65,
-        0.0,
-        1.0e-08,
-        fail_rate_density_per_year=fail_rate_line,
-        capacity=3,
-    )
+    # L73 = Line(
+    #     "L73",
+    #     B27,
+    #     B65,
+    #     0.0,
+    #     1.0e-08,
+    #     fail_rate_density_per_year=fail_rate_line,
+    #     capacity=3,
+    # )
 
     E1 = CircuitBreaker("E1", L1)
     E2 = CircuitBreaker("E2", L67)
@@ -854,7 +854,7 @@ def initialize_69Bus_network():
     Disconnector("L66b", L66, B67)
 
     # Microgrid:
-    Disconnector("L67a", L67, B12, E2)
+    Disconnector("L67a", L67, B16, E2)
     Disconnector("L67b", L67, B68, E2)
     Disconnector("L67c", L67, B68)
     Disconnector("L68a", L68, B68)
@@ -867,20 +867,20 @@ def initialize_69Bus_network():
     # Backup lines:
     Disconnector("L69a", L69, B11)
     Disconnector("L69b", L69, B43)
-    Disconnector("L70a", L70, B13)
-    Disconnector("L70b", L70, B21)
-    Disconnector("L71a", L71, B15)
-    Disconnector("L71b", L71, B46)
+    Disconnector("L70a", L70, B17)
+    Disconnector("L70b", L70, B24)
+    # Disconnector("L71a", L71, B15)
+    # Disconnector("L71b", L71, B46)
     Disconnector("L72a", L72, B50)
     Disconnector("L72b", L72, B59)
-    Disconnector("L73a", L73, B27)
-    Disconnector("L73b", L73, B65)
+    # Disconnector("L73a", L73, B27)
+    # Disconnector("L73b", L73, B65)
 
     L69.set_backup()
     L70.set_backup()
-    L71.set_backup()
+    # L71.set_backup()
     L72.set_backup()
-    L73.set_backup()
+    # L73.set_backup()
 
     tn = Transmission(ps, B1)
 
@@ -1030,9 +1030,9 @@ def initialize_69Bus_network():
             # L68,
             L69,
             L70,
-            L71,
+            # L71,
             L72,
-            L73,
+            # L73,
         ]
     )
 
