@@ -158,6 +158,7 @@ class Line(Component):
 
     def fail(self, curr_time):
         self.failed = True
+        self.parent_network.failed_line = True
         self.remaining_outage_time = self.outage_time
         if self.connected:
             for discon in self.disconnectors:
@@ -169,13 +170,16 @@ class Line(Component):
                     child_network.connected_line.circuitbreaker.open(curr_time)
 
     def not_fail(self, curr_time):
+        if (
+            sum([line.failed for line in self.parent_network.lines]) == 1
+            and self.failed
+        ):
+            self.parent_network.failed_line = False
         self.failed = False
-        if not self.is_backup:
-            for discon in self.disconnectors:
-                if discon.is_open:
-                    discon.close(curr_time)
-            if self == self.parent_network.connected_line:
-                self.circuitbreaker.close(curr_time)
+        # if not self.is_backup:
+        #     for discon in self.disconnectors:
+        #         if discon.is_open:
+        #             discon.close(curr_time)
 
     def change_direction(self):
         self.fbus.fromlinelist.remove(self)
