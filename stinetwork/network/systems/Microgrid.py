@@ -13,17 +13,24 @@ class Microgrid(Network):
     counter = 0
 
     def __init__(
-        self, distribution_network: Distribution, connected_line: Line
+        self,
+        distribution_network: Distribution,
+        connected_line: Line,
+        mode: int = 2,
     ):
         """Initializing microgrid network type content
         Content:
-            buses(set): List of buses
-            lines(set): List of lines
+            mode(int): Microgrid mode, 1) Survival, 2) Full support, 3) Limited support
+
+            buses(list): List of buses
+            lines(list): List of lines
             comp_dict(dict): Dictionary of components
             connected_line(Line): Line connected to distrubution network
         """
         Microgrid.counter += 1
         self.name = "microgrid{:d}".format(Microgrid.counter)
+
+        self.mode = mode
 
         self.buses = list()
         self.lines = list()
@@ -32,17 +39,20 @@ class Microgrid(Network):
         self.distribution_network.add_child_network(self)
         self.child_network_list = None
 
+        self.failed_line = False
+
         self.connected_line = connected_line
-        c_b = connected_line.circuitbreaker
-        if self.connected_line.circuitbreaker is None:
+        self.circuitbreaker = connected_line.circuitbreaker
+        self.circuitbreaker.mode = mode
+        if self.circuitbreaker is None:
             raise Exception(
                 "{} connects the microgrid to the "
                 "distribution network, it must contain a circuitbreaker".format(
                     connected_line
                 )
             )
-        self.comp_dict[c_b.name] = c_b
-        for discon in c_b.disconnectors:
+        self.comp_dict[self.circuitbreaker.name] = self.circuitbreaker
+        for discon in self.circuitbreaker.disconnectors:
             self.comp_dict[discon.name] = discon
         self.add_line(connected_line)
 
@@ -64,6 +74,8 @@ class Microgrid(Network):
     def add_bus(self, bus: Bus):
         """Adding bus to microgrid
         Input: bus(Bus)"""
+        if bus.get_battery() is not None:
+            bus.get_battery().set_mode(self.mode)
         self.comp_dict[bus.name] = bus
         bus.handle.color = self.color
         bus.color = self.color
@@ -125,6 +137,15 @@ class Microgrid(Network):
         """
         for bus in self.buses:
             bus.is_slack = False
+
+    def get_max_load(self):
+        max_load = 0
+        for bus in self.buses:
+            for load_type in bus.load_dict:
+                max_load = max(
+                    max_load, max(bus.load_dict[load_type]["pload"].flatten())
+                )
+        return max_load
 
 
 if __name__ == "__main__":
