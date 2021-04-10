@@ -33,6 +33,8 @@ class Distribution(Network):
         self.power_system = transmission_network.parent_network
         self.child_network_list = list()
 
+        self.failed_line = False
+
         self.connected_line = connected_line
         c_b = connected_line.circuitbreaker
         if self.connected_line.circuitbreaker is None:
