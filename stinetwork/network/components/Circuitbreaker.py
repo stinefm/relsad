@@ -188,10 +188,19 @@ class CircuitBreaker(Component):
         if self.is_open and curr_time > self.prev_section_time:
             if self.remaining_section_time >= 1:
                 self.remaining_section_time -= 1
-                if self.remaining_section_time == 0 and not self.line.failed:
+            if self.remaining_section_time == 0 and not self.line.failed:
+                # If circuitbreaker in Microgrid with mode 1 and parent Distribution
+                # system has no failed lines
+                if (
+                    self.line.parent_network.child_network_list is None
+                    and self.line.parent_network.mode == 1
+                ):
+                    if (
+                        not self.line.parent_network.distribution_network.failed_line
+                    ):
+                        self.close(curr_time)
+                else:
                     self.close(curr_time)
-            elif not self.line.failed:
-                self.close(curr_time)
 
     def update_history(self, curr_time):
         """
