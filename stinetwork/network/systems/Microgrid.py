@@ -26,11 +26,11 @@ class Microgrid(Network):
     child_network_list : list
         List containing connected child networks to the microgrid ?
     failed_line : Bool
-        ?
+        Boolean value stating whether or not the network includes a failed line
     connected_line : Line
         Line that connects the microgrid to the distribution network
     circuitbreaker : Circuitbreaker
-        ?
+        The circuitbreaker connected to the line
 
     Methods
     ----------
@@ -65,7 +65,7 @@ class Microgrid(Network):
         self,
         distribution_network: Distribution,
         connected_line: Line,
-        mode: int = 3,
+        mode: int = 1,
     ):
         """Initializing microgrid network type content
         Content:
