@@ -292,10 +292,10 @@ class Line(Component):
         ):
             self.parent_network.failed_line = False
         self.failed = False
-        # if not self.is_backup:
-        #     for discon in self.disconnectors:
-        #         if discon.is_open:
-        #             discon.close(curr_time)
+        if not self.is_backup:
+            for discon in self.disconnectors:
+                if discon.is_open:
+                    discon.close(curr_time)
 
     def change_direction(self):
         """
