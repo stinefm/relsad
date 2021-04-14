@@ -4,7 +4,54 @@ from .Transmission import Transmission
 
 
 class Distribution(Network):
-    """ Class defining a distribution network type """
+
+    """
+    Class defining a distribution network type
+
+    ...
+
+    Attributes
+    ----------
+    name : str
+        Name of the distribution network
+    buses : Bus
+        List with the buses connected to the distribution network
+    lines : Lines
+        List with the lines connected to the distribution network
+    comp_dict : dict
+        Dictionary containing the components connected to the distribution network
+    parent_network : Network
+        The parent network of the distribution network
+    power_system : Network
+        Connects the distribution network to a power system ?
+    child_network_list : list
+        List containing connected child networks to the distribution network
+    failed_line : Bool
+        ?
+    connected_line : Line
+        Connects the distribution network to the transmission network, chooses line connecting the distribution network to the transmission network
+
+
+    Methods
+    ----------
+    add_bus(bus)
+        Adding bus to distribution network
+    add_buses(buses)
+        Adding buses to distribution network
+    add_line(line)
+        Adding line to distribution network
+    add_lines(lines)
+        Adding lines to distribution network
+    get_lines()
+        Returns the lines in the distribution network
+    reset_slack_bus()
+        Resets the slack bus attribute of the buses in the distribution network
+    add_child_network(network)
+        Adds child network to the distribution network
+
+
+
+    """
 
     ## Visual attributes
     color = "steelblue"
@@ -65,8 +112,19 @@ class Distribution(Network):
         return hash(self.name)
 
     def add_bus(self, bus: Bus):
-        """Adding bus to distribution
-        Input: bus(Bus)"""
+        """
+        Adding bus to distribution network
+
+        Parameters
+        ----------
+        bus : Bus
+            A Bus element
+
+        Returns
+        ----------
+        None
+
+        """
         self.comp_dict[bus.name] = bus
         bus.handle.color = self.color
         bus.color = self.color
@@ -75,14 +133,36 @@ class Distribution(Network):
         self.power_system.add_bus(bus)
 
     def add_buses(self, buses: set):
-        """Adding buses to distribution
-        Input: buses(list(Bus))"""
+        """
+        Adding buses to distribution network
+
+        Parameters
+        ----------
+        buses : list
+            A list of buses connected to the distribution network
+
+        Returns
+        ----------
+        None
+
+        """
         for bus in buses:
             self.add_bus(bus)
 
     def add_line(self, line: Line):
-        """Adding line to distribution
-        Input: line(Line)"""
+        """
+        Adding line to distribution network
+
+        Parameters
+        ----------
+        line : Line
+            A Line element
+
+        Returns
+        ----------
+        None
+
+        """
         line.handle.color = self.color
         line.color = self.color
         self.comp_dict[line.name] = line
@@ -93,27 +173,67 @@ class Distribution(Network):
         self.power_system.add_line(line)
 
     def add_lines(self, lines: set):
-        """Adding lines to distribution
-        Input: lines(list(Line))"""
+        """
+        Adding lines to distribution network
+
+        Parameters
+        ----------
+        lines : list
+            A list of lines connected to the distribution network
+
+        Returns
+        ----------
+        None
+
+        """
         for line in lines:
             self.add_line(line)
 
     def get_lines(self):
         """
         Returns the lines in the distribution network
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        lines : list
+            Returns a list with the lines in the distribution network
+
         """
         return self.lines
 
     def reset_slack_bus(self):
         """
         Resets the slack bus attribute of the buses in the distribution network
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
         """
         for bus in self.buses:
             bus.is_slack = False
 
     def add_child_network(self, network):
         """
-        Adds child network
+        Adds child network to the distribution network
+
+        Parameters
+        ----------
+        netowrk : Network
+            The child network of the distribution network
+
+        Returns
+        ----------
+        None
+
         """
         self.child_network_list.append(network)
         self.parent_network.add_child_network(network)

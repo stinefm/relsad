@@ -49,19 +49,14 @@ class Production(Component):
     reset_status()
         Resets and sets the status of the class parameters
 
-
-
-
-
-    update_bus_load()
-        Updates the load on the bus with the amount of generated active and reactive power
-
     """
 
     ## Random instance
     ps_random = None
 
-    def __init__(self, name: str, bus: Bus, pmax: float = 1, qmax: float = 0):
+    def __init__(
+        self, name: str, bus: Bus, pmax: float = 10, qmax: float = 10
+    ):
 
         """
         Constructs all the necessary attributes for the production object
@@ -127,8 +122,6 @@ class Production(Component):
     def set_prod(self, curr_time):
         """
         Decides how much active and reactive power that will be produced
-         If the produced power exceeds the maximal limit, the produced power is set to maximum limit
-         The function updates the production on the bus by using the function update_bus_load()
 
         Parameters
         ----------

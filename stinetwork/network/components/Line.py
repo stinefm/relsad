@@ -488,9 +488,7 @@ class Line(Component):
         None
 
         """
-        """
-        Adds parent network
-        """
+
         self.parent_network = network
 
     def update_history(self, curr_time):
