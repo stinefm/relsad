@@ -944,7 +944,11 @@ def set_slack(p_s: PowerSystem):
             if (
                 bus.battery is not None and bus.battery.mode is not None
             ):  # Battery in Microgrid
-                if bus.battery.mode == 3:
+                if (
+                    bus.battery.mode == 3
+                    and bus.battery.remaining_survival_time == 0
+                    and not bus.is_slack
+                ):
                     bus.battery.start_survival_time()
                 bus.set_slack()
                 p_s.slack = bus
