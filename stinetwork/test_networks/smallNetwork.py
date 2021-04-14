@@ -20,7 +20,7 @@ def initialize_test_network():
     ## Transmission network
     T = Bus("T", coordinate=[0, 0], fail_rate_per_year=0)
 
-    fail_rate = 40
+    fail_rate = 2
 
     ## Distribution network
     B1 = Bus("B1", coordinate=[0, -1], fail_rate_per_year=fail_rate)

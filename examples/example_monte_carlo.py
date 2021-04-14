@@ -15,6 +15,8 @@ start = time.time()
 
 ps = initialize_test_network()
 
+mode = None
+
 ## Set seed to get deterministic behavior
 ps.add_random_instance(random_instance(seed=3))
 
@@ -97,17 +99,19 @@ load_dict[M2] = {
     "Husholdning": {"pload": load_house * 0, "qload": load_house * 0}
 }
 load_dict[M3] = {
-    "Husholdning": {"pload": load_microgrid * 10, "qload": load_house * 0}
+    "Microgrid": {"pload": load_microgrid * 15, "qload": load_microgrid * 0}
 }
 
 prod_dict = dict()
 
-prod_dict[P1] = {"pprod": PV + wind, "qprod": PV * 0}
+prod_dict[P1] = {"pprod": (PV + wind), "qprod": PV * 0}
+
 
 ps.add_load_dict(load_dict)
 ps.add_prod_dict(prod_dict)
 
-save_dir = r"C:\Users\stinefm\Documents\results"
+save_dir = r"C:\Users\stinefm\Documents\results3"
+#
 
 ps.run_monte_carlo(
     iterations=10,
