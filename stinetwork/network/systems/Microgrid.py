@@ -284,11 +284,18 @@ class Microgrid(Network):
 
         """
         max_load = 0
-        for bus in self.buses:
-            for load_type in bus.load_dict:
-                max_load = max(
-                    max_load, max(bus.load_dict[load_type]["pload"].flatten())
-                )
+        d_bus = self.buses[0]  # Dummy bus used to find number of increments
+        n_increments = len(
+            d_bus.load_dict[list(d_bus.load_dict.keys())[0]]["pload"].flatten()
+        )  # Number of increments
+        for increment in range(n_increments):
+            load = 0
+            for bus in self.buses:
+                for load_type in bus.load_dict:
+                    load += bus.load_dict[load_type]["pload"].flatten()[
+                        increment
+                    ]
+            max_load = max(max_load, load)
         return max_load
 
 
