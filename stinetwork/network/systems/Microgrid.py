@@ -271,7 +271,7 @@ class Microgrid(Network):
 
     def get_max_load(self):
         """
-        Get the max load of the microgrid load
+        Get the maximum load of the microgrid for the entire loading history
 
         Parameters
         ----------
@@ -279,24 +279,36 @@ class Microgrid(Network):
 
         Returns
         ----------
-        max_load : float
-            The maximum load of the microgrid load
+        p_load_max : float
+            The maximum active load of the microgrid for the entire loading history
+
+        q_load_max : float
+            The maximum reactive load of the microgrid for the entire loading history
 
         """
-        max_load = 0
-        d_bus = self.buses[0]  # Dummy bus used to find number of increments
-        n_increments = len(
-            d_bus.load_dict[list(d_bus.load_dict.keys())[0]]["pload"].flatten()
-        )  # Number of increments
+        p_load_max, q_load_max = 0, 0
+        for bus in self.buses:
+            if bus.load_dict != dict():
+                d_bus = bus  # Dummy bus used to find number of increments
+                n_increments = len(
+                    d_bus.load_dict[list(d_bus.load_dict.keys())[0]][
+                        "pload"
+                    ].flatten()
+                )  # Number of increments
+                break
         for increment in range(n_increments):
-            load = 0
+            p_load, q_load = 0, 0
             for bus in self.buses:
                 for load_type in bus.load_dict:
-                    load += bus.load_dict[load_type]["pload"].flatten()[
+                    p_load += bus.load_dict[load_type]["pload"].flatten()[
                         increment
                     ]
-            max_load = max(max_load, load)
-        return max_load
+                    q_load += bus.load_dict[load_type]["qload"].flatten()[
+                        increment
+                    ]
+            p_load_max = max(p_load_max, p_load)
+            q_load_max = max(q_load_max, q_load)
+        return p_load_max, q_load_max
 
 
 if __name__ == "__main__":
