@@ -104,8 +104,10 @@ class Line(Component):
         name: str,
         fbus: Bus,
         tbus: Bus,
-        r: float,
-        x: float,
+        r: float,  # Ohm
+        x: float,  # Ohm
+        s_ref: float = 1,  # MVA
+        v_ref: float = 12.66,  # KV
         length: float = 1,
         fail_rate_density_per_year: float = 0.2,
         outage_time: float = 4,
@@ -134,8 +136,13 @@ class Line(Component):
         Line.lineCount += 1
 
         ##  Power flow attributes
+        self.s_ref = s_ref
+        self.v_ref = v_ref
+        self.r_ref = v_ref ** 2 / s_ref
         self.r = r
         self.x = x
+        self.r_pu = r / self.r_ref
+        self.x_pu = x / self.r_ref
         self.length = length
         self.capacity = capacity  # MW
         self.ploss = 0.0

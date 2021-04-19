@@ -164,8 +164,10 @@ class Production(Component):
         None
 
         """
-        self.bus.pprod = self.pprod
-        self.bus.qprod = self.qprod
+        self.bus.pprod = self.pprod  # MW
+        self.bus.qprod = self.qprod  # MVar
+        self.bus.pprod_pu = self.pprod / self.bus.s_ref  # PU
+        self.bus.qprod_pu = self.qprod / self.bus.s_ref  # PU
 
     def update_fail_status(self, curr_time):
         """

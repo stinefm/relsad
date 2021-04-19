@@ -66,6 +66,7 @@ class Bus(Component):
         name: str,
         coordinate: list = [0, 0],
         ZIP=[0.0, 0.0, 1.0],
+        s_ref: float = 1,  # MVA
         vset=0.0,
         iloss=0,
         pqcostRatio=100,
@@ -78,11 +79,16 @@ class Bus(Component):
         self.coordinate = coordinate
 
         ## Power flow attributes
+        self.s_ref = s_ref
         self.load_dict = dict()
-        self.pload = 0
-        self.qload = 0
-        self.pprod = 0
-        self.qprod = 0
+        self.pload = 0  # MW
+        self.qload = 0  # MVar
+        self.pprod = 0  # MW
+        self.qprod = 0  # MVar
+        self.pload_pu = 0  # PU
+        self.qload_pu = 0  # PU
+        self.pprod_pu = 0  # PU
+        self.qprod_pu = 0  # PU
         self.ZIP = ZIP
         self.vset = vset
         self.iloss = iloss
@@ -172,14 +178,20 @@ class Bus(Component):
         return hash(self.name)
 
     def reset_load_and_prod_attributes(self):
-        self.pload = 0
-        self.qload = 0
-        self.pprod = 0
-        self.qprod = 0
+        self.reset_load()
+        self.reset_prod()
 
     def reset_load(self):
         self.pload = 0
         self.qload = 0
+        self.pload_pu = 0
+        self.qload_pu = 0
+
+    def reset_prod(self):
+        self.pprod = 0
+        self.qprod = 0
+        self.pprod_pu = 0
+        self.qprod_pu = 0
 
     def add_load_dict(self, load_dict: dict):
         self.load_dict = load_dict
@@ -206,10 +218,19 @@ class Bus(Component):
                 self.set_cost(A + B * 1)
                 self.pload += self.load_dict[load_type]["pload"][day, hour]
                 self.qload += self.load_dict[load_type]["qload"][day, hour]
+
             except KeyError:
                 print(
                     "Load type {} is not in cost_functions".format(load_type)
                 )
+        self.pload_pu = self.pload / self.s_ref
+        self.qload_pu = self.qload / self.s_ref
+
+    def get_load(self):
+        """
+        Return the current bus load in MW
+        """
+        return self.pload, self.qload
 
     def trafo_fail(self, curr_time):
         """
