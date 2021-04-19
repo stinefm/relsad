@@ -322,7 +322,7 @@ if __name__ == "__main__":
 
     fig3, ax3 = plt.subplots()
     ax3.plot(load_microgrid.flatten() * 40, label="load", zorder=3)
-    ax3.plot(wind.flatten() * 2, label="wind")
+    ax3.plot(wind.flatten(), label="wind")
     ax3.plot(PV.flatten(), label="PV")
     ax3.legend()
 
