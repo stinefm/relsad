@@ -83,12 +83,12 @@ def DistLoadFlow(BusList, LineList):
                         )  # Find the flow to the downstream bus
                         qto = branch[0].qloadds + branch[0].qblossds
                         lobj.ploss = (
-                            lobj.r
+                            lobj.r_pu
                             * (pto ** 2 + qto ** 2)
                             / branch[0].vomag ** 2
                         )  # Estimate the losses of the branch
                         lobj.qloss = (
-                            lobj.x
+                            lobj.x_pu
                             * (pto ** 2 + qto ** 2)
                             / branch[0].vomag ** 2
                         )
@@ -121,12 +121,12 @@ def DistLoadFlow(BusList, LineList):
                         pto = branch[0].ploadds + ploss1
                         qto = branch[0].qloadds + qloss1
                         lobj.ploss = (
-                            lobj.r
+                            lobj.r_pu
                             * (pto ** 2 + qto ** 2)
                             / branch[0].vomag ** 2
                         )
                         lobj.qloss = (
-                            lobj.x
+                            lobj.x_pu
                             * (pto ** 2 + qto ** 2)
                             / branch[0].vomag ** 2
                         )
@@ -167,10 +167,10 @@ def DistLoadFlow(BusList, LineList):
             )  # Find the accumulated loads and losses flowing on the branch
             tqload = busobj[0].qloadds + busobj[0].qblossds
             # Voltage calculation
-            term2 = 2 * (tpload * tline.r + tqload * tline.x)
+            term2 = 2 * (tpload * tline.r_pu + tqload * tline.x_pu)
             term3 = (
                 (tpload ** 2 + tqload ** 2)
-                * (tline.r ** 2 + tline.x ** 2)
+                * (tline.r_pu ** 2 + tline.x_pu ** 2)
                 / fbus.vomag ** 2
             )
             tbus.vomag = np.sqrt(
@@ -178,21 +178,25 @@ def DistLoadFlow(BusList, LineList):
             )  # Update the bus voltage magnitude on the down-stream bus
             # Calculate the sensitivities for changing the load
             dvdp = (
-                -tline.r
-                + tpload * (tline.r ** 2 + tline.x ** 2) / fbus.vomag ** 2
+                -tline.r_pu
+                + tpload
+                * (tline.r_pu ** 2 + tline.x_pu ** 2)
+                / fbus.vomag ** 2
             ) / tbus.vomag
-            dpdq = (2 * tline.r * tqload / tbus.vomag ** 2) * (
-                1 + 2 * tline.r * tpload / tbus.vomag ** 2
+            dpdq = (2 * tline.r_pu * tqload / tbus.vomag ** 2) * (
+                1 + 2 * tline.r_pu * tpload / tbus.vomag ** 2
             )
             dvdq = (
-                -tline.x
-                + tqload * (tline.r ** 2 + tline.x ** 2) / fbus.vomag ** 2
+                -tline.x_pu
+                + tqload
+                * (tline.r_pu ** 2 + tline.x_pu ** 2)
+                / fbus.vomag ** 2
             ) / tbus.vomag
-            dqdp = (2 * tline.x * tpload / tbus.vomag ** 2) * (
-                1 + 2 * tline.x * tqload / tbus.vomag ** 2
+            dqdp = (2 * tline.x_pu * tpload / tbus.vomag ** 2) * (
+                1 + 2 * tline.x_pu * tqload / tbus.vomag ** 2
             )
-            dpldp = (2 * tline.r * tpload / tbus.vomag ** 2) * (
-                1 + 2 * tline.x * tqload / tbus.vomag ** 2
+            dpldp = (2 * tline.r_pu * tpload / tbus.vomag ** 2) * (
+                1 + 2 * tline.x_pu * tqload / tbus.vomag ** 2
             )
 
             tbus.dVdP = fbus.dVdP + dvdp + dvdq * dqdp
@@ -203,17 +207,17 @@ def DistLoadFlow(BusList, LineList):
             tbus.dQlossdP = fbus.dQlossdP + dqdp
             tbus.dQlossdQ = (
                 fbus.dQlossdQ
-                + 2 * tline.x * tqload / tbus.vomag ** 2
-                + 2 * tline.x * tpload * tbus.dPlossdQ / tbus.vomag ** 2
+                + 2 * tline.x_pu * tqload / tbus.vomag ** 2
+                + 2 * tline.x_pu * tpload * tbus.dPlossdQ / tbus.vomag ** 2
             )
             # Calculate the second-order derivatives
             if tqload != 0:
                 tbus.dP2lossdQ2 = (
                     fbus.dP2lossdQ2
                     + dpdq / tqload
-                    + (2 * tline.r * tqload / tbus.vomag ** 2)
+                    + (2 * tline.r_pu * tqload / tbus.vomag ** 2)
                     * 2
-                    * tline.r
+                    * tline.r_pu
                     * dpdq
                     / tbus.vomag ** 2
                 )
@@ -221,9 +225,9 @@ def DistLoadFlow(BusList, LineList):
                 tbus.dP2lossdQ2 = (
                     fbus.dP2lossdQ2
                     + dpdq / 1e-9
-                    + (2 * tline.r * tqload / tbus.vomag ** 2)
+                    + (2 * tline.r_pu * tqload / tbus.vomag ** 2)
                     * 2
-                    * tline.r
+                    * tline.r_pu
                     * dpdq
                     / tbus.vomag ** 2
                 )
@@ -231,9 +235,9 @@ def DistLoadFlow(BusList, LineList):
                 tbus.dP2lossdP2 = (
                     fbus.dP2lossdQ2
                     + dpldp / tpload
-                    + (2 * tline.r * tpload / tbus.vomag ** 2)
+                    + (2 * tline.r_pu * tpload / tbus.vomag ** 2)
                     * 2
-                    * tline.x
+                    * tline.x_pu
                     * dqdp
                     / tbus.vomag ** 2
                 )
@@ -241,9 +245,9 @@ def DistLoadFlow(BusList, LineList):
                 tbus.dP2lossdP2 = (
                     fbus.dP2lossdQ2
                     + dpldp / 1e-9
-                    + (2 * tline.r * tpload / tbus.vomag ** 2)
+                    + (2 * tline.r_pu * tpload / tbus.vomag ** 2)
                     * 2
-                    * tline.x
+                    * tline.x_pu
                     * dqdp
                     / tbus.vomag ** 2
                 )
@@ -262,9 +266,12 @@ def DistLoadFlow(BusList, LineList):
 
             # Voltage angle calculation
             busvoltreal = (
-                fbus.vomag - (tpload * tline.r + tqload * tline.x) / fbus.vomag
+                fbus.vomag
+                - (tpload * tline.r_pu + tqload * tline.x_pu) / fbus.vomag
             )
-            busvoltimag = (tqload * tline.r - tpload * tline.x) / fbus.vomag
+            busvoltimag = (
+                tqload * tline.r_pu - tpload * tline.x_pu
+            ) / fbus.vomag
             tbus.voang = fbus.voang + np.arctan2(
                 busvoltimag, busvoltreal
             )  # Update voltage angles
@@ -308,17 +315,17 @@ def DistLoadFlow(BusList, LineList):
             pto = busobjects[itr].ploadds
             qto = busobjects[itr].qloadds
             lobj.ploss = (
-                lobj.r * (pto ** 2 + qto ** 2) / busobjects[itr].vomag ** 2
+                lobj.r_pu * (pto ** 2 + qto ** 2) / busobjects[itr].vomag ** 2
             )
             lobj.qloss = (
-                lobj.x * (pto ** 2 + qto ** 2) / busobjects[itr].vomag ** 2
+                lobj.x_pu * (pto ** 2 + qto ** 2) / busobjects[itr].vomag ** 2
             )
             busobjects[ifr].ploadds += lobj.ploss
             busobjects[ifr].qloadds += lobj.qloss
 
     def zeroxq(BusList, LineList):
         for a in range(len(LineList)):
-            LineList[a].x = 0.0
+            LineList[a].x_pu = 0.0
         for a in range(len(BusList)):
             BusList[a].qload = 0.0
         return BusList, LineList
@@ -338,8 +345,12 @@ def getload(busobj):
     Input: The busobject
     Returns: pLoadAct, qLoadAct
     """
-    relative_pload = busobj.pload - busobj.pprod  # load - production
-    relative_qload = busobj.qload - busobj.qprod  # load - production
+    relative_pload = (
+        busobj.pload_pu - busobj.pprod_pu
+    )  # load - production [PU]
+    relative_qload = (
+        busobj.qload_pu - busobj.qprod_pu
+    )  # load - production [PU]
 
     pLoadAct = relative_pload * (
         busobj.ZIP[0] * busobj.vomag ** 2
