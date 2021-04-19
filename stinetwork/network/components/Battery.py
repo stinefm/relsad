@@ -289,7 +289,7 @@ class Battery(Component):
 
         if self.remaining_survival_time > 0:
             self.SOC_min = min(
-                self.bus.parent_network.get_max_load()
+                self.bus.parent_network.get_max_load()[0]
                 * self.remaining_survival_time
                 / self.E_max
                 + self.standard_SOC_min,
@@ -403,11 +403,15 @@ class Battery(Component):
             else:
                 pload = -p - self.charge(-p)
         if self.SOC > self.SOC_min:
-            self.bus.pprod += pprod
-            self.bus.qprod += qprod
+            self.bus.pprod += pprod  # MW
+            self.bus.qprod += qprod  # MVar
+            self.bus.pprod_pu += pprod / self.bus.s_ref  # PU
+            self.bus.qprod_pu += qprod / self.bus.s_ref  # PU
         if self.SOC < self.SOC_max:
-            self.bus.pload += pload
-            self.bus.qload += qload
+            self.bus.pload += pload  # MW
+            self.bus.qload += qload  # MVar
+            self.bus.pload_pu += pload / self.bus.s_ref  # PU
+            self.bus.qload_pu += qload / self.bus.s_ref  # PU
         p_rem = p + pload - pprod
         q_rem = q + qload - qprod
         return p_rem, q_rem
