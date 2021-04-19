@@ -50,6 +50,8 @@ class PowerSystem:
         "acc_p_load_shed": dict(),
         "q_load_shed": dict(),
         "acc_q_load_shed": dict(),
+        "p_load": dict(),
+        "q_load": dict(),
     }
 
     monte_carlo_history = {
@@ -461,23 +463,27 @@ class PowerSystem:
         save_history(self.batteries, "SOC_min", save_dir)
         save_history(self.batteries, "remaining_survival_time", save_dir)
 
-    def plot_load_shed_history(self, save_dir: str):
+    def plot_power_system_history(self, save_dir: str):
         """
-        Plots the history of the load shedding in the power system
+        Plots the history of the power system
         """
         plot_history([self], "p_load_shed", save_dir)
         plot_history_last_state([self], "acc_p_load_shed", save_dir)
         plot_history([self], "q_load_shed", save_dir)
         plot_history_last_state([self], "acc_q_load_shed", save_dir)
+        plot_history([self], "p_load", save_dir)
+        plot_history([self], "q_load", save_dir)
 
-    def save_load_shed_history(self, save_dir: str):
+    def save_power_system_history(self, save_dir: str):
         """
-        Saves the history of the load shedding in the power system
+        Saves the history of the power system
         """
         save_history([self], "p_load_shed", save_dir)
         save_history([self], "acc_p_load_shed", save_dir)
         save_history([self], "q_load_shed", save_dir)
         save_history([self], "acc_q_load_shed", save_dir)
+        save_history([self], "p_load", save_dir)
+        save_history([self], "q_load", save_dir)
 
     def plot_monte_carlo_history(self, save_dir: str):
         """
@@ -610,6 +616,10 @@ class PowerSystem:
         PowerSystem.history["acc_q_load_shed"][
             curr_time
         ] = PowerSystem.acc_q_load_shed
+        (
+            PowerSystem.history["p_load"][curr_time],
+            PowerSystem.history["q_load"][curr_time],
+        ) = PowerSystem.get_system_load(PowerSystem)
         PowerSystem.p_load_shed = 0
         PowerSystem.q_load_shed = 0
         for comp in PowerSystem.all_comp_list:
@@ -628,6 +638,58 @@ class PowerSystem:
         Returns the specified history variable
         """
         return PowerSystem.monte_carlo_history[attribute]
+
+    def get_system_load(self):
+        """
+        Returns the system load at curr_time in MW/MVar
+        """
+        pload, qload = 0, 0
+        for bus in PowerSystem.all_buses:
+            p, q = bus.get_load()
+            pload += p
+            qload += q
+        return pload, qload
+
+    def get_max_load(self):
+        """
+        Get the maximum load of the power system for the entire loading history in MW/MVar
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        p_load_max : float
+            The maximum active load of the power system for the entire loading history
+
+        q_load_max : float
+            The maximum reactive load of the power system for the entire loading history
+
+        """
+        p_load_max, q_load_max = 0, 0
+        for bus in self.buses:
+            if bus.load_dict != dict():
+                d_bus = bus  # Dummy bus used to find number of increments
+                n_increments = len(
+                    d_bus.load_dict[list(d_bus.load_dict.keys())[0]][
+                        "pload"
+                    ].flatten()
+                )  # Number of increments
+                break
+        for increment in range(n_increments):
+            p_load, q_load = 0, 0
+            for bus in self.buses:
+                for load_type in bus.load_dict:
+                    p_load += bus.load_dict[load_type]["pload"].flatten()[
+                        increment
+                    ]
+                    q_load += bus.load_dict[load_type]["qload"].flatten()[
+                        increment
+                    ]
+            p_load_max = max(p_load_max, p_load)
+            q_load_max = max(q_load_max, q_load)
+        return p_load_max, q_load_max
 
     def run_load_flow(self):
         """
@@ -731,8 +793,8 @@ class PowerSystem:
                 self.plot_battery_history(
                     os.path.join(save_dir, str(it), "battery")
                 )
-                self.plot_load_shed_history(
-                    os.path.join(save_dir, str(it), "load_shed")
+                self.plot_power_system_history(
+                    os.path.join(save_dir, str(it), "power_system")
                 )
                 self.plot_line_history(os.path.join(save_dir, str(it), "line"))
                 self.plot_circuitbreaker_history(
@@ -746,8 +808,8 @@ class PowerSystem:
                 self.save_battery_history(
                     os.path.join(save_dir, str(it), "battery")
                 )
-                self.save_load_shed_history(
-                    os.path.join(save_dir, str(it), "load_shed")
+                self.save_power_system_history(
+                    os.path.join(save_dir, str(it), "power_system")
                 )
                 self.save_line_history(os.path.join(save_dir, str(it), "line"))
                 self.save_circuitbreaker_history(
@@ -767,6 +829,8 @@ class PowerSystem:
             "acc_p_load_shed": dict(),
             "q_load_shed": dict(),
             "acc_q_load_shed": dict(),
+            "p_load": dict(),
+            "q_load": dict(),
         }
 
         for comp in PowerSystem.all_comp_list:
