@@ -354,38 +354,38 @@ PV = PVgeneration(temp_profiles, solar_profiles)
 
 load_dict = dict()
 
-load_dict[B2] = {
-    "Husholdning": {"pload": load_house * 50, "qload": load_house * 0}
-}
-load_dict[B3] = {
-    "Husholdning": {"pload": load_house * 60, "qload": load_house * 0}
-}
-load_dict[B4] = {
-    "Husholdning": {"pload": load_house * 52, "qload": load_house * 0}
-}
+# load_dict[B2] = {
+#     "Husholdning": {"pload": load_house * 50, "qload": load_house * 0}
+# }
+# load_dict[B3] = {
+#     "Husholdning": {"pload": load_house * 60, "qload": load_house * 0}
+# }
+# load_dict[B4] = {
+#     "Husholdning": {"pload": load_house * 52, "qload": load_house * 0}
+# }
 load_dict[B5] = {
     "Husholdning": {"pload": load_house * 50, "qload": load_house * 0}
 }
 load_dict[B6] = {
-    "Husholdning": {"pload": load_house * 70, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 35, "qload": load_house * 0}
 }
 load_dict[B7] = {
-    "Husholdning": {"pload": load_house * 100, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 55, "qload": load_house * 0}
 }
 load_dict[B8] = {
-    "Husholdning": {"pload": load_house * 70, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 40, "qload": load_house * 0}
 }
 load_dict[B9] = {
     "Husholdning": {"pload": load_house * 53, "qload": load_house * 0}
 }
 load_dict[B10] = {
-    "Husholdning": {"pload": load_house * 65, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 56, "qload": load_house * 0}
 }
 load_dict[B11] = {
-    "Husholdning": {"pload": load_house * 88, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 45, "qload": load_house * 0}
 }
 load_dict[B12] = {
-    "Husholdning": {"pload": load_house * 74, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 53, "qload": load_house * 0}
 }
 load_dict[B13] = {
     "Husholdning": {"pload": load_house * 62, "qload": load_house * 0}
@@ -394,72 +394,72 @@ load_dict[B14] = {
     "Husholdning": {"pload": load_house * 59, "qload": load_house * 0}
 }
 load_dict[B15] = {
-    "Husholdning": {"pload": load_house * 69, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 49, "qload": load_house * 0}
 }
 load_dict[B16] = {
-    "Husholdning": {"pload": load_house * 88, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 0, "qload": load_house * 0}
 }
 load_dict[B17] = {
-    "Husholdning": {"pload": load_house * 72, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 42, "qload": load_house * 0}
 }
 load_dict[B18] = {
-    "Jordbruk": {"pload": load_farm * 50, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 40, "qload": load_farm * 0}
 }
 load_dict[B19] = {
-    "Jordbruk": {"pload": load_farm * 66, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 36, "qload": load_farm * 0}
 }
 load_dict[B20] = {
-    "Jordbruk": {"pload": load_farm * 74, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 40, "qload": load_farm * 0}
 }
 load_dict[B21] = {
-    "Jordbruk": {"pload": load_farm * 78, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 20, "qload": load_farm * 0}
 }
 load_dict[B22] = {
-    "Jordbruk": {"pload": load_farm * 88, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 22, "qload": load_farm * 0}
 }
 load_dict[B23] = {
-    "Jordbruk": {"pload": load_farm * 60, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 35, "qload": load_farm * 0}
 }
 load_dict[B24] = {
-    "Jordbruk": {"pload": load_farm * 55, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 32, "qload": load_farm * 0}
 }
 load_dict[B25] = {
-    "Jordbruk": {"pload": load_farm * 56, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 25, "qload": load_farm * 0}
 }
 load_dict[B26] = {
-    "Jordbruk": {"pload": load_farm * 69, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 36, "qload": load_farm * 0}
 }
 load_dict[B27] = {
-    "Jordbruk": {"pload": load_farm * 71, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 20, "qload": load_farm * 0}
 }
 load_dict[B28] = {
     "Offentlig virksomhet": {
         "pload": load_office * 2,
-        "qload": load_house * 0,
+        "qload": load_office * 0,
     }
 }
 load_dict[B29] = {
     "Offentlig virksomhet": {
         "pload": load_office * 1,
-        "qload": load_house * 0,
+        "qload": load_office * 0,
     }
 }
 load_dict[B30] = {
     "Offentlig virksomhet": {
         "pload": load_office * 1,
-        "qload": load_house * 0,
+        "qload": load_office * 0,
     }
 }
 load_dict[B31] = {
     "Handel og tjenester": {
-        "pload": load_trade * 3,
-        "qload": load_house * 0,
+        "pload": load_trade * 2,
+        "qload": load_trade * 0,
     }
 }
 load_dict[B32] = {
     "Handel og tjenester": {
         "pload": load_trade * 1,
-        "qload": load_house * 0,
+        "qload": load_trade * 0,
     }
 }
 load_dict[B33] = {
@@ -472,146 +472,146 @@ load_dict[B35] = {
     "Husholdning": {"pload": load_house * 52, "qload": load_house * 0}
 }
 load_dict[B36] = {
-    "Industri": {"pload": load_industry2 * 2, "qload": load_house * 0}
+    "Industri": {"pload": load_industry2 * 2, "qload": load_industry2 * 0}
 }
 load_dict[B37] = {
-    "Industri": {"pload": load_industry2 * 1, "qload": load_house * 0}
+    "Industri": {"pload": load_industry2 * 1, "qload": load_industry2 * 0}
 }
 load_dict[B38] = {
     "Offentlig virksomhet": {
         "pload": load_office * 1,
-        "qload": load_house * 0,
+        "qload": load_office * 0,
     }
 }
 load_dict[B39] = {
     "Offentlig virksomhet": {
         "pload": load_office * 2,
-        "qload": load_house * 0,
+        "qload": load_office * 0,
     }
 }
 load_dict[B40] = {
-    "Husholdning": {"pload": load_house * 54, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 36, "qload": load_house * 0}
 }
 load_dict[B41] = {
-    "Husholdning": {"pload": load_house * 63, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 42, "qload": load_house * 0}
 }
 load_dict[B42] = {
     "Handel og tjenester": {
         "pload": load_trade * 3,
-        "qload": load_house * 0,
+        "qload": load_trade * 0,
     }
 }
 load_dict[B43] = {
     "Handel og tjenester": {
         "pload": load_trade * 2,
-        "qload": load_house * 0,
+        "qload": load_trade * 0,
     }
 }
 load_dict[B44] = {
     "Offentlig virksomhet": {
         "pload": load_office * 2,
-        "qload": load_house * 0,
+        "qload": load_office * 0,
     }
 }
 load_dict[B45] = {
-    "Jordbruk": {"pload": load_farm * 63, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 40, "qload": load_farm * 0}
 }
 load_dict[B46] = {
-    "Jordbruk": {"pload": load_farm * 63, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 45, "qload": load_farm * 0}
 }
 load_dict[B47] = {
     "Husholdning": {"pload": load_house * 50, "qload": load_house * 0}
 }
 load_dict[B48] = {
-    "Husholdning": {"pload": load_house * 50, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 42, "qload": load_house * 0}
 }
 load_dict[B49] = {
     "Offentlig virksomhet": {
         "pload": load_office * 2,
-        "qload": load_house * 0,
+        "qload": load_office * 0,
     }
 }
 load_dict[B50] = {
     "Offentlig virksomhet": {
         "pload": load_office * 1,
-        "qload": load_house * 0,
+        "qload": load_office * 0,
     }
 }
 load_dict[B51] = {
     "Offentlig virksomhet": {
         "pload": load_office * 1,
-        "qload": load_house * 0,
+        "qload": load_office * 0,
     }
 }
 load_dict[B52] = {
     "Offentlig virksomhet": {
         "pload": load_office * 2,
-        "qload": load_house * 0,
+        "qload": load_office * 0,
     }
 }
 load_dict[B53] = {
     "Husholdning": {"pload": load_house * 55, "qload": load_house * 0}
 }
 load_dict[B54] = {
-    "Husholdning": {"pload": load_house * 60, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 41, "qload": load_house * 0}
 }
 load_dict[B55] = {
     "Husholdning": {"pload": load_house * 42, "qload": load_house * 0}
 }
 load_dict[B56] = {
-    "Jordbruk": {"pload": load_farm * 63, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 50, "qload": load_farm * 0}
 }
 load_dict[B57] = {
-    "Jordbruk": {"pload": load_farm * 45, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 45, "qload": load_farm * 0}
 }
 load_dict[B58] = {
-    "Jordbruk": {"pload": load_farm * 40, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 40, "qload": load_farm * 0}
 }
 load_dict[B59] = {
-    "Industri": {"pload": load_industry2 * 2, "qload": load_house * 0}
+    "Industri": {"pload": load_industry2 * 2, "qload": load_industry2 * 0}
 }
 load_dict[B60] = {
-    "Industri": {"pload": load_industry2 * 2, "qload": load_house * 0}
+    "Industri": {"pload": load_industry2 * 1, "qload": load_industry2 * 0}
 }
 load_dict[B61] = {
-    "Industri": {"pload": load_industry2 * 3, "qload": load_house * 0}
+    "Industri": {"pload": load_industry2 * 2, "qload": load_industry2 * 0}
 }
 load_dict[B62] = {
     "Handel og tjenester": {
-        "pload": load_trade * 3,
-        "qload": load_house * 0,
+        "pload": load_trade * 2,
+        "qload": load_trade * 0,
     }
 }
 load_dict[B63] = {
     "Handel og tjenester": {
         "pload": load_trade * 2,
-        "qload": load_house * 0,
+        "qload": load_trade * 0,
     }
 }
 load_dict[B64] = {
     "Handel og tjenester": {
-        "pload": load_trade * 4,
-        "qload": load_house * 0,
+        "pload": load_trade * 1,
+        "qload": load_trade * 0,
     }
 }
 load_dict[B65] = {
-    "Industri": {"pload": load_industry2 * 1, "qload": load_house * 0}
+    "Industri": {"pload": load_industry2 * 1, "qload": load_industry2 * 0}
 }
 load_dict[B66] = {
-    "Husholdning": {"pload": load_house * 100, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 40, "qload": load_house * 0}
 }
 load_dict[B67] = {
-    "Jordbruk": {"pload": load_farm * 63, "qload": load_house * 0}
+    "Jordbruk": {"pload": load_farm * 30, "qload": load_farm * 0}
 }
 
 # Microgrid:
 load_dict[B69] = {
-    "Microgrid": {"pload": load_farm * 40, "qload": load_house * 0}
+    "Microgrid": {"pload": load_farm * 40, "qload": load_farm * 0}
 }
 
 prod_dict = dict()
 
-prod_dict[P1] = {"pprod": 2 * wind, "qprod": PV * 0}
+prod_dict[P1] = {"pprod": wind, "qprod": PV * 0}
 prod_dict[P2] = {"pprod": PV, "qprod": PV * 0}
 
 ps.add_load_dict(load_dict)
@@ -622,16 +622,19 @@ save_dir = r"C:\Users\stinefm\Documents\results69"
 fig = plot_topology(ps.buses, ps.lines, figsize=(6.5, 4.5))
 fig.savefig(os.path.join(save_dir, "topology.pdf"))
 
-ps.run_monte_carlo(
-    iterations=2,
-    increments=100,
-    save_iterations=[0, 1],
-    save_dir=save_dir,
-)
 
+# ps.run_monte_carlo(
+#     iterations=1,
+#     increments=365,
+#     save_iterations=[0],
+#     save_dir=save_dir,
+# )
+
+
+print(ps.get_max_load())
 
 end = time.time()
 print("Time elapsed: {}".format(end - start))
 
-ps.plot_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
-ps.save_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
+# ps.plot_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
+# ps.save_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
