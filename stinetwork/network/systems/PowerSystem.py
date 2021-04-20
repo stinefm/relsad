@@ -624,8 +624,8 @@ class PowerSystem:
         PowerSystem.q_load_shed = 0
         for comp in PowerSystem.all_comp_list:
             comp.update_history(curr_time)
-        for bus in PowerSystem.all_buses:
-            bus.reset_load_and_prod_attributes()
+        # for bus in PowerSystem.all_buses:
+        #     bus.reset_load_and_prod_attributes()
 
     def get_history(self, attribute):
         """
@@ -729,20 +729,35 @@ class PowerSystem:
         ## Set fail status
         self.update_fail_status(curr_time)
 
-        ## Find sub systems
-        find_sub_systems(self, curr_time)
-        update_sub_system_slack(self)
+        if self.failed_comp():
+            ## Find sub systems
+            find_sub_systems(self, curr_time)
+            update_sub_system_slack(self)
 
-        ## Load flow
-        for sub_system in self.sub_systems:
+            ## Load flow
+            for sub_system in self.sub_systems:
+                ## Update batteries and history
+                sub_system.update_batteries()
+                ## Run load flow
+                if sub_system.slack is not None:
+                    sub_system.run_load_flow()
+                ## Shed load
+                sub_system.shed_active_loads()
+                sub_system.shed_reactive_loads()
+                
+        elif not self.full_batteries():
+            self.sub_systems = list()
+            ## Load flow
             ## Update batteries and history
-            sub_system.update_batteries()
+            self.update_batteries()
             ## Run load flow
-            if sub_system.slack is not None:
-                sub_system.run_load_flow()
+            if self.slack is not None:
+                self.run_load_flow()
             ## Shed load
-            sub_system.shed_active_loads()
-            sub_system.shed_reactive_loads()
+            self.shed_active_loads()
+            self.shed_reactive_loads()
+            
+
         ## Log results
         self.update_history(curr_time)
 
@@ -751,6 +766,8 @@ class PowerSystem:
         Runs power system for a sequence of increments
         """
         for curr_time in range(increments):
+            if curr_time % 100 == 0:
+                print("inc: {}".format(curr_time), flush=True)
             self.run_increment(curr_time)
 
     def run_monte_carlo(
@@ -763,7 +780,7 @@ class PowerSystem:
 
         for it in range(iterations):
             self.reset_system()
-            print("it: {}".format(it))
+            print("it: {}".format(it), flush=True)
             self.run_sequence(increments)
             PowerSystem.monte_carlo_history["acc_p_load_shed"][
                 it
@@ -785,6 +802,8 @@ class PowerSystem:
                 PowerSystem.monte_carlo_history[bus.name + "_acc_q_load_shed"][
                     it
                 ] = bus.get_history("acc_q_load_shed")[increments - 1]
+
+            self.save_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
 
             if it in save_iterations:
                 if not os.path.isdir(os.path.join(save_dir, str(it))):
@@ -857,6 +876,19 @@ class PowerSystem:
     def set_prod(self, curr_time):
         for prod in self.productions:
             prod.set_prod(curr_time)
+
+    def failed_comp(self):
+        """
+        Returns True if the power system contains a failed component, and False otherwise
+        """
+        return any([True if bus.trafo_failed else False for bus in PowerSystem.all_buses]) or \
+               any([True if line.failed else False for line in PowerSystem.all_lines])
+
+    def full_batteries(self):
+        """
+        Returns True if the batteries of the power system are full, and False otherwise
+        """
+        return all([True if battery.SOC == 1 else False for battery in PowerSystem.all_batteries])
 
 
 def find_sub_systems(p_s: PowerSystem, curr_time):
