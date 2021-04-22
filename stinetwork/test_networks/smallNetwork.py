@@ -12,6 +12,7 @@ from stinetwork.network.systems import (
     Distribution,
     Microgrid,
 )
+from stinetwork.visualization.plotting import plot_topology
 
 
 def initialize_test_network():
@@ -145,7 +146,7 @@ def initialize_test_network():
     dn.add_buses([B1, B2, B3, B4, B5])
     dn.add_lines([L2, L3, L4, L5, L6])
 
-    m = Microgrid(dn, L7, mode=3)
+    m = Microgrid(dn, L7, mode=1)
 
     m.add_buses([M1, M2, M3])
     m.add_lines([ML1, ML2])
@@ -154,4 +155,11 @@ def initialize_test_network():
 
 
 if __name__ == "__main__":
-    pass
+    import os
+
+    ps = initialize_test_network()
+    fig = plot_topology(ps.buses, ps.lines)
+
+    fig.savefig(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "small_topology.pdf")
+    )
