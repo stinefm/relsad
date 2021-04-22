@@ -876,6 +876,9 @@ class PowerSystem:
     def set_prod(self, curr_time):
         for prod in self.productions:
             prod.set_prod(curr_time)
+        for bus in self.buses:
+            if bus.battery is not None:
+                bus.reset_prod()
 
     def failed_comp(self):
         """
