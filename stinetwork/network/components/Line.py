@@ -111,7 +111,7 @@ class Line(Component):
         length: float = 1,
         fail_rate_density_per_year: float = 0.2,
         outage_time: float = 4,
-        capacity: float = 100,
+        capacity: float = 100,  # MW
         connected=True,
     ):
         ## Informative attributes
@@ -300,9 +300,12 @@ class Line(Component):
             self.parent_network.failed_line = False
         self.failed = False
         if not self.is_backup:
-            for discon in self.disconnectors:
-                if discon.is_open:
-                    discon.close(curr_time)
+            if self.circuitbreaker is not None and self.circuitbreaker.is_open:
+                pass
+            else:
+                for discon in self.disconnectors:
+                    if discon.is_open:
+                        discon.close(curr_time)
 
     def change_direction(self):
         """
@@ -415,8 +418,8 @@ class Line(Component):
             teta2 = tbus.voang
             v1 = fbus.vomag
             v2 = tbus.vomag
-            b = bij(self.r, self.x)
-            g = gij(self.r, self.x)
+            b = bij(self.r_pu, self.x_pu)
+            g = gij(self.r_pu, self.x_pu)
 
             p_from = g * v1 * v1 - v1 * v2 * tij(g, b, teta1, teta2)
             p_to = g * v2 * v2 - v1 * v2 * tij(g, b, teta2, teta1)
@@ -443,7 +446,7 @@ class Line(Component):
         """
 
         p_from = self.get_line_load()[0]
-        line_loading = abs(p_from) / self.capacity * 100
+        line_loading = abs(p_from) / (self.capacity / self.s_ref) * 100
         return line_loading
 
     def print_status(self):
@@ -513,10 +516,10 @@ class Line(Component):
 
         """
         p_from, q_from, p_to, q_to = self.get_line_load()
-        self.history["p_from"][curr_time] = p_from
-        self.history["q_from"][curr_time] = q_from
-        self.history["p_to"][curr_time] = p_to
-        self.history["q_to"][curr_time] = q_to
+        self.history["p_from"][curr_time] = p_from*self.s_ref
+        self.history["q_from"][curr_time] = q_from*self.s_ref
+        self.history["p_to"][curr_time] = p_to*self.s_ref
+        self.history["q_to"][curr_time] = q_to*self.s_ref
         self.history["remaining_outage_time"][
             curr_time
         ] = self.remaining_outage_time
