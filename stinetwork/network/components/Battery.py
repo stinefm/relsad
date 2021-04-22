@@ -359,10 +359,10 @@ class Battery(Component):
         self, system_load_balance_p: float, system_load_balance_q: float
     ):
         """
-         Updates the load and production on the bus based on the system load balance.
-         If the balance is negative, there is a surplus of production, and the battery will charge.
-         If the balance is positive, there is a shortage of production, and the battery will discharge.
-         Returns the remaining surplus/shortage of power
+        Updates the load and production on the bus based on the system load balance.
+        If the balance is negative, there is a surplus of production, and the battery will charge.
+        If the balance is positive, there is a shortage of production, and the battery will discharge.
+        Returns the remaining surplus/shortage of power
 
         Parameters
         ----------
@@ -380,7 +380,7 @@ class Battery(Component):
         """
         p, q = system_load_balance_p, system_load_balance_q
 
-        if self.lock:
+        if self.lock: # Trafo has failed
             p_rem, q_rem = p, q
             return p_rem, q_rem
 
@@ -402,16 +402,16 @@ class Battery(Component):
                 pload = self.inj_p_max - self.charge(self.inj_p_max)
             else:
                 pload = -p - self.charge(-p)
-        if self.SOC > self.SOC_min:
-            self.bus.pprod += pprod  # MW
-            self.bus.qprod += qprod  # MVar
-            self.bus.pprod_pu += pprod / self.bus.s_ref  # PU
-            self.bus.qprod_pu += qprod / self.bus.s_ref  # PU
-        if self.SOC < self.SOC_max:
-            self.bus.pload += pload  # MW
-            self.bus.qload += qload  # MVar
-            self.bus.pload_pu += pload / self.bus.s_ref  # PU
-            self.bus.qload_pu += qload / self.bus.s_ref  # PU
+        #if self.SOC >= self.SOC_min:
+        self.bus.pprod += pprod  # MW
+        self.bus.qprod += qprod  # MVar
+        self.bus.pprod_pu += pprod / self.bus.s_ref  # PU
+        self.bus.qprod_pu += qprod / self.bus.s_ref  # PU
+        #if self.SOC <= self.SOC_max:
+        self.bus.pload += pload  # MW
+        self.bus.qload += qload  # MVar
+        self.bus.pload_pu += pload / self.bus.s_ref  # PU
+        self.bus.qload_pu += qload / self.bus.s_ref  # PU
         p_rem = p + pload - pprod
         q_rem = q + qload - qprod
         return p_rem, q_rem
