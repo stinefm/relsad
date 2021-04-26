@@ -1,3 +1,8 @@
+import os
+import numpy as np
+np.set_printoptions(suppress=True,linewidth=np.nan)
+import warnings
+from scipy.optimize import linprog, OptimizeWarning
 from stinetwork.network.components import (
     Bus,
     Line,
@@ -8,16 +13,13 @@ from .Transmission import Transmission
 from stinetwork.loadflow.ac import DistLoadFlow
 from stinetwork.topology.paths import find_backup_lines_between_sub_systems
 from stinetwork.visualization.plotting import (
+    plot_topology,
     plot_history,
     plot_history_last_state,
     plot_monte_carlo_history,
 )
 from stinetwork.results.storage import save_history, save_monte_carlo_history
 from stinetwork.utils import unique, subtract
-import os
-import numpy as np
-from scipy.optimize import linprog
-
 
 class PowerSystem:
 
@@ -228,9 +230,9 @@ class PowerSystem:
             line.print_status()
 
     # flake8: noqa: C901
-    def shed_active_loads(self):
+    def shed_loads(self):
         """
-        Sheds the unsupplied active loads of the power system using a linear minimization
+        Sheds the unsupplied loads of the power system using a linear minimization
         problem solved with linear programming
         """
 
@@ -243,7 +245,9 @@ class PowerSystem:
             c = cost + [0] * N_L + [0] * N_D
             A = np.zeros((N_D, N_D + N_L + N_D))
             p_b = list()  # Active bus load
+            q_b = list()  # Reactive bus load
             p_gen = list()  # Active bus generation
+            q_gen = list()  # Reactive bus generation
             # Building A-matrix
             for j, bus in enumerate(buses):
                 A[j, j] = 1  # lambda_md
@@ -256,129 +260,83 @@ class PowerSystem:
                         else:
                             A[j, N_D + index] = 1
                 p_b.append(max(0, bus.pload))
-                flag = False
-                for child_network in self.child_network_list:
-                    if type(child_network) == Transmission:
-                        if bus == child_network.get():
-                            p_gen.append(np.inf)
-                            flag = True
-                if flag is False:
-                    p_gen.append(max(0, bus.pprod))
-            p_bounds = list()
-            for n in range(N_D + N_L + N_D):
-                if n < N_D:
-                    p_bounds.append((0, p_b[n]))
-                elif n >= N_D and n < N_D + N_L:
-                    line = lines[n - N_D]
-                    max_available_flow = line.get_line_load()[0]
-                    PL_max = min(line.capacity, abs(max_available_flow))
-                    p_bounds.append((-PL_max, PL_max))
-                else:
-                    p_bounds.append((0, p_gen[n - (N_D + N_L)]))
-
-            p_res = linprog(c, A_eq=A, b_eq=p_b, bounds=p_bounds)
-            if p_res.fun > 0:
-                for i, bus in enumerate(buses):
-                    bus.p_load_shed_stack += p_res.x[i]
-                if len(PowerSystem.shed_configs) == 0:
-                    PowerSystem.shed_configs.append(self)
-                add = True
-                for shed_config in PowerSystem.shed_configs:
-                    if self == shed_config:
-                        add = False
-                        break
-                if add:
-                    PowerSystem.shed_configs.append(self)
-
-            #         print(buses,lines)
-            #         self.print_status()
-            #         print("Active:\n")
-            #         print('c:\n', c)
-            #         print('A_eq:\n', A)
-            #         print('b_eq:\n', p_b)
-            #         print('Bounds:\n', p_bounds)
-            #         print('Results:', p_res)
-
-            #         fig = plot_topology(buses,lines)
-            #         fig.show()
-
-            #         try:
-            #             input("Press enter to continue")
-            #         except SyntaxError:
-            #             pass
-
-        else:
-            raise Exception("More than one sub system")
-
-    def shed_reactive_loads(self):
-        """
-        Sheds the unsupplied reactive loads of the power system using a linear minimization
-        problem solved with linear programming
-        """
-
-        if len(self.sub_systems) <= 1:
-            buses = list(self.buses)
-            cost = [x.get_cost() for x in buses]
-            lines = [x for x in self.lines if x.connected]
-            N_D = len(buses)
-            N_L = len(lines)
-            c = cost + [0] * N_L + [0] * N_D
-            A = np.zeros((N_D, N_D + N_L + N_D))
-            q_b = list()  # Reactive bus load
-            q_gen = list()  # Reactive bus generation
-            # Building A-matrix
-            for j, bus in enumerate(buses):
                 q_b.append(max(0, bus.qload))
                 flag = False
                 for child_network in self.child_network_list:
-                    if type(child_network) == Transmission:
+                    if isinstance(child_network, Transmission):
                         if bus == child_network.get():
+                            p_gen.append(np.inf)
                             q_gen.append(np.inf)
                             flag = True
                 if flag is False:
+                    p_gen.append(max(0, bus.pprod))
                     q_gen.append(max(0, bus.qprod))
+            p_bounds = list()
             q_bounds = list()
             for n in range(N_D + N_L + N_D):
                 if n < N_D:
+                    p_bounds.append((0, p_b[n]))
                     q_bounds.append((0, q_b[n]))
                 elif n >= N_D and n < N_D + N_L:
                     line = lines[n - N_D]
-                    max_available_flow = line.get_line_load()[1]
-                    PL_max = min(line.capacity, abs(max_available_flow))
-                    q_bounds.append((-PL_max, PL_max))
+                    (max_available_p_flow, 
+                    max_available_q_flow) = line.get_line_load()[:2]
+                    PL_p_max = min(line.capacity, abs(max_available_p_flow))
+                    PL_q_max = min(line.capacity, abs(max_available_p_flow))
+                    p_bounds.append((-PL_p_max, PL_p_max))
+                    q_bounds.append((-PL_q_max, PL_q_max))
                 else:
+                    p_bounds.append((0, p_gen[n - (N_D + N_L)]))
                     q_bounds.append((0, q_gen[n - (N_D + N_L)]))
 
-            q_res = linprog(c, A_eq=A, b_eq=q_b, bounds=q_bounds)
-            if q_res.fun > 0:
-                for i, bus in enumerate(buses):
-                    bus.q_load_shed_stack += q_res.x[i]
-                if len(PowerSystem.shed_configs) == 0:
-                    PowerSystem.shed_configs.append(self)
-                add = True
-                for shed_config in PowerSystem.shed_configs:
-                    if self == shed_config:
-                        add = False
-                        break
-                if add:
-                    PowerSystem.shed_configs.append(self)
+            warnings.simplefilter("error", OptimizeWarning)
+            try:
+                p_res = linprog(c, A_eq=A, b_eq=p_b, bounds=p_bounds, options={"cholesky":False, "sym_pos":False, "lstsq":True, "rr":False})
+            #if not p_res.success:
+            except OptimizeWarning:
+                print(buses, lines)
+                self.print_status()
+                print("Active:\n")
+                print('c:\n', c)
+                print('A_eq:\n', A)
+                print('rank A:', np.linalg.matrix_rank(A), A.shape[0], A.size)
+                print('b_eq_p:\n', p_b)
+                print('Bounds_p:\n', p_bounds)
+                print('Results_p:', p_res)
 
-            #         print(buses,lines)
-            #         self.print_status()
-            #         print('c:\n', c)
-            #         print('A_eq:\n', A)
-            #         print("Reactive:\n")
-            #         print('b_eq:\n', q_b)
-            #         print('Bounds:\n', q_bounds)
-            #         print('Results:', q_res)
+                fig = plot_topology(buses,lines)
+                fig.show()
+                raise OptimizeWarning
+            try:
+                q_res = linprog(c, A_eq=A, b_eq=q_b, bounds=q_bounds, options={"cholesky":False, "sym_pos":False, "lstsq":True, "rr":False})
+            #if not q_res.success:
+            except OptimizeWarning:
+                print(buses, lines)
+                self.print_status()
+                print("Active:\n")
+                print('c:\n', c)
+                print('A_eq:\n', A)
+                print('rank A:', np.linalg.matrix_rank(A), A.shape[0], A.size)
+                print('b_eq_q:\n', q_b)
+                print('Bounds_q:\n', q_bounds)
+                print('Results_q:', q_res)
 
-            #         fig = plot_topology(buses,lines)
-            #         fig.show()
+                fig = plot_topology(buses,lines)
+                fig.show()
+                raise OptimizeWarning
 
-            #         try:
-            #             input("Press enter to continue")
-            #         except SyntaxError:
-            #             pass
+                if p_res.fun > 0 or q_res.fun > 0:
+                    for i, bus in enumerate(buses):
+                        bus.add_to_load_shed_stack(p_res.x[i], q_res.x[i])
+                    if len(PowerSystem.shed_configs) == 0:
+                        PowerSystem.shed_configs.append(self)
+                    add = True
+                    for shed_config in PowerSystem.shed_configs:
+                        if self == shed_config:
+                            add = False
+                            break
+                    if add:
+                        PowerSystem.shed_configs.append(self)
 
         else:
             raise Exception("More than one sub system")
@@ -742,8 +700,7 @@ class PowerSystem:
                 if sub_system.slack is not None:
                     sub_system.run_load_flow()
                 ## Shed load
-                sub_system.shed_active_loads()
-                sub_system.shed_reactive_loads()
+                sub_system.shed_loads()
                 
         elif not self.full_batteries():
             self.sub_systems = list()
@@ -754,9 +711,7 @@ class PowerSystem:
             if self.slack is not None:
                 self.run_load_flow()
             ## Shed load
-            self.shed_active_loads()
-            self.shed_reactive_loads()
-            
+            self.shed_loads()
 
         ## Log results
         self.update_history(curr_time)
@@ -785,6 +740,9 @@ class PowerSystem:
             PowerSystem.monte_carlo_history["acc_p_load_shed"][
                 it
             ] = PowerSystem.history["acc_p_load_shed"][increments - 1]
+            PowerSystem.monte_carlo_history["acc_q_load_shed"][
+                it
+            ] = PowerSystem.history["acc_q_load_shed"][increments - 1]
             for bus in PowerSystem.all_buses:
                 if (
                     bus.name + "_acc_p_load_shed"
