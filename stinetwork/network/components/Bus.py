@@ -324,8 +324,9 @@ class Bus(Component):
         return self.cost
 
     def shed_load(self):
-        self.p_load_shed_stack += self.pload
-        self.q_load_shed_stack += self.qload
+        if self.battery is None:
+            self.p_load_shed_stack += self.pload
+            self.q_load_shed_stack += self.qload
         self.reset_load()
 
     def clear_load_shed_stack(self):
@@ -406,6 +407,11 @@ class Bus(Component):
             "avg_annual_outage_time": dict(),
             "avg_outage_time": dict(),
         }
+
+    def add_to_load_shed_stack(self, p_load: float, q_load: float):
+        if self.battery is None:
+            self.p_load_shed_stack += p_load
+            self.q_load_shed_stack += q_load
 
 
 if __name__ == "__main__":
