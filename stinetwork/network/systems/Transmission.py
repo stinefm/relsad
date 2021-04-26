@@ -32,6 +32,7 @@ class Transmission(Network):
 
         bus.set_slack()
         self.slack_bus = bus
+        power_system.slack = bus
 
     def __str__(self):
         return self.name
