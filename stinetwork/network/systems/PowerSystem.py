@@ -1,6 +1,7 @@
 import os
 import numpy as np
-np.set_printoptions(suppress=True,linewidth=np.nan)
+
+np.set_printoptions(suppress=True, linewidth=np.nan)
 import warnings
 from scipy.optimize import linprog, OptimizeWarning
 from stinetwork.network.components import (
@@ -8,6 +9,7 @@ from stinetwork.network.components import (
     Line,
     CircuitBreaker,
     Disconnector,
+    Component,
 )
 from .Transmission import Transmission
 from stinetwork.loadflow.ac import DistLoadFlow
@@ -20,6 +22,7 @@ from stinetwork.visualization.plotting import (
 )
 from stinetwork.results.storage import save_history, save_monte_carlo_history
 from stinetwork.utils import unique, subtract
+
 
 class PowerSystem:
 
@@ -279,8 +282,10 @@ class PowerSystem:
                     q_bounds.append((0, q_b[n]))
                 elif n >= N_D and n < N_D + N_L:
                     line = lines[n - N_D]
-                    (max_available_p_flow, 
-                    max_available_q_flow) = line.get_line_load()[:2]
+                    (
+                        max_available_p_flow,
+                        max_available_q_flow,
+                    ) = line.get_line_load()[:2]
                     PL_p_max = min(line.capacity, abs(max_available_p_flow))
                     PL_q_max = min(line.capacity, abs(max_available_p_flow))
                     p_bounds.append((-PL_p_max, PL_p_max))
@@ -291,52 +296,74 @@ class PowerSystem:
 
             warnings.simplefilter("error", OptimizeWarning)
             try:
-                p_res = linprog(c, A_eq=A, b_eq=p_b, bounds=p_bounds, options={"cholesky":False, "sym_pos":False, "lstsq":True, "rr":False})
-            #if not p_res.success:
+                p_res = linprog(
+                    c,
+                    A_eq=A,
+                    b_eq=p_b,
+                    bounds=p_bounds,
+                    options={
+                        "cholesky": False,
+                        "sym_pos": False,
+                        "lstsq": True,
+                        "rr": False,
+                    },
+                )
+            # if not p_res.success:
             except OptimizeWarning:
                 print(buses, lines)
                 self.print_status()
                 print("Active:\n")
-                print('c:\n', c)
-                print('A_eq:\n', A)
-                print('rank A:', np.linalg.matrix_rank(A), A.shape[0], A.size)
-                print('b_eq_p:\n', p_b)
-                print('Bounds_p:\n', p_bounds)
-                print('Results_p:', p_res)
+                print("c:\n", c)
+                print("A_eq:\n", A)
+                print("rank A:", np.linalg.matrix_rank(A), A.shape[0], A.size)
+                print("b_eq_p:\n", p_b)
+                print("Bounds_p:\n", p_bounds)
+                print("Results_p:", p_res)
 
-                fig = plot_topology(buses,lines)
+                fig = plot_topology(buses, lines)
                 fig.show()
                 raise OptimizeWarning
             try:
-                q_res = linprog(c, A_eq=A, b_eq=q_b, bounds=q_bounds, options={"cholesky":False, "sym_pos":False, "lstsq":True, "rr":False})
-            #if not q_res.success:
+                q_res = linprog(
+                    c,
+                    A_eq=A,
+                    b_eq=q_b,
+                    bounds=q_bounds,
+                    options={
+                        "cholesky": False,
+                        "sym_pos": False,
+                        "lstsq": True,
+                        "rr": False,
+                    },
+                )
+            # if not q_res.success:
             except OptimizeWarning:
                 print(buses, lines)
                 self.print_status()
                 print("Active:\n")
-                print('c:\n', c)
-                print('A_eq:\n', A)
-                print('rank A:', np.linalg.matrix_rank(A), A.shape[0], A.size)
-                print('b_eq_q:\n', q_b)
-                print('Bounds_q:\n', q_bounds)
-                print('Results_q:', q_res)
+                print("c:\n", c)
+                print("A_eq:\n", A)
+                print("rank A:", np.linalg.matrix_rank(A), A.shape[0], A.size)
+                print("b_eq_q:\n", q_b)
+                print("Bounds_q:\n", q_bounds)
+                print("Results_q:", q_res)
 
-                fig = plot_topology(buses,lines)
+                fig = plot_topology(buses, lines)
                 fig.show()
                 raise OptimizeWarning
 
-                if p_res.fun > 0 or q_res.fun > 0:
-                    for i, bus in enumerate(buses):
-                        bus.add_to_load_shed_stack(p_res.x[i], q_res.x[i])
-                    if len(PowerSystem.shed_configs) == 0:
-                        PowerSystem.shed_configs.append(self)
-                    add = True
-                    for shed_config in PowerSystem.shed_configs:
-                        if self == shed_config:
-                            add = False
-                            break
-                    if add:
-                        PowerSystem.shed_configs.append(self)
+            if p_res.fun > 0 or q_res.fun > 0:
+                for i, bus in enumerate(buses):
+                    bus.add_to_load_shed_stack(p_res.x[i], q_res.x[i])
+                if len(PowerSystem.shed_configs) == 0:
+                    PowerSystem.shed_configs.append(self)
+                add = True
+                for shed_config in PowerSystem.shed_configs:
+                    if self == shed_config:
+                        add = False
+                        break
+                if add:
+                    PowerSystem.shed_configs.append(self)
 
         else:
             raise Exception("More than one sub system")
@@ -451,11 +478,17 @@ class PowerSystem:
         plot_monte_carlo_history([self], "acc_q_load_shed", save_dir)
         for bus in PowerSystem.all_buses:
             bus_save_dir = os.path.join(save_dir, bus.name)
-            plot_monte_carlo_history(
-                [self], bus.name + "_acc_p_load_shed", bus_save_dir
+            self.plot_monte_carlo_comp_history(
+                bus, "acc_p_load_shed", bus_save_dir
             )
-            plot_monte_carlo_history(
-                [self], bus.name + "_acc_q_load_shed", bus_save_dir
+            self.plot_monte_carlo_comp_history(
+                bus, "acc_q_load_shed", bus_save_dir
+            )
+            self.plot_monte_carlo_comp_history(
+                bus, "avg_annual_outage_time", bus_save_dir
+            )
+            self.plot_monte_carlo_comp_history(
+                bus, "avg_outage_time", bus_save_dir
             )
 
     def save_monte_carlo_history(self, save_dir: str):
@@ -466,12 +499,32 @@ class PowerSystem:
         save_monte_carlo_history([self], "acc_q_load_shed", save_dir)
         for bus in PowerSystem.all_buses:
             bus_save_dir = os.path.join(save_dir, bus.name)
-            save_monte_carlo_history(
-                [self], bus.name + "_acc_p_load_shed", bus_save_dir
+            self.save_monte_carlo_comp_history(
+                bus, "acc_p_load_shed", bus_save_dir
             )
-            save_monte_carlo_history(
-                [self], bus.name + "_acc_q_load_shed", bus_save_dir
+            self.save_monte_carlo_comp_history(
+                bus, "acc_q_load_shed", bus_save_dir
             )
+            self.save_monte_carlo_comp_history(
+                bus, "avg_annual_outage_time", bus_save_dir
+            )
+            self.save_monte_carlo_comp_history(
+                bus, "avg_outage_time", bus_save_dir
+            )
+
+    def plot_monte_carlo_comp_history(
+        self, comp: Component, attribute: str, bus_save_dir: str
+    ):
+        plot_monte_carlo_history(
+            [self], comp.name + "_" + attribute, bus_save_dir
+        )
+
+    def save_monte_carlo_comp_history(
+        self, comp: Component, attribute: str, bus_save_dir: str
+    ):
+        save_monte_carlo_history(
+            [self], comp.name + "_" + attribute, bus_save_dir
+        )
 
     def plot_line_history(self, save_dir: str):
         """
@@ -701,7 +754,7 @@ class PowerSystem:
                     sub_system.run_load_flow()
                 ## Shed load
                 sub_system.shed_loads()
-                
+
         elif not self.full_batteries():
             self.sub_systems = list()
             ## Load flow
@@ -737,64 +790,78 @@ class PowerSystem:
             self.reset_system()
             print("it: {}".format(it), flush=True)
             self.run_sequence(increments)
-            PowerSystem.monte_carlo_history["acc_p_load_shed"][
-                it
-            ] = PowerSystem.history["acc_p_load_shed"][increments - 1]
-            PowerSystem.monte_carlo_history["acc_q_load_shed"][
-                it
-            ] = PowerSystem.history["acc_q_load_shed"][increments - 1]
-            for bus in PowerSystem.all_buses:
-                if (
-                    bus.name + "_acc_p_load_shed"
-                    not in PowerSystem.monte_carlo_history
-                ):
-                    PowerSystem.monte_carlo_history[
-                        bus.name + "_acc_p_load_shed"
-                    ] = dict()
-                    PowerSystem.monte_carlo_history[
-                        bus.name + "_acc_q_load_shed"
-                    ] = dict()
-                PowerSystem.monte_carlo_history[bus.name + "_acc_p_load_shed"][
-                    it
-                ] = bus.get_history("acc_p_load_shed")[increments - 1]
-                PowerSystem.monte_carlo_history[bus.name + "_acc_q_load_shed"][
-                    it
-                ] = bus.get_history("acc_q_load_shed")[increments - 1]
-
-            self.save_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
+            self.update_monte_carlo_history(it, increments)
+            self.save_monte_carlo_history(
+                os.path.join(save_dir, "monte_carlo")
+            )
 
             if it in save_iterations:
-                if not os.path.isdir(os.path.join(save_dir, str(it))):
-                    os.mkdir(os.path.join(save_dir, str(it)))
-                self.plot_bus_history(os.path.join(save_dir, str(it), "bus"))
-                self.plot_battery_history(
-                    os.path.join(save_dir, str(it), "battery")
-                )
-                self.plot_power_system_history(
-                    os.path.join(save_dir, str(it), "power_system")
-                )
-                self.plot_line_history(os.path.join(save_dir, str(it), "line"))
-                self.plot_circuitbreaker_history(
-                    os.path.join(save_dir, str(it), "circuitbreaker")
-                )
-                self.plot_disconnector_history(
-                    os.path.join(save_dir, str(it), "disconnector")
-                )
+                self.save_iteration_history(it, save_dir)
 
-                self.save_bus_history(os.path.join(save_dir, str(it), "bus"))
-                self.save_battery_history(
-                    os.path.join(save_dir, str(it), "battery")
-                )
-                self.save_power_system_history(
-                    os.path.join(save_dir, str(it), "power_system")
-                )
-                self.save_line_history(os.path.join(save_dir, str(it), "line"))
-                self.save_circuitbreaker_history(
-                    os.path.join(save_dir, str(it), "circuitbreaker")
-                )
-                self.save_disconnector_history(
-                    os.path.join(save_dir, str(it), "disconnector")
-                )
+    def save_iteration_history(self, it: int, save_dir: str):
+        if not os.path.isdir(os.path.join(save_dir, str(it))):
+            os.mkdir(os.path.join(save_dir, str(it)))
+        self.plot_bus_history(os.path.join(save_dir, str(it), "bus"))
+        self.plot_battery_history(os.path.join(save_dir, str(it), "battery"))
+        self.plot_power_system_history(
+            os.path.join(save_dir, str(it), "power_system")
+        )
+        self.plot_line_history(os.path.join(save_dir, str(it), "line"))
+        self.plot_circuitbreaker_history(
+            os.path.join(save_dir, str(it), "circuitbreaker")
+        )
+        self.plot_disconnector_history(
+            os.path.join(save_dir, str(it), "disconnector")
+        )
+
+        self.save_bus_history(os.path.join(save_dir, str(it), "bus"))
+        self.save_battery_history(os.path.join(save_dir, str(it), "battery"))
+        self.save_power_system_history(
+            os.path.join(save_dir, str(it), "power_system")
+        )
+        self.save_line_history(os.path.join(save_dir, str(it), "line"))
+        self.save_circuitbreaker_history(
+            os.path.join(save_dir, str(it), "circuitbreaker")
+        )
+        self.save_disconnector_history(
+            os.path.join(save_dir, str(it), "disconnector")
+        )
+
+    def update_monte_carlo_history(self, it: int, increments: int):
+        PowerSystem.monte_carlo_history["acc_p_load_shed"][
+            it
+        ] = PowerSystem.history["acc_p_load_shed"][increments - 1]
+        PowerSystem.monte_carlo_history["acc_q_load_shed"][
+            it
+        ] = PowerSystem.history["acc_q_load_shed"][increments - 1]
+        for bus in PowerSystem.all_buses:
+            self.update_monte_carlo_comp_history(
+                "acc_p_load_shed", it, increments
+            )
+            self.update_monte_carlo_comp_history(
+                "acc_q_load_shed", it, increments
+            )
+            self.update_monte_carlo_comp_history(
+                "avg_annual_outage_time", it, increments
+            )
+            self.update_monte_carlo_comp_history(
+                "avg_outage_time", it, increments
+            )
+
+    def update_monte_carlo_comp_history(
+        self, attribute: str, it: int, increments: int
+    ):
+        for bus in PowerSystem.all_buses:
+            if (
+                bus.name + "_" + attribute
+                not in PowerSystem.monte_carlo_history
+            ):
+                PowerSystem.monte_carlo_history[
+                    bus.name + "_" + attribute
+                ] = dict()
+            PowerSystem.monte_carlo_history[bus.name + "_" + attribute][
+                it
+            ] = bus.get_history(attribute)[increments - 1]
 
     def reset_system(self):
         PowerSystem.p_load_shed = 0
@@ -842,14 +909,25 @@ class PowerSystem:
         """
         Returns True if the power system contains a failed component, and False otherwise
         """
-        return any([True if bus.trafo_failed else False for bus in PowerSystem.all_buses]) or \
-               any([True if line.failed else False for line in PowerSystem.all_lines])
+        return any(
+            [
+                True if bus.trafo_failed else False
+                for bus in PowerSystem.all_buses
+            ]
+        ) or any(
+            [True if line.failed else False for line in PowerSystem.all_lines]
+        )
 
     def full_batteries(self):
         """
         Returns True if the batteries of the power system are full, and False otherwise
         """
-        return all([True if battery.SOC == 1 else False for battery in PowerSystem.all_batteries])
+        return all(
+            [
+                True if battery.SOC == 1 else False
+                for battery in PowerSystem.all_batteries
+            ]
+        )
 
 
 def find_sub_systems(p_s: PowerSystem, curr_time):
