@@ -357,11 +357,11 @@ class Bus(Component):
         shed_dict = self.history[
             "p_load_shed_stack"
         ]  # Ignore reactive load shedding
-        days = len(shed_dict)
+        time_incs = len(shed_dict)
         for shed_value in shed_dict.values():
             if shed_value > 1e-3:  # Add tolerance
                 outage_time += 1
-        return outage_time / days * 365
+        return outage_time / time_incs * 8760
 
     def get_avg_outage_time(self):
         """
@@ -371,11 +371,11 @@ class Bus(Component):
         shed_dict = self.history[
             "p_load_shed_stack"
         ]  # Ignore reactive load shedding
-        days = len(shed_dict)
+        time_incs = len(shed_dict)
         for shed_value in shed_dict.values():
             if shed_value > 1e-3:  # Add tolerance
                 outage_time += 1
-        return outage_time / days
+        return outage_time / time_incs
 
     def reset_status(self):
         self.trafo_failed = False
