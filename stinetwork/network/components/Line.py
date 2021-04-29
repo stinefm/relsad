@@ -516,10 +516,10 @@ class Line(Component):
 
         """
         p_from, q_from, p_to, q_to = self.get_line_load()
-        self.history["p_from"][curr_time] = p_from*self.s_ref
-        self.history["q_from"][curr_time] = q_from*self.s_ref
-        self.history["p_to"][curr_time] = p_to*self.s_ref
-        self.history["q_to"][curr_time] = q_to*self.s_ref
+        self.history["p_from"][curr_time] = p_from * self.s_ref
+        self.history["q_from"][curr_time] = q_from * self.s_ref
+        self.history["p_to"][curr_time] = p_to * self.s_ref
+        self.history["q_to"][curr_time] = q_to * self.s_ref
         self.history["remaining_outage_time"][
             curr_time
         ] = self.remaining_outage_time
