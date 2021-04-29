@@ -81,7 +81,7 @@ load_dict[B1] = {
     "Industri": {"pload": load_industry2 * 1, "qload": load_industry2 * 0},
 }
 load_dict[B2] = {
-    "Husholdning": {"pload": load_house * 70, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 100, "qload": load_house * 0}
 }
 load_dict[B3] = {
     "Husholdning": {"pload": load_house * 100, "qload": load_house * 0}
@@ -90,7 +90,7 @@ load_dict[B4] = {
     "Husholdning": {"pload": load_house * 90, "qload": load_house * 0}
 }
 load_dict[B5] = {
-    "Husholdning": {"pload": load_house * 100, "qload": load_house * 0}
+    "Husholdning": {"pload": load_office * 3, "qload": load_house * 0}
 }
 load_dict[M1] = {
     "Husholdning": {"pload": load_house * 0, "qload": load_house * 0}
@@ -99,8 +99,9 @@ load_dict[M2] = {
     "Husholdning": {"pload": load_house * 0, "qload": load_house * 0}
 }
 load_dict[M3] = {
-    "Microgrid": {"pload": load_microgrid * 15, "qload": load_microgrid * 0}
+    "Microgrid": {"pload": load_microgrid * 40, "qload": load_microgrid * 0}
 }
+
 
 prod_dict = dict()
 
@@ -110,12 +111,12 @@ prod_dict[P1] = {"pprod": (PV + wind), "qprod": PV * 0}
 ps.add_load_dict(load_dict)
 ps.add_prod_dict(prod_dict)
 
-save_dir = r"C:\Users\stinefm\Documents\results3"
+save_dir = r"C:\Users\stinefm\Documents\results1"
 #
 
 ps.run_monte_carlo(
     iterations=10,
-    increments=100,
+    increments=8760,
     save_iterations=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     save_dir=save_dir,
 )
