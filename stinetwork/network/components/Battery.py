@@ -380,7 +380,7 @@ class Battery(Component):
         """
         p, q = system_load_balance_p, system_load_balance_q
 
-        if self.lock: # Trafo has failed
+        if self.lock:  # Trafo has failed
             p_rem, q_rem = p, q
             return p_rem, q_rem
 
@@ -402,12 +402,12 @@ class Battery(Component):
                 pload = self.inj_p_max - self.charge(self.inj_p_max)
             else:
                 pload = -p - self.charge(-p)
-        #if self.SOC >= self.SOC_min:
+        # if self.SOC >= self.SOC_min:
         self.bus.pprod += pprod  # MW
         self.bus.qprod += qprod  # MVar
         self.bus.pprod_pu += pprod / self.bus.s_ref  # PU
         self.bus.qprod_pu += qprod / self.bus.s_ref  # PU
-        #if self.SOC <= self.SOC_max:
+        # if self.SOC <= self.SOC_max:
         self.bus.pload += pload  # MW
         self.bus.qload += qload  # MVar
         self.bus.pload_pu += pload / self.bus.s_ref  # PU
