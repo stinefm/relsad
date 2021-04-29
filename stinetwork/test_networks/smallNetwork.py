@@ -12,7 +12,6 @@ from stinetwork.network.systems import (
     Distribution,
     Microgrid,
 )
-from stinetwork.visualization.plotting import plot_topology
 
 
 def initialize_test_network():
@@ -21,7 +20,7 @@ def initialize_test_network():
     ## Transmission network
     T = Bus("T", coordinate=[0, 0], fail_rate_per_year=0)
 
-    fail_rate = 2
+    fail_rate = 0.07
 
     ## Distribution network
     B1 = Bus("B1", coordinate=[0, -1], fail_rate_per_year=fail_rate)
@@ -58,32 +57,32 @@ def initialize_test_network():
         "L3",
         B1,
         B3,
-        0.057526629463617,
-        0.029324854498807,
+        0.7114,
+        0.2351,
         fail_rate_density_per_year=fail_rate,
     )
     L4 = Line(
         "L4",
         B3,
         B4,
-        0.057526629463617,
-        0.029324854498807,
+        0.7114,
+        0.2351,
         fail_rate_density_per_year=fail_rate,
     )
     L5 = Line(
         "L5",
         B2,
         B5,
-        0.057526629463617,
-        0.029324854498807,
+        0.7114,
+        0.2351,
         fail_rate_density_per_year=fail_rate,
     )
     L6 = Line(
         "L6",
         B3,
         B5,
-        0.057526629463617,
-        0.029324854498807,
+        0.7114,
+        0.2351,
         fail_rate_density_per_year=fail_rate,
         capacity=6,
     )
@@ -155,11 +154,4 @@ def initialize_test_network():
 
 
 if __name__ == "__main__":
-    import os
-
-    ps = initialize_test_network()
-    fig = plot_topology(ps.buses, ps.lines)
-
-    fig.savefig(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "small_topology.pdf")
-    )
+    pass
