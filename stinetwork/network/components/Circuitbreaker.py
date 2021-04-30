@@ -146,7 +146,7 @@ class CircuitBreaker(Component):
         if curr_time > self.prev_section_time or curr_time == 0:
             self.is_open = False
             self.color = "black"
-            for discon in self.disconnectors:
+            for discon in self.disconnectors+self.line.disconnectors:
                 if discon.is_open:
                     discon.close(curr_time)
 
