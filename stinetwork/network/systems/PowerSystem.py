@@ -294,20 +294,21 @@ class PowerSystem:
                     p_bounds.append((0, p_gen[n - (N_D + N_L)]))
                     q_bounds.append((0, q_gen[n - (N_D + N_L)]))
 
-            warnings.simplefilter("error", OptimizeWarning)
+            #warnings.simplefilter("error", OptimizeWarning)
             try:
                 p_res = linprog(
                     c,
                     A_eq=A,
                     b_eq=p_b,
                     bounds=p_bounds,
-                    options={
-                        "cholesky": False,
-                        "sym_pos": False,
-                        "lstsq": True,
-                        "rr": False,
-                    },
                 )
+                #    options={
+                #        "cholesky": False,
+                #        "sym_pos": False,
+                #        "lstsq": True,
+                #        "rr": False,
+                #    },
+                #)
             # if not p_res.success:
             except OptimizeWarning:
                 print(buses, lines)
@@ -329,13 +330,14 @@ class PowerSystem:
                     A_eq=A,
                     b_eq=q_b,
                     bounds=q_bounds,
-                    options={
-                        "cholesky": False,
-                        "sym_pos": False,
-                        "lstsq": True,
-                        "rr": False,
-                    },
                 )
+                #    options={
+                #        "cholesky": False,
+                #        "sym_pos": False,
+                #        "lstsq": True,
+                #        "rr": False,
+                #    },
+                #)
             # if not q_res.success:
             except OptimizeWarning:
                 print(buses, lines)
