@@ -98,7 +98,7 @@ class Bus(Component):
         self.qloadds = 0.0  # Reactive accumulated load at node
         self.pblossds = 0.0  # Active accumulated line loss at node
         self.qblossds = 0.0  # Active accumulated line loss at node
-        self.dPdV = 0.0
+        self.dPdV = 0.0  # Disse trengs ikke. Blir egentlig kun regnet ut i siste iterasjon av en last flyt, kan derfor lage en egen funksjon ut av dette som kun kjører dette når man skal ta siste iterasjona av en last flyt.
         self.dQdV = 0.0
         self.dVdP = 0.0
         self.dVdQ = 0.0

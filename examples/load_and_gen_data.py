@@ -181,7 +181,7 @@ def windGen(wind):
 
 def PVgeneration(temp, irridation):
 
-    modules = 5000
+    modules = 5000 / 2
 
     # Maximum power point voltage [V]
     Vmpp = 31.2
@@ -326,9 +326,29 @@ if __name__ == "__main__":
     ax3.plot(PV.flatten(), label="PV")
     ax3.legend()
 
+    fig4, ax4 = plt.subplots()
+    ax4.plot(load_house.flatten() * 400, label="load house", zorder=3)
+    ax4.plot(load_farm.flatten() * 340, label="load farm", zorder=3)
+    ax4.plot(load_industry2.flatten() * 5, label="load industry", zorder=3)
+    ax4.plot(load_office.flatten() * 4, label="load office", zorder=3)
+    ax4.plot(load_trade.flatten() * 7, label="load trade", zorder=3)
+
+    ax4.legend()
+
     # print(np.max(load_microgrid)*40)
     # print(np.median(load_microgrid)*40)
     # print(load_microgrid*40)
-    print(np.max(PV))
+    # print(np.max(PV))
+    house = np.max(load_house) * 400
+    farm = np.max(load_farm) * 340
+    industry = np.max(load_industry2) * 5
+    office = np.max(load_office) * 4
+    trade = np.max(load_trade) * 7
+    print("Max load house:", house)
+    print("Max load farm:", farm)
+    print("Max load industry:", industry)
+    print("Max load office:", office)
+    print("Max load trade:", trade)
+    print("Sum:", np.sum(house + farm + industry + office + trade))
 
     plt.show()

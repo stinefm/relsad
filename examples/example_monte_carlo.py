@@ -84,7 +84,7 @@ load_dict[B2] = {
     "Husholdning": {"pload": load_house * 100, "qload": load_house * 0}
 }
 load_dict[B3] = {
-    "Husholdning": {"pload": load_house * 100, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 50, "qload": load_house * 0}
 }
 load_dict[B4] = {
     "Husholdning": {"pload": load_house * 90, "qload": load_house * 0}
@@ -111,7 +111,7 @@ prod_dict[P1] = {"pprod": (PV + wind), "qprod": PV * 0}
 ps.add_load_dict(load_dict)
 ps.add_prod_dict(prod_dict)
 
-save_dir = r"C:\Users\stinefm\Documents\results1"
+save_dir = r"C:\Users\stinefm\Documents\results3"
 #
 
 ps.run_monte_carlo(
