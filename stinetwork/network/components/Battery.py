@@ -288,6 +288,7 @@ class Battery(Component):
         """
 
         if self.remaining_survival_time > 0:
+            self.remaining_survival_time -= 1
             self.SOC_min = min(
                 self.bus.parent_network.get_max_load()[0]
                 * self.remaining_survival_time
@@ -295,7 +296,6 @@ class Battery(Component):
                 + self.standard_SOC_min,
                 self.SOC_max,
             )
-            self.remaining_survival_time -= 1
         else:
             self.SOC_min = self.standard_SOC_min
 
