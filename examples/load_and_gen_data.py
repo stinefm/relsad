@@ -339,11 +339,11 @@ if __name__ == "__main__":
     # print(np.median(load_microgrid)*40)
     # print(load_microgrid*40)
     # print(np.max(PV))
-    house = np.max(load_house) * 400
-    farm = np.max(load_farm) * 340
-    industry = np.max(load_industry2) * 5
+    house = np.max(load_house) * 300  # 400
+    farm = np.max(load_farm) * 250  # 340
+    industry = np.max(load_industry2) * 4  # 5
     office = np.max(load_office) * 4
-    trade = np.max(load_trade) * 7
+    trade = np.max(load_trade) * 6  # 7
     print("Max load house:", house)
     print("Max load farm:", farm)
     print("Max load industry:", industry)

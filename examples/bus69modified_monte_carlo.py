@@ -136,7 +136,7 @@ PV = PVgeneration(temp_profiles, solar_profiles)
 load_dict = dict()
 
 load_dict[B2] = {
-    "Husholdning": {"pload": load_house * 100, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 60, "qload": load_house * 0}
 }
 load_dict[B3] = {
     "Offentlig virksomhet": {
@@ -145,14 +145,12 @@ load_dict[B3] = {
     }
 }
 load_dict[B4] = {
-    "Husholdning": {"pload": load_house * 90, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 60, "qload": load_house * 0}
 }
 load_dict[B5] = {
-    "Industri": {"pload": load_industry2 * 3, "qload": load_industry2 * 0}
+    "Industri": {"pload": load_industry2 * 2, "qload": load_industry2 * 0}
 }
-load_dict[B6] = {
-    "Jordbruk": {"pload": load_farm * 100, "qload": load_farm * 0}
-}
+load_dict[B6] = {"Jordbruk": {"pload": load_farm * 90, "qload": load_farm * 0}}
 load_dict[B7] = {"Jordbruk": {"pload": load_farm * 90, "qload": load_farm * 0}}
 load_dict[B8] = {
     "Offentlig virksomhet": {
@@ -162,7 +160,7 @@ load_dict[B8] = {
 }
 load_dict[B9] = {
     "Handel og tjenester": {
-        "pload": load_trade * 4,
+        "pload": load_trade * 3,
         "qload": load_trade * 0,
     }
 }
@@ -180,13 +178,13 @@ load_dict[B12] = {
     }
 }
 load_dict[B13] = {
-    "Husholdning": {"pload": load_house * 80, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 60, "qload": load_house * 0}
 }
 load_dict[B14] = {
-    "Husholdning": {"pload": load_house * 70, "qload": load_house * 0}
+    "Husholdning": {"pload": load_house * 60, "qload": load_house * 0}
 }
 load_dict[B15] = {
-    "Jordbruk": {"pload": load_farm * 70, "qload": load_farm * 0}
+    "Jordbruk": {"pload": load_farm * 80, "qload": load_farm * 0}
 }
 
 load_dict[B16] = {
