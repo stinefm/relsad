@@ -1,7 +1,6 @@
 import os
 import numpy as np
 
-np.set_printoptions(suppress=True, linewidth=np.nan)
 import warnings
 from scipy.optimize import linprog, OptimizeWarning
 from stinetwork.network.components import (
@@ -23,6 +22,7 @@ from stinetwork.visualization.plotting import (
 from stinetwork.results.storage import save_history, save_monte_carlo_history
 from stinetwork.utils import unique, subtract
 
+np.set_printoptions(suppress=True, linewidth=np.nan)
 
 class PowerSystem:
 
@@ -753,6 +753,7 @@ class PowerSystem:
                 sub_system.update_batteries()
                 ## Run load flow
                 if sub_system.slack is not None:
+                    sub_system.reset_load_flow_data()
                     sub_system.run_load_flow()
                 ## Shed load
                 sub_system.shed_loads()
@@ -764,6 +765,7 @@ class PowerSystem:
             self.update_batteries()
             ## Run load flow
             if self.slack is not None:
+                self.reset_load_flow_data()
                 self.run_load_flow()
             ## Shed load
             self.shed_loads()
@@ -930,6 +932,13 @@ class PowerSystem:
                 for battery in PowerSystem.all_batteries
             ]
         )
+
+    def reset_load_flow_data(self):
+        """
+        Reset the variables used in the load flow analysis
+        """
+        for bus in self.buses:
+            bus.reset_load_flow_data()
 
 
 def find_sub_systems(p_s: PowerSystem, curr_time):

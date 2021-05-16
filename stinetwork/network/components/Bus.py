@@ -412,6 +412,29 @@ class Bus(Component):
         if self.battery is None:
             self.p_load_shed_stack += p_load
             self.q_load_shed_stack += q_load
+    
+    def reset_load_flow_data(self):
+        """
+        Resets the variables used in the load flow analysis
+        """
+        self.ploadds = 0.0  # Active accumulated load at node
+        self.qloadds = 0.0  # Reactive accumulated load at node
+        self.pblossds = 0.0  # Active accumulated line loss at node
+        self.qblossds = 0.0  # Active accumulated line loss at node
+        self.dPdV = 0.0  # Disse trengs ikke. Blir egentlig kun regnet ut i siste iterasjon av en last flyt, kan derfor lage en egen funksjon ut av dette som kun kjører dette når man skal ta siste iterasjona av en last flyt.
+        self.dQdV = 0.0
+        self.dVdP = 0.0
+        self.dVdQ = 0.0
+        self.dPlossdP = 0.0
+        self.dPlossdQ = 0.0
+        self.dQlossdP = 0.0
+        self.dQlossdQ = 0.0
+        self.dP2lossdP2 = 1.0  # To be able to run the voltage optimization also in the first iteration
+        self.dP2lossdQ2 = 1.0  # To be able to run the voltage optimization also in the first iteration
+        self.lossRatioP = 0.0
+        self.lossRatioQ = 0.0
+        self.voang = 0.0
+        self.vomag = 1.0
 
 
 if __name__ == "__main__":
