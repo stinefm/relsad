@@ -894,7 +894,7 @@ class PowerSystem:
         PowerSystem.initialize_history(PowerSystem, increments)
 
         for comp in PowerSystem.all_comp_list:
-            comp.reset_status(increments)
+            comp.reset_status(increments, save_flag)
 
         ## Find sub systems
         find_sub_systems(self, 0)
