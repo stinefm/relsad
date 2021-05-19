@@ -1,3 +1,4 @@
+from re import I
 from .Component import Component
 from .Bus import Bus
 import matplotlib.lines as mlines
@@ -161,15 +162,7 @@ class Line(Component):
         self.remaining_outage_time = 0
 
         ## History
-        self.history = {
-            "p_from": dict(),
-            "q_from": dict(),
-            "p_to": dict(),
-            "q_to": dict(),
-            "remaining_outage_time": dict(),
-            "failed": dict(),
-            "line_loading": dict(),
-        }
+        self.history = {}
 
     def __str__(self):
         return self.name
@@ -501,7 +494,16 @@ class Line(Component):
 
         self.parent_network = network
 
-    def update_history(self, curr_time):
+    def initialize_history(self, increments: int):
+        self.history["p_from"] = np.zeros(increments)
+        self.history["q_from"] = np.zeros(increments)
+        self.history["p_to"] = np.zeros(increments)
+        self.history["q_to"] = np.zeros(increments)
+        self.history["remaining_outage_time"] = np.zeros(increments)
+        self.history["failed"] = np.zeros(increments)
+        self.history["line_loading"] = np.zeros(increments)
+
+    def update_history(self, curr_time, save_flag: bool):
         """
         Updates the history variables
 
@@ -515,16 +517,17 @@ class Line(Component):
         None
 
         """
-        p_from, q_from, p_to, q_to = self.get_line_load()
-        self.history["p_from"][curr_time] = p_from * self.s_ref
-        self.history["q_from"][curr_time] = q_from * self.s_ref
-        self.history["p_to"][curr_time] = p_to * self.s_ref
-        self.history["q_to"][curr_time] = q_to * self.s_ref
-        self.history["remaining_outage_time"][
-            curr_time
-        ] = self.remaining_outage_time
-        self.history["failed"][curr_time] = self.failed
-        self.history["line_loading"][curr_time] = self.get_line_loading()
+        if save_flag:
+            p_from, q_from, p_to, q_to = self.get_line_load()
+            self.history["p_from"][curr_time] = p_from * self.s_ref
+            self.history["q_from"][curr_time] = q_from * self.s_ref
+            self.history["p_to"][curr_time] = p_to * self.s_ref
+            self.history["q_to"][curr_time] = q_to * self.s_ref
+            self.history["remaining_outage_time"][
+                curr_time
+            ] = self.remaining_outage_time
+            self.history["failed"][curr_time] = self.failed
+            self.history["line_loading"][curr_time] = self.get_line_loading()
 
     def get_history(self, attribute: str):
         """
@@ -559,7 +562,7 @@ class Line(Component):
         """
         self.ps_random = random_gen
 
-    def reset_status(self):
+    def reset_status(self, increments: int, save_flag: bool):
         """
         Resets and sets the status of the class parameters
 
@@ -575,16 +578,8 @@ class Line(Component):
         self.remaining_outage_time = 0
 
         self.not_fail(0)
-
-        self.history = {
-            "p_from": dict(),
-            "q_from": dict(),
-            "p_to": dict(),
-            "q_to": dict(),
-            "remaining_outage_time": dict(),
-            "failed": dict(),
-            "line_loading": dict(),
-        }
+        if save_flag:
+            self.initialize_history(increments)
 
 
 if __name__ == "__main__":

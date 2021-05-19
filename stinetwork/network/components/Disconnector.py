@@ -3,6 +3,7 @@ from .Line import Line
 from .Bus import Bus
 from .Circuitbreaker import CircuitBreaker
 import matplotlib.lines as mlines
+import numpy as np
 
 
 class Disconnector(Component):
@@ -119,7 +120,7 @@ class Disconnector(Component):
             ]
 
         ## History
-        self.history = {"is_open": dict()}
+        self.history = {}
 
     def __str__(self):
         return self.name
@@ -229,7 +230,10 @@ class Disconnector(Component):
         """
         pass
 
-    def update_history(self, curr_time):
+    def initialize_history(self, increments: int):
+        self.history["is_open"] = np.zeros(increments)
+
+    def update_history(self, curr_time, save_flag: bool):
         """
         Updates the history variables
 
@@ -243,7 +247,8 @@ class Disconnector(Component):
         None
 
         """
-        self.history["is_open"][curr_time] = self.is_open
+        if save_flag:
+            self.history["is_open"][curr_time] = self.is_open
 
     def get_history(self, attribute: str):
         """
@@ -291,7 +296,7 @@ class Disconnector(Component):
         """
         pass
 
-    def reset_status(self):
+    def reset_status(self, increments: int, save_flag: bool):
         """
         Resets and sets the status of the class parameters
 
@@ -307,8 +312,8 @@ class Disconnector(Component):
         self.prev_open_time = 0
 
         self.not_fail(0)
-
-        self.history = {"is_open": dict()}
+        if save_flag:
+            self.initialize_history(increments)
 
 
 if __name__ == "__main__":

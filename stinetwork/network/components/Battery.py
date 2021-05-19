@@ -177,11 +177,7 @@ class Battery(Component):
         self.lock = False
 
         ## History
-        self.history = {
-            "SOC": dict(),
-            "SOC_min": dict(),
-            "remaining_survival_time": dict(),
-        }
+        self.history = {}
 
     def __str__(self):
         return self.name
@@ -416,7 +412,12 @@ class Battery(Component):
         q_rem = q + qload - qprod
         return p_rem, q_rem
 
-    def update_history(self, hour):
+    def initialize_history(self, increments: int):
+        self.history["SOC"] = np.zeros(increments)
+        self.history["SOC_min"] = np.zeros(increments)
+        self.history["remaining_survival_time"] = np.zeros(increments)
+
+    def update_history(self, hour, save_flag: bool):
         """
         Updates the history variables
 
@@ -429,11 +430,12 @@ class Battery(Component):
         ----------
         None
         """
-        self.history["SOC"][hour] = self.SOC
-        self.history["SOC_min"][hour] = self.SOC_min
-        self.history["remaining_survival_time"][
-            hour
-        ] = self.remaining_survival_time
+        if save_flag:
+            self.history["SOC"][hour] = self.SOC
+            self.history["SOC_min"][hour] = self.SOC_min
+            self.history["remaining_survival_time"][
+                hour
+            ] = self.remaining_survival_time
 
     def get_history(self, attribute: str):
         """
@@ -486,7 +488,7 @@ class Battery(Component):
         """
         self.ps_random = random_gen
 
-    def reset_status(self):
+    def reset_status(self, increments: int, save_flag: bool):
         """
         Resets and sets the status of the class parameters
 
@@ -502,12 +504,8 @@ class Battery(Component):
         self.SOC = self.standard_SOC_min
         self.E_battery = self.SOC * self.E_max
         self.lock = False
-
-        self.history = {
-            "SOC": dict(),
-            "SOC_min": dict(),
-            "remaining_survival_time": dict(),
-        }
+        if save_flag:
+            self.initialize_history(increments)
 
     def set_mode(self, mode):
         """

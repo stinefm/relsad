@@ -7,7 +7,7 @@ class Component(ABC):
         pass
 
     @abstractmethod
-    def update_history(self, hour):
+    def update_history(self, hour, save_flag: bool):
         pass
 
     @abstractmethod
@@ -23,5 +23,5 @@ class Component(ABC):
         pass
 
     @abstractmethod
-    def reset_status(self):
+    def reset_status(self, increments: int, save_flag: bool):
         pass

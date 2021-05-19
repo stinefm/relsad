@@ -1,5 +1,6 @@
 from .Component import Component
 import matplotlib.lines as mlines
+import numpy as np
 
 
 class Bus(Component):
@@ -129,6 +130,9 @@ class Bus(Component):
         self.fail_rate_per_year = fail_rate_per_year  # failures per year
         self.fail_rate_per_hour = self.fail_rate_per_year / (365 * 24)
         self.outage_time = outage_time  # hours
+        self.acc_outage_time = 0
+        self.avg_fail_rate = 0
+        self.avg_outage_time = 0
         self.cost = 0  # cost
         self.p_load_shed_stack = 0
         self.acc_p_load_shed = 0  # Accumulated load shed for bus
@@ -144,23 +148,7 @@ class Bus(Component):
         self.battery = None
 
         ## History
-        self.history = {
-            "pload": dict(),
-            "qload": dict(),
-            "pprod": dict(),
-            "qprod": dict(),
-            "remaining_outage_time": dict(),
-            "trafo_failed": dict(),
-            "p_load_shed_stack": dict(),
-            "acc_p_load_shed": dict(),
-            "q_load_shed_stack": dict(),
-            "acc_q_load_shed": dict(),
-            "voang": dict(),
-            "vomag": dict(),
-            "avg_fail_rate": dict(),
-            "avg_annual_outage_time": dict(),
-            "avg_outage_time": dict(),
-        }
+        self.history = {}
 
     def __str__(self):
         return self.name
@@ -255,6 +243,7 @@ class Bus(Component):
     def update_fail_status(self, curr_time):
         if self.trafo_failed:
             self.remaining_outage_time -= 1
+            self.acc_outage_time += 1
             if self.remaining_outage_time == 0:
                 self.trafo_not_fail(curr_time)
             else:
@@ -279,39 +268,56 @@ class Bus(Component):
             "is_slack={}".format(
                 self.name, self.trafo_failed, self.pload, self.is_slack
             )
-        )  # , toline={}, fromline={}, tolinelist={}, " \
-        # "fromlinelist={}, connected_lines={}, cost={:.4f}"\, \
-        # self.toline if self.toline==None else self.toline.name, self.fromline if self.fromline == None else self.fromline.name,\
-        # self.tolinelist, self.fromlinelist, self.connected_lines, self.cost))
+        )
 
-    def update_history(self, curr_time):
+    def initialize_history(self, increments: int):
+        self.history["pload"] = np.zeros(increments)
+        self.history["qload"] = np.zeros(increments)
+        self.history["pprod"] = np.zeros(increments)
+        self.history["qprod"] = np.zeros(increments)
+        self.history["remaining_outage_time"] = np.zeros(increments)
+        self.history["trafo_failed"] = np.zeros(increments)
+        self.history["p_load_shed_stack"] = np.zeros(increments)
+        self.history["acc_p_load_shed"] = np.zeros(increments)
+        self.history["q_load_shed_stack"] = np.zeros(increments)
+        self.history["acc_q_load_shed"] = np.zeros(increments)
+        self.history["voang"] = np.zeros(increments)
+        self.history["vomag"] = np.zeros(increments)
+        self.history["avg_fail_rate"] = np.zeros(increments)
+        self.history["avg_outage_time"] = np.zeros(increments)
+
+    def update_history(self, curr_time, save_flag: bool):
         self.acc_p_load_shed += (
             self.p_load_shed_stack
         )  # Update accumulated load shed for bus
         self.acc_q_load_shed += self.q_load_shed_stack
-        self.history["pload"][curr_time] = self.pload
-        self.history["qload"][curr_time] = self.qload
-        self.history["pprod"][curr_time] = self.pprod
-        self.history["qprod"][curr_time] = self.qprod
-        self.history["remaining_outage_time"][
-            curr_time
-        ] = self.remaining_outage_time
-        self.history["trafo_failed"][curr_time] = self.trafo_failed
-        self.history["p_load_shed_stack"][curr_time] = self.p_load_shed_stack
-        self.history["acc_p_load_shed"][curr_time] = self.acc_p_load_shed
-        self.history["q_load_shed_stack"][curr_time] = self.q_load_shed_stack
-        self.history["acc_q_load_shed"][curr_time] = self.acc_q_load_shed
-        self.history["voang"][curr_time] = self.voang
-        self.history["vomag"][curr_time] = self.vomag
-        self.history["avg_fail_rate"][
-            curr_time
-        ] = self.get_avg_fail_rate()  # Average failure rate (lamda_s)
-        self.history["avg_annual_outage_time"][
-            curr_time
-        ] = self.get_annual_outage_time()  # Average annual outage time (U_s)
-        self.history["avg_outage_time"][
-            curr_time
-        ] = self.get_avg_outage_time()  # Average outage time (r_s)
+        self.avg_outage_time = self.acc_outage_time / (curr_time + 1)
+        self.avg_fail_rate = self.get_avg_fail_rate()
+        if save_flag:
+            self.history["pload"][curr_time] = self.pload
+            self.history["qload"][curr_time] = self.qload
+            self.history["pprod"][curr_time] = self.pprod
+            self.history["qprod"][curr_time] = self.qprod
+            self.history["remaining_outage_time"][
+                curr_time
+            ] = self.remaining_outage_time
+            self.history["trafo_failed"][curr_time] = self.trafo_failed
+            self.history["p_load_shed_stack"][
+                curr_time
+            ] = self.p_load_shed_stack
+            self.history["acc_p_load_shed"][curr_time] = self.acc_p_load_shed
+            self.history["q_load_shed_stack"][
+                curr_time
+            ] = self.q_load_shed_stack
+            self.history["acc_q_load_shed"][curr_time] = self.acc_q_load_shed
+            self.history["voang"][curr_time] = self.voang
+            self.history["vomag"][curr_time] = self.vomag
+            self.history["avg_fail_rate"][
+                curr_time
+            ] = self.get_avg_fail_rate()  # Average failure rate (lamda_s)
+            self.history["avg_outage_time"][
+                curr_time
+            ] = self.avg_outage_time  # Average outage time (r_s)
         self.clear_load_shed_stack()
 
     def get_history(self, attribute: str):
@@ -347,35 +353,7 @@ class Bus(Component):
                 avg_fail_rate += line.fail_rate_per_hour
         return avg_fail_rate
 
-    def get_annual_outage_time(self):
-        """
-        Returns an estimate of the annual outage time of the bus
-        """
-        outage_time = 0
-        shed_dict = self.history[
-            "p_load_shed_stack"
-        ]  # Ignore reactive load shedding
-        time_incs = len(shed_dict)
-        for shed_value in shed_dict.values():
-            if shed_value > 1e-3:  # Add tolerance
-                outage_time += 1
-        return outage_time / time_incs * 8760
-
-    def get_avg_outage_time(self):
-        """
-        Returns the average outage time of the bus
-        """
-        outage_time = 0
-        shed_dict = self.history[
-            "p_load_shed_stack"
-        ]  # Ignore reactive load shedding
-        time_incs = len(shed_dict)
-        for shed_value in shed_dict.values():
-            if shed_value > 1e-3:  # Add tolerance
-                outage_time += 1
-        return outage_time / time_incs
-
-    def reset_status(self):
+    def reset_status(self, increments: int, save_flag: bool):
         self.trafo_failed = False
         self.remaining_outage_time = 0
 
@@ -387,24 +365,8 @@ class Bus(Component):
         self.acc_p_load_shed = 0  # Accumulated load shed for bus
         self.q_load_shed_stack = 0
         self.acc_q_load_shed = 0
-
-        self.history = {
-            "pload": dict(),
-            "qload": dict(),
-            "pprod": dict(),
-            "qprod": dict(),
-            "remaining_outage_time": dict(),
-            "trafo_failed": dict(),
-            "p_load_shed_stack": dict(),
-            "acc_p_load_shed": dict(),
-            "q_load_shed_stack": dict(),
-            "acc_q_load_shed": dict(),
-            "voang": dict(),
-            "vomag": dict(),
-            "avg_fail_rate": dict(),
-            "avg_annual_outage_time": dict(),
-            "avg_outage_time": dict(),
-        }
+        if save_flag:
+            self.initialize_history(increments)
 
     def add_to_load_shed_stack(self, p_load: float, q_load: float):
         if self.battery is None:

@@ -2,6 +2,7 @@ from stinetwork.utils import unique
 from .Component import Component
 from .Line import Line
 import matplotlib.lines as mlines
+import numpy as np
 
 
 class CircuitBreaker(Component):
@@ -108,11 +109,7 @@ class CircuitBreaker(Component):
         self.line.circuitbreaker = self
 
         ## History
-        self.history = {
-            "is_open": dict(),
-            "remaining_section_time": dict(),
-            "prev_section_time": dict(),
-        }
+        self.history = {}
 
     def __str__(self):
         return self.name
@@ -202,7 +199,12 @@ class CircuitBreaker(Component):
                 else:
                     self.close(curr_time)
 
-    def update_history(self, curr_time):
+    def initialize_history(self, increments: int):
+        self.history["is_open"] = np.zeros(increments)
+        self.history["remaining_section_time"] = np.zeros(increments)
+        self.history["prev_section_time"] = np.zeros(increments)
+
+    def update_history(self, curr_time, save_flag: bool):
         """
         Updates the history variables
 
@@ -216,11 +218,14 @@ class CircuitBreaker(Component):
         None
 
         """
-        self.history["is_open"][curr_time] = self.is_open
-        self.history["remaining_section_time"][
-            curr_time
-        ] = self.remaining_section_time
-        self.history["prev_section_time"][curr_time] = self.prev_section_time
+        if save_flag:
+            self.history["is_open"][curr_time] = self.is_open
+            self.history["remaining_section_time"][
+                curr_time
+            ] = self.remaining_section_time
+            self.history["prev_section_time"][
+                curr_time
+            ] = self.prev_section_time
 
     def get_history(self, attribute: str):
         """
@@ -269,7 +274,7 @@ class CircuitBreaker(Component):
         """
         pass
 
-    def reset_status(self):
+    def reset_status(self, increments: int, save_flag: bool):
         """
         Resets and sets the status of the class parameters
 
@@ -286,12 +291,8 @@ class CircuitBreaker(Component):
         self.remaining_section_time = 0
 
         self.close(0)
-
-        self.history = {
-            "is_open": dict(),
-            "remaining_section_time": dict(),
-            "prev_section_time": dict(),
-        }
+        if save_flag:
+            self.initialize_history(increments)
 
 
 if __name__ == "__main__":

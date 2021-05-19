@@ -86,7 +86,7 @@ class Production(Component):
         self.qmax = qmax
 
         ## History
-        self.history = dict()
+        self.history = {}
 
     def __str__(self):
         return self.name
@@ -184,7 +184,7 @@ class Production(Component):
         """
         pass
 
-    def update_history(self, curr_time):
+    def update_history(self, curr_time, save_flag: bool):
         """
         Updates the history variables
 
@@ -248,7 +248,7 @@ class Production(Component):
         """
         pass
 
-    def reset_status(self):
+    def reset_status(self, increments: int, save_flag: bool):
         """
         Resets and sets the status of the class parameters
 
@@ -261,7 +261,7 @@ class Production(Component):
         None
 
         """
-        self.history = dict()
+        self.history = {}
 
 
 if __name__ == "__main__":
