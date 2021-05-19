@@ -1,7 +1,5 @@
 import os
 import numpy as np
-
-import warnings
 from scipy.optimize import linprog, OptimizeWarning
 from stinetwork.network.components import (
     Bus,
@@ -11,6 +9,7 @@ from stinetwork.network.components import (
     Component,
 )
 from .Transmission import Transmission
+from stinetwork.utils import eq
 from stinetwork.loadflow.ac import DistLoadFlow
 from stinetwork.topology.paths import find_backup_lines_between_sub_systems
 from stinetwork.visualization.plotting import (
@@ -23,6 +22,7 @@ from stinetwork.results.storage import save_history, save_monte_carlo_history
 from stinetwork.utils import unique, subtract
 
 np.set_printoptions(suppress=True, linewidth=np.nan)
+
 
 class PowerSystem:
 
@@ -293,24 +293,32 @@ class PowerSystem:
                 else:
                     p_bounds.append((0, p_gen[n - (N_D + N_L)]))
                     q_bounds.append((0, q_gen[n - (N_D + N_L)]))
-
-            # warnings.simplefilter("error", OptimizeWarning)
             try:
                 p_res = linprog(
                     c,
                     A_eq=A,
                     b_eq=p_b,
                     bounds=p_bounds,
+                    # options={
+                    #     "cholesky": False,
+                    #     "sym_pos": False,
+                    #     "lstsq": True,
+                    #     "rr": False,
+                    # },
                 )
-                #    options={
-                #        "cholesky": False,
-                #        "sym_pos": False,
-                #        "lstsq": True,
-                #        "rr": False,
-                #    },
-                # )
-            # if not p_res.success:
             except OptimizeWarning:
+                p_res = linprog(
+                    c,
+                    A_eq=A,
+                    b_eq=p_b,
+                    bounds=p_bounds,
+                    # options={
+                    #     "cholesky": False,
+                    #     "sym_pos": False,
+                    #     "lstsq": True,
+                    #     "rr": False,
+                    # },
+                )
                 print(buses, lines)
                 self.print_status()
                 print("Active:\n")
@@ -330,16 +338,26 @@ class PowerSystem:
                     A_eq=A,
                     b_eq=q_b,
                     bounds=q_bounds,
+                    # options={
+                    #     "cholesky": False,
+                    #     "sym_pos": False,
+                    #     "lstsq": True,
+                    #     "rr": False,
+                    # },
                 )
-                #    options={
-                #        "cholesky": False,
-                #        "sym_pos": False,
-                #        "lstsq": True,
-                #        "rr": False,
-                #    },
-                # )
-            # if not q_res.success:
             except OptimizeWarning:
+                q_res = linprog(
+                    c,
+                    A_eq=A,
+                    b_eq=q_b,
+                    bounds=q_bounds,
+                    # options={
+                    #     "cholesky": False,
+                    #     "sym_pos": False,
+                    #     "lstsq": True,
+                    #     "rr": False,
+                    # },
+                )
                 print(buses, lines)
                 self.print_status()
                 print("Active:\n")
@@ -928,7 +946,7 @@ class PowerSystem:
         """
         return all(
             [
-                True if battery.SOC == 1 else False
+                True if eq(battery.SOC, battery.SOC_max) else False
                 for battery in PowerSystem.all_batteries
             ]
         )
