@@ -324,9 +324,7 @@ class Bus(Component):
         return self.cost
 
     def shed_load(self):
-        if self.battery is None:
-            self.p_load_shed_stack += self.pload
-            self.q_load_shed_stack += self.qload
+        self.add_to_load_shed_stack(self.pload, self.qload)
         self.reset_load()
 
     def clear_load_shed_stack(self):
@@ -412,7 +410,7 @@ class Bus(Component):
         if self.battery is None:
             self.p_load_shed_stack += p_load
             self.q_load_shed_stack += q_load
-    
+
     def reset_load_flow_data(self):
         """
         Resets the variables used in the load flow analysis
