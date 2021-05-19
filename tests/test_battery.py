@@ -1,8 +1,5 @@
 from stinetwork.network.components import Bus, Battery
-
-
-def eq(x, y):
-    return abs(x - y) < 1e-6
+from stinetwork.utils import eq
 
 
 def test_charge_from_min():
