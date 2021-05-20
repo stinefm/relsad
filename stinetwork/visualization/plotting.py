@@ -176,7 +176,7 @@ def plot_history(comp_list: list, attribute: str, save_dir: str):
     ax = fig.add_subplot(1, 1, 1)
     for comp in comp_list:
         data = comp.get_history(attribute)
-        ax.plot(list(data), label=comp.name)
+        ax.plot(list(data.values()), label=comp.name)
     ax.set_title(attribute)
     ax.legend()
     fig.savefig(os.path.join(save_dir, attribute + ".pdf"), format="pdf")
@@ -190,7 +190,7 @@ def plot_monte_carlo_history(comp_list: list, attribute: str, save_dir: str):
     ax = fig.add_subplot(1, 1, 1)
     for comp in comp_list:
         data = comp.get_monte_carlo_history(attribute)
-        ax.plot(list(data), label=comp.name)
+        ax.plot(list(data.values()), label=comp.name)
     ax.set_title(attribute)
     ax.legend()
     fig.savefig(os.path.join(save_dir, attribute + ".pdf"), format="pdf")

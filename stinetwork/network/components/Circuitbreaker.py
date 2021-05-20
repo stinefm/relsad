@@ -199,10 +199,10 @@ class CircuitBreaker(Component):
                 else:
                     self.close(curr_time)
 
-    def initialize_history(self, increments: int):
-        self.history["is_open"] = np.zeros(increments)
-        self.history["remaining_section_time"] = np.zeros(increments)
-        self.history["prev_section_time"] = np.zeros(increments)
+    def initialize_history(self):
+        self.history["is_open"] = {}
+        self.history["remaining_section_time"] = {}
+        self.history["prev_section_time"] = {}
 
     def update_history(self, curr_time, save_flag: bool):
         """
@@ -274,7 +274,7 @@ class CircuitBreaker(Component):
         """
         pass
 
-    def reset_status(self, increments: int, save_flag: bool):
+    def reset_status(self, save_flag: bool):
         """
         Resets and sets the status of the class parameters
 
@@ -292,7 +292,7 @@ class CircuitBreaker(Component):
 
         self.close(0)
         if save_flag:
-            self.initialize_history(increments)
+            self.initialize_history()
 
 
 if __name__ == "__main__":

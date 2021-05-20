@@ -270,21 +270,21 @@ class Bus(Component):
             )
         )
 
-    def initialize_history(self, increments: int):
-        self.history["pload"] = np.zeros(increments)
-        self.history["qload"] = np.zeros(increments)
-        self.history["pprod"] = np.zeros(increments)
-        self.history["qprod"] = np.zeros(increments)
-        self.history["remaining_outage_time"] = np.zeros(increments)
-        self.history["trafo_failed"] = np.zeros(increments)
-        self.history["p_load_shed_stack"] = np.zeros(increments)
-        self.history["acc_p_load_shed"] = np.zeros(increments)
-        self.history["q_load_shed_stack"] = np.zeros(increments)
-        self.history["acc_q_load_shed"] = np.zeros(increments)
-        self.history["voang"] = np.zeros(increments)
-        self.history["vomag"] = np.zeros(increments)
-        self.history["avg_fail_rate"] = np.zeros(increments)
-        self.history["avg_outage_time"] = np.zeros(increments)
+    def initialize_history(self):
+        self.history["pload"] = {}
+        self.history["qload"] = {}
+        self.history["pprod"] = {}
+        self.history["qprod"] = {}
+        self.history["remaining_outage_time"] = {}
+        self.history["trafo_failed"] = {}
+        self.history["p_load_shed_stack"] = {}
+        self.history["acc_p_load_shed"] = {}
+        self.history["q_load_shed_stack"] = {}
+        self.history["acc_q_load_shed"] = {}
+        self.history["voang"] = {}
+        self.history["vomag"] = {}
+        self.history["avg_fail_rate"] = {}
+        self.history["avg_outage_time"] = {}
 
     def update_history(self, curr_time, save_flag: bool):
         self.acc_p_load_shed += (
@@ -353,7 +353,7 @@ class Bus(Component):
                 avg_fail_rate += line.fail_rate_per_hour
         return avg_fail_rate
 
-    def reset_status(self, increments: int, save_flag: bool):
+    def reset_status(self, save_flag: bool):
         self.trafo_failed = False
         self.remaining_outage_time = 0
 
@@ -366,7 +366,7 @@ class Bus(Component):
         self.q_load_shed_stack = 0
         self.acc_q_load_shed = 0
         if save_flag:
-            self.initialize_history(increments)
+            self.initialize_history()
 
     def add_to_load_shed_stack(self, p_load: float, q_load: float):
         if self.battery is None:

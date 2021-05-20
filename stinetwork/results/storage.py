@@ -8,7 +8,8 @@ def save_history(comp_list: list, attribute: str, save_dir: str):
     df = pd.DataFrame()
     for comp in comp_list:
         data = comp.get_history(attribute)
-        df[comp] = data
+        df[comp] = data.values()
+    df.index = data.keys()
     df.to_csv(os.path.join(save_dir, attribute + ".csv"))
 
 
@@ -18,7 +19,8 @@ def save_monte_carlo_history(comp_list: list, attribute: str, save_dir: str):
     df = pd.DataFrame()
     for comp in comp_list:
         data = comp.get_monte_carlo_history(attribute)
-        df[comp] = data
+        df[comp] = data.values()
+    df.index = data.keys()
     df.to_csv(os.path.join(save_dir, attribute + ".csv"))
 
 

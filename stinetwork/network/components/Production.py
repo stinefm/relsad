@@ -248,7 +248,7 @@ class Production(Component):
         """
         pass
 
-    def reset_status(self, increments: int, save_flag: bool):
+    def reset_status(self, save_flag: bool):
         """
         Resets and sets the status of the class parameters
 

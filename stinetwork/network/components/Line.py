@@ -494,14 +494,14 @@ class Line(Component):
 
         self.parent_network = network
 
-    def initialize_history(self, increments: int):
-        self.history["p_from"] = np.zeros(increments)
-        self.history["q_from"] = np.zeros(increments)
-        self.history["p_to"] = np.zeros(increments)
-        self.history["q_to"] = np.zeros(increments)
-        self.history["remaining_outage_time"] = np.zeros(increments)
-        self.history["failed"] = np.zeros(increments)
-        self.history["line_loading"] = np.zeros(increments)
+    def initialize_history(self):
+        self.history["p_from"] = {}
+        self.history["q_from"] = {}
+        self.history["p_to"] = {}
+        self.history["q_to"] = {}
+        self.history["remaining_outage_time"] = {}
+        self.history["failed"] = {}
+        self.history["line_loading"] = {}
 
     def update_history(self, curr_time, save_flag: bool):
         """
@@ -562,7 +562,7 @@ class Line(Component):
         """
         self.ps_random = random_gen
 
-    def reset_status(self, increments: int, save_flag: bool):
+    def reset_status(self, save_flag: bool):
         """
         Resets and sets the status of the class parameters
 
@@ -579,7 +579,14 @@ class Line(Component):
 
         self.not_fail(0)
         if save_flag:
-            self.initialize_history(increments)
+            self.initialize_history()
+
+    def reset_load_flow_data(self):
+        """
+        Resets the variables used in the load flow analysis
+        """
+        self.ploss = 0
+        self.qloss = 0
 
 
 if __name__ == "__main__":

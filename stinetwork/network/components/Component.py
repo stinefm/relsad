@@ -23,5 +23,5 @@ class Component(ABC):
         pass
 
     @abstractmethod
-    def reset_status(self, increments: int, save_flag: bool):
+    def reset_status(self, save_flag: bool):
         pass

@@ -412,10 +412,10 @@ class Battery(Component):
         q_rem = q + qload - qprod
         return p_rem, q_rem
 
-    def initialize_history(self, increments: int):
-        self.history["SOC"] = np.zeros(increments)
-        self.history["SOC_min"] = np.zeros(increments)
-        self.history["remaining_survival_time"] = np.zeros(increments)
+    def initialize_history(self):
+        self.history["SOC"] = {}
+        self.history["SOC_min"] = {}
+        self.history["remaining_survival_time"] = {}
 
     def update_history(self, hour, save_flag: bool):
         """
@@ -488,7 +488,7 @@ class Battery(Component):
         """
         self.ps_random = random_gen
 
-    def reset_status(self, increments: int, save_flag: bool):
+    def reset_status(self, save_flag: bool):
         """
         Resets and sets the status of the class parameters
 
@@ -505,7 +505,7 @@ class Battery(Component):
         self.E_battery = self.SOC * self.E_max
         self.lock = False
         if save_flag:
-            self.initialize_history(increments)
+            self.initialize_history()
 
     def set_mode(self, mode):
         """
