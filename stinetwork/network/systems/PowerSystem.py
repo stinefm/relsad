@@ -386,7 +386,7 @@ class PowerSystem:
         system_load_balance_p, system_load_balance_q = 0, 0
         for bus in self.buses:
             for child_network in self.child_network_list:
-                if type(child_network) == Transmission:
+                if isinstance(child_network, Transmission):
                     if bus == child_network.get():
                         system_load_balance_p = -np.inf
                         system_load_balance_q = 0
@@ -643,8 +643,6 @@ class PowerSystem:
         PowerSystem.q_load_shed = 0
         for comp in PowerSystem.all_comp_list:
             comp.update_history(curr_time, save_flag)
-        # for bus in PowerSystem.all_buses:
-        #     bus.reset_load_and_prod_attributes()
 
     def get_history(self, attribute):
         """
@@ -714,9 +712,8 @@ class PowerSystem:
         """
         Runs load flow in power system
         """
-
         ## Run load flow
-        self.buses = DistLoadFlow(list(self.buses), list(self.lines))
+        self.buses = DistLoadFlow(self.buses, self.lines)
 
     def update_fail_status(self, curr_time):
         for bus in self.buses:
@@ -731,53 +728,34 @@ class PowerSystem:
         """
         Runs power system at current state for one time increment
         """
-        # print("curr_time: {}".format(curr_time))
-
         if PowerSystem.ps_random is None:
             print(
                 "Warning! No random instance was detected, creating a new one."
             )
             self.add_random_instance(np.random.default_rng())
 
-        ## Set loads
-        self.set_load(curr_time)
-
-        ## Set productions
-        self.set_prod(curr_time)
-
         ## Set fail status
         self.update_fail_status(curr_time)
-
-        if self.failed_comp():
+        if self.failed_comp() or not self.full_batteries():
             ## Find sub systems
             find_sub_systems(self, curr_time)
             update_sub_system_slack(self)
-
             ## Load flow
             for sub_system in self.sub_systems:
+                ## Set loads
+                sub_system.set_load(curr_time)
+                ## Set productions
+                sub_system.set_prod(curr_time)
                 ## Update batteries and history
                 sub_system.update_batteries()
                 ## Run load flow
+                sub_system.reset_load_flow_data()
                 if sub_system.slack is not None:
-                    sub_system.reset_load_flow_data()
                     sub_system.run_load_flow()
                 ## Shed load
                 sub_system.shed_loads()
-
-        elif not self.full_batteries():
-            self.sub_systems = list()
-            ## Load flow
-            ## Update batteries and history
-            self.update_batteries()
-            ## Run load flow
-            if self.slack is not None:
-                self.reset_load_flow_data()
-                self.run_load_flow()
-            ## Shed load
-            self.shed_loads()
-
-        ## Log results
-        self.update_history(curr_time, save_flag)
+                ## Log results
+                sub_system.update_history(curr_time, save_flag)
 
     def run_sequence(self, increments: int, save_flag: bool):
         """
@@ -795,46 +773,41 @@ class PowerSystem:
         save_iterations: list = [],
         save_dir: str = "results",
     ):
-        self.initialize_history(increments)
-        self.initialize_monte_carlo_history(iterations)
+        self.initialize_history()
+        self.initialize_monte_carlo_history()
         for it in range(iterations):
             save_flag = it in save_iterations
-            self.reset_system(increments, save_flag)
+            self.reset_system(save_flag)
             print("it: {}".format(it), flush=True)
             self.run_sequence(increments, save_flag)
-            self.update_monte_carlo_history(it, increments)
+            self.update_monte_carlo_history(it)
             self.save_monte_carlo_history(
                 os.path.join(save_dir, "monte_carlo")
             )
-
             if save_flag:
                 self.save_iteration_history(it, save_dir)
 
-    def initialize_history(self, increments: int):
-        PowerSystem.history["p_load_shed"] = np.zeros(increments)
-        PowerSystem.history["acc_p_load_shed"] = np.zeros(increments)
-        PowerSystem.history["q_load_shed"] = np.zeros(increments)
-        PowerSystem.history["acc_q_load_shed"] = np.zeros(increments)
-        PowerSystem.history["p_load"] = np.zeros(increments)
-        PowerSystem.history["q_load"] = np.zeros(increments)
+    def initialize_history(self):
+        PowerSystem.history["p_load_shed"] = {}
+        PowerSystem.history["acc_p_load_shed"] = {}
+        PowerSystem.history["q_load_shed"] = {}
+        PowerSystem.history["acc_q_load_shed"] = {}
+        PowerSystem.history["p_load"] = {}
+        PowerSystem.history["q_load"] = {}
 
-    def initialize_monte_carlo_history(self, iterations: int):
-        PowerSystem.monte_carlo_history["acc_p_load_shed"] = np.zeros(
-            iterations
-        )
-        PowerSystem.monte_carlo_history["acc_q_load_shed"] = np.zeros(
-            iterations
-        )
+    def initialize_monte_carlo_history(self):
+        PowerSystem.monte_carlo_history["acc_p_load_shed"] = {}
+        PowerSystem.monte_carlo_history["acc_q_load_shed"] = {}
         for bus in PowerSystem.all_buses:
             PowerSystem.monte_carlo_history[
                 bus.name + "_" + "acc_p_load_shed"
-            ] = np.zeros(iterations)
+            ] = {}
             PowerSystem.monte_carlo_history[
                 bus.name + "_" + "acc_q_load_shed"
-            ] = np.zeros(iterations)
+            ] = {}
             PowerSystem.monte_carlo_history[
                 bus.name + "_" + "avg_outage_time"
-            ] = np.zeros(iterations)
+            ] = {}
 
     def save_iteration_history(self, it: int, save_dir: str):
         if not os.path.isdir(os.path.join(save_dir, str(it))):
@@ -865,7 +838,7 @@ class PowerSystem:
             os.path.join(save_dir, str(it), "disconnector")
         )
 
-    def update_monte_carlo_history(self, it: int, increments: int):
+    def update_monte_carlo_history(self, it: int):
         PowerSystem.monte_carlo_history["acc_p_load_shed"][
             it
         ] = PowerSystem.acc_p_load_shed
@@ -886,15 +859,15 @@ class PowerSystem:
                 bus.name + "_" + "avg_outage_time"
             ][it] = bus.avg_outage_time
 
-    def reset_system(self, increments: int, save_flag: bool):
+    def reset_system(self, save_flag: bool):
         PowerSystem.p_load_shed = 0
         PowerSystem.acc_p_load_shed = 0
         PowerSystem.q_load_shed = 0
         PowerSystem.acc_q_load_shed = 0
-        PowerSystem.initialize_history(PowerSystem, increments)
+        PowerSystem.initialize_history(PowerSystem)
 
         for comp in PowerSystem.all_comp_list:
-            comp.reset_status(increments, save_flag)
+            comp.reset_status(save_flag)
 
         ## Find sub systems
         find_sub_systems(self, 0)
@@ -951,6 +924,8 @@ class PowerSystem:
         """
         for bus in self.buses:
             bus.reset_load_flow_data()
+        for line in self.lines:
+            line.reset_load_flow_data()
 
 
 def find_sub_systems(p_s: PowerSystem, curr_time):
