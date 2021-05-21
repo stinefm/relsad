@@ -52,8 +52,8 @@ def initialize_69Busmodified_network():
         "L1",
         B1,
         B2,
-        0.3660,
-        0.1864,
+        0.0922,  # 0.3660,
+        0.0470,  # 0.1864,
         1.485093,
         fail_rate_density_per_year=fail_rate_line,
     )
@@ -61,8 +61,8 @@ def initialize_69Busmodified_network():
         "L2",
         B2,
         B3,
-        0.3811,
-        0.1941,
+        0.0922,  # 0.3811,
+        0.0470,  # 0.1941,
         1.437928,
         fail_rate_density_per_year=fail_rate_line,
     )
@@ -88,8 +88,8 @@ def initialize_69Busmodified_network():
         "L5",
         B5,
         B6,
-        0.8190,
-        0.2707,
+        0.1872,  # 0.8190,
+        0.0619,  # 0.2707,
         3.090168,
         fail_rate_density_per_year=fail_rate_line,
     )
@@ -106,8 +106,8 @@ def initialize_69Busmodified_network():
         "L7",
         B7,
         B8,
-        0.7114,
-        0.2351,
+        0.1872,  # 0.7114,
+        0.0619,  # 0.2351,
         2.684183,
         fail_rate_density_per_year=fail_rate_line,
     )
@@ -115,8 +115,8 @@ def initialize_69Busmodified_network():
         "L8",
         B8,
         B9,
-        1.0300,
-        0.3400,
+        0.1872,  # 1.0300,
+        0.0619,  # 0.3400,
         3.886292,
         fail_rate_density_per_year=fail_rate_line,
     )
@@ -124,8 +124,8 @@ def initialize_69Busmodified_network():
         "L9",
         B9,
         B10,
-        1.0440,
-        0.3450,
+        0.1872,  # 1.0440,
+        0.0619,  # 0.3450,
         3.939116,
         fail_rate_density_per_year=fail_rate_line,
     )
@@ -133,8 +133,8 @@ def initialize_69Busmodified_network():
         "L10",
         B10,
         B11,
-        1.0580,
-        0.3496,
+        0.1872,  # 1.0580,
+        0.0619,  # 0.3496,
         3.991939,
         fail_rate_density_per_year=fail_rate_line,
     )
@@ -151,8 +151,8 @@ def initialize_69Busmodified_network():
         "L12",
         B12,
         B13,
-        1.0300,
-        0.3400,
+        0.1872,  # 1.0300,
+        0.0619,  # 0.3400,
         3.886292,
         fail_rate_density_per_year=fail_rate_line,
     )
@@ -160,8 +160,8 @@ def initialize_69Busmodified_network():
         "L13",
         B13,
         B14,
-        1.0440,
-        0.3450,
+        0.1872,  # 1.0440,
+        0.0619,  # 0.3450,
         3.939116,
         fail_rate_density_per_year=fail_rate_line,
     )
@@ -169,8 +169,8 @@ def initialize_69Busmodified_network():
         "L14",
         B14,
         B15,
-        1.0580,
-        0.3496,
+        0.1872,  # 1.0580,
+        0.0619,  # 0.3496,
         3.991939,
         fail_rate_density_per_year=fail_rate_line,
     )
@@ -190,8 +190,8 @@ def initialize_69Busmodified_network():
         "ML1",
         B13,
         BM1,
-        0.7394,
-        0.2444,
+        0.1872,  # 0.7394,
+        0.0619,  # 0.2444,
         2.78983,
         fail_rate_density_per_year=fail_rate_line,
     )
@@ -314,7 +314,7 @@ def initialize_69Busmodified_network():
         ]
     )
 
-    m = Microgrid(dn, ML1, mode=2)
+    m = Microgrid(dn, ML1, mode=3)
     m.add_buses([BM1, BM2, BM3, BM4])
     m.add_lines([ML2, ML3, ML4])
 
@@ -324,9 +324,11 @@ def initialize_69Busmodified_network():
 if __name__ == "__main__":
     import os
 
-    # ps = initialize_69Busmodified_network()
-    # fig = plot_topology(ps.buses, ps.lines, figsize=(40, 40))
+    ps = initialize_69Busmodified_network()
+    fig = plot_topology(ps.buses, ps.lines)
 
-    # fig.savefig(
-    #     os.path.join(os.path.dirname(os.path.abspath(__file__)), "test69modified.pdf")
-    # )
+    fig.savefig(
+        os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "test69modified.pdf"
+        )
+    )
