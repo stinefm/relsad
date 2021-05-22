@@ -109,7 +109,7 @@ class Bus(Component):
         self.avg_fail_rate = 0
         self.avg_outage_time = 0
 
-        self.reset_status(0, True)
+        self.reset_status(True)
 
         ## Production and battery
         self.prod = None
