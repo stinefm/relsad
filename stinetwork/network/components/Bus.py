@@ -82,37 +82,12 @@ class Bus(Component):
         ## Power flow attributes
         self.s_ref = s_ref
         self.load_dict = dict()
-        self.pload = 0  # MW
-        self.qload = 0  # MVar
-        self.pprod = 0  # MW
-        self.qprod = 0  # MVar
-        self.pload_pu = 0  # PU
-        self.qload_pu = 0  # PU
-        self.pprod_pu = 0  # PU
-        self.qprod_pu = 0  # PU
         self.ZIP = ZIP
         self.vset = vset
         self.iloss = iloss
         self.pqcostRatio = pqcostRatio
         self.comp = 0
-        self.ploadds = 0.0  # Active accumulated load at node
-        self.qloadds = 0.0  # Reactive accumulated load at node
-        self.pblossds = 0.0  # Active accumulated line loss at node
-        self.qblossds = 0.0  # Active accumulated line loss at node
-        self.dPdV = 0.0  # Disse trengs ikke. Blir egentlig kun regnet ut i siste iterasjon av en last flyt, kan derfor lage en egen funksjon ut av dette som kun kjører dette når man skal ta siste iterasjona av en last flyt.
-        self.dQdV = 0.0
-        self.dVdP = 0.0
-        self.dVdQ = 0.0
-        self.dPlossdP = 0.0
-        self.dPlossdQ = 0.0
-        self.dQlossdP = 0.0
-        self.dQlossdQ = 0.0
-        self.dP2lossdP2 = 1.0  # To be able to run the voltage optimization also in the first iteration
-        self.dP2lossdQ2 = 1.0  # To be able to run the voltage optimization also in the first iteration
-        self.lossRatioP = 0.0
-        self.lossRatioQ = 0.0
-        self.voang = 0.0
-        self.vomag = 1.0
+        self.reset_load_flow_data()
 
         ## Topological attributes
         self.num = Bus.busCount
@@ -133,15 +108,8 @@ class Bus(Component):
         self.acc_outage_time = 0
         self.avg_fail_rate = 0
         self.avg_outage_time = 0
-        self.cost = 0  # cost
-        self.p_load_shed_stack = 0
-        self.acc_p_load_shed = 0  # Accumulated load shed for bus
-        self.q_load_shed_stack = 0
-        self.acc_q_load_shed = 0
 
-        ## Status attribute
-        self.trafo_failed = False
-        self.remaining_outage_time = 0
+        self.reset_status(0, True)
 
         ## Production and battery
         self.prod = None
@@ -187,7 +155,6 @@ class Bus(Component):
     def set_load(self, curr_time):
         day = curr_time // 24
         hour = curr_time % 24
-
         self.pload = 0
         self.qload = 0
         cost_functions = {
@@ -206,7 +173,6 @@ class Bus(Component):
                 self.set_cost(A + B * 1)
                 self.pload += self.load_dict[load_type]["pload"][day, hour]
                 self.qload += self.load_dict[load_type]["qload"][day, hour]
-
             except KeyError:
                 print(
                     "Load type {} is not in cost_functions".format(load_type)
@@ -251,7 +217,6 @@ class Bus(Component):
                 if self.prod is not None:
                     self.prod.pprod = 0
                     self.prod.qprod = 0
-
         else:
             p_fail = self.fail_rate_per_hour
             if self.ps_random.choice([True, False], p=[p_fail, 1 - p_fail]):
@@ -356,14 +321,10 @@ class Bus(Component):
     def reset_status(self, save_flag: bool):
         self.trafo_failed = False
         self.remaining_outage_time = 0
-
-        self.reset_load()
-
+        self.reset_load_and_prod_attributes()
         self.cost = 0  # cost
-
-        self.p_load_shed_stack = 0
+        self.clear_load_shed_stack()
         self.acc_p_load_shed = 0  # Accumulated load shed for bus
-        self.q_load_shed_stack = 0
         self.acc_q_load_shed = 0
         if save_flag:
             self.initialize_history()
