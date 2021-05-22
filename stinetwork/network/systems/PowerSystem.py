@@ -762,8 +762,6 @@ class PowerSystem:
         Runs power system for a sequence of increments
         """
         for curr_time in range(increments):
-            if curr_time % 100 == 0:
-                print("inc: {}".format(curr_time), flush=True)
             self.run_increment(curr_time, save_flag)
 
     def run_monte_carlo(

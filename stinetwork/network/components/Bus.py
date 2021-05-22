@@ -109,14 +109,14 @@ class Bus(Component):
         self.avg_fail_rate = 0
         self.avg_outage_time = 0
 
-        self.reset_status(True)
-
         ## Production and battery
         self.prod = None
         self.battery = None
 
         ## History
         self.history = {}
+
+        self.reset_status(True)
 
     def __str__(self):
         return self.name
