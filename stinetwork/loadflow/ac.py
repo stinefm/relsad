@@ -195,10 +195,9 @@ def nodeVoltSensSP(fbus, tbus, tline, busobj):
         + 2 * tline.x_pu * tpload * tbus.dPlossdQ / tbus.vomag ** 2
     )
     # Calculate the second-order derivatives
-    # if tqload != 0:
     tbus.dP2lossdQ2 = (
         fbus.dP2lossdQ2
-        + dpdq / tqload
+        + dpdq / max(tqload, 1e-9)
         + (2 * tline.r_pu * tqload / tbus.vomag ** 2)
         * 2
         * tline.r_pu
@@ -207,7 +206,7 @@ def nodeVoltSensSP(fbus, tbus, tline, busobj):
     )
     tbus.dP2lossdP2 = (
         fbus.dP2lossdQ2
-        + dpldp / tpload
+        + dpldp / max(tpload, 1e-9)
         + (2 * tline.r_pu * tpload / tbus.vomag ** 2)
         * 2
         * tline.x_pu
