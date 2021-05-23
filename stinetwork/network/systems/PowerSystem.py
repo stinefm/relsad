@@ -1,7 +1,7 @@
 import os
 import numpy as np
-from numpy.lib.npyio import save
-from scipy.optimize import linprog, OptimizeWarning
+from scipy.optimize import linprog
+import warnings
 from stinetwork.network.components import (
     Bus,
     Line,
@@ -23,6 +23,7 @@ from stinetwork.results.storage import save_history, save_monte_carlo_history
 from stinetwork.utils import unique, subtract
 
 np.set_printoptions(suppress=True, linewidth=np.nan)
+warnings.filterwarnings("ignore")
 
 
 class PowerSystem:
@@ -284,97 +285,54 @@ class PowerSystem:
                 else:
                     p_bounds.append((0, p_gen[n - (N_D + N_L)]))
                     q_bounds.append((0, q_gen[n - (N_D + N_L)]))
-            try:
+            if sum(p_b) != 0:
                 p_res = linprog(
                     c,
                     A_eq=A,
                     b_eq=p_b,
                     bounds=p_bounds,
-                    # options={
-                    #     "cholesky": False,
-                    #     "sym_pos": False,
-                    #     "lstsq": True,
-                    #     "rr": False,
-                    # },
+                    options={
+                        "tol": 1e-6,
+                    },
                 )
-            except OptimizeWarning:
-                p_res = linprog(
-                    c,
-                    A_eq=A,
-                    b_eq=p_b,
-                    bounds=p_bounds,
-                    # options={
-                    #     "cholesky": False,
-                    #     "sym_pos": False,
-                    #     "lstsq": True,
-                    #     "rr": False,
-                    # },
-                )
-                print(buses, lines)
-                self.print_status()
-                print("Active:\n")
-                print("c:\n", c)
-                print("A_eq:\n", A)
-                print("rank A:", np.linalg.matrix_rank(A), A.shape[0], A.size)
-                print("b_eq_p:\n", p_b)
-                print("Bounds_p:\n", p_bounds)
-                print("Results_p:", p_res)
-
-                fig = plot_topology(buses, lines)
-                fig.show()
-                raise OptimizeWarning
-            try:
+                if not p_res.success:
+                    raise Exception("Active load shed failed")
+                if p_res.fun > 0:
+                    for i, bus in enumerate(buses):
+                        bus.add_to_load_shed_stack(p_res.x[i], 0)
+                    if len(PowerSystem.shed_configs) == 0:
+                        PowerSystem.shed_configs.append(self)
+                    add = True
+                    for shed_config in PowerSystem.shed_configs:
+                        if self == shed_config:
+                            add = False
+                            break
+                    if add:
+                        PowerSystem.shed_configs.append(self)
+            if sum(q_b) != 0:
                 q_res = linprog(
                     c,
                     A_eq=A,
                     b_eq=q_b,
                     bounds=q_bounds,
-                    # options={
-                    #     "cholesky": False,
-                    #     "sym_pos": False,
-                    #     "lstsq": True,
-                    #     "rr": False,
-                    # },
+                    options={
+                        "tol": 1e-6,
+                    },
                 )
-            except OptimizeWarning:
-                q_res = linprog(
-                    c,
-                    A_eq=A,
-                    b_eq=q_b,
-                    bounds=q_bounds,
-                    # options={
-                    #     "cholesky": False,
-                    #     "sym_pos": False,
-                    #     "lstsq": True,
-                    #     "rr": False,
-                    # },
-                )
-                print(buses, lines)
-                self.print_status()
-                print("Active:\n")
-                print("c:\n", c)
-                print("A_eq:\n", A)
-                print("rank A:", np.linalg.matrix_rank(A), A.shape[0], A.size)
-                print("b_eq_q:\n", q_b)
-                print("Bounds_q:\n", q_bounds)
-                print("Results_q:", q_res)
-
-                fig = plot_topology(buses, lines)
-                fig.show()
-                raise OptimizeWarning
-
-            if p_res.fun > 0 or q_res.fun > 0:
-                for i, bus in enumerate(buses):
-                    bus.add_to_load_shed_stack(p_res.x[i], q_res.x[i])
-                if len(PowerSystem.shed_configs) == 0:
-                    PowerSystem.shed_configs.append(self)
-                add = True
-                for shed_config in PowerSystem.shed_configs:
-                    if self == shed_config:
-                        add = False
-                        break
-                if add:
-                    PowerSystem.shed_configs.append(self)
+                if not q_res.success:
+                    raise Exception("Active load shed failed")
+                if q_res.fun > 0:
+                    for i, bus in enumerate(buses):
+                        bus.add_to_load_shed_stack(0, q_res.x[i])
+                    if len(PowerSystem.shed_configs) == 0:
+                        PowerSystem.shed_configs.append(self)
+                    add = True
+                    for shed_config in PowerSystem.shed_configs:
+                        if self == shed_config:
+                            add = False
+                            break
+                    if add:
+                        PowerSystem.shed_configs.append(self)
 
         else:
             raise Exception("More than one sub system")
@@ -733,7 +691,10 @@ class PowerSystem:
                 "Warning! No random instance was detected, creating a new one."
             )
             self.add_random_instance(np.random.default_rng())
-
+        ## Set loads
+        self.set_load(curr_time)
+        ## Set productions
+        self.set_prod(curr_time)
         ## Set fail status
         self.update_fail_status(curr_time)
         if self.failed_comp() or not self.full_batteries():
@@ -742,10 +703,6 @@ class PowerSystem:
             update_sub_system_slack(self)
             ## Load flow
             for sub_system in self.sub_systems:
-                ## Set loads
-                sub_system.set_load(curr_time)
-                ## Set productions
-                sub_system.set_prod(curr_time)
                 ## Update batteries and history
                 sub_system.update_batteries()
                 ## Run load flow
@@ -754,8 +711,8 @@ class PowerSystem:
                     sub_system.run_load_flow()
                 ## Shed load
                 sub_system.shed_loads()
-                ## Log results
-                sub_system.update_history(curr_time, save_flag)
+            ## Log results
+            self.update_history(curr_time, save_flag)
 
     def run_sequence(self, increments: int, save_flag: bool):
         """
@@ -810,19 +767,6 @@ class PowerSystem:
     def save_iteration_history(self, it: int, save_dir: str):
         if not os.path.isdir(os.path.join(save_dir, str(it))):
             os.mkdir(os.path.join(save_dir, str(it)))
-        # self.plot_bus_history(os.path.join(save_dir, str(it), "bus"))
-        # self.plot_battery_history(os.path.join(save_dir, str(it), "battery"))
-        # self.plot_power_system_history(
-        #     os.path.join(save_dir, str(it), "power_system")
-        # )
-        # self.plot_line_history(os.path.join(save_dir, str(it), "line"))
-        # self.plot_circuitbreaker_history(
-        #     os.path.join(save_dir, str(it), "circuitbreaker")
-        # )
-        # self.plot_disconnector_history(
-        #     os.path.join(save_dir, str(it), "disconnector")
-        # )
-
         self.save_bus_history(os.path.join(save_dir, str(it), "bus"))
         self.save_battery_history(os.path.join(save_dir, str(it), "battery"))
         self.save_power_system_history(
@@ -882,13 +826,13 @@ class PowerSystem:
                 prod.add_prod_dict(prod_dict[prod])
 
     def set_load(self, curr_time):
-        for bus in self.buses:
+        for bus in PowerSystem.all_buses:
             bus.set_load(curr_time)
 
     def set_prod(self, curr_time):
-        for prod in self.productions:
+        for prod in PowerSystem.all_productions:
             prod.set_prod(curr_time)
-        for bus in self.buses:
+        for bus in PowerSystem.all_buses:
             if bus.battery is not None:
                 bus.reset_prod()
 
@@ -1046,8 +990,6 @@ def update_sub_system_slack(p_s: PowerSystem):
             bus.is_slack = False
             if set_slack(sub_system):
                 break
-        # if not set_slack(sub_system): # Remove sub system if slack is not found
-        #     p_s.sub_systems.remove(sub_system)
 
 
 def set_slack(p_s: PowerSystem):
