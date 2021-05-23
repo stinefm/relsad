@@ -194,8 +194,7 @@ class Bus(Component):
         self.remaining_outage_time = self.outage_time
         self.shed_load()
         if self.prod is not None:
-            self.prod.pprod = 0
-            self.prod.qprod = 0
+            self.prod.reset_prod()
 
     def trafo_not_fail(self, curr_time):
         self.trafo_failed = False
@@ -215,8 +214,7 @@ class Bus(Component):
             else:
                 self.shed_load()
                 if self.prod is not None:
-                    self.prod.pprod = 0
-                    self.prod.qprod = 0
+                    self.prod.reset_prod()
         else:
             p_fail = self.fail_rate_per_hour
             if self.ps_random.choice([True, False], p=[p_fail, 1 - p_fail]):

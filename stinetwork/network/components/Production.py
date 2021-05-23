@@ -169,6 +169,13 @@ class Production(Component):
         self.bus.pprod_pu = self.pprod / self.bus.s_ref  # PU
         self.bus.qprod_pu = self.qprod / self.bus.s_ref  # PU
 
+    def reset_prod(self):
+        """
+        Resets the active and reactive production
+        """
+        self.pprod = 0
+        self.qprod = 0
+
     def update_fail_status(self, curr_time):
         """
 
