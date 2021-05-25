@@ -11,7 +11,7 @@ from stinetwork.network.components import (
 )
 from .Transmission import Transmission
 from stinetwork.utils import eq
-from stinetwork.loadflow.ac import DistLoadFlow
+from stinetwork.loadflow.ac import run_distribution_load_flow
 from stinetwork.topology.paths import find_backup_lines_between_sub_systems
 from stinetwork.visualization.plotting import (
     plot_topology,
@@ -256,12 +256,13 @@ class PowerSystem:
                 for child_network in self.child_network_list:
                     if isinstance(child_network, Transmission):
                         if bus == child_network.get():
-                            p_gen.append(np.inf)#10*sum(p_b))
-                            q_gen.append(np.inf)#10*sum(q_b))
+                            p_gen.append(np.inf)
+                            q_gen.append(np.inf)
                             flag = True
                 if flag is False:
                     p_gen.append(max(0, bus.pprod))
                     q_gen.append(max(0, bus.qprod))
+            # Gather bounderies
             p_bounds = list()
             q_bounds = list()
             for n in range(N_D + N_L + N_D):
@@ -271,12 +272,8 @@ class PowerSystem:
                 elif n >= N_D and n < N_D + N_L:
                     line = lines[n - N_D]
                     # Line load in MW
-                    max_available_p_flow = (
-                            line.get_line_load()[0] * line.s_ref
-                    )
-                    max_available_q_flow = (
-                            line.get_line_load()[1] * line.s_ref
-                    )
+                    max_available_p_flow = line.get_line_load()[0] * line.s_ref
+                    max_available_q_flow = line.get_line_load()[1] * line.s_ref
                     PL_p_max = min(line.capacity, abs(max_available_p_flow))
                     PL_q_max = min(line.capacity, abs(max_available_q_flow))
                     p_bounds.append((-PL_p_max, PL_p_max))
@@ -285,30 +282,30 @@ class PowerSystem:
                     p_bounds.append((0, p_gen[n - (N_D + N_L)]))
                     q_bounds.append((0, q_gen[n - (N_D + N_L)]))
             if sum(p_b) != 0:
-                #p_res = linprog(
-                #    c,
-                #    A_eq=A,
-                #    b_eq=p_b,
-                #    bounds=p_bounds,
-                #)
-                #if not p_res.success:
-                print("buses: ", buses)
-                print("lines: ", lines)
-                print("cost: ", c)
-                print("p_gen: ",p_gen)
-                print("p_b: ",p_b)
-                print("p_bounds: ",p_bounds)
                 p_res = linprog(
                     c,
                     A_eq=A,
                     b_eq=p_b,
                     bounds=p_bounds,
-                    options={
-                        "disp": True,
-                    },
                 )
-                print(p_res)
-                raise Exception("Active load shed failed")
+                if not p_res.success:
+                    print("buses: ", buses)
+                    print("lines: ", lines)
+                    print("cost: ", c)
+                    print("p_gen: ", p_gen)
+                    print("p_b: ", p_b)
+                    print("p_bounds: ", p_bounds)
+                    p_res = linprog(
+                        c,
+                        A_eq=A,
+                        b_eq=p_b,
+                        bounds=p_bounds,
+                        options={
+                            "disp": True,
+                        },
+                    )
+                    print(p_res)
+                    raise Exception("Active load shed failed")
                 if p_res.fun > 0:
                     for i, bus in enumerate(buses):
                         bus.add_to_load_shed_stack(p_res.x[i], 0)
@@ -332,9 +329,9 @@ class PowerSystem:
                     print("buses: ", buses)
                     print("lines: ", lines)
                     print("cost: ", c)
-                    print("q_gen: ",q_gen)
-                    print("q_b: ",q_b)
-                    print("q_bounds: ",q_bounds)
+                    print("q_gen: ", q_gen)
+                    print("q_b: ", q_b)
+                    print("q_bounds: ", q_bounds)
                     q_res = linprog(
                         c,
                         A_eq=A,
@@ -696,7 +693,7 @@ class PowerSystem:
         Runs load flow in power system
         """
         ## Run load flow
-        self.buses = DistLoadFlow(self.buses, self.lines)
+        self.buses = run_distribution_load_flow(self.buses, self.lines)
 
     def update_fail_status(self, curr_time):
         for bus in self.buses:

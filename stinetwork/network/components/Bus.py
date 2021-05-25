@@ -24,10 +24,10 @@ class Bus(Component):
         iloss : float
         pqcostRatio :
         comp :
-        ploadds : float
-        qloadds : float
-        pblossds : float
-        qblossds : float
+        p_load_downstream : float
+        q_load_downstream : float
+        p_loss_downstream : float
+        q_loss_downstream : float
         dPdV : float
         dQdV : float
         dVdP : float
@@ -94,8 +94,8 @@ class Bus(Component):
         self.is_slack = is_slack
         self.toline = None
         self.fromline = None
-        self.tolinelist = list()
-        self.fromlinelist = list()
+        self.toline_list = list()
+        self.fromline_list = list()
         self.nextbus = list()
         self.connected_lines = list()
         self.parent_network = None
@@ -175,7 +175,9 @@ class Bus(Component):
                     self.qload += self.load_dict[load_type]["qload"][day, hour]
                 except KeyError:
                     print(
-                        "Load type {} is not in cost_functions".format(load_type)
+                        "Load type {} is not in cost_functions".format(
+                            load_type
+                        )
                     )
         else:
             self.set_cost(1)
@@ -338,10 +340,10 @@ class Bus(Component):
         """
         Resets the variables used in the load flow analysis
         """
-        self.ploadds = 0.0  # Active accumulated load at node
-        self.qloadds = 0.0  # Reactive accumulated load at node
-        self.pblossds = 0.0  # Active accumulated line loss at node
-        self.qblossds = 0.0  # Active accumulated line loss at node
+        self.p_load_downstream = 0.0  # Active accumulated load at node
+        self.q_load_downstream = 0.0  # Reactive accumulated load at node
+        self.p_loss_downstream = 0.0  # Active accumulated line loss at node
+        self.q_loss_downstream = 0.0  # Active accumulated line loss at node
         self.dPdV = 0.0  # Disse trengs ikke. Blir egentlig kun regnet ut i siste iterasjon av en last flyt, kan derfor lage en egen funksjon ut av dette som kun kjører dette når man skal ta siste iterasjona av en last flyt.
         self.dQdV = 0.0
         self.dVdP = 0.0

@@ -127,9 +127,9 @@ class Line(Component):
         fbus.connected_lines.append(self)
         tbus.connected_lines.append(self)
         tbus.toline = self
-        tbus.tolinelist.append(self)
+        tbus.toline_list.append(self)
         fbus.fromline = self
-        fbus.fromlinelist.append(self)
+        fbus.fromline_list.append(self)
         fbus.nextbus.append(self.tbus)
         self.disconnectors = list()
         self.circuitbreaker = None
@@ -211,16 +211,16 @@ class Line(Component):
         """
         self.connected = False
         self.linestyle = "--"
-        self.fbus.fromlinelist.remove(self)
+        self.fbus.fromline_list.remove(self)
         if self.fbus.fromline == self:
-            if len(self.fbus.fromlinelist) > 0:
-                self.fbus.fromline = next(iter(self.fbus.fromlinelist))
+            if len(self.fbus.fromline_list) > 0:
+                self.fbus.fromline = next(iter(self.fbus.fromline_list))
             else:
                 self.fbus.fromline = None
-        self.tbus.tolinelist.remove(self)
+        self.tbus.toline_list.remove(self)
         if self.tbus.toline == self:
-            if len(self.tbus.tolinelist) > 0:
-                self.tbus.toline = next(iter(self.tbus.tolinelist))
+            if len(self.tbus.toline_list) > 0:
+                self.tbus.toline = next(iter(self.tbus.toline_list))
             else:
                 self.tbus.toline = None
         self.fbus.nextbus.remove(self.tbus)
@@ -241,9 +241,9 @@ class Line(Component):
         self.connected = True
         self.linestyle = "-"
         self.tbus.toline = self
-        self.tbus.tolinelist.append(self)
+        self.tbus.toline_list.append(self)
         self.fbus.fromline = self
-        self.fbus.fromlinelist.append(self)
+        self.fbus.fromline_list.append(self)
         self.fbus.nextbus.append(self.tbus)
 
     def fail(self, curr_time):
@@ -313,20 +313,20 @@ class Line(Component):
         None
 
         """
-        self.fbus.fromlinelist.remove(self)
-        self.tbus.fromlinelist.append(self)
-        self.tbus.tolinelist.remove(self)
-        self.fbus.tolinelist.append(self)
+        self.fbus.fromline_list.remove(self)
+        self.tbus.fromline_list.append(self)
+        self.tbus.toline_list.remove(self)
+        self.fbus.toline_list.append(self)
         if self.fbus.fromline == self:
             self.fbus.fromline = (
-                next(iter(self.fbus.fromlinelist))
-                if len(self.fbus.fromlinelist) > 0
+                next(iter(self.fbus.fromline_list))
+                if len(self.fbus.fromline_list) > 0
                 else None
             )
         if self.tbus.toline == self:
             self.tbus.toline = (
-                next(iter(self.tbus.tolinelist))
-                if len(self.tbus.tolinelist) > 0
+                next(iter(self.tbus.toline_list))
+                if len(self.tbus.toline_list) > 0
                 else None
             )
         self.fbus.toline = self
