@@ -1,7 +1,7 @@
 from stinetwork.utils import unique, intersection
 
 # flake8: noqa: C901
-def connectivity(nodelist, linelist):
+def connectivity(nodelist, line_list):
     ## Initializing dictionaries
     undirectPathDict = dict()
     directPathDict = dict()
@@ -12,7 +12,7 @@ def connectivity(nodelist, linelist):
             undirectPathDict[node.name][connectedNode.name] = []
             directPathDict[node.name][connectedNode.name] = []
 
-    for line in linelist:
+    for line in line_list:
         for toBusNode in [line.to_element]:
             for fromBusNode in [line.from_element]:
                 if not toBusNode == fromBusNode:
@@ -39,7 +39,7 @@ def connectivity(nodelist, linelist):
                     ):  # If line between node and connectedNode exists
                         linesConnectedToConnectedNode = [
                             line
-                            for line in linelist
+                            for line in line_list
                             if connectedNodeObject in [line.from_element]
                         ]
                         for line in linesConnectedToConnectedNode:
@@ -104,7 +104,7 @@ def connectivity(nodelist, linelist):
                     ):  # If line between node and connectedNode exists
                         linesConnectedToConnectedNode = [
                             line
-                            for line in linelist
+                            for line in line_list
                             if connectedNodeObject in [line.to_element]
                             or connectedNodeObject in [line.from_element]
                         ]
@@ -174,23 +174,23 @@ def connectivity(nodelist, linelist):
     return undirectPathDict, directPathDict
 
 
-def configure(BusList, LineList):
+def configure(bus_list, line_list):
     """Function that sets up the nested topology array and configures the radial tree according to the slack bus"""
 
-    def line_between_buses(bus1, bus2, LineList):
-        for line in LineList:
+    def line_between_buses(bus1, bus2, line_list):
+        for line in line_list:
             if (line.tbus == bus1 and line.fbus == bus2) or (
                 line.tbus == bus2 and line.fbus == bus1
             ):
                 return line
 
-    def change_dir(target_buses, BusList, checked_buses, LineList):
+    def change_dir(target_buses, bus_list, checked_buses, line_list):
         new_target_buses = list()
         for target_bus in target_buses:
             if target_bus not in checked_buses:
-                for bus in BusList:
+                for bus in bus_list:
                     if bus not in checked_buses and bus != target_bus:
-                        line = line_between_buses(target_bus, bus, LineList)
+                        line = line_between_buses(target_bus, bus, line_list)
                         if line != None:
                             if target_bus in bus.nextbus:
                                 line.change_direction()
@@ -255,29 +255,29 @@ def configure(BusList, LineList):
         return topology
 
     ## Find slack bus
-    for i, bus in enumerate(BusList):
+    for i, bus in enumerate(bus_list):
         if bus.is_slack:
             slack_bus = bus
-            old = BusList[0]
-            BusList[0] = slack_bus
-            BusList[i] = old
+            old = bus_list[0]
+            bus_list[0] = slack_bus
+            bus_list[i] = old
             break
 
     ## Update directions based on slack bus (making slack bus parent of the radial tree)
     checked_buses = list()
     target_buses, checked_buses = change_dir(
-        [slack_bus], BusList, checked_buses, LineList
+        [slack_bus], bus_list, checked_buses, line_list
     )
     while target_buses != list():
         target_buses, checked_buses = change_dir(
-            target_buses, BusList, checked_buses, LineList
+            target_buses, bus_list, checked_buses, line_list
         )
 
     paths = get_paths(slack_bus)
 
     topology = get_topology(paths)
 
-    return topology, BusList, LineList
+    return topology, bus_list, line_list
 
 
 def flatten(toflatten):

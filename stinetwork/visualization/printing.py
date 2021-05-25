@@ -1,12 +1,12 @@
 import numpy as np
-from stinetwork.loadflow.ac import getload
+from stinetwork.loadflow.ac import get_load
 from stinetwork.visualization.plotting import tableplot
 
 
 #
 # Display transmission line flows
 #
-def dispFlow(BusList, LineList, fromLine=0, toLine=0, tpres=False):
+def dispFlow(bus_list, line_list, fromLine=0, toLine=0, tpres=False):
     """Display the flow on the requested distribution lines"""
 
     mainlist = []
@@ -25,11 +25,11 @@ def dispFlow(BusList, LineList, fromLine=0, toLine=0, tpres=False):
         return (1.0 / complex(R, X)).real
 
     if toLine == 0:
-        toLine = len(LineList)
+        toLine = len(line_list)
     if tpres:
         toLine = np.minimum(fromLine + 13, toLine)
     inum = fromLine
-    for line in LineList[fromLine:toLine]:
+    for line in line_list[fromLine:toLine]:
         if line.connected:
             fbus = line.fbus
             tbus = line.tbus
@@ -89,7 +89,7 @@ def dispFlow(BusList, LineList, fromLine=0, toLine=0, tpres=False):
 #
 # Display the voltages.
 #
-def dispVolt(BusList, fromBus=0, toBus=0, tpres=False):
+def dispVolt(bus_list, fromBus=0, toBus=0, tpres=False):
     """
     Desc:    Display voltages at all buses
     Input:   tpres= False (Display in tableformat if True)
@@ -99,14 +99,14 @@ def dispVolt(BusList, fromBus=0, toBus=0, tpres=False):
     mainlist = []
     rowno = []
     if toBus == 0:
-        toBus = len(BusList)
+        toBus = len(bus_list)
     if tpres:
         toBus = np.minimum(fromBus + 13, toBus)
 
     iloop = fromBus
     print(" ")
     while iloop < toBus:
-        oref = BusList[iloop]
+        oref = bus_list[iloop]
         if tpres is False:
             print(
                 " Bus name :",
@@ -136,7 +136,7 @@ def dispVolt(BusList, fromBus=0, toBus=0, tpres=False):
 #
 # Display voltage estimate for a chaninge in active or reactive load on a bus
 #
-def dispVoltEst(BusList, bus=0, deltap=0.0, deltaq=0.0, tpres=False):
+def dispVoltEst(bus_list, bus=0, deltap=0.0, deltaq=0.0, tpres=False):
     """The method estimates the voltages for a change in active or reactive load at a bus
     deltap and deltaq must reflect the change (negative by load reduction)
     """
@@ -144,8 +144,8 @@ def dispVoltEst(BusList, bus=0, deltap=0.0, deltaq=0.0, tpres=False):
     mainlist = []
     rowno = []
     iloop = 0
-    while BusList[itr].toline:
-        busobj = BusList[itr]
+    while bus_list[itr].toline:
+        busobj = bus_list[itr]
         voltest = (
             busobj.vomag
             + deltap * (1 + busobj.dPlossdP) * busobj.dVdP
@@ -183,7 +183,7 @@ def dispVoltEst(BusList, bus=0, deltap=0.0, deltaq=0.0, tpres=False):
 
 # Display the voltages.
 #
-def dispVoltSens(BusList, fromBus=0, toBus=0, tpres=False):
+def dispVoltSens(bus_list, fromBus=0, toBus=0, tpres=False):
     """
     Desc:    Display Load sensitivities for change in voltage at all buses
     Input:   tpres= False (Display in tableformat if True)
@@ -193,14 +193,14 @@ def dispVoltSens(BusList, fromBus=0, toBus=0, tpres=False):
     mainlist = []
     rowno = []
     if toBus == 0:
-        toBus = len(BusList)
+        toBus = len(bus_list)
     if tpres:
         toBus = np.minimum(fromBus + 13, toBus)
 
     iloop = fromBus
     print(" ")
     while iloop < toBus:
-        oref = BusList[iloop]
+        oref = bus_list[iloop]
         if tpres is False:
             print(
                 " Bus no :",
@@ -248,7 +248,7 @@ def dispVoltSens(BusList, fromBus=0, toBus=0, tpres=False):
 
 
 #
-def dispLossSens(BusList, fromBus=0, toBus=0, tpres=False):
+def dispLossSens(bus_list, fromBus=0, toBus=0, tpres=False):
     """
     Desc:    Display Loss sensitivities for change in active or reactive injection at all buses
     Input:   tpres= False (Display in tableformat if True)
@@ -258,14 +258,14 @@ def dispLossSens(BusList, fromBus=0, toBus=0, tpres=False):
     mainlist = []
     rowno = []
     if toBus == 0:
-        toBus = len(BusList)
+        toBus = len(bus_list)
     if tpres:
         toBus = np.minimum(fromBus + 13, toBus)
 
     iloop = fromBus
     print(" ")
     while iloop < toBus:
-        oref = BusList[iloop]
+        oref = bus_list[iloop]
         if tpres is False:
             print(
                 " Bus no :",
@@ -309,7 +309,7 @@ def dispLossSens(BusList, fromBus=0, toBus=0, tpres=False):
         tableplot(mainlist, title, colind, rowno, columncol=[], rowcol=[])
 
 
-def dispLossSensP(BusList, fromBus=0, toBus=0, tpres=False):
+def dispLossSensP(bus_list, fromBus=0, toBus=0, tpres=False):
     """
     Desc:    Display Loss sensitivities for change in active or reactive injection at all buses
     Input:   tpres= False (Display in tableformat if True)
@@ -319,14 +319,14 @@ def dispLossSensP(BusList, fromBus=0, toBus=0, tpres=False):
     mainlist = []
     rowno = []
     if toBus == 0:
-        toBus = len(BusList)
+        toBus = len(bus_list)
     if tpres:
         toBus = np.minimum(fromBus + 13, toBus)
 
     iloop = fromBus
     print(" ")
     while iloop < toBus:
-        oref = BusList[iloop]
+        oref = bus_list[iloop]
         if tpres is False:
             print(
                 " Bus no :",
@@ -363,7 +363,7 @@ def dispLossSensP(BusList, fromBus=0, toBus=0, tpres=False):
         tableplot(mainlist, title, colind, rowno, columncol=[], rowcol=[])
 
 
-def dispLossSensQ(BusList, fromBus=0, toBus=0, tpres=False):
+def dispLossSensQ(bus_list, fromBus=0, toBus=0, tpres=False):
     """
     Desc:    Display Loss sensitivities for change in active or reactive injection at all buses
     Input:   tpres= False (Display in tableformat if True)
@@ -373,14 +373,14 @@ def dispLossSensQ(BusList, fromBus=0, toBus=0, tpres=False):
     mainlist = []
     rowno = []
     if toBus == 0:
-        toBus = len(BusList)
+        toBus = len(bus_list)
     if tpres:
         toBus = np.minimum(fromBus + 13, toBus)
 
     iloop = fromBus
     print(" ")
     while iloop < toBus:
-        oref = BusList[iloop]
+        oref = bus_list[iloop]
         if tpres is False:
             print(
                 " Bus no :",
@@ -422,10 +422,10 @@ def dispLossSensQ(BusList, fromBus=0, toBus=0, tpres=False):
 #
 # Display total losses
 #
-def dispTotalLosses(LineList):
+def dispTotalLosses(line_list):
     pline = 0.0
     qline = 0.0
-    for x in LineList:
+    for x in line_list:
         pline += x.ploss
         qline += x.qloss
     print("\n", "Ploss:", pline, "   Qloss:", qline)
@@ -434,17 +434,20 @@ def dispTotalLosses(LineList):
 #
 # Display total load (no voltage correction)
 #
-def dispTotalLoad(BusList):
+def dispTotalLoad(bus_list):
     aload = 0.0
     rload = 0.0
-    for x in BusList:
-        pla, qla, _dPdV, _dPdV = getload(x)
-        aload += pla  # Add local loads
-        rload += qla
+    for x in bus_list:
+        p_load_local, q_load_local, _dPdV, _dPdV = get_load(x)
+        aload += p_load_local  # Add local loads
+        rload += q_load_local
     print(
         "Total load  P: {:.4f}   Q: {:.4f}  Losses: P {:.4f}\
           Q: {:.4f} ".format(
-            aload, rload, BusList[1].pblossds, BusList[1].qblossds
+            aload,
+            rload,
+            bus_list[1].p_loss_downstream,
+            bus_list[1].q_loss_downstream,
         )
     )
 
@@ -452,8 +455,8 @@ def dispTotalLoad(BusList):
 #
 # Display bus loads for subsystem
 #
-def dispLoads(BusList):
-    for bus in BusList:
+def dispLoads(bus_list):
+    for bus in bus_list:
         print(
             "Name: {}, P: {:.4f}, Q: {:.4f}".format(
                 bus.name, bus.pload, bus.qload
@@ -464,9 +467,9 @@ def dispLoads(BusList):
 #
 # Visit all nodes in the reverse list.
 #
-def BackwardSearch(topologyList):
+def BackwardSearch(topology_list):
     """Visit all the nodes in a backward approach and prints the Bus name"""
-    for x in reversed(topologyList):
+    for x in reversed(topology_list):
         if len(x) > 1:
             print(x[0].name)
             iloop = 1
@@ -480,9 +483,9 @@ def BackwardSearch(topologyList):
 #
 # Visit all nodes in the forward list.
 #
-def ForwardSearch(topologyList):
+def ForwardSearch(topology_list):
     """Visit all nodes in a forward approach and prints the us name"""
-    for x in topologyList:
+    for x in topology_list:
         if len(x) > 1:
             print(x[0].name)
             iloop = 1
