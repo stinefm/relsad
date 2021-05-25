@@ -2,33 +2,23 @@ import numpy as np
 from stinetwork.topology.paths import configure
 
 
-def DistLoadFlow(BusList, LineList):
+def run_distribution_load_flow(bus_list, line_list, maxit: int = 5):
     """
-    Common base class Radial System's (Distribution)  Load Flow
-    Input:
-        BusList     - List off all Bus objects
-        LineList    - List of all transmission lines objects
-    Returns: None
-    """
-    topology, BusList, LineList = configure(BusList, LineList)
-    BusList = DistLF(topology, BusList, maxit=5)
-    return BusList
-
-
-#
-# Conduct a distribution system load flow based on FBS
-#
-def DistLF(topology, BusList, maxit=3):
-    """Solves the distribution load flow with a specified number of iterations
+    Solves the distribution load flow with a specified number of iterations
     The two first septs are to set up additions topology information and to build the main structure
     Next, it is switched between forward sweeps (Voltage updates) and backward sweeps(load update and loss calcuation)
+    Input:
+        bus_list     - List off all Bus objects
+        line_list    - List of all transmission lines objects
+    Returns: None
     """
+    topology, bus_list, line_list = configure(bus_list, line_list)
     iloop = 0
     while iloop < maxit:
-        accload(topology)
-        UpdateVolt(topology)
+        accumulate_load(topology)
+        update_voltage(topology)
         iloop += 1
-    return BusList
+    return bus_list
 
 
 #
@@ -36,125 +26,95 @@ def DistLF(topology, BusList, maxit=3):
 #
 
 
-def accload(topologyList):
+def accumulate_load(topology_list):
     """Calculates the accumulated downstream active and reactive load at all buses
     and calculates the active and reactive losses of lines and make an accumulated equivalent load at the buses
     """
-    pl1 = 0.0
-    ql1 = 0.0
-    ploss1 = 0.0
-    qloss1 = 0.0
-
-    for branch in reversed(topologyList):  # Start on last node
+    p_load = 0.0
+    q_load = 0.0
+    p_loss = 0.0
+    q_loss = 0.0
+    for branch in reversed(topology_list):  # Start on last node
         if len(branch) > 1:
-            iloop = 1
-            while iloop < len(branch):  # Do for all branches at a bus
-                pl2, ql2, ploss2, qloss2 = accload(branch[iloop])
-                pl1 += pl2  # Add accumulated powers and losses in a branch to the node where the brancing accurs.
-                ql1 += ql2
-                ploss1 += ploss2
-                qloss1 += qloss2
-                iloop += 1
-            # Add local loads
-            pla, qla, dPdV1, dQdV1 = getload(branch[0])
-            pl1 += pla
-            ql1 += qla
-            # Add accumulated descriptions to the branching node
-            branch[0].ploadds = pl1
-            branch[0].qloadds = ql1
-            branch[0].pblossds = ploss1
-            branch[0].qblossds = qloss1
-            if pl1 != 0:
-                branch[0].dPdV = (
-                    branch[0].dPdV * (pl1 - pla) + dPdV1 * pla
-                ) / pl1
-            if ql1 != 0:
-                branch[0].dQdV = (
-                    branch[0].dQdV * (ql1 - qla) + dQdV1 * qla
-                ) / ql1
-            if branch[0].toline:  # Follow the next node in the main path
-                lobj = branch[0].toline
-                if lobj.connected:
-                    pto = (
-                        branch[0].ploadds + branch[0].pblossds
-                    )  # Find the flow to the downstream bus
-                    qto = branch[0].qloadds + branch[0].qblossds
-                    lobj.ploss = (
-                        lobj.r_pu
-                        * (pto ** 2 + qto ** 2)
-                        / branch[0].vomag ** 2
-                    )  # Estimate the losses of the branch
-                    lobj.qloss = (
-                        lobj.x_pu
-                        * (pto ** 2 + qto ** 2)
-                        / branch[0].vomag ** 2
-                    )
-                    ploss1 += lobj.ploss
-                    qloss1 += lobj.qloss
-                    branch[
-                        0
-                    ].pblossds = ploss1  # Add the losses to the downstream bus
-                    branch[0].qblossds = qloss1
+            for child_branch in branch[1:]:  # Do for all child branches
+                (
+                    p_load_child,
+                    q_load_child,
+                    p_loss_child,
+                    q_loss_child,
+                ) = accumulate_load(child_branch)
+                # Add accumulated powers and losses in a branch to
+                # the node where the brancing accurs.
+                p_load += p_load_child
+                q_load += q_load_child
+                p_loss += p_loss_child
+                q_loss += q_loss_child
+        parent_bus = branch[0]
+        # Add local loads
+        p_load_local, q_load_local, dPdV_local, dQdV_local = get_load(
+            parent_bus
+        )
+        p_load += p_load_local
+        q_load += q_load_local
+        # Add accumulated descriptions to the branching node
+        parent_bus.p_load_downstream = p_load
+        parent_bus.q_load_downstream = q_load
+        # Weighting accumulated and parent_bus DPDV
+        if p_load != 0:
+            parent_bus.dPdV = (
+                parent_bus.dPdV * (p_load - p_load_local)
+                + dPdV_local * p_load_local
+            ) / p_load
+        if q_load != 0:
+            parent_bus.dQdV = (
+                parent_bus.dQdV * (q_load - q_load_local)
+                + dQdV_local * q_load_local
+            ) / q_load
+        # Add line loss
+        if parent_bus.toline:
+            to_line = parent_bus.toline
+            if to_line.connected:
+                # Find the flow to the downstream bus
+                pto = parent_bus.p_load_downstream + p_loss
+                qto = parent_bus.q_load_downstream + q_loss
+                # Estimate the losses of the branch
+                to_line.ploss = (
+                    to_line.r_pu
+                    * (pto ** 2 + qto ** 2)
+                    / parent_bus.vomag ** 2
+                )
+                to_line.qloss = (
+                    to_line.x_pu
+                    * (pto ** 2 + qto ** 2)
+                    / parent_bus.vomag ** 2
+                )
+                p_loss += to_line.ploss
+                q_loss += to_line.qloss
+                # Add the losses to the downstream bus
+                parent_bus.p_loss_downstream = p_loss
+                parent_bus.q_loss_downstream = q_loss
 
-        else:  # No branching at the bus
-            pla, qla, dPdV1, dQdV1 = getload(branch[0])
-            pl1 += pla  # Add local loads
-            ql1 += qla
-            branch[0].ploadds = pl1
-            branch[0].qloadds = ql1
-            if pl1 != 0:
-                branch[0].dPdV = (
-                    branch[0].dPdV * (pl1 - pla) + dPdV1 * pla
-                ) / pl1  # Weighting accumulated and bus DPDV
-            if ql1 != 0:
-                branch[0].dQdV = (
-                    branch[0].dQdV * (ql1 - qla) + dQdV1 * qla
-                ) / ql1
-            if branch[0].toline:
-                lobj = branch[0].toline
-                if lobj.connected:
-                    pto = branch[0].ploadds + ploss1
-                    qto = branch[0].qloadds + qloss1
-                    lobj.ploss = (
-                        lobj.r_pu
-                        * (pto ** 2 + qto ** 2)
-                        / branch[0].vomag ** 2
-                    )
-                    lobj.qloss = (
-                        lobj.x_pu
-                        * (pto ** 2 + qto ** 2)
-                        / branch[0].vomag ** 2
-                    )
-                    ploss1 += lobj.ploss
-                    qloss1 += lobj.qloss
-                    branch[0].pblossds = ploss1
-                    branch[0].qblossds = qloss1
-
-    return (
-        pl1,
-        ql1,
-        ploss1,
-        qloss1,
-    )  # Return the accumulated loads and losses from the current branch
+    # Return the accumulated loads and losses from the current branch
+    return p_load, q_load, p_loss, q_loss
 
 
 #
 # Function for calculating the voltages and sensitivities in the single phase case
 #
-def nodeVoltSensSP(fbus, tbus, tline, busobj):
+def calc_bus_voltage_sensitivity_single_phase(fbus, tbus, tline, branch: list):
     """
     Calculate the node voltages and sensitivities in the single phase case
     :param fbus:
     :param tbus:
     :param tline:
-    :param busobj:
+    :param branch:
     :return:
     """
 
     vk2 = fbus.vomag ** 2
     # Find the accumulated loads and losses flowing on the branch
-    tpload = busobj[0].ploadds + busobj[0].pblossds
-    tqload = busobj[0].qloadds + busobj[0].qblossds
+    tpload = branch[0].p_load_downstream + branch[0].p_loss_downstream
+    tqload = branch[0].q_load_downstream + branch[0].q_loss_downstream
     # Voltage calculation
     term2 = 2 * (tpload * tline.r_pu + tqload * tline.x_pu)
     term3 = (
@@ -216,11 +176,11 @@ def nodeVoltSensSP(fbus, tbus, tline, busobj):
     tbus.lossRatioQ = tbus.dPlossdQ / tbus.dP2lossdQ2
     tbus.lossRatioP = tbus.dPlossdP / tbus.dP2lossdP2
 
-    # Update the voltage for the purpose of loss minimization - adjust the sensitivity acording to the chosen step.
+    # Update the voltage for the purpose of loss minimization
+    # - adjust the sensitivity acording to the chosen step.
     if tbus.iloss:
-        if (
-            np.abs(tbus.dPlossdQ) >= 1.0 / tbus.pqcostRatio
-        ):  # Equivalent to that the dP cost more than pqcostRatio times dQ
+        # Equivalent to that the dP cost more than pqcostRatio times dQ
+        if np.abs(tbus.dPlossdQ) >= 1.0 / tbus.pqcostRatio:
             qcomp = tbus.dPlossdQ / tbus.dP2lossdQ2
             tbus.qload -= qcomp
             tbus.dPlossdQ = 0.0
@@ -237,54 +197,44 @@ def nodeVoltSensSP(fbus, tbus, tline, busobj):
 #
 # Update the voltage profile starting on the top node
 #
-def UpdateVolt(topologyList):
+def update_voltage(topology_list):
     """Update the voltage profile based on the accumulated load on each bus"""
-    for branch in topologyList:
+    for branch in topology_list:
+        if branch[0].toline:
+            tline = branch[0].toline
+            fbus = tline.fbus
+            tbus = tline.tbus
+            # Update voltages and sensitivities Single Phase
+            calc_bus_voltage_sensitivity_single_phase(
+                fbus, tbus, tline, branch
+            )
         if len(branch) > 1:
-            if branch[0].toline:
-                tline = branch[0].toline
-                fbus = tline.fbus
-                tbus = tline.tbus
-                # Update voltages and sensitivities Single Phase
-                nodeVoltSensSP(fbus, tbus, tline, branch)
-            iloop = 1
-            while iloop < len(branch):  # Update voltages along the branches
-                UpdateVolt(branch[iloop])
-                iloop += 1
-        else:  # Continue along the current path
-            if branch[0].toline:
-                tline = branch[0].toline
-                fbus = tline.fbus
-                tbus = tline.tbus
-                # Update voltages and sensitivities Single Phase
-                nodeVoltSensSP(fbus, tbus, tline, branch)
+            for bus in branch[1:]:  # Update voltages along the branches
+                update_voltage(bus)
 
 
 #
 # Calculates the load for the actual volage at the bus
 #
-def getload(busobj):
+def get_load(busobj):
     """Calculates the net voltage corrected load at the bus - currently a simple ZIP model is applied.
     Input: The busobject
-    Returns: pLoadAct, qLoadAct
+    Returns: p_load_act, q_load_act
     """
-    relative_pload = (
-        busobj.pload_pu - busobj.pprod_pu
-    )  # load - production [PU]
-    relative_qload = (
-        busobj.qload_pu - busobj.qprod_pu
-    )  # load - production [PU]
+    # load - production [PU]
+    relative_pload = busobj.pload_pu - busobj.pprod_pu
+    relative_qload = busobj.qload_pu - busobj.qprod_pu
 
-    pLoadAct = relative_pload * (
+    p_load_act = relative_pload * (
         busobj.ZIP[0] * busobj.vomag ** 2
         + busobj.ZIP[1] * busobj.vomag
         + busobj.ZIP[2]
     )
-    qLoadAct = relative_qload * (
+    q_load_act = relative_qload * (
         busobj.ZIP[0] * busobj.vomag ** 2
         + busobj.ZIP[1] * busobj.vomag
         + busobj.ZIP[2]
     )
     dPdV = relative_pload * (busobj.ZIP[0] * 2 * busobj.vomag + busobj.ZIP[1])
     dQdV = relative_qload * (busobj.ZIP[0] * 2 * busobj.vomag + busobj.ZIP[1])
-    return pLoadAct, qLoadAct, dPdV, dQdV
+    return p_load_act, q_load_act, dPdV, dQdV
