@@ -105,7 +105,7 @@ def initialize_69Bus_network():
         B2,
         0.0005,
         0.0012,
-        0.001887,
+        length=0.001887,
         fail_rate_density_per_year=fail_rate_line,
     )
     L2 = Line(
@@ -114,7 +114,7 @@ def initialize_69Bus_network():
         B3,
         0.0005,
         0.0012,
-        0.001887,
+        length=0.001887,
         fail_rate_density_per_year=fail_rate_line,
     )
     L3 = Line(
@@ -123,7 +123,7 @@ def initialize_69Bus_network():
         B4,
         0.0015,
         0.0036,
-        0.00566,
+        length=0.00566,
         fail_rate_density_per_year=fail_rate_line,
     )
     L4 = Line(
@@ -132,7 +132,7 @@ def initialize_69Bus_network():
         B5,
         0.0251,
         0.0294,
-        0.094705,
+        length=0.094705,
         fail_rate_density_per_year=fail_rate_line,
     )
     L5 = Line(
@@ -141,7 +141,7 @@ def initialize_69Bus_network():
         B6,
         0.3660,
         0.1864,
-        1.380954,
+        length=1.380954,
         fail_rate_density_per_year=fail_rate_line,
     )
     L6 = Line(
@@ -150,7 +150,7 @@ def initialize_69Bus_network():
         B7,
         0.3811,
         0.1941,
-        1.437928,
+        length=1.437928,
         fail_rate_density_per_year=fail_rate_line,
     )
     L7 = Line(
@@ -159,7 +159,7 @@ def initialize_69Bus_network():
         B8,
         0.0922,
         0.0470,
-        0.34788,
+        length=0.34788,
         fail_rate_density_per_year=fail_rate_line,
     )
     L8 = Line(
@@ -168,7 +168,7 @@ def initialize_69Bus_network():
         B9,
         0.0493,
         0.0251,
-        0.186014,
+        length=0.186014,
         fail_rate_density_per_year=fail_rate_line,
     )
     L9 = Line(
@@ -177,7 +177,7 @@ def initialize_69Bus_network():
         B10,
         0.8190,
         0.2707,
-        3.090168,
+        length=3.090168,
         fail_rate_density_per_year=fail_rate_line,
     )
     L10 = Line(
@@ -186,7 +186,7 @@ def initialize_69Bus_network():
         B11,
         0.1872,
         0.0619,
-        0.706324,
+        length=0.706324,
         fail_rate_density_per_year=fail_rate_line,
     )
     L11 = Line(
@@ -195,7 +195,7 @@ def initialize_69Bus_network():
         B12,
         0.7114,
         0.2351,
-        2.684183,
+        length=2.684183,
         fail_rate_density_per_year=fail_rate_line,
     )
     L12 = Line(
@@ -204,7 +204,7 @@ def initialize_69Bus_network():
         B13,
         1.0300,
         0.3400,
-        3.886292,
+        length=3.886292,
         fail_rate_density_per_year=fail_rate_line,
     )
     L13 = Line(
@@ -213,7 +213,7 @@ def initialize_69Bus_network():
         B14,
         1.0440,
         0.3450,
-        3.939116,
+        length=3.939116,
         fail_rate_density_per_year=fail_rate_line,
     )
     L14 = Line(
@@ -222,7 +222,7 @@ def initialize_69Bus_network():
         B15,
         1.0580,
         0.3496,
-        3.991939,
+        length=3.991939,
         fail_rate_density_per_year=fail_rate_line,
     )
     L15 = Line(
@@ -231,7 +231,7 @@ def initialize_69Bus_network():
         B16,
         0.1966,
         0.0650,
-        0.794615,
+        length=0.794615,
         fail_rate_density_per_year=fail_rate_line,
     )
     L16 = Line(
@@ -240,7 +240,7 @@ def initialize_69Bus_network():
         B17,
         0.3744,
         0.1238,
-        1.412648,
+        length=1.412648,
         fail_rate_density_per_year=fail_rate_line,
     )
     L17 = Line(
@@ -249,7 +249,7 @@ def initialize_69Bus_network():
         B18,
         0.0047,
         0.0016,
-        0.017734,
+        length=0.017734,
         fail_rate_density_per_year=fail_rate_line,
     )
     L18 = Line(
@@ -258,7 +258,7 @@ def initialize_69Bus_network():
         B19,
         0.3276,
         0.1083,
-        1.236067,
+        length=1.236067,
         fail_rate_density_per_year=fail_rate_line,
     )
     L19 = Line(
@@ -267,7 +267,7 @@ def initialize_69Bus_network():
         B20,
         0.2106,
         0.0690,
-        0.794615,
+        length=0.794615,
         fail_rate_density_per_year=fail_rate_line,
     )
     L20 = Line(
@@ -276,7 +276,7 @@ def initialize_69Bus_network():
         B21,
         0.3416,
         0.1129,
-        1.288891,
+        length=1.288891,
         fail_rate_density_per_year=fail_rate_line,
     )
     L21 = Line(
@@ -285,7 +285,7 @@ def initialize_69Bus_network():
         B22,
         0.0140,
         0.0046,
-        0.052823,
+        length=0.052823,
         fail_rate_density_per_year=fail_rate_line,
     )
     L22 = Line(
@@ -294,7 +294,7 @@ def initialize_69Bus_network():
         B23,
         0.1591,
         0.0526,
-        0.6003,
+        length=0.6003,
         fail_rate_density_per_year=fail_rate_line,
     )
     L23 = Line(
@@ -303,7 +303,7 @@ def initialize_69Bus_network():
         B24,
         0.3463,
         0.1145,
-        1.306624,
+        length=1.306624,
         fail_rate_density_per_year=fail_rate_line,
     )
     L24 = Line(
@@ -312,7 +312,7 @@ def initialize_69Bus_network():
         B25,
         0.7488,
         0.2475,
-        2.825297,
+        length=2.825297,
         fail_rate_density_per_year=fail_rate_line,
     )
     L25 = Line(
@@ -321,7 +321,7 @@ def initialize_69Bus_network():
         B26,
         0.3089,
         0.1021,
-        1.16551,
+        length=1.16551,
         fail_rate_density_per_year=fail_rate_line,
     )
     L26 = Line(
@@ -330,7 +330,7 @@ def initialize_69Bus_network():
         B27,
         0.1732,
         0.0572,
-        0.653501,
+        length=0.653501,
         fail_rate_density_per_year=fail_rate_line,
     )
     L27 = Line(
@@ -339,7 +339,7 @@ def initialize_69Bus_network():
         B28,
         0.0044,
         0.0108,
-        0.016602,
+        length=0.016602,
         fail_rate_density_per_year=fail_rate_line,
     )
     L28 = Line(
@@ -348,7 +348,7 @@ def initialize_69Bus_network():
         B29,
         0.0640,
         0.1565,
-        0.241478,
+        length=0.241478,
         fail_rate_density_per_year=fail_rate_line,
     )
     L29 = Line(
@@ -357,7 +357,7 @@ def initialize_69Bus_network():
         B30,
         0.3978,
         0.1315,
-        1.5,
+        length=1.5,
         fail_rate_density_per_year=fail_rate_line,
     )
     L30 = Line(
@@ -366,7 +366,7 @@ def initialize_69Bus_network():
         B31,
         0.0702,
         0.0232,
-        0.264872,
+        length=0.264872,
         fail_rate_density_per_year=fail_rate_line,
     )
     L31 = Line(
@@ -375,7 +375,7 @@ def initialize_69Bus_network():
         B32,
         0.3510,
         0.1160,
-        1.324358,
+        length=1.324358,
         fail_rate_density_per_year=fail_rate_line,
     )
     L32 = Line(
@@ -384,7 +384,7 @@ def initialize_69Bus_network():
         B33,
         0.8390,
         0.2816,
-        3.16563,
+        length=3.16563,
         fail_rate_density_per_year=fail_rate_line,
     )
     L33 = Line(
@@ -393,7 +393,7 @@ def initialize_69Bus_network():
         B34,
         1.7080,
         0.5646,
-        6.44,
+        length=6.44,
         fail_rate_density_per_year=fail_rate_line,
     )
     L34 = Line(
@@ -402,7 +402,7 @@ def initialize_69Bus_network():
         B35,
         1.4740,
         0.4873,
-        5.561549,
+        length=5.561549,
         fail_rate_density_per_year=fail_rate_line,
     )
     L35 = Line(
@@ -411,7 +411,7 @@ def initialize_69Bus_network():
         B36,
         0.0044,
         0.0108,
-        0.016602,
+        length=0.016602,
         fail_rate_density_per_year=fail_rate_line,
     )
     L36 = Line(
@@ -420,7 +420,7 @@ def initialize_69Bus_network():
         B37,
         0.0640,
         0.11565,
-        0.241478,
+        length=0.241478,
         fail_rate_density_per_year=fail_rate_line,
     )
     L37 = Line(
@@ -429,7 +429,7 @@ def initialize_69Bus_network():
         B38,
         0.1053,
         0.1230,
-        0.397307,
+        length=0.397307,
         fail_rate_density_per_year=fail_rate_line,
     )
     L38 = Line(
@@ -438,7 +438,7 @@ def initialize_69Bus_network():
         B39,
         0.0304,
         0.0355,
-        0.114702,
+        length=0.114702,
         fail_rate_density_per_year=fail_rate_line,
     )
     L39 = Line(
@@ -447,7 +447,7 @@ def initialize_69Bus_network():
         B40,
         0.0018,
         0.0021,
-        0.006792,
+        length=0.006792,
         fail_rate_density_per_year=fail_rate_line,
     )
     L40 = Line(
@@ -456,7 +456,7 @@ def initialize_69Bus_network():
         B41,
         0.7283,
         0.8509,
-        2.747948,
+        length=2.747948,
         fail_rate_density_per_year=fail_rate_line,
     )
     L41 = Line(
@@ -465,7 +465,7 @@ def initialize_69Bus_network():
         B42,
         0.31,
         0.3623,
-        1.169661,
+        length=1.169661,
         fail_rate_density_per_year=fail_rate_line,
     )
     L42 = Line(
@@ -474,7 +474,7 @@ def initialize_69Bus_network():
         B43,
         0.0410,
         0.0478,
-        0.154697,
+        length=0.154697,
         fail_rate_density_per_year=fail_rate_line,
     )
     L43 = Line(
@@ -483,7 +483,7 @@ def initialize_69Bus_network():
         B44,
         0.0092,
         0.0116,
-        0.034713,
+        length=0.034713,
         fail_rate_density_per_year=fail_rate_line,
     )
     L44 = Line(
@@ -492,7 +492,7 @@ def initialize_69Bus_network():
         B45,
         0.1089,
         0.1373,
-        0.410891,
+        length=0.410891,
         fail_rate_density_per_year=fail_rate_line,
     )
     L45 = Line(
@@ -501,7 +501,7 @@ def initialize_69Bus_network():
         B46,
         0.0009,
         0.0012,
-        0.003396,
+        length=0.003396,
         fail_rate_density_per_year=fail_rate_line,
     )
     L46 = Line(
@@ -510,7 +510,7 @@ def initialize_69Bus_network():
         B47,
         0.0034,
         0.0084,
-        0.012829,
+        length=0.012829,
         fail_rate_density_per_year=fail_rate_line,
     )
     L47 = Line(
@@ -519,7 +519,7 @@ def initialize_69Bus_network():
         B48,
         0.0851,
         0.2083,
-        0.321091,
+        length=0.321091,
         fail_rate_density_per_year=fail_rate_line,
     )
     L48 = Line(
@@ -528,7 +528,7 @@ def initialize_69Bus_network():
         B49,
         0.2898,
         0.7091,
-        1.093444,
+        length=1.093444,
         fail_rate_density_per_year=fail_rate_line,
     )
     L49 = Line(
@@ -537,7 +537,7 @@ def initialize_69Bus_network():
         B50,
         0.0822,
         0.2011,
-        0.310149,
+        length=0.310149,
         fail_rate_density_per_year=fail_rate_line,
     )
     L50 = Line(
@@ -546,7 +546,7 @@ def initialize_69Bus_network():
         B51,
         0.0928,
         0.0473,
-        0.350144,
+        length=0.350144,
         fail_rate_density_per_year=fail_rate_line,
     )
     L51 = Line(
@@ -555,7 +555,7 @@ def initialize_69Bus_network():
         B52,
         0.3319,
         0.1114,
-        1.252292,
+        length=1.252292,
         fail_rate_density_per_year=fail_rate_line,
     )
     L52 = Line(
@@ -564,7 +564,7 @@ def initialize_69Bus_network():
         B53,
         0.1740,
         0.0886,
-        0.656519,
+        length=0.656519,
         fail_rate_density_per_year=fail_rate_line,
     )
     L53 = Line(
@@ -573,7 +573,7 @@ def initialize_69Bus_network():
         B54,
         0.2030,
         0.1034,
-        0.765939,
+        length=0.765939,
         fail_rate_density_per_year=fail_rate_line,
     )
     L54 = Line(
@@ -582,7 +582,7 @@ def initialize_69Bus_network():
         B55,
         0.2842,
         0.1447,
-        1.072315,
+        length=1.072315,
         fail_rate_density_per_year=fail_rate_line,
     )
     L55 = Line(
@@ -591,7 +591,7 @@ def initialize_69Bus_network():
         B56,
         0.2813,
         0.1433,
-        1.061373,
+        length=1.061373,
         fail_rate_density_per_year=fail_rate_line,
     )
     L56 = Line(
@@ -600,7 +600,7 @@ def initialize_69Bus_network():
         B57,
         1.5900,
         0.5337,
-        6.0,
+        length=6.0,
         fail_rate_density_per_year=fail_rate_line,
     )
     L57 = Line(
@@ -609,7 +609,7 @@ def initialize_69Bus_network():
         B58,
         0.7837,
         0.2630,
-        2.96,
+        length=2.96,
         fail_rate_density_per_year=fail_rate_line,
     )
     L58 = Line(
@@ -618,7 +618,7 @@ def initialize_69Bus_network():
         B59,
         0.3042,
         0.1006,
-        1.148,
+        length=1.148,
         fail_rate_density_per_year=fail_rate_line,
     )
     L59 = Line(
@@ -627,7 +627,7 @@ def initialize_69Bus_network():
         B60,
         0.3861,
         0.1172,
-        1.4568,
+        length=1.4568,
         fail_rate_density_per_year=fail_rate_line,
     )
     L60 = Line(
@@ -636,7 +636,7 @@ def initialize_69Bus_network():
         B61,
         0.5075,
         0.2585,
-        1.9148,
+        length=1.9148,
         fail_rate_density_per_year=fail_rate_line,
     )
     L61 = Line(
@@ -645,7 +645,7 @@ def initialize_69Bus_network():
         B62,
         0.0974,
         0.0496,
-        0.3675,
+        length=0.3675,
         fail_rate_density_per_year=fail_rate_line,
     )
     L62 = Line(
@@ -654,7 +654,7 @@ def initialize_69Bus_network():
         B63,
         0.1450,
         0.0738,
-        0.5471,
+        length=0.5471,
         fail_rate_density_per_year=fail_rate_line,
     )
     L63 = Line(
@@ -663,7 +663,7 @@ def initialize_69Bus_network():
         B64,
         0.7105,
         0.3619,
-        2.6808,
+        length=2.6808,
         fail_rate_density_per_year=fail_rate_line,
     )
     L64 = Line(
@@ -672,7 +672,7 @@ def initialize_69Bus_network():
         B65,
         1.0410,
         0.5302,
-        3.9278,
+        length=3.9278,
         fail_rate_density_per_year=fail_rate_line,
     )
     L65 = Line(
@@ -681,7 +681,7 @@ def initialize_69Bus_network():
         B66,
         0.2012,
         0.0611,
-        0.75915,
+        length=0.75915,
         fail_rate_density_per_year=fail_rate_line,
     )
     L66 = Line(
@@ -690,7 +690,7 @@ def initialize_69Bus_network():
         B67,
         0.0047,
         0.0014,
-        0.017734,
+        length=0.017734,
         fail_rate_density_per_year=fail_rate_line,
     )
 
@@ -701,7 +701,7 @@ def initialize_69Bus_network():
         B68,
         0.7394,
         0.2444,
-        2.78983,
+        length=2.78983,
         fail_rate_density_per_year=fail_rate_line,
     )
     L68 = Line(
@@ -710,7 +710,7 @@ def initialize_69Bus_network():
         B69,
         0.0047,
         0.0016,
-        0.017734,
+        length=0.017734,
         fail_rate_density_per_year=fail_rate_line,
     )
     ML3 = Line(
@@ -719,7 +719,7 @@ def initialize_69Bus_network():
         B70,
         0.0047,
         0.0016,
-        0.017734,
+        length=0.017734,
         fail_rate_density_per_year=fail_rate_line,
     )
     ML4 = Line(
@@ -728,7 +728,7 @@ def initialize_69Bus_network():
         B71,
         0.0047,
         0.0016,
-        0.017734,
+        length=0.017734,
         fail_rate_density_per_year=fail_rate_line,
     )
 
@@ -739,7 +739,7 @@ def initialize_69Bus_network():
         B43,
         0.3042,
         0.1006,
-        1.148,
+        length=1.148,
         fail_rate_density_per_year=fail_rate_line,
         capacity=5,
     )
@@ -749,7 +749,7 @@ def initialize_69Bus_network():
         B24,
         0.8390,
         0.2816,
-        3.16563,
+        length=3.16563,
         fail_rate_density_per_year=fail_rate_line,
         capacity=5,
     )
@@ -758,7 +758,7 @@ def initialize_69Bus_network():
     #     B15,
     #     B46,
     #     0.0,
-    #     1.0e-08,
+    #     length=1.0e-08,
     #     fail_rate_density_per_year=fail_rate_line,
     #     capacity=3,
     # )
@@ -768,7 +768,7 @@ def initialize_69Bus_network():
         B59,
         0.2012,
         0.0611,
-        0.75915,
+        length=0.75915,
         fail_rate_density_per_year=fail_rate_line,
         capacity=5,
     )
@@ -777,7 +777,7 @@ def initialize_69Bus_network():
     #     B27,
     #     B65,
     #     0.0,
-    #     1.0e-08,
+    #     length=1.0e-08,
     #     fail_rate_density_per_year=fail_rate_line,
     #     capacity=3,
     # )
