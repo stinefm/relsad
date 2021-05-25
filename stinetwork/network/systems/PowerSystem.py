@@ -230,17 +230,15 @@ class PowerSystem:
         Sheds the unsupplied loads of the power system using a linear minimization
         problem solved with linear programming
         """
-
         if len(self.sub_systems) <= 1:
             buses = list(self.buses)
-            cost = [x.get_cost() for x in buses]
             lines = [x for x in self.lines if x.connected]
             N_D = len(buses)
             N_L = len(lines)
-            c = cost + [0] * N_L + [0] * N_D
+            c = [x.get_cost() for x in buses] + [0] * N_L + [0] * N_D
             A = np.zeros((N_D, N_D + N_L + N_D))
-            p_b = list()  # Active bus load
-            q_b = list()  # Reactive bus load
+            p_b = [max(0, bus.pload) for bus in buses]  # Active bus load
+            q_b = [max(0, bus.qload) for bus in buses]  # Reactive bus load
             p_gen = list()  # Active bus generation
             q_gen = list()  # Reactive bus generation
             # Building A-matrix
@@ -254,14 +252,12 @@ class PowerSystem:
                             A[j, N_D + index] = -1
                         else:
                             A[j, N_D + index] = 1
-                p_b.append(max(0, bus.pload))
-                q_b.append(max(0, bus.qload))
                 flag = False
                 for child_network in self.child_network_list:
                     if isinstance(child_network, Transmission):
                         if bus == child_network.get():
-                            p_gen.append(np.inf)
-                            q_gen.append(np.inf)
+                            p_gen.append(np.inf)#10*sum(p_b))
+                            q_gen.append(np.inf)#10*sum(q_b))
                             flag = True
                 if flag is False:
                     p_gen.append(max(0, bus.pprod))
@@ -274,10 +270,13 @@ class PowerSystem:
                     q_bounds.append((0, q_b[n]))
                 elif n >= N_D and n < N_D + N_L:
                     line = lines[n - N_D]
-                    (
-                        max_available_p_flow,
-                        max_available_q_flow,
-                    ) = line.get_line_load()[:2]
+                    # Line load in MW
+                    max_available_p_flow = (
+                            line.get_line_load()[0] * line.s_ref
+                    )
+                    max_available_q_flow = (
+                            line.get_line_load()[1] * line.s_ref
+                    )
                     PL_p_max = min(line.capacity, abs(max_available_p_flow))
                     PL_q_max = min(line.capacity, abs(max_available_q_flow))
                     p_bounds.append((-PL_p_max, PL_p_max))
@@ -286,17 +285,30 @@ class PowerSystem:
                     p_bounds.append((0, p_gen[n - (N_D + N_L)]))
                     q_bounds.append((0, q_gen[n - (N_D + N_L)]))
             if sum(p_b) != 0:
+                #p_res = linprog(
+                #    c,
+                #    A_eq=A,
+                #    b_eq=p_b,
+                #    bounds=p_bounds,
+                #)
+                #if not p_res.success:
+                print("buses: ", buses)
+                print("lines: ", lines)
+                print("cost: ", c)
+                print("p_gen: ",p_gen)
+                print("p_b: ",p_b)
+                print("p_bounds: ",p_bounds)
                 p_res = linprog(
                     c,
                     A_eq=A,
                     b_eq=p_b,
                     bounds=p_bounds,
                     options={
-                        "tol": 1e-6,
+                        "disp": True,
                     },
                 )
-                if not p_res.success:
-                    raise Exception("Active load shed failed")
+                print(p_res)
+                raise Exception("Active load shed failed")
                 if p_res.fun > 0:
                     for i, bus in enumerate(buses):
                         bus.add_to_load_shed_stack(p_res.x[i], 0)
@@ -315,12 +327,25 @@ class PowerSystem:
                     A_eq=A,
                     b_eq=q_b,
                     bounds=q_bounds,
-                    options={
-                        "tol": 1e-6,
-                    },
                 )
                 if not q_res.success:
-                    raise Exception("Active load shed failed")
+                    print("buses: ", buses)
+                    print("lines: ", lines)
+                    print("cost: ", c)
+                    print("q_gen: ",q_gen)
+                    print("q_b: ",q_b)
+                    print("q_bounds: ",q_bounds)
+                    q_res = linprog(
+                        c,
+                        A_eq=A,
+                        b_eq=q_b,
+                        bounds=q_bounds,
+                        options={
+                            "disp": True,
+                        },
+                    )
+                    print(q_res)
+                    raise Exception("Reactive load shed failed")
                 if q_res.fun > 0:
                     for i, bus in enumerate(buses):
                         bus.add_to_load_shed_stack(0, q_res.x[i])

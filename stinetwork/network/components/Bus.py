@@ -155,8 +155,7 @@ class Bus(Component):
     def set_load(self, curr_time):
         day = curr_time // 24
         hour = curr_time % 24
-        self.pload = 0
-        self.qload = 0
+        self.reset_load()
         cost_functions = {
             "Jordbruk": {"A": 21.4 - 17.5, "B": 17.5},
             "Microgrid": {"A": (21.4 - 17.5) * 1000, "B": 17.5 * 1000},
@@ -165,18 +164,21 @@ class Bus(Component):
             "Offentlig virksomhet": {"A": 194.5 - 31.4, "B": 31.4},
             "Husholdning": {"A": 8.8, "B": 14.7},
         }
-        for load_type in self.load_dict:
-            try:
-                type_cost = cost_functions[load_type]
-                A = type_cost["A"]
-                B = type_cost["B"]
-                self.set_cost(A + B * 1)
-                self.pload += self.load_dict[load_type]["pload"][day, hour]
-                self.qload += self.load_dict[load_type]["qload"][day, hour]
-            except KeyError:
-                print(
-                    "Load type {} is not in cost_functions".format(load_type)
-                )
+        if self.load_dict:
+            for load_type in self.load_dict:
+                try:
+                    type_cost = cost_functions[load_type]
+                    A = type_cost["A"]
+                    B = type_cost["B"]
+                    self.set_cost(A + B * 1)
+                    self.pload += self.load_dict[load_type]["pload"][day, hour]
+                    self.qload += self.load_dict[load_type]["qload"][day, hour]
+                except KeyError:
+                    print(
+                        "Load type {} is not in cost_functions".format(load_type)
+                    )
+        else:
+            self.set_cost(1)
         self.pload_pu = self.pload / self.s_ref
         self.qload_pu = self.qload / self.s_ref
 

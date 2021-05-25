@@ -371,8 +371,7 @@ class Line(Component):
 
     def get_line_load(self):
         """
-        Gets the power flow over the line
-        Returns the flow over the line
+        Returns the flow over the line in PU
 
         Parameters
         ----------
