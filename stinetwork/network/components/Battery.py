@@ -153,7 +153,6 @@ class Battery(Component):
 
         self.bus = bus
         bus.battery = self
-        bus.set_cost(1)  # Add symbolic cost to shedding battery load
 
         self.inj_p_max = inj_p_max  # MW
         self.inj_q_max = inj_q_max  # MVar
