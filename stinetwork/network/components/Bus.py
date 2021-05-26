@@ -180,7 +180,7 @@ class Bus(Component):
                         )
                     )
         else:
-            self.set_cost(1)
+            self.set_cost(1e8)
         self.pload_pu = self.pload / self.s_ref
         self.qload_pu = self.qload / self.s_ref
 
