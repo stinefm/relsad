@@ -244,12 +244,12 @@ class PowerSystem:
         The problem is solved with the following modification to prevent numerical difficulties
 
         such that
-            sum(P_shed_n) - sum(P_line_nl) + sum(P_gen_n) >= sum(P_load_n) + alpha  for all buses n
+            sum(P_shed_n) - sum(P_line_nl) + sum(P_gen_n) + alpha = sum(P_load_n)  for all buses n
 
                          0 <= P_shed_n  <= P_load_n
             -P_line_nl_max <= P_line_nl <= P_line_nl_max
                P_gen_n_min <= P_gen_n   <= P_gen_n_max
-               alpha = 1e-6
+                 alpha_min <= alpha     <= alpha_max
         """
         if len(self.sub_systems) > 1:
             raise Exception("More than one sub system")
@@ -260,26 +260,28 @@ class PowerSystem:
         lines = [x for x in self.lines if x.connected]
         N_D = len(buses)
         N_L = len(lines)
-        c = [x.get_cost() for x in buses] + [0] * N_L + [0] * N_D
-        A = np.zeros((N_D, N_D + N_L + N_D))
-        p_b = [-max(0, bus.pload) for bus in buses]  # Active bus load
-        q_b = [-max(0, bus.qload) for bus in buses]  # Reactive bus load
+        c = [x.get_cost() for x in buses] + [0] * N_L + [0] * N_D + [0]
+        A = np.zeros((N_D, N_D + N_L + N_D + 1))
+        p_b = [max(0, bus.pload) for bus in buses]  # Active bus load
+        q_b = [max(0, bus.qload) for bus in buses]  # Reactive bus load
         p_gen = list()  # Active bus generation
         q_gen = list()  # Reactive bus generation
         # Building A-matrix
         for j, bus in enumerate(buses):
             # Load shed coefficients
-            A[j, j] = -1  # mu_md
+            A[j, j] = 1  # mu_md
             # Line load coefficients
             for line in bus.connected_lines:
                 if line.connected:
                     index = lines.index(line)
                     if bus == line.fbus:
-                        A[j, N_D + index] = 1
-                    else:
                         A[j, N_D + index] = -1
+                    else:
+                        A[j, N_D + index] = 1
             # Generation coefficients
-            A[j, N_D + N_L + j] = -1  # lambda_md
+            A[j, N_D + N_L + j] = 1  # lambda_md
+            # Slack parameter
+            A[j,-1] = 1
             # Generation boundaries
             flag = False
             for child_network in self.child_network_list:
@@ -296,8 +298,8 @@ class PowerSystem:
         q_bounds = list()
         for n in range(N_D + N_L + N_D):
             if n < N_D:
-                p_bounds.append((0, -p_b[n]))
-                q_bounds.append((0, -q_b[n]))
+                p_bounds.append((0, p_b[n]))
+                q_bounds.append((0, q_b[n]))
             elif N_D <= n < N_D + N_L:
                 line = lines[n - N_D]
                 # Line load in MW
@@ -310,13 +312,14 @@ class PowerSystem:
             else:
                 p_bounds.append((0, p_gen[n - (N_D + N_L)]))
                 q_bounds.append((0, q_gen[n - (N_D + N_L)]))
-        p_b = [x + alpha for x in p_b]
-        q_b = [x + alpha for x in q_b]
+        # alpha bounds
+        p_bounds.append((-alpha, alpha))
+        q_bounds.append((-alpha, alpha))
         if sum(p_b) != 0:
             p_res = linprog(
                 c,
-                A_ub=A,
-                b_ub=p_b,
+                A_eq=A,
+                b_eq=p_b,
                 bounds=p_bounds,
             )
             if not p_res.success:
@@ -329,8 +332,8 @@ class PowerSystem:
                 print("p_bounds: ", p_bounds)
                 p_res = linprog(
                     c,
-                    A_ub=A,
-                    b_ub=p_b,
+                    A_eq=A,
+                    b_eq=p_b,
                     bounds=p_bounds,
                     options={
                         "disp": True,
@@ -353,8 +356,8 @@ class PowerSystem:
         if sum(q_b) != 0:
             q_res = linprog(
                 c,
-                A_ub=A,
-                b_ub=q_b,
+                A_eq=A,
+                b_eq=q_b,
                 bounds=q_bounds,
             )
             if not q_res.success:
@@ -367,8 +370,8 @@ class PowerSystem:
                 print("q_bounds: ", q_bounds)
                 q_res = linprog(
                     c,
-                    A_ub=A,
-                    b_ub=q_b,
+                    A_eq=A,
+                    b_eq=q_b,
                     bounds=q_bounds,
                     options={
                         "disp": True,
