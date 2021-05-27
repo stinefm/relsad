@@ -17,8 +17,8 @@ from stinetwork.visualization.plotting import plot_topology
 
 def initialize_69Bus_network():
     ps = PowerSystem()
-    fail_rate_trafo = 1  # 0.008
-    fail_rate_line = 5  # 0.08
+    fail_rate_trafo = 0.007  # 0.008
+    fail_rate_line = 0.07  # 0.08
 
     B1 = Bus("B1", coordinate=[0, 0], fail_rate_per_year=0)
     B2 = Bus("B2", coordinate=[1, 0], fail_rate_per_year=fail_rate_trafo)
@@ -1109,7 +1109,7 @@ def initialize_69Bus_network():
         ]
     )
 
-    m = Microgrid(dn, L67)
+    m = Microgrid(dn, L67, mode=1)
     m.add_buses([B68, B69, B70, B71])
     m.add_lines([L68, ML3, ML4])
 
