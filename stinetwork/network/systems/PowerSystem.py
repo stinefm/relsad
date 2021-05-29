@@ -254,7 +254,7 @@ class PowerSystem:
         if len(self.sub_systems) > 1:
             raise Exception("More than one sub system")
 
-        alpha = 1e-5  # Slack variable to cope with numerical noise
+        alpha = 1e-4  # Slack variable to cope with numerical noise
 
         buses = list(self.buses)
         lines = [x for x in self.lines if x.connected]
