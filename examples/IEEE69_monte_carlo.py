@@ -1,4 +1,4 @@
-from stinetwork.test_networks.BusSystem69 import initialize_69Bus_network
+from stinetwork.test_networks.IEEE69 import initialize_network
 from stinetwork.visualization.plotting import plot_topology
 from stinetwork.utils import random_instance
 from load_and_gen_data import (
@@ -14,7 +14,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 start = time.time()
 
-ps = initialize_69Bus_network()
+ps = initialize_network()
 
 ## Set seed to get deterministic behavior
 ps.add_random_instance(random_instance(seed=0))
@@ -623,12 +623,12 @@ fig = plot_topology(ps.buses, ps.lines, figsize=(6.5, 4.5))
 fig.savefig(os.path.join(save_dir, "topology.pdf"))
 
 
-# ps.run_monte_carlo(
-#     iterations=1,
-#     increments=365,
-#     save_iterations=[0],
-#     save_dir=save_dir,
-# )
+ps.run_monte_carlo(
+    iterations=1,
+    increments=365,
+    save_iterations=[0],
+    save_dir=save_dir,
+)
 
 
 print(ps.get_max_load())
@@ -636,5 +636,5 @@ print(ps.get_max_load())
 end = time.time()
 print("Time elapsed: {}".format(end - start))
 
-# ps.plot_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
-# ps.save_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
+ps.plot_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
+ps.save_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))

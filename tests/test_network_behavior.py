@@ -1,4 +1,4 @@
-from stinetwork.test_networks.smallNetwork import initialize_test_network
+from stinetwork.test_networks.CINELDI import initialize_network
 from stinetwork.network.systems import find_sub_systems
 
 
@@ -11,7 +11,7 @@ class MyError(Exception):
 
 
 def test_B1_trafo_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("B1").trafo_fail(0)
 
@@ -49,7 +49,7 @@ def test_B1_trafo_fail():
 
 
 def test_B2_trafo_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("B2").trafo_fail(0)
 
@@ -87,7 +87,7 @@ def test_B2_trafo_fail():
 
 
 def test_B3_trafo_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("B3").trafo_fail(0)
 
@@ -125,7 +125,7 @@ def test_B3_trafo_fail():
 
 
 def test_B4_trafo_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("B4").trafo_fail(0)
 
@@ -163,7 +163,7 @@ def test_B4_trafo_fail():
 
 
 def test_B5_trafo_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("B5").trafo_fail(0)
 
@@ -201,7 +201,7 @@ def test_B5_trafo_fail():
 
 
 def test_M1_trafo_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("M1").trafo_fail(0)
 
@@ -239,7 +239,7 @@ def test_M1_trafo_fail():
 
 
 def test_M2_trafo_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("M2").trafo_fail(0)
 
@@ -277,7 +277,7 @@ def test_M2_trafo_fail():
 
 
 def test_M3_trafo_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("M3").trafo_fail(0)
 
@@ -315,7 +315,7 @@ def test_M3_trafo_fail():
 
 
 def test_L1_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("L1").fail(0)
     find_sub_systems(ps, 0)
@@ -354,7 +354,7 @@ def test_L1_fail():
 
 
 def test_L2_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("L2").fail(0)
 
@@ -394,7 +394,7 @@ def test_L2_fail():
 
 
 def test_L3_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("L3").fail(0)
 
@@ -434,7 +434,7 @@ def test_L3_fail():
 
 
 def test_L4_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("L4").fail(0)
 
@@ -474,7 +474,7 @@ def test_L4_fail():
 
 
 def test_L5_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("L5").fail(0)
 
@@ -514,7 +514,7 @@ def test_L5_fail():
 
 
 def test_L6_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("L6").fail(0)
 
@@ -554,7 +554,7 @@ def test_L6_fail():
 
 
 def test_L7_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("L7").fail(0)
 
@@ -594,7 +594,7 @@ def test_L7_fail():
 
 
 def test_ML1_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("ML1").fail(0)
 
@@ -634,7 +634,7 @@ def test_ML1_fail():
 
 
 def test_ML2_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("ML2").fail(0)
 
@@ -674,7 +674,7 @@ def test_ML2_fail():
 
 
 def test_L2_and_L3_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("L2").fail(0)
     ps.get_comp("L3").fail(0)
@@ -715,7 +715,7 @@ def test_L2_and_L3_fail():
 
 
 def test_L3_and_L5_fail():
-    ps = initialize_test_network()
+    ps = initialize_network()
 
     ps.get_comp("L3").fail(0)
     ps.get_comp("L5").fail(0)

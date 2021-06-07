@@ -1,4 +1,4 @@
-from stinetwork.test_networks.smallNetwork import initialize_test_network
+from stinetwork.test_networks.CINELDI import initialize_network
 from stinetwork.utils import random_instance
 from load_and_gen_data import (
     WeatherGen,
@@ -13,7 +13,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 start = time.time()
 
-ps = initialize_test_network()
+ps = initialize_network()
 
 mode = None
 

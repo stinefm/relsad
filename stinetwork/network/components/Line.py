@@ -109,7 +109,8 @@ class Line(Component):
         x: float,  # Ohm
         s_ref: float = 1,  # MVA
         v_ref: float = 12.66,  # KV
-        length: float = 1,
+        rho: float = 1.72e-8,  # resistivity [Ohm*m]
+        area: float = 64.52e-6,  # cross-sectional area [m**2]
         fail_rate_density_per_year: float = 0.2,
         outage_time: float = 4,
         capacity: float = 100,  # MW
@@ -144,14 +145,16 @@ class Line(Component):
         self.x = x
         self.r_pu = r / self.r_ref
         self.x_pu = x / self.r_ref
-        self.length = length
+        self.area = area
+        self.rho = rho
+        self.length = r * area / rho * 1e-3  # km
         self.capacity = capacity  # MW
         self.ploss = 0.0
         self.qloss = 0.0
 
         ## Reliabilility attributes
         self.fail_rate_per_year = (
-            fail_rate_density_per_year * length
+            fail_rate_density_per_year * self.length
         )  # failures per year
         self.fail_rate_per_hour = self.fail_rate_per_year / (365 * 24)
         self.outage_time = outage_time  # hours

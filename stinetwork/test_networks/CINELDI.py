@@ -14,7 +14,7 @@ from stinetwork.network.systems import (
 )
 
 
-def initialize_test_network():
+def initialize_network():
     ps = PowerSystem()
 
     ## Transmission network
@@ -41,48 +41,48 @@ def initialize_test_network():
         "L1",
         T,
         B1,
-        0.057526629463617,
-        0.029324854498807,
+        r=0.057526629463617,
+        x=0.029324854498807,
         fail_rate_density_per_year=fail_rate,
     )
     L2 = Line(
         "L2",
         B1,
         B2,
-        0.057526629463617,
-        0.029324854498807,
+        r=0.057526629463617,
+        x=0.029324854498807,
         fail_rate_density_per_year=fail_rate,
     )
     L3 = Line(
         "L3",
         B1,
         B3,
-        0.7114,
-        0.2351,
+        r=0.7114,
+        x=0.2351,
         fail_rate_density_per_year=fail_rate,
     )
     L4 = Line(
         "L4",
         B3,
         B4,
-        0.7114,
-        0.2351,
+        r=0.7114,
+        x=0.2351,
         fail_rate_density_per_year=fail_rate,
     )
     L5 = Line(
         "L5",
         B2,
         B5,
-        0.7114,
-        0.2351,
+        r=0.7114,
+        x=0.2351,
         fail_rate_density_per_year=fail_rate,
     )
     L6 = Line(
         "L6",
         B3,
         B5,
-        0.7114,
-        0.2351,
+        r=0.7114,
+        x=0.2351,
         fail_rate_density_per_year=fail_rate,
         capacity=6,
     )
@@ -90,24 +90,24 @@ def initialize_test_network():
         "L7",
         B1,
         M1,
-        0.057526629463617,
-        0.029324854498807,
+        r=0.057526629463617,
+        x=0.029324854498807,
         fail_rate_density_per_year=fail_rate,
     )
     ML1 = Line(
         "ML1",
         M1,
         M2,
-        0.057526629463617,
-        0.029324854498807,
+        r=0.057526629463617,
+        x=0.029324854498807,
         fail_rate_density_per_year=fail_rate,
     )
     ML2 = Line(
         "ML2",
         M1,
         M3,
-        0.057526629463617,
-        0.029324854498807,
+        r=0.057526629463617,
+        x=0.029324854498807,
         fail_rate_density_per_year=fail_rate,
     )
 

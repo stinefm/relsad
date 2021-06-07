@@ -15,7 +15,7 @@ from stinetwork.network.systems import (
 from stinetwork.visualization.plotting import plot_topology
 
 
-def initialize_69Busmodified_network():
+def initialize_network():
     ps = PowerSystem()
     fail_rate_trafo = 0.007  # 0.008
     fail_rate_line = 0.07  # 0.08
@@ -52,135 +52,120 @@ def initialize_69Busmodified_network():
         "L1",
         B1,
         B2,
-        0.0922,  # 0.3660,
-        0.0470,  # 0.1864,
-        length=1.485093,
+        r=0.0922,  # 0.3660,
+        x=0.0470,  # 0.1864,
         fail_rate_density_per_year=fail_rate_line,
     )
     L2 = Line(
         "L2",
         B2,
         B3,
-        0.0922,  # 0.3811,
-        0.0470,  # 0.1941,
-        length=1.437928,
+        r=0.0922,  # 0.3811,
+        x=0.0470,  # 0.1941,
         fail_rate_density_per_year=fail_rate_line,
     )
     L3 = Line(
         "L3",
         B3,
         B4,
-        0.0922,
-        0.0470,
-        length=0.34788,
+        r=0.0922,
+        x=0.0470,
         fail_rate_density_per_year=fail_rate_line,
     )
     L4 = Line(
         "L4",
         B4,
         B5,
-        0.0493,
-        0.0251,
-        length=0.186014,
+        r=0.0493,
+        x=0.0251,
         fail_rate_density_per_year=fail_rate_line,
     )
     L5 = Line(
         "L5",
         B5,
         B6,
-        0.1872,  # 0.8190,
-        0.0619,  # 0.2707,
-        length=3.090168,
+        r=0.1872,  # 0.8190,
+        x=0.0619,  # 0.2707,
         fail_rate_density_per_year=fail_rate_line,
     )
     L6 = Line(
         "L6",
         B6,
         B7,
-        0.1872,
-        0.0619,
-        length=0.706324,
+        r=0.1872,
+        x=0.0619,
         fail_rate_density_per_year=fail_rate_line,
     )
     L7 = Line(
         "L7",
         B7,
         B8,
-        0.1872,  # 0.7114,
-        0.0619,  # 0.2351,
-        length=2.684183,
+        r=0.1872,  # 0.7114,
+        x=0.0619,  # 0.2351,
         fail_rate_density_per_year=fail_rate_line,
     )
     L8 = Line(
         "L8",
         B8,
         B9,
-        0.1872,  # 1.0300,
-        0.0619,  # 0.3400,
-        length=3.886292,
+        r=0.1872,  # 1.0300,
+        x=0.0619,  # 0.3400,
         fail_rate_density_per_year=fail_rate_line,
     )
     L9 = Line(
         "L9",
         B9,
         B10,
-        0.1872,  # 1.0440,
-        0.0619,  # 0.3450,
-        length=3.939116,
+        r=0.1872,  # 1.0440,
+        x=0.0619,  # 0.3450,
         fail_rate_density_per_year=fail_rate_line,
     )
     L10 = Line(
         "L10",
         B10,
         B11,
-        0.1872,  # 1.0580,
-        0.0619,  # 0.3496,
-        length=3.991939,
+        r=0.1872,  # 1.0580,
+        x=0.0619,  # 0.3496,
         fail_rate_density_per_year=fail_rate_line,
     )
     L11 = Line(
         "L11",
         B11,
         B12,
-        0.1966,
-        0.0650,
-        length=0.794615,
+        r=0.1966,
+        x=0.0650,
         fail_rate_density_per_year=fail_rate_line,
     )
     L12 = Line(
         "L12",
         B12,
         B13,
-        0.1872,  # 1.0300,
-        0.0619,  # 0.3400,
-        length=3.886292,
+        r=0.1872,  # 1.0300,
+        x=0.0619,  # 0.3400,
         fail_rate_density_per_year=fail_rate_line,
     )
     L13 = Line(
         "L13",
         B13,
         B14,
-        0.1872,  # 1.0440,
-        0.0619,  # 0.3450,
-        length=3.939116,
+        r=0.1872,  # 1.0440,
+        x=0.0619,  # 0.3450,
         fail_rate_density_per_year=fail_rate_line,
     )
     L14 = Line(
         "L14",
         B14,
         B15,
-        0.1872,  # 1.0580,
-        0.0619,  # 0.3496,
-        length=3.991939,
+        r=0.1872,  # 1.0580,
+        x=0.0619,  # 0.3496,
         fail_rate_density_per_year=fail_rate_line,
     )
     L15 = Line(
         "L15",
         B15,
         B16,
-        0.1966,
-        0.0650,
-        length=0.794615,
+        r=0.1966,
+        x=0.0650,
         fail_rate_density_per_year=fail_rate_line,
     )
 
@@ -190,9 +175,8 @@ def initialize_69Busmodified_network():
         "ML1",
         B13,
         BM1,
-        0.1872,  # 0.7394,
-        0.0619,  # 0.2444,
-        length=2.78983,
+        r=0.1872,  # 0.7394,
+        x=0.0619,  # 0.2444,
         fail_rate_density_per_year=fail_rate_line,
     )
 
@@ -200,27 +184,24 @@ def initialize_69Busmodified_network():
         "ML2",
         BM1,
         BM2,
-        0.0047,
-        0.0016,
-        length=0.017734,
+        r=0.0047,
+        x=0.0016,
         fail_rate_density_per_year=fail_rate_line,
     )
     ML3 = Line(
         "ML3",
         BM1,
         BM3,
-        0.0047,
-        0.0016,
-        length=0.017734,
+        r=0.0047,
+        x=0.0016,
         fail_rate_density_per_year=fail_rate_line,
     )
     ML4 = Line(
         "ML4",
         BM1,
         BM4,
-        0.0047,
-        0.0016,
-        length=0.017734,
+        r=0.0047,
+        x=0.0016,
         fail_rate_density_per_year=fail_rate_line,
     )
 
@@ -324,7 +305,7 @@ def initialize_69Busmodified_network():
 if __name__ == "__main__":
     import os
 
-    ps = initialize_69Busmodified_network()
+    ps = initialize_network()
     fig = plot_topology(ps.buses, ps.lines)
 
     fig.savefig(
