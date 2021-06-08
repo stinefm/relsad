@@ -65,6 +65,7 @@ class Bus(Component):
     def __init__(
         self,
         name: str,
+        n_customers: int,
         coordinate: list = [0, 0],
         ZIP=[0.0, 0.0, 1.0],
         s_ref: float = 1,  # MVA
@@ -77,6 +78,7 @@ class Bus(Component):
     ):
         ## Informative attributes
         self.name = name
+        self.n_customers = n_customers
         self.coordinate = coordinate
 
         ## Power flow attributes
@@ -108,6 +110,7 @@ class Bus(Component):
         self.acc_outage_time = 0
         self.avg_fail_rate = 0
         self.avg_outage_time = 0
+        self.interruptions = 0
 
         ## Production and battery
         self.prod = None
@@ -155,6 +158,8 @@ class Bus(Component):
     def set_load(self, curr_time):
         day = curr_time // 24
         hour = curr_time % 24
+        day_idx = day - 1
+        hour_idx = hour - 1
         self.reset_load()
         cost_functions = {
             "Jordbruk": {"A": 21.4 - 17.5, "B": 17.5},
@@ -171,8 +176,14 @@ class Bus(Component):
                     A = type_cost["A"]
                     B = type_cost["B"]
                     self.set_cost(A + B * 1)
-                    self.pload += self.load_dict[load_type]["pload"][day, hour]
-                    self.qload += self.load_dict[load_type]["qload"][day, hour]
+                    self.pload += (
+                        self.load_dict[load_type]["pload"][day_idx, hour_idx]
+                        * self.n_customers
+                    )
+                    self.qload += (
+                        self.load_dict[load_type]["qload"][day_idx, hour_idx]
+                        * self.n_customers
+                    )
                 except KeyError:
                     print(
                         "Load type {} is not in cost_functions".format(
@@ -212,7 +223,6 @@ class Bus(Component):
     def update_fail_status(self, curr_time):
         if self.trafo_failed:
             self.remaining_outage_time -= 1
-            self.acc_outage_time += 1
             if self.remaining_outage_time == 0:
                 self.trafo_not_fail(curr_time)
             else:
@@ -254,12 +264,15 @@ class Bus(Component):
         self.history["avg_outage_time"] = {}
 
     def update_history(self, curr_time, save_flag: bool):
-        self.acc_p_load_shed += (
-            self.p_load_shed_stack
-        )  # Update accumulated load shed for bus
+        # Update accumulated load shed for bus
+        self.acc_p_load_shed += self.p_load_shed_stack
         self.acc_q_load_shed += self.q_load_shed_stack
+        self.acc_outage_time += 1 if self.p_load_shed_stack > 0 else 0
         self.avg_outage_time = self.acc_outage_time / (curr_time + 1)
         self.avg_fail_rate = self.get_avg_fail_rate()
+        # Accumulate fraction of interupted customers
+        if self.pload > 0:
+            self.interruptions += self.p_load_shed_stack / self.pload
         if save_flag:
             self.history["pload"][curr_time] = self.pload
             self.history["qload"][curr_time] = self.qload
@@ -323,11 +336,14 @@ class Bus(Component):
     def reset_status(self, save_flag: bool):
         self.trafo_failed = False
         self.remaining_outage_time = 0
+        self.acc_outage_time = 0
         self.reset_load_and_prod_attributes()
         self.cost = 0  # cost
         self.clear_load_shed_stack()
-        self.acc_p_load_shed = 0  # Accumulated load shed for bus
+        # Accumulated load shed for bus
+        self.acc_p_load_shed = 0
         self.acc_q_load_shed = 0
+        self.interruptions = 0
         if save_flag:
             self.initialize_history()
 
