@@ -1,4 +1,4 @@
-from stinetwork.test_networks.IEEE33 import initialize_network
+from IEEE33 import initialize_network
 from stinetwork.visualization.plotting import plot_topology
 from stinetwork.utils import random_instance
 from load_and_gen_data import (
@@ -293,7 +293,7 @@ load_dict[B30] = {
 load_dict[B31] = {
     "Offentlig virksomhet": {
         "pload": load_office,
-        "qload": load_office,
+        "qload": load_office * 0,
     }
 }
 load_dict[B32] = {
@@ -313,16 +313,16 @@ prod_dict[P2] = {"pprod": PV, "qprod": PV * 0}
 ps.add_load_dict(load_dict)
 ps.add_prod_dict(prod_dict)
 
-save_dir = r"C:\Users\stinefm\Documents\IEEE33_results\S1"
+save_dir = "res"
 
 fig = plot_topology(ps.buses, ps.lines, figsize=(6.5, 4.5))
 fig.savefig(os.path.join(save_dir, "topology.pdf"))
 
 
 ps.run_monte_carlo(
-    iterations=1,
-    increments=365,
-    save_iterations=[0],
+    iterations=1500,
+    increments=8760,
+    save_iterations=[1, 250, 500, 750, 1000, 1250, 1500],
     save_dir=save_dir,
 )
 

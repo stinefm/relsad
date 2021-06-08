@@ -319,7 +319,7 @@ class PowerSystem:
         # alpha bounds
         p_bounds.append((-alpha, alpha))
         q_bounds.append((-alpha, alpha))
-        if sum(p_b) != 0:
+        if sum(p_b) > alpha:
             p_res = linprog(
                 c,
                 A_eq=A,
@@ -359,7 +359,7 @@ class PowerSystem:
                         break
                 if add:
                     PowerSystem.shed_configs.append(self)
-        if sum(q_b) != 0:
+        if sum(q_b) > alpha:
             q_res = linprog(
                 c,
                 A_eq=A,
