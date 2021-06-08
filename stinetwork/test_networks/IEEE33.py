@@ -20,45 +20,225 @@ def initialize_network():
     fail_rate_trafo = 0.007  # 0.008
     fail_rate_line = 0.07  # 0.08
 
-    B1 = Bus("B1", coordinate=[0, 0], fail_rate_per_year=0)
-    B2 = Bus("B2", coordinate=[1, 0], fail_rate_per_year=fail_rate_trafo)
-    B3 = Bus("B3", coordinate=[2, 0], fail_rate_per_year=fail_rate_trafo)
-    B4 = Bus("B4", coordinate=[3, 0], fail_rate_per_year=fail_rate_trafo)
-    B5 = Bus("B5", coordinate=[4, 0], fail_rate_per_year=fail_rate_trafo)
-    B6 = Bus("B6", coordinate=[5, 0], fail_rate_per_year=fail_rate_trafo)
-    B7 = Bus("B7", coordinate=[6, 0], fail_rate_per_year=fail_rate_trafo)
-    B8 = Bus("B8", coordinate=[7, 0], fail_rate_per_year=fail_rate_trafo)
-    B9 = Bus("B9", coordinate=[8, 0], fail_rate_per_year=fail_rate_trafo)
-    B10 = Bus("B10", coordinate=[9, 0], fail_rate_per_year=fail_rate_trafo)
-    B11 = Bus("B11", coordinate=[10, 0], fail_rate_per_year=fail_rate_trafo)
-    B12 = Bus("B12", coordinate=[11, 0], fail_rate_per_year=fail_rate_trafo)
-    B13 = Bus("B13", coordinate=[12, 0], fail_rate_per_year=fail_rate_trafo)
-    B14 = Bus("B14", coordinate=[13, 0], fail_rate_per_year=fail_rate_trafo)
-    B15 = Bus("B15", coordinate=[14, 0], fail_rate_per_year=fail_rate_trafo)
-    B16 = Bus("B16", coordinate=[15, 0], fail_rate_per_year=fail_rate_trafo)
-    B17 = Bus("B17", coordinate=[16, 0], fail_rate_per_year=fail_rate_trafo)
-    B18 = Bus("B18", coordinate=[17, 0], fail_rate_per_year=fail_rate_trafo)
-    B19 = Bus("B19", coordinate=[2, 1], fail_rate_per_year=fail_rate_trafo)
-    B20 = Bus("B20", coordinate=[3, 1], fail_rate_per_year=fail_rate_trafo)
-    B21 = Bus("B21", coordinate=[4, 1], fail_rate_per_year=fail_rate_trafo)
-    B22 = Bus("B22", coordinate=[5, 1], fail_rate_per_year=fail_rate_trafo)
-    B23 = Bus("B23", coordinate=[3, -1], fail_rate_per_year=fail_rate_trafo)
-    B24 = Bus("B24", coordinate=[4, -1], fail_rate_per_year=fail_rate_trafo)
-    B25 = Bus("B25", coordinate=[5, -1], fail_rate_per_year=fail_rate_trafo)
-    B26 = Bus("B26", coordinate=[6, 1], fail_rate_per_year=fail_rate_trafo)
-    B27 = Bus("B27", coordinate=[7, 1], fail_rate_per_year=fail_rate_trafo)
-    B28 = Bus("B28", coordinate=[8, 1], fail_rate_per_year=fail_rate_trafo)
-    B29 = Bus("B29", coordinate=[9, 1], fail_rate_per_year=fail_rate_trafo)
-    B30 = Bus("B30", coordinate=[10, 1], fail_rate_per_year=fail_rate_trafo)
-    B31 = Bus("B31", coordinate=[11, 1], fail_rate_per_year=fail_rate_trafo)
-    B32 = Bus("B32", coordinate=[12, 1], fail_rate_per_year=fail_rate_trafo)
-    B33 = Bus("B33", coordinate=[13, 1], fail_rate_per_year=fail_rate_trafo)
+    B1 = Bus("B1", n_customers=0, coordinate=[0, 0], fail_rate_per_year=0)
+    B2 = Bus(
+        "B2",
+        n_customers=1,
+        coordinate=[1, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B3 = Bus(
+        "B3",
+        n_customers=39,
+        coordinate=[2, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B4 = Bus(
+        "B4",
+        n_customers=1,
+        coordinate=[3, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B5 = Bus(
+        "B5",
+        n_customers=26,
+        coordinate=[4, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B6 = Bus(
+        "B6",
+        n_customers=26,
+        coordinate=[5, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B7 = Bus(
+        "B7",
+        n_customers=1,
+        coordinate=[6, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B8 = Bus(
+        "B8",
+        n_customers=1,
+        coordinate=[7, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B9 = Bus(
+        "B9",
+        n_customers=26,
+        coordinate=[8, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B10 = Bus(
+        "B10",
+        n_customers=26,
+        coordinate=[9, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B11 = Bus(
+        "B11",
+        n_customers=19,
+        coordinate=[10, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B12 = Bus(
+        "B12",
+        n_customers=26,
+        coordinate=[11, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B13 = Bus(
+        "B13",
+        n_customers=26,
+        coordinate=[12, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B14 = Bus(
+        "B14",
+        n_customers=1,
+        coordinate=[13, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B15 = Bus(
+        "B15",
+        n_customers=26,
+        coordinate=[14, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B16 = Bus(
+        "B16",
+        n_customers=26,
+        coordinate=[15, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B17 = Bus(
+        "B17",
+        n_customers=26,
+        coordinate=[16, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B18 = Bus(
+        "B18",
+        n_customers=39,
+        coordinate=[17, 0],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B19 = Bus(
+        "B19",
+        n_customers=39,
+        coordinate=[2, 1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B20 = Bus(
+        "B20",
+        n_customers=39,
+        coordinate=[3, 1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B21 = Bus(
+        "B21",
+        n_customers=39,
+        coordinate=[4, 1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B22 = Bus(
+        "B22",
+        n_customers=39,
+        coordinate=[5, 1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B23 = Bus(
+        "B23",
+        n_customers=39,
+        coordinate=[3, -1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B24 = Bus(
+        "B24",
+        n_customers=2,
+        coordinate=[4, -1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B25 = Bus(
+        "B25",
+        n_customers=2,
+        coordinate=[5, -1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B26 = Bus(
+        "B26",
+        n_customers=26,
+        coordinate=[6, 1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B27 = Bus(
+        "B27",
+        n_customers=26,
+        coordinate=[7, 1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B28 = Bus(
+        "B28",
+        n_customers=26,
+        coordinate=[8, 1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B29 = Bus(
+        "B29",
+        n_customers=1,
+        coordinate=[9, 1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B30 = Bus(
+        "B30",
+        n_customers=1,
+        coordinate=[10, 1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B31 = Bus(
+        "B31",
+        n_customers=1,
+        coordinate=[11, 1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B32 = Bus(
+        "B32",
+        n_customers=1,
+        coordinate=[12, 1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    B33 = Bus(
+        "B33",
+        n_customers=26,
+        coordinate=[13, 1],
+        fail_rate_per_year=fail_rate_trafo,
+    )
 
     # Micorgird:
-    BM1 = Bus("BM1", coordinate=[14, 2], fail_rate_per_year=fail_rate_trafo)
-    BM2 = Bus("BM2", coordinate=[15, 2], fail_rate_per_year=fail_rate_trafo)
-    BM3 = Bus("BM3", coordinate=[15, 2.5], fail_rate_per_year=fail_rate_trafo)
-    BM4 = Bus("BM4", coordinate=[15, 1.5], fail_rate_per_year=fail_rate_trafo)
+    BM1 = Bus(
+        "BM1",
+        n_customers=0,
+        coordinate=[14, 2],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    BM2 = Bus(
+        "BM2",
+        n_customers=40,
+        coordinate=[15, 2],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    BM3 = Bus(
+        "BM3",
+        n_customers=0,
+        coordinate=[15, 2.5],
+        fail_rate_per_year=fail_rate_trafo,
+    )
+    BM4 = Bus(
+        "BM4",
+        n_customers=0,
+        coordinate=[15, 1.5],
+        fail_rate_per_year=fail_rate_trafo,
+    )
 
     Battery("Bat1", BM1)
     Production("P1", BM3)
