@@ -108,7 +108,7 @@ class Line(Component):
         r: float,  # Ohm
         x: float,  # Ohm
         s_ref: float = 1,  # MVA
-        v_ref: float = 12.66,  # KV
+        v_ref: float = 12.66,  # kV
         rho: float = 1.72e-8,  # resistivity [Ohm*m]
         area: float = 64.52e-6,  # cross-sectional area [m**2]
         fail_rate_density_per_year: float = 0.2,
