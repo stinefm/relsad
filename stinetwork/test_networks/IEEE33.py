@@ -3,8 +3,15 @@ from stinetwork.network.components import (
     CircuitBreaker,
     Disconnector,
     Line,
+    Battery,
+    Production,
 )
-from stinetwork.network.systems import Distribution, PowerSystem, Transmission
+from stinetwork.network.systems import (
+    Distribution,
+    PowerSystem,
+    Transmission,
+    Microgrid,
+)
 from stinetwork.visualization.plotting import plot_topology
 
 
@@ -14,38 +21,48 @@ def initialize_network():
     fail_rate_line = 0.07  # 0.08
 
     B1 = Bus("B1", coordinate=[0, 0], fail_rate_per_year=0)
-    B2 = Bus("B2", coordinate=[0, -1], fail_rate_per_year=fail_rate_trafo)
-    B3 = Bus("B3", coordinate=[0, -2], fail_rate_per_year=fail_rate_trafo)
-    B4 = Bus("B4", coordinate=[0, -3], fail_rate_per_year=fail_rate_trafo)
-    B5 = Bus("B5", coordinate=[0, -4], fail_rate_per_year=fail_rate_trafo)
-    B6 = Bus("B6", coordinate=[0, -5], fail_rate_per_year=fail_rate_trafo)
-    B7 = Bus("B7", coordinate=[0, -6], fail_rate_per_year=fail_rate_trafo)
-    B8 = Bus("B8", coordinate=[0, -7], fail_rate_per_year=fail_rate_trafo)
-    B9 = Bus("B9", coordinate=[0, -8], fail_rate_per_year=fail_rate_trafo)
-    B10 = Bus("B10", coordinate=[0, -9], fail_rate_per_year=fail_rate_trafo)
-    B11 = Bus("B11", coordinate=[0, -10], fail_rate_per_year=fail_rate_trafo)
-    B12 = Bus("B12", coordinate=[0, -11], fail_rate_per_year=fail_rate_trafo)
-    B13 = Bus("B13", coordinate=[0, -12], fail_rate_per_year=fail_rate_trafo)
-    B14 = Bus("B14", coordinate=[0, -13], fail_rate_per_year=fail_rate_trafo)
-    B15 = Bus("B15", coordinate=[0, -14], fail_rate_per_year=fail_rate_trafo)
-    B16 = Bus("B16", coordinate=[0, -15], fail_rate_per_year=fail_rate_trafo)
-    B17 = Bus("B17", coordinate=[0, -16], fail_rate_per_year=fail_rate_trafo)
-    B18 = Bus("B18", coordinate=[0, -17], fail_rate_per_year=fail_rate_trafo)
-    B19 = Bus("B19", coordinate=[-1, -2], fail_rate_per_year=fail_rate_trafo)
-    B20 = Bus("B20", coordinate=[-1, -3], fail_rate_per_year=fail_rate_trafo)
-    B21 = Bus("B21", coordinate=[-1, -4], fail_rate_per_year=fail_rate_trafo)
-    B22 = Bus("B22", coordinate=[-1, -5], fail_rate_per_year=fail_rate_trafo)
-    B23 = Bus("B23", coordinate=[1, -3], fail_rate_per_year=fail_rate_trafo)
-    B24 = Bus("B24", coordinate=[1, -4], fail_rate_per_year=fail_rate_trafo)
-    B25 = Bus("B25", coordinate=[1, -5], fail_rate_per_year=fail_rate_trafo)
-    B26 = Bus("B26", coordinate=[-1, -6], fail_rate_per_year=fail_rate_trafo)
-    B27 = Bus("B27", coordinate=[-1, -7], fail_rate_per_year=fail_rate_trafo)
-    B28 = Bus("B28", coordinate=[-1, -8], fail_rate_per_year=fail_rate_trafo)
-    B29 = Bus("B29", coordinate=[-1, -9], fail_rate_per_year=fail_rate_trafo)
-    B30 = Bus("B30", coordinate=[-1, -10], fail_rate_per_year=fail_rate_trafo)
-    B31 = Bus("B31", coordinate=[-1, -11], fail_rate_per_year=fail_rate_trafo)
-    B32 = Bus("B32", coordinate=[-1, -12], fail_rate_per_year=fail_rate_trafo)
-    B33 = Bus("B33", coordinate=[-1, -13], fail_rate_per_year=fail_rate_trafo)
+    B2 = Bus("B2", coordinate=[1, 0], fail_rate_per_year=fail_rate_trafo)
+    B3 = Bus("B3", coordinate=[2, 0], fail_rate_per_year=fail_rate_trafo)
+    B4 = Bus("B4", coordinate=[3, 0], fail_rate_per_year=fail_rate_trafo)
+    B5 = Bus("B5", coordinate=[4, 0], fail_rate_per_year=fail_rate_trafo)
+    B6 = Bus("B6", coordinate=[5, 0], fail_rate_per_year=fail_rate_trafo)
+    B7 = Bus("B7", coordinate=[6, 0], fail_rate_per_year=fail_rate_trafo)
+    B8 = Bus("B8", coordinate=[7, 0], fail_rate_per_year=fail_rate_trafo)
+    B9 = Bus("B9", coordinate=[8, 0], fail_rate_per_year=fail_rate_trafo)
+    B10 = Bus("B10", coordinate=[9, 0], fail_rate_per_year=fail_rate_trafo)
+    B11 = Bus("B11", coordinate=[10, 0], fail_rate_per_year=fail_rate_trafo)
+    B12 = Bus("B12", coordinate=[11, 0], fail_rate_per_year=fail_rate_trafo)
+    B13 = Bus("B13", coordinate=[12, 0], fail_rate_per_year=fail_rate_trafo)
+    B14 = Bus("B14", coordinate=[13, 0], fail_rate_per_year=fail_rate_trafo)
+    B15 = Bus("B15", coordinate=[14, 0], fail_rate_per_year=fail_rate_trafo)
+    B16 = Bus("B16", coordinate=[15, 0], fail_rate_per_year=fail_rate_trafo)
+    B17 = Bus("B17", coordinate=[16, 0], fail_rate_per_year=fail_rate_trafo)
+    B18 = Bus("B18", coordinate=[17, 0], fail_rate_per_year=fail_rate_trafo)
+    B19 = Bus("B19", coordinate=[2, 1], fail_rate_per_year=fail_rate_trafo)
+    B20 = Bus("B20", coordinate=[3, 1], fail_rate_per_year=fail_rate_trafo)
+    B21 = Bus("B21", coordinate=[4, 1], fail_rate_per_year=fail_rate_trafo)
+    B22 = Bus("B22", coordinate=[5, 1], fail_rate_per_year=fail_rate_trafo)
+    B23 = Bus("B23", coordinate=[3, -1], fail_rate_per_year=fail_rate_trafo)
+    B24 = Bus("B24", coordinate=[4, -1], fail_rate_per_year=fail_rate_trafo)
+    B25 = Bus("B25", coordinate=[5, -1], fail_rate_per_year=fail_rate_trafo)
+    B26 = Bus("B26", coordinate=[6, 1], fail_rate_per_year=fail_rate_trafo)
+    B27 = Bus("B27", coordinate=[7, 1], fail_rate_per_year=fail_rate_trafo)
+    B28 = Bus("B28", coordinate=[8, 1], fail_rate_per_year=fail_rate_trafo)
+    B29 = Bus("B29", coordinate=[9, 1], fail_rate_per_year=fail_rate_trafo)
+    B30 = Bus("B30", coordinate=[10, 1], fail_rate_per_year=fail_rate_trafo)
+    B31 = Bus("B31", coordinate=[11, 1], fail_rate_per_year=fail_rate_trafo)
+    B32 = Bus("B32", coordinate=[12, 1], fail_rate_per_year=fail_rate_trafo)
+    B33 = Bus("B33", coordinate=[13, 1], fail_rate_per_year=fail_rate_trafo)
+
+    # Micorgird:
+    BM1 = Bus("BM1", coordinate=[14, 2], fail_rate_per_year=fail_rate_trafo)
+    BM2 = Bus("BM2", coordinate=[15, 2], fail_rate_per_year=fail_rate_trafo)
+    BM3 = Bus("BM3", coordinate=[15, 2.5], fail_rate_per_year=fail_rate_trafo)
+    BM4 = Bus("BM4", coordinate=[15, 1.5], fail_rate_per_year=fail_rate_trafo)
+
+    Battery("Bat1", BM1)
+    Production("P1", BM3)
+    Production("P2", BM4)
 
     L1 = Line(
         "L1",
@@ -347,7 +364,44 @@ def initialize_network():
     #     fail_rate_density_per_year=fail_rate_line,
     # )
 
+    # Microgrid
+
+    ML1 = Line(
+        "ML1",
+        B13,
+        BM1,
+        r=0.1872,  # 0.7394,
+        x=0.0619,  # 0.2444,
+        fail_rate_density_per_year=fail_rate_line,
+    )
+
+    ML2 = Line(
+        "ML2",
+        BM1,
+        BM2,
+        r=0.0047,
+        x=0.0016,
+        fail_rate_density_per_year=fail_rate_line,
+    )
+    ML3 = Line(
+        "ML3",
+        BM1,
+        BM3,
+        r=0.0047,
+        x=0.0016,
+        fail_rate_density_per_year=fail_rate_line,
+    )
+    ML4 = Line(
+        "ML4",
+        BM1,
+        BM4,
+        r=0.0047,
+        x=0.0016,
+        fail_rate_density_per_year=fail_rate_line,
+    )
+
     E1 = CircuitBreaker("E1", L1)
+    E2 = CircuitBreaker("E2", ML1)
 
     Disconnector("L1a", L1, B1, E1)
     Disconnector("L1b", L1, B2, E1)
@@ -436,6 +490,18 @@ def initialize_network():
     # L36.set_backup()
     # L37.set_backup()
 
+    # Microgrid
+
+    Disconnector("ML1a", ML1, B33, E2)
+    Disconnector("ML1b", ML1, BM1, E2)
+    Disconnector("ML1c", ML1, BM1)
+    Disconnector("ML2a", ML2, BM1)
+    Disconnector("ML2b", ML2, BM2)
+    Disconnector("ML3a", ML3, BM1)
+    Disconnector("ML3b", ML3, BM3)
+    Disconnector("ML4a", ML4, BM1)
+    Disconnector("ML4b", ML4, BM4)
+
     tn = Transmission(ps, B1)
 
     dn = Distribution(tn, L1)
@@ -517,6 +583,10 @@ def initialize_network():
             # L37,
         ]
     )
+
+    m = Microgrid(dn, ML1, mode=1)
+    m.add_buses([BM1, BM2, BM3, BM4])
+    m.add_lines([ML2, ML3, ML4])
 
     return ps
 
