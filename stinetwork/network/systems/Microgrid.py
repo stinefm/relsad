@@ -310,6 +310,40 @@ class Microgrid(Network):
             q_load_max = max(q_load_max, q_load)
         return p_load_max, q_load_max
 
+    def SAIFI(self, increment: int):
+        """
+        Returns the current SAIFI (System average interruption failure index)
+        """
+        interrupted_customers = sum(
+            [bus.interruptions * bus.n_customers for bus in self.buses]
+        )
+        total_customers = (
+            sum([bus.n_customers for bus in self.buses]) * increment
+        )
+        return interrupted_customers / total_customers
+
+    def SAIDI(self, increment: int):
+        """
+        Returns the current SAIFI (System average interruption duration index)
+        """
+        sum_outage_time_x_n_customer = sum(
+            [bus.acc_outage_time * bus.n_customers for bus in self.buses]
+        )
+        total_customers = (
+            sum([bus.n_customers for bus in self.buses]) * increment
+        )
+        return sum_outage_time_x_n_customer / total_customers
+
+    def CAIDI(self, increment: int):
+        """
+        Returns the current CAIFI (Customer average interruption duration index)
+        """
+        saifi = self.SAIFI(increment)
+        if saifi != 0:
+            return self.SAIDI(increment) / saifi
+        else:
+            return 0
+
 
 if __name__ == "__main__":
     pass

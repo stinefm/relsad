@@ -26,3 +26,24 @@ class Network(ABC):
     @abstractmethod
     def reset_slack_bus(self):
         pass
+
+    @abstractmethod
+    def SAIFI(self, increment: int):
+        """
+        Returns the current SAIFI (System average interruption failure index)
+        """
+        pass
+
+    @abstractmethod
+    def SAIDI(self, increment: int):
+        """
+        Returns the current SAIDI (System average interruption duration index)
+        """
+        pass
+
+    @abstractmethod
+    def CAIDI(self, increment: int):
+        """
+        Returns the current CAIDI (Customer average interruption duration index)
+        """
+        pass
