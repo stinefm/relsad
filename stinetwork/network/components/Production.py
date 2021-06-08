@@ -136,9 +136,11 @@ class Production(Component):
 
         day = curr_time // 24
         hour = curr_time % 24
+        day_idx = day - 1
+        hour_idx = hour - 1
 
-        pprod = self.prod_dict["pprod"][day, hour]
-        qprod = self.prod_dict["qprod"][day, hour]
+        pprod = self.prod_dict["pprod"][day_idx, hour_idx]
+        qprod = self.prod_dict["qprod"][day_idx, hour_idx]
         if pprod > self.pmax:
             self.pprod = self.pmax
         else:
