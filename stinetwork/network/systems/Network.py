@@ -28,22 +28,29 @@ class Network(ABC):
         pass
 
     @abstractmethod
-    def SAIFI(self, increment: int):
+    def SAIFI(self):
         """
         Returns the current SAIFI (System average interruption failure index)
         """
         pass
 
     @abstractmethod
-    def SAIDI(self, increment: int):
+    def SAIDI(self):
         """
         Returns the current SAIDI (System average interruption duration index)
         """
         pass
 
     @abstractmethod
-    def CAIDI(self, increment: int):
+    def CAIDI(self):
         """
         Returns the current CAIDI (Customer average interruption duration index)
+        """
+        pass
+
+    @abstractmethod
+    def EENS(self):
+        """
+        Returns the current EENS (Expected energy not supplied)
         """
         pass

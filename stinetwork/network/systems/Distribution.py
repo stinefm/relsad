@@ -238,39 +238,46 @@ class Distribution(Network):
         self.child_network_list.append(network)
         self.parent_network.add_child_network(network)
 
-    def SAIFI(self, increment: int):
+    def SAIFI(self):
         """
         Returns the current SAIFI (System average interruption failure index)
         """
         interrupted_customers = sum(
             [bus.interruptions * bus.n_customers for bus in self.buses]
         )
-        total_customers = (
-            sum([bus.n_customers for bus in self.buses]) * increment
-        )
+        total_customers = sum([bus.n_customers for bus in self.buses])
         return interrupted_customers / total_customers
 
-    def SAIDI(self, increment: int):
+    def SAIDI(self):
         """
         Returns the current SAIFI (System average interruption duration index)
         """
         sum_outage_time_x_n_customer = sum(
             [bus.acc_outage_time * bus.n_customers for bus in self.buses]
         )
-        total_customers = (
-            sum([bus.n_customers for bus in self.buses]) * increment
-        )
+        total_customers = sum([bus.n_customers for bus in self.buses])
         return sum_outage_time_x_n_customer / total_customers
 
-    def CAIDI(self, increment: int):
+    def CAIDI(self):
         """
         Returns the current CAIFI (Customer average interruption duration index)
         """
-        saifi = self.SAIFI(increment)
+        saifi = self.SAIFI()
         if saifi != 0:
-            return self.SAIDI(increment) / saifi
+            return self.SAIDI() / saifi
         else:
             return 0
+
+    def EENS(self):
+        """
+        Returns the current EENS (Expected energy not supplied)
+        """
+        dt = 1  # Time increment
+        sum_outage_time_x_load_shed = sum(
+            [dt * bus.acc_p_load_shed for bus in self.buses]
+        )
+        total_customers = sum([bus.n_customers for bus in self.buses])
+        return sum_outage_time_x_load_shed / total_customers
 
 
 if __name__ == "__main__":

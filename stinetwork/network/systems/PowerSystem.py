@@ -509,6 +509,7 @@ class PowerSystem:
         plot_monte_carlo_history([self], "SAIFI", save_dir)
         plot_monte_carlo_history([self], "SAIDI", save_dir)
         plot_monte_carlo_history([self], "CAIDI", save_dir)
+        plot_monte_carlo_history([self], "EENS", save_dir)
         for network in PowerSystem.child_network_list:
             network_save_dir = os.path.join(save_dir, network.name)
             self.plot_monte_carlo_child_network_history(
@@ -525,6 +526,9 @@ class PowerSystem:
             )
             self.plot_monte_carlo_child_network_history(
                 network, "CAIDI", network_save_dir
+            )
+            self.plot_monte_carlo_child_network_history(
+                network, "EENS", network_save_dir
             )
         for bus in PowerSystem.all_buses:
             bus_save_dir = os.path.join(save_dir, bus.name)
@@ -547,6 +551,7 @@ class PowerSystem:
         save_monte_carlo_history([self], "SAIFI", save_dir)
         save_monte_carlo_history([self], "SAIDI", save_dir)
         save_monte_carlo_history([self], "CAIDI", save_dir)
+        save_monte_carlo_history([self], "EENS", save_dir)
         for network in PowerSystem.child_network_list:
             network_save_dir = os.path.join(save_dir, network.name)
             self.save_monte_carlo_child_network_history(
@@ -563,6 +568,9 @@ class PowerSystem:
             )
             self.save_monte_carlo_child_network_history(
                 network, "CAIDI", network_save_dir
+            )
+            self.save_monte_carlo_child_network_history(
+                network, "EENS", network_save_dir
             )
         for bus in PowerSystem.all_buses:
             bus_save_dir = os.path.join(save_dir, bus.name)
@@ -773,12 +781,14 @@ class PowerSystem:
             p_load, q_load = 0, 0
             for bus in self.buses:
                 for load_type in bus.load_dict:
-                    p_load += bus.load_dict[load_type]["pload"].flatten()[
-                        increment
-                    ]
-                    q_load += bus.load_dict[load_type]["qload"].flatten()[
-                        increment
-                    ]
+                    p_load += (
+                        bus.load_dict[load_type]["pload"].flatten()[increment]
+                        * bus.n_customers
+                    )
+                    q_load += (
+                        bus.load_dict[load_type]["qload"].flatten()[increment]
+                        * bus.n_customers
+                    )
             p_load_max = max(p_load_max, p_load)
             q_load_max = max(q_load_max, q_load)
         return p_load_max, q_load_max
@@ -852,7 +862,7 @@ class PowerSystem:
             self.reset_system(save_flag)
             print("it: {}".format(it), flush=True)
             self.run_sequence(increments, save_flag)
-            self.update_monte_carlo_history(it, increments)
+            self.update_monte_carlo_history(it)
             self.save_monte_carlo_history(
                 os.path.join(save_dir, "monte_carlo")
             )
@@ -873,6 +883,7 @@ class PowerSystem:
         PowerSystem.monte_carlo_history["SAIFI"] = {}
         PowerSystem.monte_carlo_history["SAIDI"] = {}
         PowerSystem.monte_carlo_history["CAIDI"] = {}
+        PowerSystem.monte_carlo_history["EENS"] = {}
         for network in PowerSystem.child_network_list:
             PowerSystem.monte_carlo_history[
                 network.name + "_" + "acc_p_load_shed"
@@ -883,6 +894,7 @@ class PowerSystem:
             PowerSystem.monte_carlo_history[network.name + "_" + "SAIFI"] = {}
             PowerSystem.monte_carlo_history[network.name + "_" + "SAIDI"] = {}
             PowerSystem.monte_carlo_history[network.name + "_" + "CAIDI"] = {}
+            PowerSystem.monte_carlo_history[network.name + "_" + "EENS"] = {}
         for bus in PowerSystem.all_buses:
             PowerSystem.monte_carlo_history[
                 bus.name + "_" + "acc_p_load_shed"
@@ -910,24 +922,21 @@ class PowerSystem:
             os.path.join(save_dir, str(it), "disconnector")
         )
 
-    def update_monte_carlo_history(self, it: int, increment: int):
+    def update_monte_carlo_history(self, it: int):
         PowerSystem.monte_carlo_history["acc_p_load_shed"][
             it
         ] = PowerSystem.acc_p_load_shed
         PowerSystem.monte_carlo_history["acc_q_load_shed"][
             it
         ] = PowerSystem.acc_q_load_shed
-        PowerSystem.monte_carlo_history["SAIFI"][it] = self.SAIFI(increment)
-        PowerSystem.monte_carlo_history["SAIDI"][it] = self.SAIDI(increment)
-        PowerSystem.monte_carlo_history["CAIDI"][it] = self.CAIDI(increment)
-        PowerSystem.update_monte_carlo_child_network_history(
-            PowerSystem, it, increment
-        )
+        PowerSystem.monte_carlo_history["SAIFI"][it] = self.SAIFI()
+        PowerSystem.monte_carlo_history["SAIDI"][it] = self.SAIDI()
+        PowerSystem.monte_carlo_history["CAIDI"][it] = self.CAIDI()
+        PowerSystem.monte_carlo_history["EENS"][it] = self.EENS()
+        PowerSystem.update_monte_carlo_child_network_history(PowerSystem, it)
         PowerSystem.update_monte_carlo_comp_history(PowerSystem, it)
 
-    def update_monte_carlo_child_network_history(
-        self, it: int, increment: int
-    ):
+    def update_monte_carlo_child_network_history(self, it: int):
         for network in PowerSystem.child_network_list:
             PowerSystem.monte_carlo_history[
                 network.name + "_" + "acc_p_load_shed"
@@ -937,13 +946,16 @@ class PowerSystem:
             ][it] = sum([bus.acc_q_load_shed for bus in network.buses])
             PowerSystem.monte_carlo_history[network.name + "_" + "SAIFI"][
                 it
-            ] = network.SAIFI(increment)
+            ] = network.SAIFI()
             PowerSystem.monte_carlo_history[network.name + "_" + "SAIDI"][
                 it
-            ] = network.SAIDI(increment)
+            ] = network.SAIDI()
             PowerSystem.monte_carlo_history[network.name + "_" + "CAIDI"][
                 it
-            ] = network.CAIDI(increment)
+            ] = network.CAIDI()
+            PowerSystem.monte_carlo_history[network.name + "_" + "EENS"][
+                it
+            ] = network.EENS()
 
     def update_monte_carlo_comp_history(self, it: int):
         for bus in PowerSystem.all_buses:
@@ -1025,39 +1037,46 @@ class PowerSystem:
         for line in self.lines:
             line.reset_load_flow_data()
 
-    def SAIFI(self, increment: int):
+    def SAIFI(self):
         """
         Returns the current SAIFI (System average interruption failure index)
         """
         interrupted_customers = sum(
             [bus.interruptions * bus.n_customers for bus in self.all_buses]
         )
-        total_customers = (
-            sum([bus.n_customers for bus in self.all_buses]) * increment
-        )
+        total_customers = sum([bus.n_customers for bus in self.all_buses])
         return interrupted_customers / total_customers
 
-    def SAIDI(self, increment: int):
+    def SAIDI(self):
         """
         Returns the current SAIFI (System average interruption duration index)
         """
         sum_outage_time_x_n_customer = sum(
             [bus.acc_outage_time * bus.n_customers for bus in self.all_buses]
         )
-        total_customers = (
-            sum([bus.n_customers for bus in self.all_buses]) * increment
-        )
+        total_customers = sum([bus.n_customers for bus in self.all_buses])
         return sum_outage_time_x_n_customer / total_customers
 
-    def CAIDI(self, increment: int):
+    def CAIDI(self):
         """
         Returns the current CAIFI (Customer average interruption duration index)
         """
-        saifi = self.SAIFI(increment)
+        saifi = self.SAIFI()
         if saifi != 0:
-            return self.SAIDI(increment) / saifi
+            return self.SAIDI() / saifi
         else:
             return 0
+
+    def EENS(self):
+        """
+        Returns the current EENS (Expected energy not supplied)
+        """
+        dt = 1  # Time increment
+        sum_outage_time_x_load_shed = sum(
+            [dt * bus.acc_p_load_shed for bus in self.all_buses]
+        )
+        total_customers = sum([bus.n_customers for bus in self.all_buses])
+        return sum_outage_time_x_load_shed / total_customers
 
 
 def find_sub_systems(p_s: PowerSystem, curr_time):

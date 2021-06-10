@@ -86,21 +86,27 @@ class Transmission(Network):
         """
         return None
 
-    def SAIFI(self, increment: int):
+    def SAIFI(self):
         """
         Returns the current SAIFI (System average interruption failure index)
         """
         pass
 
-    def SAIDI(self, increment: int):
+    def SAIDI(self):
         """
         Returns the current SAIDI (System average interruption duration index)
         """
         pass
 
-    def CAIDI(self, increment: int):
+    def CAIDI(self):
         """
         Returns the current CAIDI (Customer average interruption duration index)
+        """
+        pass
+
+    def EENS(self):
+        """
+        Returns the current EENS (Expected energy not supplied)
         """
         pass
 
