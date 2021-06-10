@@ -548,7 +548,7 @@ def initialize_network():
 
     ML1 = Line(
         "ML1",
-        B13,
+        B33,
         BM1,
         r=0.1872,  # 0.7394,
         x=0.0619,  # 0.2444,
