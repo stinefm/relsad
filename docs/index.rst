@@ -22,6 +22,7 @@ To get started, check out the sections below:
    usage
    contributing
    conduct
+   theory
 
 Indices and tables
 ==================
