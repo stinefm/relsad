@@ -1,29 +1,28 @@
+from stinetwork.visualization.printing import dispFlow, dispVolt
 import numpy as np
 from stinetwork.topology.paths import configure
+from stinetwork.network.systems.Network import Network
 
 
-def run_distribution_load_flow(bus_list, line_list, maxit: int = 5):
+def run_bfs_load_flow(network: Network, maxit: int = 5):
     """
-    Solves the distribution load flow with a specified number of iterations
+    Solves the load flow with a specified number of iterations
     The two first septs are to set up additions topology information and to build the main structure
     Next, it is switched between forward sweeps (Voltage updates) and backward sweeps(load update and loss calcuation)
     Input:
-        bus_list     - List off all Bus objects
-        line_list    - List of all transmission lines objects
-    Returns: None
+        network      - Network
+    Returns:
+        network.buses - List of network buses
     """
-    topology, bus_list, line_list = configure(bus_list, line_list)
-    iloop = 0
-    while iloop < maxit:
-        accumulate_load(topology)
-        update_voltage(topology)
-        iloop += 1
-    return bus_list
-
-
-#
-# Calculate the accumulated load and losses starting on the last node
-#
+    topology_list, network.buses, network.lines = configure(
+        network.buses, network.lines
+    )
+    for _ in range(maxit):
+        accumulate_load(topology_list)
+        update_voltage(topology_list)
+        dispFlow(network.lines)
+        dispVolt(network.buses)
+    return network.buses
 
 
 def accumulate_load(topology_list):
@@ -59,17 +58,18 @@ def accumulate_load(topology_list):
         # Add accumulated descriptions to the branching node
         parent_bus.p_load_downstream = p_load
         parent_bus.q_load_downstream = q_load
-        # Weighting accumulated and parent_bus DPDV
-        if p_load != 0:
-            parent_bus.dPdV = (
-                parent_bus.dPdV * (p_load - p_load_local)
-                + dPdV_local * p_load_local
-            ) / p_load
-        if q_load != 0:
-            parent_bus.dQdV = (
-                parent_bus.dQdV * (q_load - q_load_local)
-                + dQdV_local * q_load_local
-            ) / q_load
+        if parent_bus.calc_sensitivities:
+            # Weighting accumulated and parent_bus DPDV
+            if p_load != 0:
+                parent_bus.dPdV = (
+                    parent_bus.dPdV * (p_load - p_load_local)
+                    + dPdV_local * p_load_local
+                ) / p_load
+            if q_load != 0:
+                parent_bus.dQdV = (
+                    parent_bus.dQdV * (q_load - q_load_local)
+                    + dQdV_local * q_load_local
+                ) / q_load
         # Add line loss
         if parent_bus.toline:
             to_line = parent_bus.toline
@@ -124,66 +124,67 @@ def calc_bus_voltage_sensitivity_single_phase(fbus, tbus, tline, branch: list):
     )
     # Update the bus voltage magnitude on the down-stream bus
     tbus.vomag = np.sqrt(vk2 - term2 + term3)
-    # Calculate the sensitivities for changing the load
-    dvdp = (
-        -tline.r_pu
-        + tpload * (tline.r_pu ** 2 + tline.x_pu ** 2) / fbus.vomag ** 2
-    ) / tbus.vomag
-    dpdq = (2 * tline.r_pu * tqload / tbus.vomag ** 2) * (
-        1 + 2 * tline.r_pu * tpload / tbus.vomag ** 2
-    )
-    dvdq = (
-        -tline.x_pu
-        + tqload * (tline.r_pu ** 2 + tline.x_pu ** 2) / fbus.vomag ** 2
-    ) / tbus.vomag
-    dqdp = (2 * tline.x_pu * tpload / tbus.vomag ** 2) * (
-        1 + 2 * tline.x_pu * tqload / tbus.vomag ** 2
-    )
-    dpldp = (2 * tline.r_pu * tpload / tbus.vomag ** 2) * (
-        1 + 2 * tline.x_pu * tqload / tbus.vomag ** 2
-    )
+    if tbus.calc_sensitivities:
+        # Calculate the sensitivities for changing the load
+        dvdp = (
+            -tline.r_pu
+            + tpload * (tline.r_pu ** 2 + tline.x_pu ** 2) / fbus.vomag ** 2
+        ) / tbus.vomag
+        dpdq = (2 * tline.r_pu * tqload / tbus.vomag ** 2) * (
+            1 + 2 * tline.r_pu * tpload / tbus.vomag ** 2
+        )
+        dvdq = (
+            -tline.x_pu
+            + tqload * (tline.r_pu ** 2 + tline.x_pu ** 2) / fbus.vomag ** 2
+        ) / tbus.vomag
+        dqdp = (2 * tline.x_pu * tpload / tbus.vomag ** 2) * (
+            1 + 2 * tline.x_pu * tqload / tbus.vomag ** 2
+        )
+        dpldp = (2 * tline.r_pu * tpload / tbus.vomag ** 2) * (
+            1 + 2 * tline.x_pu * tqload / tbus.vomag ** 2
+        )
 
-    tbus.dVdP = fbus.dVdP + dvdp + dvdq * dqdp
-    tbus.dVdQ = fbus.dVdQ + dvdq + dvdp * dpdq
-    # Calculate sensitivities for change in losses
-    tbus.dPlossdP = fbus.dPlossdP + dpldp
-    tbus.dPlossdQ = fbus.dPlossdQ + dpdq
-    tbus.dQlossdP = fbus.dQlossdP + dqdp
-    tbus.dQlossdQ = (
-        fbus.dQlossdQ
-        + 2 * tline.x_pu * tqload / tbus.vomag ** 2
-        + 2 * tline.x_pu * tpload * tbus.dPlossdQ / tbus.vomag ** 2
-    )
-    # Calculate the second-order derivatives
-    tbus.dP2lossdQ2 = (
-        fbus.dP2lossdQ2
-        + dpdq / max(tqload, 1e-9)
-        + (2 * tline.r_pu * tqload / tbus.vomag ** 2)
-        * 2
-        * tline.r_pu
-        * dpdq
-        / tbus.vomag ** 2
-    )
-    tbus.dP2lossdP2 = (
-        fbus.dP2lossdQ2
-        + dpldp / max(tpload, 1e-9)
-        + (2 * tline.r_pu * tpload / tbus.vomag ** 2)
-        * 2
-        * tline.x_pu
-        * dqdp
-        / tbus.vomag ** 2
-    )
-    tbus.lossRatioQ = tbus.dPlossdQ / tbus.dP2lossdQ2
-    tbus.lossRatioP = tbus.dPlossdP / tbus.dP2lossdP2
+        tbus.dVdP = fbus.dVdP + dvdp + dvdq * dqdp
+        tbus.dVdQ = fbus.dVdQ + dvdq + dvdp * dpdq
+        # Calculate sensitivities for change in losses
+        tbus.dPlossdP = fbus.dPlossdP + dpldp
+        tbus.dPlossdQ = fbus.dPlossdQ + dpdq
+        tbus.dQlossdP = fbus.dQlossdP + dqdp
+        tbus.dQlossdQ = (
+            fbus.dQlossdQ
+            + 2 * tline.x_pu * tqload / tbus.vomag ** 2
+            + 2 * tline.x_pu * tpload * tbus.dPlossdQ / tbus.vomag ** 2
+        )
+        # Calculate the second-order derivatives
+        tbus.dP2lossdQ2 = (
+            fbus.dP2lossdQ2
+            + dpdq / max(tqload, 1e-9)
+            + (2 * tline.r_pu * tqload / tbus.vomag ** 2)
+            * 2
+            * tline.r_pu
+            * dpdq
+            / tbus.vomag ** 2
+        )
+        tbus.dP2lossdP2 = (
+            fbus.dP2lossdQ2
+            + dpldp / max(tpload, 1e-9)
+            + (2 * tline.r_pu * tpload / tbus.vomag ** 2)
+            * 2
+            * tline.x_pu
+            * dqdp
+            / tbus.vomag ** 2
+        )
+        tbus.lossRatioQ = tbus.dPlossdQ / tbus.dP2lossdQ2
+        tbus.lossRatioP = tbus.dPlossdP / tbus.dP2lossdP2
 
-    # Update the voltage for the purpose of loss minimization
-    # - adjust the sensitivity acording to the chosen step.
-    if tbus.iloss:
-        # Equivalent to that the dP cost more than pqcostRatio times dQ
-        if np.abs(tbus.dPlossdQ) >= 1.0 / tbus.pqcostRatio:
-            qcomp = tbus.dPlossdQ / tbus.dP2lossdQ2
-            tbus.qload -= qcomp
-            tbus.dPlossdQ = 0.0
+        # Update the voltage for the purpose of loss minimization
+        # - adjust the sensitivity acording to the chosen step.
+        if tbus.iloss:
+            # Equivalent to that the dP cost more than pqcostRatio times dQ
+            if np.abs(tbus.dPlossdQ) >= 1.0 / tbus.pqcostRatio:
+                qcomp = tbus.dPlossdQ / tbus.dP2lossdQ2
+                tbus.qload -= qcomp
+                tbus.dPlossdQ = 0.0
     # Voltage angle calculation
     busvoltreal = (
         fbus.vomag - (tpload * tline.r_pu + tqload * tline.x_pu) / fbus.vomag
@@ -216,25 +217,23 @@ def update_voltage(topology_list):
 #
 # Calculates the load for the actual volage at the bus
 #
-def get_load(busobj):
+def get_load(bus):
     """Calculates the net voltage corrected load at the bus - currently a simple ZIP model is applied.
-    Input: The busobject
+    Input: The busect
     Returns: p_load_act, q_load_act
     """
     # load - production [PU]
-    relative_pload = busobj.pload_pu - busobj.pprod_pu
-    relative_qload = busobj.qload_pu - busobj.qprod_pu
+    relative_pload = bus.pload_pu - bus.pprod_pu
+    relative_qload = bus.qload_pu - bus.qprod_pu
 
     p_load_act = relative_pload * (
-        busobj.ZIP[0] * busobj.vomag ** 2
-        + busobj.ZIP[1] * busobj.vomag
-        + busobj.ZIP[2]
+        bus.ZIP[0] * bus.vomag ** 2 + bus.ZIP[1] * bus.vomag + bus.ZIP[2]
     )
     q_load_act = relative_qload * (
-        busobj.ZIP[0] * busobj.vomag ** 2
-        + busobj.ZIP[1] * busobj.vomag
-        + busobj.ZIP[2]
+        bus.ZIP[0] * bus.vomag ** 2 + bus.ZIP[1] * bus.vomag + bus.ZIP[2]
     )
-    dPdV = relative_pload * (busobj.ZIP[0] * 2 * busobj.vomag + busobj.ZIP[1])
-    dQdV = relative_qload * (busobj.ZIP[0] * 2 * busobj.vomag + busobj.ZIP[1])
-    return p_load_act, q_load_act, dPdV, dQdV
+    if bus.calc_sensitivities:
+        dPdV = relative_pload * (bus.ZIP[0] * 2 * bus.vomag + bus.ZIP[1])
+        dQdV = relative_qload * (bus.ZIP[0] * 2 * bus.vomag + bus.ZIP[1])
+        return p_load_act, q_load_act, dPdV, dQdV
+    return p_load_act, q_load_act, 0, 0
