@@ -12,7 +12,7 @@ from stinetwork.network.components import (
 from stinetwork.network.systems import Network
 from .Transmission import Transmission
 from stinetwork.utils import eq
-from stinetwork.loadflow.ac import run_distribution_load_flow
+from stinetwork.loadflow.ac import run_bfs_load_flow
 from stinetwork.topology.paths import find_backup_lines_between_sub_systems
 from stinetwork.visualization.plotting import (
     plot_topology,
@@ -798,7 +798,7 @@ class PowerSystem:
         Runs load flow in power system
         """
         ## Run load flow
-        self.buses = run_distribution_load_flow(self.buses, self.lines)
+        self.buses = run_bfs_load_flow(self)
 
     def update_fail_status(self, curr_time):
         for bus in self.buses:
