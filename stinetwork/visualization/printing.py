@@ -1,12 +1,11 @@
 import numpy as np
-from stinetwork.loadflow.ac import get_load
 from stinetwork.visualization.plotting import tableplot
 
 
 #
 # Display transmission line flows
 #
-def dispFlow(bus_list, line_list, fromLine=0, toLine=0, tpres=False):
+def dispFlow(line_list, fromLine=0, toLine=0, tpres=False):
     """Display the flow on the requested distribution lines"""
 
     mainlist = []
@@ -437,10 +436,19 @@ def dispTotalLosses(line_list):
 def dispTotalLoad(bus_list):
     aload = 0.0
     rload = 0.0
-    for x in bus_list:
-        p_load_local, q_load_local, _dPdV, _dPdV = get_load(x)
-        aload += p_load_local  # Add local loads
-        rload += q_load_local
+    for bus in bus_list:
+        # load - production [PU]
+        relative_pload = bus.pload_pu - bus.pprod_pu
+        relative_qload = bus.qload_pu - bus.qprod_pu
+
+        p_load_act = relative_pload * (
+            bus.ZIP[0] * bus.vomag ** 2 + bus.ZIP[1] * bus.vomag + bus.ZIP[2]
+        )
+        q_load_act = relative_qload * (
+            bus.ZIP[0] * bus.vomag ** 2 + bus.ZIP[1] * bus.vomag + bus.ZIP[2]
+        )
+        aload += p_load_act  # Add local loads
+        rload += q_load_act
     print(
         "Total load  P: {:.4f}   Q: {:.4f}  Losses: P {:.4f}\
           Q: {:.4f} ".format(
