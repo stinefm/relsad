@@ -227,7 +227,7 @@ class Distribution(Network):
 
         Parameters
         ----------
-        netowrk : Network
+        network : Network
             The child network of the distribution network
 
         Returns
