@@ -3,6 +3,13 @@ from stinetwork.network.components import Bus, Line
 
 
 class Network(ABC):
+
+    # Enforce bus-list as attribute
+    buses: list = None
+
+    # Enforce line-list as attribute
+    lines: list = None
+
     @abstractmethod
     def add_bus(self, bus: Bus):
         pass
