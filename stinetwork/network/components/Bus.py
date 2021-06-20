@@ -65,7 +65,7 @@ class Bus(Component):
     def __init__(
         self,
         name: str,
-        n_customers: int,
+        n_customers: int = 1,
         coordinate: list = [0, 0],
         ZIP=[0.0, 0.0, 1.0],
         s_ref: float = 1,  # MVA
@@ -75,6 +75,7 @@ class Bus(Component):
         is_slack: bool = False,
         fail_rate_per_year: float = 0.5,
         outage_time: float = 8,
+        calc_sensitivities: bool = False,
     ):
         ## Informative attributes
         self.name = name
@@ -88,6 +89,7 @@ class Bus(Component):
         self.vset = vset
         self.iloss = iloss
         self.pqcostRatio = pqcostRatio
+        self.calc_sensitivities = calc_sensitivities
         self.comp = 0
         self.reset_load_flow_data()
 
