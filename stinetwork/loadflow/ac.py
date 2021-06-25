@@ -20,8 +20,6 @@ def run_bfs_load_flow(network: Network, maxit: int = 5):
     for _ in range(maxit):
         accumulate_load(topology_list)
         update_voltage(topology_list)
-        dispFlow(network.lines)
-        dispVolt(network.buses)
     return network.buses
 
 

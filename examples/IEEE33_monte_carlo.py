@@ -1,4 +1,4 @@
-from IEEE33 import initialize_network
+from stinetwork.test_networks.IEEE33 import initialize_network
 from stinetwork.visualization.plotting import plot_topology
 from stinetwork.utils import random_instance
 from load_and_gen_data import (
