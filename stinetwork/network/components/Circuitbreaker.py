@@ -77,7 +77,7 @@ class CircuitBreaker(Component):
     )
 
     ## Random instance
-    ps_random = None
+    ps_random: np.random.Generator = None
 
     def __init__(
         self,
@@ -186,11 +186,11 @@ class CircuitBreaker(Component):
             if self.remaining_section_time >= 1:
                 self.remaining_section_time -= 1
             if self.remaining_section_time == 0 and not self.line.failed:
-                # If circuitbreaker in Microgrid with mode 1 and parent Distribution
+                # If circuitbreaker in Microgrid with survival mode and parent Distribution
                 # system has no failed lines
                 if (
                     self.line.parent_network.child_network_list is None
-                    and self.line.parent_network.mode == 1
+                    and self.line.parent_network.mode == "survival"
                 ):
                     if (
                         not self.line.parent_network.distribution_network.failed_line

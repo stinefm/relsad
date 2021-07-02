@@ -76,7 +76,7 @@ class Disconnector(Component):
     )
 
     ## Random instance
-    ps_random = None
+    ps_random: np.random.Generator = None
 
     def __init__(
         self,

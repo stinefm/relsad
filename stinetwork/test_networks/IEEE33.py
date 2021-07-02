@@ -764,7 +764,7 @@ def initialize_network():
         ]
     )
 
-    m = Microgrid(dn, ML1, mode=1)
+    m = Microgrid(dn, ML1, mode="survival")
     m.add_buses([BM1, BM2, BM3, BM4])
     m.add_lines([ML2, ML3, ML4])
 

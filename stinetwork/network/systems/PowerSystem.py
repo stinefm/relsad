@@ -45,7 +45,7 @@ class PowerSystem:
     acc_q_load_shed = 0
 
     ## Random instance
-    ps_random = None
+    ps_random: np.random.Generator = None
 
     ## Child network list
     child_network_list = list()
@@ -71,6 +71,8 @@ class PowerSystem:
         self.name = "ps{:d}".format(PowerSystem.counter)
 
         self.slack = None
+
+        self.fail_duration: int = 0
 
         self.sub_systems = list()
 
@@ -416,12 +418,17 @@ class PowerSystem:
             system_load_balance_q += bus.qload - bus.qprod
         return system_load_balance_p, system_load_balance_q
 
-    def update_batteries(self):
+    def update_batteries(self, fail_duration: int):
         """
         Updates the batteries in the power system
         """
         p, q = self.get_system_load_balance()
         for battery in self.batteries:
+            if (
+                battery.mode in ["survival", "full support"]
+                and fail_duration == 1
+            ):
+                battery.draw_SOC_state()
             p, q = battery.update_bus_load_and_prod(p, q)
 
     def plot_bus_history(self, save_dir: str):
@@ -825,13 +832,14 @@ class PowerSystem:
         ## Set fail status
         self.update_fail_status(curr_time)
         if self.failed_comp() or not self.full_batteries():
+            self.fail_duration += 1
             ## Find sub systems
             find_sub_systems(self, curr_time)
             update_sub_system_slack(self)
             ## Load flow
             for sub_system in self.sub_systems:
                 ## Update batteries and history
-                sub_system.update_batteries()
+                sub_system.update_batteries(self.fail_duration)
                 ## Run load flow
                 sub_system.reset_load_flow_data()
                 if sub_system.slack is not None:
@@ -840,6 +848,9 @@ class PowerSystem:
                 sub_system.shed_loads()
             ## Log results
             self.update_history(curr_time, save_flag)
+        else:
+            if self.fail_duration > 0:
+                self.fail_duration = 0
 
     def run_sequence(self, increments: int, save_flag: bool):
         """
@@ -1227,7 +1238,7 @@ def set_slack(p_s: PowerSystem):
                 bus.battery is not None and bus.battery.mode is not None
             ):  # Battery in Microgrid
                 if (
-                    bus.battery.mode == 3
+                    bus.battery.mode == "limited support"
                     and bus.battery.remaining_survival_time == 0
                     and not bus.is_slack
                 ):

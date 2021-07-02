@@ -13,8 +13,8 @@ class Battery(Component):
     ----------
     name : string
         Name of the battery
-    mode : int
-        Integer for type of microgrid mode
+    mode : str
+        Microgrid mode
     survival_time : int
         Total amount of hours the microgrid should survive on battery capacity
     remaining_survival_time : int
@@ -81,7 +81,7 @@ class Battery(Component):
     """
 
     ## Random instance
-    ps_random = None
+    ps_random: np.random.Generator = None
 
     def __init__(
         self,
@@ -102,8 +102,8 @@ class Battery(Component):
         ----------
         name : string
             Name of the battery
-        mode : int
-            Integer for type of microgrid mode
+        mode : str
+            Microgrid mode
         survival_time : int
             Total amount of hours the microgrid should survive on battery capacity
         remaining_survival_time : int
@@ -164,6 +164,7 @@ class Battery(Component):
 
         self.E_max = E_max  # MWh
         self.SOC_min = SOC_min
+        self.E_min = E_max * SOC_min  # MWh
         self.SOC_max = SOC_max
         self.n_battery = n_battery
 
@@ -512,7 +513,7 @@ class Battery(Component):
 
         Parameters
         ----------
-        mode : int
+        mode : str
             The microgrid mode
 
         Returns
@@ -536,6 +537,16 @@ class Battery(Component):
 
         """
         self.remaining_survival_time = self.survival_time
+
+    def draw_SOC_state(self):
+        """
+        Draws the SOC state based on a uniform distribution
+        """
+        self.E_battery = self.ps_random.uniform(
+            low=self.E_min,
+            high=self.E_max,
+        )
+        self.update_SOC()
 
 
 if __name__ == "__main__":

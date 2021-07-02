@@ -13,7 +13,7 @@ class Microgrid(Network):
     ----------
     name : str
         Name of the microgrid
-    mode : int
+    mode : str
         Which mode the microgrid follows
     buses : Bus
         List with the buses connected to the microgrid
@@ -65,11 +65,11 @@ class Microgrid(Network):
         self,
         distribution_network: Distribution,
         connected_line: Line,
-        mode: int = 1,
+        mode: str = "survival",
     ):
         """Initializing microgrid network type content
         Content:
-            mode(int): Microgrid mode, 1) Survival, 2) Full support, 3) Limited support
+            mode(str): Microgrid mode, 1) survival, 2) full support, 3) limited support
 
             buses(list): List of buses
             lines(list): List of lines
@@ -79,7 +79,12 @@ class Microgrid(Network):
         Microgrid.counter += 1
         self.name = "microgrid{:d}".format(Microgrid.counter)
 
-        self.mode = mode
+        if mode in ["survival", "full support", "limited support"]:
+            self.mode = mode
+        else:
+            raise NotImplementedError(
+                "The mode {} is not implemented".format(mode)
+            )
 
         self.buses = list()
         self.lines = list()

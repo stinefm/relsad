@@ -1,3 +1,4 @@
+import numpy as np
 from .Component import Component
 from .Bus import Bus
 
@@ -52,7 +53,7 @@ class Production(Component):
     """
 
     ## Random instance
-    ps_random = None
+    ps_random: np.random.Generator = None
 
     def __init__(
         self, name: str, bus: Bus, pmax: float = 10, qmax: float = 10

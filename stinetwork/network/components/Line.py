@@ -98,7 +98,7 @@ class Line(Component):
     handle = mlines.Line2D([], [], linestyle=linestyle)
 
     ## Random instance
-    ps_random = None
+    ps_random: np.random.Generator = None
 
     def __init__(
         self,
