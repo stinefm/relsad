@@ -3,6 +3,7 @@ from stinetwork.test_networks.IEEE69_modified import (
 )
 from stinetwork.visualization.plotting import plot_topology
 from stinetwork.utils import random_instance
+from stinetwork.simulation import Simulation
 from load_and_gen_data import (
     WeatherGen,
     LoadGen,
@@ -17,9 +18,6 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 start = time.time()
 
 ps = initialize_network()
-
-## Set seed to get deterministic behavior
-ps.add_random_instance(random_instance(seed=0))
 
 if True:
     # Fetching bus-objects
@@ -210,7 +208,9 @@ save_dir = r"C:\Users\stinefm\Documents\IEEE69_modified_21-05-2021\s3"
 fig = plot_topology(ps.buses, ps.lines, figsize=(6.5, 4.5))
 fig.savefig(os.path.join(save_dir, "topology.pdf"))
 
-ps.run_monte_carlo(
+sim = Simulation(ps, random_seed=0)
+
+sim.run_monte_carlo(
     iterations=54,
     increments=8760,
     save_iterations=[
@@ -223,15 +223,9 @@ ps.run_monte_carlo(
         35,
         39,
         52,
-    ],  # 6,19,27,31,52],#, 19, 27, 29, 31, 35, 39, 52, 59],
+    ],
     save_dir=save_dir,
 )
 
-
-# print(ps.get_max_load())
-
 end = time.time()
 print("Time elapsed: {}".format(end - start))
-
-ps.plot_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
-ps.save_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))

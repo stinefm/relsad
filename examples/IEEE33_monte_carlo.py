@@ -1,6 +1,7 @@
 from stinetwork.test_networks.IEEE33 import initialize_network
 from stinetwork.visualization.plotting import plot_topology
 from stinetwork.utils import random_instance
+from stinetwork.simulation import Simulation
 from load_and_gen_data import (
     WeatherGen,
     LoadGen,
@@ -15,9 +16,6 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 start = time.time()
 
 ps = initialize_network()
-
-## Set seed to get deterministic behavior
-ps.add_random_instance(random_instance(seed=0))
 
 if True:
     # Fetching bus-objects
@@ -318,19 +316,14 @@ save_dir = "res"
 fig = plot_topology(ps.buses, ps.lines, figsize=(6.5, 4.5))
 fig.savefig(os.path.join(save_dir, "topology.pdf"))
 
+sim = Simulation(ps, random_seed=0)
 
-ps.run_monte_carlo(
+sim.run_monte_carlo(
     iterations=1500,
     increments=8760,
     save_iterations=[1, 250, 500, 750, 1000, 1250, 1500],
     save_dir=save_dir,
 )
 
-
-print(ps.get_max_load())
-
 end = time.time()
 print("Time elapsed: {}".format(end - start))
-
-ps.plot_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
-ps.save_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
