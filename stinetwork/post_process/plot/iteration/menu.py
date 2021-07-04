@@ -1,4 +1,3 @@
-import os
 from stinetwork.post_process.plot.iteration import (
     load_shed_menu,
     outage_time_menu,

@@ -1,4 +1,3 @@
-import os
 from stinetwork.post_process.plot.iteration.outage_time import (
     plot_histogram,
     plot_boxplot,

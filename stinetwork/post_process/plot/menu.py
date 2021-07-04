@@ -1,4 +1,3 @@
-import os
 from stinetwork.post_process.plot.monte_carlo import monte_carlo_menu
 from stinetwork.post_process.plot.iteration import iteration_menu
 

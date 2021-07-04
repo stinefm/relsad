@@ -1,4 +1,3 @@
-import os
 from stinetwork.post_process.plot.iteration.energy_not_supplied import (
     plot_histogram,
     plot_boxplot,

@@ -1,4 +1,3 @@
-from stinetwork.visualization.printing import dispFlow, dispVolt
 import numpy as np
 from stinetwork.topology.paths import configure
 from stinetwork.network.systems.Network import Network
