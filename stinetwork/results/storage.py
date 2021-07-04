@@ -4,7 +4,7 @@ import os
 
 def save_history(comp_list: list, attribute: str, save_dir: str):
     if not os.path.isdir(save_dir):
-        os.mkdir(save_dir)
+        os.makedirs(save_dir)
     df = pd.DataFrame()
     for comp in comp_list:
         data = comp.get_history(attribute)
@@ -15,7 +15,7 @@ def save_history(comp_list: list, attribute: str, save_dir: str):
 
 def save_monte_carlo_history(comp_list: list, attribute: str, save_dir: str):
     if not os.path.isdir(save_dir):
-        os.mkdir(save_dir)
+        os.makedirs(save_dir)
     df = pd.DataFrame()
     for comp in comp_list:
         data = comp.get_monte_carlo_history(attribute)

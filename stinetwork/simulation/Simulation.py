@@ -84,6 +84,25 @@ class Simulation:
         for curr_time in range(1, increments + 1):
             self.run_increment(curr_time, save_flag)
 
+    def run_iteration(
+            self,
+            it: int,
+            increments: int,
+            save_dir: str,
+            save_iterations: list,
+            ):
+        print("it: {}".format(it), flush=True)
+        save_flag = it in save_iterations
+        reset_system(self.power_system, save_flag)
+        self.run_sequence(increments, save_flag)
+        update_monte_carlo_history(self.power_system, it)
+        save_network_monte_carlo_history(
+            self.power_system,
+            os.path.join(save_dir, "monte_carlo"),
+        )
+        if save_flag:
+            save_iteration_history(self.power_system, it, save_dir)
+
     def run_monte_carlo(
         self,
         iterations: int,
@@ -94,14 +113,9 @@ class Simulation:
         initialize_history(self.power_system)
         initialize_monte_carlo_history(self.power_system)
         for it in range(1, iterations + 1):
-            save_flag = it in save_iterations
-            reset_system(self.power_system, save_flag)
-            print("it: {}".format(it), flush=True)
-            self.run_sequence(increments, save_flag)
-            update_monte_carlo_history(self.power_system, it)
-            save_network_monte_carlo_history(
-                self.power_system,
-                os.path.join(save_dir, "monte_carlo"),
-            )
-            if save_flag:
-                save_iteration_history(self.power_system, it, save_dir)
+            self.run_iteration(
+                    it,
+                    increments,
+                    save_dir,
+                    save_iterations,
+                    )
