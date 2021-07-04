@@ -1,5 +1,5 @@
 from stinetwork.test_networks.CINELDI import initialize_network
-from stinetwork.utils import random_instance
+from stinetwork.simulation import Simulation
 from load_and_gen_data import (
     WeatherGen,
     LoadGen,
@@ -14,11 +14,6 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 start = time.time()
 
 ps = initialize_network()
-
-mode = None
-
-## Set seed to get deterministic behavior
-ps.add_random_instance(random_instance(seed=3))
 
 # Fetching bus-objects
 T = ps.get_comp("T")
@@ -91,7 +86,6 @@ load_dict[M3] = {
     "Microgrid": {"pload": load_microgrid, "qload": load_microgrid * 0}
 }
 
-
 prod_dict = dict()
 
 prod_dict[P1] = {"pprod": (PV + wind), "qprod": PV * 0}
@@ -100,27 +94,15 @@ prod_dict[P1] = {"pprod": (PV + wind), "qprod": PV * 0}
 ps.add_load_dict(load_dict)
 ps.add_prod_dict(prod_dict)
 
-save_dir = r"C:\Users\stinefm\Documents\test_CINELDI"
-#
+save_dir = r"test_CINELDI"
 
-ps.run_monte_carlo(
+sim = Simulation(ps, random_seed=3)
+sim.run_monte_carlo(
     iterations=10,
     increments=8760,
-    save_iterations=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    save_iterations=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     save_dir=save_dir,
 )
 
 end = time.time()
 print("Time elapsed: {}".format(end - start))
-
-
-ps.plot_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
-ps.save_monte_carlo_history(os.path.join(save_dir, "monte_carlo"))
-
-# for sub_system in PowerSystem.shed_configs:
-#     fig = plot_topology(list(sub_system.buses),list(sub_system.lines))
-#     fig.show()
-# try:
-#     input("Press enter to continue")
-# except SyntaxError:
-#     pass

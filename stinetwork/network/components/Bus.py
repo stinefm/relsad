@@ -1,6 +1,7 @@
-from .Component import Component
 import matplotlib.lines as mlines
 import numpy as np
+from .Component import Component
+from stinetwork.utils import random_choice
 
 
 class Bus(Component):
@@ -120,6 +121,7 @@ class Bus(Component):
 
         ## History
         self.history = {}
+        self.monte_carlo_history = {}
 
         self.reset_status(True)
 
@@ -233,7 +235,7 @@ class Bus(Component):
                     self.prod.reset_prod()
         else:
             p_fail = self.fail_rate_per_hour
-            if self.ps_random.choice([True, False], p=[p_fail, 1 - p_fail]):
+            if random_choice(self.ps_random, p_fail):
                 self.trafo_fail(curr_time)
             else:
                 self.trafo_not_fail(curr_time)
@@ -377,6 +379,8 @@ class Bus(Component):
         self.voang = 0.0
         self.vomag = 1.0
 
-
-if __name__ == "__main__":
-    pass
+    def get_monte_carlo_history(self, attribute):
+        """
+        Returns the specified history variable
+        """
+        return self.monte_carlo_history[attribute]

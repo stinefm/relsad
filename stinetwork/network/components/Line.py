@@ -1,8 +1,8 @@
-from re import I
-from .Component import Component
-from .Bus import Bus
 import matplotlib.lines as mlines
 import numpy as np
+from .Component import Component
+from .Bus import Bus
+from stinetwork.utils import random_choice
 
 
 class Line(Component):
@@ -367,7 +367,7 @@ class Line(Component):
                 self.not_fail(curr_time)
         else:
             p_fail = self.fail_rate_per_hour
-            if self.ps_random.choice([True, False], p=[p_fail, 1 - p_fail]):
+            if random_choice(self.ps_random, p_fail):
                 self.fail(curr_time)
             else:
                 self.not_fail(curr_time)

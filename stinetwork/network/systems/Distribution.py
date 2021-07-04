@@ -81,6 +81,11 @@ class Distribution(Network):
         self.child_network_list = list()
 
         self.failed_line = False
+        # Load shedding
+        self.p_load_shed = 0
+        self.acc_p_load_shed = 0
+        self.q_load_shed = 0
+        self.acc_q_load_shed = 0
 
         self.connected_line = connected_line
         c_b = connected_line.circuitbreaker
@@ -95,6 +100,9 @@ class Distribution(Network):
         for discon in c_b.disconnectors:
             self.comp_dict[discon.name] = discon
         self.add_line(connected_line)
+        ## History
+        self.history: dict = {}
+        self.monte_carlo_history: dict = {}
 
     def __str__(self):
         return self.name
@@ -238,47 +246,25 @@ class Distribution(Network):
         self.child_network_list.append(network)
         self.parent_network.add_child_network(network)
 
-    def SAIFI(self):
+    def get_monte_carlo_history(self, attribute):
         """
-        Returns the current SAIFI (System average interruption failure index)
+        Returns the specified history variable
         """
-        interrupted_customers = sum(
-            [bus.interruptions * bus.n_customers for bus in self.buses]
-        )
-        total_customers = sum([bus.n_customers for bus in self.buses])
-        return interrupted_customers / total_customers
+        return self.monte_carlo_history[attribute]
 
-    def SAIDI(self):
+    def get_history(self, attribute):
         """
-        Returns the current SAIFI (System average interruption duration index)
+        Returns the specified history variable
         """
-        sum_outage_time_x_n_customer = sum(
-            [bus.acc_outage_time * bus.n_customers for bus in self.buses]
-        )
-        total_customers = sum([bus.n_customers for bus in self.buses])
-        return sum_outage_time_x_n_customer / total_customers
+        return self.history[attribute]
 
-    def CAIDI(self):
+    def get_system_load(self):
         """
-        Returns the current CAIFI (Customer average interruption duration index)
+        Returns the system load at curr_time in MW/MVar
         """
-        saifi = self.SAIFI()
-        if saifi != 0:
-            return self.SAIDI() / saifi
-        else:
-            return 0
-
-    def EENS(self):
-        """
-        Returns the current EENS (Expected energy not supplied)
-        """
-        dt = 1  # Time increment
-        sum_outage_time_x_load_shed = sum(
-            [dt * bus.acc_p_load_shed for bus in self.buses]
-        )
-        total_customers = sum([bus.n_customers for bus in self.buses])
-        return sum_outage_time_x_load_shed / total_customers
-
-
-if __name__ == "__main__":
-    pass
+        pload, qload = 0, 0
+        for bus in self.buses:
+            p, q = bus.get_load()
+            pload += p
+            qload += q
+        return pload, qload

@@ -33,31 +33,3 @@ class Network(ABC):
     @abstractmethod
     def reset_slack_bus(self):
         pass
-
-    @abstractmethod
-    def SAIFI(self):
-        """
-        Returns the current SAIFI (System average interruption failure index)
-        """
-        pass
-
-    @abstractmethod
-    def SAIDI(self):
-        """
-        Returns the current SAIDI (System average interruption duration index)
-        """
-        pass
-
-    @abstractmethod
-    def CAIDI(self):
-        """
-        Returns the current CAIDI (Customer average interruption duration index)
-        """
-        pass
-
-    @abstractmethod
-    def EENS(self):
-        """
-        Returns the current EENS (Expected energy not supplied)
-        """
-        pass

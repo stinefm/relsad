@@ -33,6 +33,15 @@ class Transmission(Network):
         bus.set_slack()
         self.slack_bus = bus
         power_system.slack = bus
+        # Load shedding
+        self.p_load_shed = 0
+        self.acc_p_load_shed = 0
+        self.q_load_shed = 0
+        self.acc_q_load_shed = 0
+
+        ## History
+        self.history: dict = {}
+        self.monte_carlo_history: dict = {}
 
     def __str__(self):
         return self.name
@@ -86,30 +95,25 @@ class Transmission(Network):
         """
         return None
 
-    def SAIFI(self):
+    def get_monte_carlo_history(self, attribute):
         """
-        Returns the current SAIFI (System average interruption failure index)
+        Returns the specified history variable
         """
-        pass
+        return self.monte_carlo_history[attribute]
 
-    def SAIDI(self):
+    def get_history(self, attribute):
         """
-        Returns the current SAIDI (System average interruption duration index)
+        Returns the specified history variable
         """
-        pass
+        return self.history[attribute]
 
-    def CAIDI(self):
+    def get_system_load(self):
         """
-        Returns the current CAIDI (Customer average interruption duration index)
+        Returns the system load at curr_time in MW/MVar
         """
-        pass
-
-    def EENS(self):
-        """
-        Returns the current EENS (Expected energy not supplied)
-        """
-        pass
-
-
-if __name__ == "__main__":
-    pass
+        pload, qload = 0, 0
+        for bus in self.buses:
+            p, q = bus.get_load()
+            pload += p
+            qload += q
+        return pload, qload

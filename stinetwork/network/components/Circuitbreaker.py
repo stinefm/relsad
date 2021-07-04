@@ -272,7 +272,6 @@ class CircuitBreaker(Component):
         None
 
         """
-        pass
 
     def reset_status(self, save_flag: bool):
         """

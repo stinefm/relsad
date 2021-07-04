@@ -192,7 +192,6 @@ class Production(Component):
         None
 
         """
-        pass
 
     def update_history(self, curr_time, save_flag: bool):
         """
@@ -208,7 +207,6 @@ class Production(Component):
         None
 
         """
-        pass
 
     def get_history(self, attribute: str):
         """
@@ -256,7 +254,6 @@ class Production(Component):
         None
 
         """
-        pass
 
     def reset_status(self, save_flag: bool):
         """

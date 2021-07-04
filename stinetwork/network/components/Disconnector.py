@@ -228,7 +228,6 @@ class Disconnector(Component):
         None
 
         """
-        pass
 
     def initialize_history(self):
         self.history["is_open"] = {}
@@ -294,7 +293,6 @@ class Disconnector(Component):
         None
 
         """
-        pass
 
     def reset_status(self, save_flag: bool):
         """

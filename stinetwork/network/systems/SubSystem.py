@@ -9,7 +9,7 @@ from stinetwork.utils import eq
 from stinetwork.utils import unique
 
 
-class PowerSystem(Network):
+class SubSystem(Network):
 
     ## Visual attributes
     color = "black"
@@ -17,19 +17,16 @@ class PowerSystem(Network):
     ## Counter
     counter = 0
 
-    ## Load shed configurations
-    shed_configs: list = list()
-
     def __init__(self):
-        """Initializing power system content
+        """Initializing sub system content
         Content:
             buses(set): List of buses
             lines(set): List of lines
             comp_dict(dict): Dictionary of components
         """
         # Info
-        PowerSystem.counter += 1
-        self.name = "ps{:d}".format(PowerSystem.counter)
+        SubSystem.counter += 1
+        self.name = "ps{:d}".format(SubSystem.counter)
         # Load flow
         self.slack = None
         # Load shedding
@@ -60,7 +57,7 @@ class PowerSystem(Network):
         return self.name
 
     def __repr__(self):
-        return f"PowerSystem(name={self.name})"
+        return f"SubSystem(name={self.name})"
 
     def __eq__(self, other):
         if hasattr(other, "buses") and hasattr(other, "lines"):
@@ -75,7 +72,7 @@ class PowerSystem(Network):
 
     def add_bus(self, bus: Bus):
         """
-        Adding bus to power system
+        Adding bus to sub system
         Input: bus(Bus)
         """
         self.comp_dict[bus.name] = bus
@@ -95,14 +92,14 @@ class PowerSystem(Network):
         self.comp_list = unique(self.comp_list)
 
     def add_buses(self, buses: list):
-        """Adding buses to power system
+        """Adding buses to sub system
         Input: buses(list(Bus))"""
         for bus in buses:
             self.add_bus(bus)
 
     def add_line(self, line: Line):
         """
-        Adding line to power system
+        Adding line to sub system
         Input: line(Line)
         """
         self.comp_dict[line.name] = line
@@ -212,13 +209,11 @@ class PowerSystem(Network):
     def update_fail_status(self, curr_time):
         for bus in self.buses:
             bus.update_fail_status(curr_time)
-        for battery in self.batteries:
-            battery.update_fail_status(curr_time)
         for line in self.lines:
             line.update_fail_status(curr_time)
-        for circuitbreaker in self.circuitbreakers:
-            circuitbreaker.update_fail_status(curr_time)
-        
+        for comp in self.get_comp_list():
+            if comp not in self.buses + self.lines:
+                comp.update_fail_status(curr_time)
 
     def get_system_load(self):
         """
@@ -322,15 +317,3 @@ class PowerSystem(Network):
             bus.reset_load_flow_data()
         for line in self.lines:
             line.reset_load_flow_data()
-
-    def get_monte_carlo_history(self, attribute):
-        """
-        Returns the specified history variable
-        """
-        return self.monte_carlo_history[attribute]
-
-    def get_history(self, attribute):
-        """
-        Returns the specified history variable
-        """
-        return self.history[attribute]
