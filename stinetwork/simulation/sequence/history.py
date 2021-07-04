@@ -226,17 +226,22 @@ def plot_power_system_history(power_system: PowerSystem, save_dir: str):
         "p_load",
         "q_load",
     ]
+    power_system_save_dir = os.path.join(save_dir, power_system.name)
     for state_var in whole_state_list:
-        plot_history([power_system], state_var, save_dir)
+        plot_history([power_system], state_var, power_system_save_dir)
     for network in power_system.child_network_list:
+        network_save_dir = os.path.join(save_dir, network.name)
         for state_var in whole_state_list:
-            plot_history([network], state_var, save_dir)
+            plot_history([network], state_var, network_save_dir)
     last_state_list = [
         "acc_p_load_shed",
         "acc_q_load_shed",
     ]
+    power_system_save_dir = os.path.join(save_dir, power_system.name)
     for state_var in last_state_list:
-        plot_history_last_state([power_system], state_var, save_dir)
+        plot_history_last_state(
+            [power_system], state_var, power_system_save_dir
+        )
     for network in power_system.child_network_list:
         network_save_dir = os.path.join(save_dir, network.name)
         for state_var in last_state_list:
@@ -255,8 +260,8 @@ def save_power_system_history(power_system: PowerSystem, save_dir: str):
         "p_load",
         "q_load",
     ]
+    power_system_save_dir = os.path.join(save_dir, power_system.name)
     for state_var in whole_state_list:
-        power_system_save_dir = os.path.join(save_dir, "power_system")
         save_history([power_system], state_var, power_system_save_dir)
     for network in power_system.child_network_list:
         network_save_dir = os.path.join(save_dir, network.name)

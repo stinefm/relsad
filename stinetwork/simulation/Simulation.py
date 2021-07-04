@@ -85,12 +85,12 @@ class Simulation:
             self.run_increment(curr_time, save_flag)
 
     def run_iteration(
-            self,
-            it: int,
-            increments: int,
-            save_dir: str,
-            save_iterations: list,
-            ):
+        self,
+        it: int,
+        increments: int,
+        save_dir: str,
+        save_iterations: list,
+    ):
         print("it: {}".format(it), flush=True)
         save_flag = it in save_iterations
         reset_system(self.power_system, save_flag)
@@ -114,8 +114,8 @@ class Simulation:
         initialize_monte_carlo_history(self.power_system)
         for it in range(1, iterations + 1):
             self.run_iteration(
-                    it,
-                    increments,
-                    save_dir,
-                    save_iterations,
-                    )
+                it,
+                increments,
+                save_dir,
+                save_iterations,
+            )

@@ -117,3 +117,12 @@ class Transmission(Network):
             pload += p
             qload += q
         return pload, qload
+
+    def reset_load_shed_variables(self):
+        """
+        Resets the load shed variables
+        """
+        self.p_load_shed = 0
+        self.acc_p_load_shed = 0
+        self.q_load_shed = 0
+        self.acc_q_load_shed = 0

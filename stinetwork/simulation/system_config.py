@@ -86,7 +86,7 @@ def find_sub_systems(p_s: PowerSystem, curr_time):
                         len(p_s.buses) + len(active_lines)
                     ):
                         break
-                    sub_system = PowerSystem()
+                    sub_system = SubSystem()
 
     if len(p_s.sub_systems) > 1:
         update_backup_lines_between_sub_systems(p_s, curr_time)
@@ -179,10 +179,9 @@ def set_slack(p_s: PowerSystem, sub_system: SubSystem):
 
 
 def reset_system(power_system: PowerSystem, save_flag: bool):
-    power_system.p_load_shed = 0
-    power_system.acc_p_load_shed = 0
-    power_system.q_load_shed = 0
-    power_system.acc_q_load_shed = 0
+    power_system.reset_load_shed_variables()
+    for network in power_system.child_network_list:
+        network.reset_load_shed_variables()
     initialize_history(power_system)
 
     for comp in power_system.comp_list:

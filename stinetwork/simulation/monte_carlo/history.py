@@ -36,8 +36,11 @@ def plot_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
         "CAIDI",
         "EENS",
     ]
+    power_system_save_dir = os.path.join(save_dir, power_system.name)
     for state_var in network_state_list:
-        plot_monte_carlo_history([power_system], state_var, save_dir)
+        plot_monte_carlo_history(
+            [power_system], state_var, power_system_save_dir
+        )
     for network in power_system.child_network_list:
         network_save_dir = os.path.join(save_dir, network.name)
         for state_var in network_state_list:
@@ -65,8 +68,11 @@ def save_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
         "CAIDI",
         "EENS",
     ]
+    power_system_save_dir = os.path.join(save_dir, power_system.name)
     for state_var in network_state_list:
-        save_monte_carlo_history([power_system], state_var, save_dir)
+        save_monte_carlo_history(
+            [power_system], state_var, power_system_save_dir
+        )
     for network in power_system.child_network_list:
         network_save_dir = os.path.join(save_dir, network.name)
         for state_var in network_state_list:

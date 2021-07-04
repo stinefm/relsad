@@ -218,7 +218,6 @@ class PowerSystem(Network):
             line.update_fail_status(curr_time)
         for circuitbreaker in self.circuitbreakers:
             circuitbreaker.update_fail_status(curr_time)
-        
 
     def get_system_load(self):
         """
@@ -334,3 +333,12 @@ class PowerSystem(Network):
         Returns the specified history variable
         """
         return self.history[attribute]
+
+    def reset_load_shed_variables(self):
+        """
+        Resets the load shed variables
+        """
+        self.p_load_shed = 0
+        self.acc_p_load_shed = 0
+        self.q_load_shed = 0
+        self.acc_q_load_shed = 0

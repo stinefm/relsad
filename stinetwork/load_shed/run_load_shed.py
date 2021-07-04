@@ -38,9 +38,6 @@ def shed_loads(power_system: PowerSystem, alpha: float = 1e-4):
            P_gen_n_min <= P_gen_n   <= P_gen_n_max
              alpha_min <= alpha     <= alpha_max
     """
-    if len(power_system.sub_systems) > 1:
-        raise Exception("More than one sub system")
-
     buses = list(power_system.buses)
     lines = [x for x in power_system.lines if x.connected]
     N_D = len(buses)
