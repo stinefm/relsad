@@ -41,11 +41,11 @@ def eq(x: float, y: float):
     return abs(x - y) < 1e-6
 
 def random_choice(
+    random_instance: np.random.Generator, 
+    p_true: float):
     """
     Returns random choice based on uniform probability distribution
     """
-    random_instance: np.random.Generator, 
-    p_true: float):
     return random_instance.random() < p_true
 
 
