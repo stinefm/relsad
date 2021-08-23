@@ -1,4 +1,5 @@
 import os
+import copy
 from stinetwork.network.systems import (
     PowerSystem,
 )
@@ -7,6 +8,7 @@ from stinetwork.visualization.plotting import (
 )
 from stinetwork.results.storage import (
     save_monte_carlo_history,
+    save_monte_carlo_history_from_dict,
 )
 from stinetwork.simulation.sequence.history import (
     save_power_system_history,
@@ -56,10 +58,14 @@ def plot_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
             plot_monte_carlo_history([bus], state_var, bus_save_dir)
 
 
-def save_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
+def save_network_monte_carlo_history(
+    power_system: PowerSystem, save_dir: str, save_dict: dict
+):
     """
     Saves the history of the load shedding in the power system
     """
+    if not os.path.isdir(save_dir):
+        os.makedirs(save_dir)
     network_state_list = [
         "acc_p_load_shed",
         "acc_q_load_shed",
@@ -70,13 +76,15 @@ def save_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
     ]
     power_system_save_dir = os.path.join(save_dir, power_system.name)
     for state_var in network_state_list:
-        save_monte_carlo_history(
-            [power_system], state_var, power_system_save_dir
+        save_monte_carlo_history_from_dict(
+            save_dict, [power_system], state_var, power_system_save_dir
         )
     for network in power_system.child_network_list:
         network_save_dir = os.path.join(save_dir, network.name)
         for state_var in network_state_list:
-            save_monte_carlo_history([network], state_var, network_save_dir)
+            save_monte_carlo_history_from_dict(
+                save_dict, [network], state_var, network_save_dir
+            )
     bus_state_list = [
         "acc_p_load_shed",
         "acc_q_load_shed",
@@ -85,7 +93,9 @@ def save_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
     for bus in power_system.buses:
         bus_save_dir = os.path.join(save_dir, bus.name)
         for state_var in bus_state_list:
-            save_monte_carlo_history([bus], state_var, bus_save_dir)
+            save_monte_carlo_history_from_dict(
+                save_dict, [bus], state_var, bus_save_dir
+            )
 
 
 def initialize_history(power_system: PowerSystem):
@@ -113,22 +123,29 @@ def initialize_monte_carlo_history(power_system: PowerSystem):
         "CAIDI",
         "EENS",
     ]
+    save_dict = {}
+    save_dict[power_system.name] = {}
     for state_var in network_state_list:
-        power_system.monte_carlo_history[state_var] = {}
+        save_dict[power_system.name][state_var] = {}
     for network in power_system.child_network_list:
+        save_dict[network.name] = {}
         for state_var in network_state_list:
-            network.monte_carlo_history[state_var] = {}
+            save_dict[network.name][state_var] = {}
     bus_state_list = [
         "acc_p_load_shed",
         "acc_q_load_shed",
         "avg_outage_time",
     ]
     for bus in power_system.buses:
+        save_dict[bus.name] = {}
         for state_var in bus_state_list:
-            bus.monte_carlo_history[state_var] = {}
+            save_dict[bus.name][state_var] = {}
+    return save_dict
 
 
 def save_iteration_history(power_system: PowerSystem, it: int, save_dir: str):
+    if not os.path.isdir(save_dir):
+        os.makedirs(save_dir)
     if not os.path.isdir(os.path.join(save_dir, str(it))):
         os.mkdir(os.path.join(save_dir, str(it)))
     save_power_system_history(
@@ -155,7 +172,9 @@ def save_iteration_history(power_system: PowerSystem, it: int, save_dir: str):
     )
 
 
-def update_monte_carlo_history(power_system: PowerSystem, it: int):
+def update_monte_carlo_history(
+    power_system: PowerSystem, it: int, save_dict: dict
+):
     network_state_dict = {
         "acc_p_load_shed": power_system.acc_p_load_shed,
         "acc_q_load_shed": power_system.acc_q_load_shed,
@@ -165,13 +184,16 @@ def update_monte_carlo_history(power_system: PowerSystem, it: int):
         "EENS": EENS(power_system),
     }
     for state_var, value in network_state_dict.items():
-        power_system.monte_carlo_history[state_var][it] = value
-    update_monte_carlo_child_network_history(power_system, it)
-    update_monte_carlo_comp_history(power_system, it)
+        save_dict[power_system.name][state_var][it] = value
+    save_dict = update_monte_carlo_child_network_history(
+        power_system, it, save_dict
+    )
+    save_dict = update_monte_carlo_comp_history(power_system, it, save_dict)
+    return save_dict
 
 
 def update_monte_carlo_child_network_history(
-    power_system: PowerSystem, it: int
+    power_system: PowerSystem, it: int, save_dict: dict
 ):
     for network in power_system.child_network_list:
         network_state_dict = {
@@ -183,10 +205,13 @@ def update_monte_carlo_child_network_history(
             "EENS": EENS(network),
         }
         for state_var, value in network_state_dict.items():
-            network.monte_carlo_history[state_var][it] = value
+            save_dict[network.name][state_var][it] = value
+    return save_dict
 
 
-def update_monte_carlo_comp_history(power_system: PowerSystem, it: int):
+def update_monte_carlo_comp_history(
+    power_system: PowerSystem, it: int, save_dict: dict
+):
     for bus in power_system.buses:
         bus_state_dict = {
             "acc_p_load_shed": bus.acc_p_load_shed,
@@ -194,4 +219,71 @@ def update_monte_carlo_comp_history(power_system: PowerSystem, it: int):
             "avg_outage_time": bus.avg_outage_time,
         }
         for state_var, value in bus_state_dict.items():
-            bus.monte_carlo_history[state_var][it] = value
+            save_dict[bus.name][state_var][it] = value
+    return save_dict
+
+
+def merge_monte_carlo_history(
+    power_system: PowerSystem, iteration_dicts: list
+):
+    save_dict = copy.deepcopy(iteration_dicts[0])
+    network_state_dict = {
+        "acc_p_load_shed": power_system.acc_p_load_shed,
+        "acc_q_load_shed": power_system.acc_q_load_shed,
+        "SAIFI": SAIFI(power_system),
+        "SAIDI": SAIDI(power_system),
+        "CAIDI": CAIDI(power_system),
+        "EENS": EENS(power_system),
+    }
+    for it_dict in iteration_dicts:
+        it = list(
+            it_dict[power_system.name][
+                list(network_state_dict.keys())[0]
+            ].keys()
+        )[0]
+        for state_var in network_state_dict.keys():
+            save_dict[power_system.name][state_var][it] = it_dict[
+                power_system.name
+            ][state_var][it]
+        save_dict = merge_monte_carlo_child_network_history(
+            power_system, it_dict, it, save_dict
+        )
+        save_dict = merge_monte_carlo_comp_history(
+            power_system, it_dict, it, save_dict
+        )
+    return save_dict
+
+
+def merge_monte_carlo_child_network_history(
+    power_system: PowerSystem, it_dict: dict, it: int, save_dict: dict
+):
+    for network in power_system.child_network_list:
+        network_state_dict = {
+            "acc_p_load_shed": network.acc_p_load_shed,
+            "acc_q_load_shed": network.acc_q_load_shed,
+            "SAIFI": SAIFI(network),
+            "SAIDI": SAIDI(network),
+            "CAIDI": CAIDI(network),
+            "EENS": EENS(network),
+        }
+        for state_var in network_state_dict.keys():
+            save_dict[network.name][state_var][it] = it_dict[network.name][
+                state_var
+            ][it]
+    return save_dict
+
+
+def merge_monte_carlo_comp_history(
+    power_system: PowerSystem, it_dict: dict, it: int, save_dict: dict
+):
+    for bus in power_system.buses:
+        bus_state_dict = {
+            "acc_p_load_shed": bus.acc_p_load_shed,
+            "acc_q_load_shed": bus.acc_q_load_shed,
+            "avg_outage_time": bus.avg_outage_time,
+        }
+        for state_var in bus_state_dict.keys():
+            save_dict[bus.name][state_var][it] = it_dict[bus.name][state_var][
+                it
+            ]
+    return save_dict

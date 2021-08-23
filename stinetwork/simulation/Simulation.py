@@ -1,5 +1,7 @@
 import os
 import numpy as np
+from numpy.random import SeedSequence
+from multiprocessing import Pool
 from stinetwork.network.systems import (
     Network,
     PowerSystem,
@@ -15,6 +17,7 @@ from stinetwork.simulation.sequence.history import update_history
 from stinetwork.simulation.monte_carlo.history import (
     initialize_history,
     initialize_monte_carlo_history,
+    merge_monte_carlo_history,
     update_monte_carlo_history,
     save_network_monte_carlo_history,
     save_iteration_history,
@@ -22,19 +25,18 @@ from stinetwork.simulation.monte_carlo.history import (
 
 
 class Simulation:
-    def __init__(self, power_system: PowerSystem, random_seed: int):
+    def __init__(self, power_system: PowerSystem, random_seed: int = None):
         self.power_system = power_system
-        self.random_instance = np.random.default_rng(random_seed)
-        self.distribute_random_instance()
+        self.random_seed = random_seed
         self.fail_duration = 0
 
-    def distribute_random_instance(self):
+    def distribute_random_instance(self, random_instance):
         """
         Adds a global numpy random instance
         """
-        self.power_system.random_instance = self.random_instance
+        self.power_system.random_instance = random_instance
         for comp in self.power_system.comp_list:
-            comp.add_random_seed(self.random_instance)
+            comp.add_random_seed(random_instance)
 
     def run_load_flow(self, network: Network):
         """
@@ -90,18 +92,24 @@ class Simulation:
         increments: int,
         save_dir: str,
         save_iterations: list,
+        random_seed: int,
     ):
+        if random_seed is None:
+            random_instance = np.random.default_rng()
+        else:
+            random_instance = np.random.default_rng(random_seed)
+        self.distribute_random_instance(random_instance)
+        save_dict = initialize_monte_carlo_history(self.power_system)
         print("it: {}".format(it), flush=True)
         save_flag = it in save_iterations
         reset_system(self.power_system, save_flag)
         self.run_sequence(increments, save_flag)
-        update_monte_carlo_history(self.power_system, it)
-        save_network_monte_carlo_history(
-            self.power_system,
-            os.path.join(save_dir, "monte_carlo"),
+        save_dict = update_monte_carlo_history(
+            self.power_system, it, save_dict
         )
         if save_flag:
             save_iteration_history(self.power_system, it, save_dir)
+        return save_dict
 
     def run_monte_carlo(
         self,
@@ -109,13 +117,31 @@ class Simulation:
         increments: int,
         save_iterations: list = [],
         save_dir: str = "results",
+        n_procs: int = 1,
     ):
+        ss = SeedSequence(self.random_seed)
+        child_seeds = ss.spawn(iterations)
         initialize_history(self.power_system)
-        initialize_monte_carlo_history(self.power_system)
-        for it in range(1, iterations + 1):
-            self.run_iteration(
-                it,
-                increments,
-                save_dir,
-                save_iterations,
+        with Pool(processes=n_procs) as pool:
+            it_dicts = pool.starmap(
+                self.run_iteration,
+                [
+                    [
+                        it,
+                        increments,
+                        save_dir,
+                        save_iterations,
+                        child_seeds[it - 1],
+                    ]
+                    for it in range(1, iterations + 1)
+                ],
             )
+        save_dict = merge_monte_carlo_history(
+            self.power_system,
+            it_dicts,
+        )
+        save_network_monte_carlo_history(
+            self.power_system,
+            os.path.join(save_dir, "monte_carlo"),
+            save_dict,
+        )
