@@ -20,6 +20,14 @@ def plot_topology(buses: list, lines: list, **kwargs):
             linestyle=line.linestyle,
             zorder=2,
         )
+        ax.text(
+            (line.fbus.coordinate[0] + line.tbus.coordinate[0]) / 2,
+            (line.fbus.coordinate[1] + line.tbus.coordinate[1]) / 2,
+            line.name,
+            ha="center",
+            va="center",
+            size=6,
+        )
 
         if line.circuitbreaker is not None:
             cb = line.circuitbreaker
@@ -34,14 +42,14 @@ def plot_topology(buses: list, lines: list, **kwargs):
                 markeredgecolor=cb.edgecolor,
                 zorder=3,
             )
-            # ax.text(
-            #     cb.coordinate[0],
-            #     cb.coordinate[1] - 0.2,
-            #     cb.name,
-            #     ha="center",
-            #     va="center",
-            #     size=6,
-            # )
+            ax.text(
+                cb.coordinate[0],
+                cb.coordinate[1] - 0.2,
+                cb.name,
+                ha="center",
+                va="center",
+                size=6,
+            )
 
             for discon in cb.disconnectors:
                 ax.plot(
@@ -55,14 +63,14 @@ def plot_topology(buses: list, lines: list, **kwargs):
                     markeredgecolor=discon.edgecolor,
                     zorder=3,
                 )
-                # ax.text(
-                #     discon.coordinate[0],
-                #     discon.coordinate[1] - 0.2,
-                #     discon.name,
-                #     ha="center",
-                #     va="center",
-                #     size=6,
-                # )
+                ax.text(
+                    discon.coordinate[0],
+                    discon.coordinate[1] - 0.2,
+                    discon.name,
+                    ha="center",
+                    va="center",
+                    size=6,
+                )
 
         for discon in line.disconnectors:
             ax.plot(
@@ -76,14 +84,14 @@ def plot_topology(buses: list, lines: list, **kwargs):
                 markeredgecolor=discon.edgecolor,
                 zorder=3,
             )
-            # ax.text(
-            #     discon.coordinate[0],
-            #     discon.coordinate[1] - 0.2,
-            #     discon.name,
-            #     ha="center",
-            #     va="center",
-            #     size=6,
-            # )
+            ax.text(
+                discon.coordinate[0],
+                discon.coordinate[1] - 0.2,
+                discon.name,
+                ha="center",
+                va="center",
+                size=6,
+            )
 
     for bus in buses:
         ax.plot(
