@@ -155,21 +155,24 @@ def save_iteration_history(power_system: PowerSystem, it: int, save_dir: str):
     save_bus_history(
         power_system.buses, os.path.join(save_dir, str(it), "bus")
     )
-    save_battery_history(
-        power_system.batteries, os.path.join(save_dir, str(it), "battery")
-    )
+    if len(power_system.batteries) > 0:
+        save_battery_history(
+            power_system.batteries, os.path.join(save_dir, str(it), "battery")
+        )
     save_line_history(
         power_system.lines,
         os.path.join(save_dir, str(it), "line"),
     )
-    save_circuitbreaker_history(
-        power_system.circuitbreakers,
-        os.path.join(save_dir, str(it), "circuitbreaker"),
-    )
-    save_disconnector_history(
-        power_system.disconnectors,
-        os.path.join(save_dir, str(it), "disconnector"),
-    )
+    if len(power_system.circuitbreakers) > 0:
+        save_circuitbreaker_history(
+            power_system.circuitbreakers,
+            os.path.join(save_dir, str(it), "circuitbreaker"),
+        )
+    if len(power_system.disconnectors) > 0:
+        save_disconnector_history(
+            power_system.disconnectors,
+            os.path.join(save_dir, str(it), "disconnector"),
+        )
 
 
 def update_monte_carlo_history(
