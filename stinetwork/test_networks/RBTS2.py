@@ -17,13 +17,13 @@ def initialize_network():
     outage_time_trafo = 10
     rho = 1.72e-8
     a = 64.52e-6
-    l1 = 0.6
-    l2 = 0.75
-    l3 = 0.8
+    l1 = 0.6  # km
+    l2 = 0.75  # km
+    l3 = 0.8  # km
 
-    r1 = (rho * l1) / a
-    r2 = (rho * l2) / a
-    r3 = (rho * l3) / a
+    r1 = (rho * l1) / a * 1e3
+    r2 = (rho * l2) / a * 1e3
+    r3 = (rho * l3) / a * 1e3
 
     B0 = Bus(
         "B0",
@@ -641,32 +641,99 @@ def initialize_network():
     CircuitBreaker("E3", L16)
     CircuitBreaker("E4", L26)
 
-    Disconnector("DL4", L4, BF11)
-    Disconnector("DL7", L7, BF12)
-    Disconnector("DL10", L10, BF13)
-    Disconnector("DLB1a", LB1, BF14)
+    Disconnector("DL1a", L1, B0)
+    Disconnector("DL1b", L1, BF11)
+    Disconnector("DL2a", L2, BF11)
+    Disconnector("DL2b", L2, B1)
+    Disconnector("DL3a", L3, BF11)
+    Disconnector("DL3b", L3, B2)
+    Disconnector("DL4a", L4, BF11)
+    Disconnector("DL4b", L4, BF12)
+    Disconnector("DL5a", L5, BF12)
+    Disconnector("DL5b", L5, B3)
+    Disconnector("DL6a", L6, BF12)
+    Disconnector("DL6b", L6, B4)
+    Disconnector("DL7a", L7, BF12)
+    Disconnector("DL7b", L7, BF13)
+    Disconnector("DL8a", L8, BF13)
+    Disconnector("DL8b", L8, B5)
+    Disconnector("DL9a", L9, BF13)
+    Disconnector("DL9b", L9, B6)
+    Disconnector("DL10a", L10, BF13)
+    Disconnector("DL10b", L10, BF14)
+    Disconnector("DL11a", L11, BF14)
+    Disconnector("DL11b", L11, B7)
 
-    Disconnector("DL14", L14, BF21)
+    Disconnector("DLB1a", LB1, BF14)
     Disconnector("DLB1b", LB1, BF22)
 
-    Disconnector("DL18", L18, BF31)
-    Disconnector("DL21", L21, BF32)
-    Disconnector("DL24", L24, BF33)
-    Disconnector("DLB2a", LB2, BF34)
+    Disconnector("DL12a", L12, B0)
+    Disconnector("DL12b", L12, BF21)
+    Disconnector("DL13a", L13, BF21)
+    Disconnector("DL13b", L13, B8)
+    Disconnector("DL14a", L14, BF21)
+    Disconnector("DL14b", L14, BF22)
+    Disconnector("DL15a", L15, BF22)
+    Disconnector("DL15b", L15, B9)
 
-    Disconnector("DL29", L29, BF41)
-    Disconnector("DL32", L32, BF42)
-    Disconnector("DL34", L34, BF43)
+    Disconnector("DL16a", L16, B0)
+    Disconnector("DL16b", L16, BF31)
+    Disconnector("DL17a", L17, BF31)
+    Disconnector("DL17b", L17, B10)
+    Disconnector("DL18a", L18, BF31)
+    Disconnector("DL18b", L18, BF32)
+    Disconnector("DL19a", L19, BF31)
+    Disconnector("DL19b", L19, B11)
+    Disconnector("DL20a", L20, BF32)
+    Disconnector("DL20b", L20, B12)
+    Disconnector("DL21a", L21, BF32)
+    Disconnector("DL21b", L21, BF33)
+    Disconnector("DL22a", L22, BF33)
+    Disconnector("DL22b", L22, B13)
+    Disconnector("DL23a", L23, BF33)
+    Disconnector("DL23b", L23, B14)
+    Disconnector("DL24a", L24, BF33)
+    Disconnector("DL24b", L24, BF34)
+    Disconnector("DL25a", L25, BF34)
+    Disconnector("DL25b", L25, B15)
+
+    Disconnector("DLB2a", LB2, BF34)
     Disconnector("DLB2b", LB2, BF44)
+
+    Disconnector("DL26a", L26, B0)
+    Disconnector("DL26b", L26, BF41)
+    Disconnector("DL27a", L27, BF41)
+    Disconnector("DL27b", L27, B16)
+    Disconnector("DL28a", L28, BF41)
+    Disconnector("DL28b", L28, B17)
+    Disconnector("DL29a", L29, BF41)
+    Disconnector("DL29b", L29, BF42)
+    Disconnector("DL30a", L30, BF42)
+    Disconnector("DL30b", L30, B18)
+    Disconnector("DL31a", L31, BF42)
+    Disconnector("DL31b", L31, B19)
+    Disconnector("DL32a", L32, BF42)
+    Disconnector("DL32b", L32, BF43)
+    Disconnector("DL33a", L33, BF43)
+    Disconnector("DL33b", L33, B20)
+    Disconnector("DL34a", L34, BF43)
+    Disconnector("DL34b", L34, BF44)
+    Disconnector("DL35a", L35, BF44)
+    Disconnector("DL35b", L35, B21)
+    Disconnector("DL36a", L36, BF44)
+    Disconnector("DL36b", L36, B22)
 
     LB1.set_backup()
     LB2.set_backup()
 
     tn = Transmission(ps, B0)
 
-    dn = Distribution(tn, L1)
+    dn1 = Distribution(tn, L1)
+    dn2 = Distribution(tn, L12)
+    dn3 = Distribution(tn, L16)
+    dn4 = Distribution(tn, L26)
 
-    dn.add_buses(
+    dn1.add_buses(
         [
             B0,
             BF11,
@@ -680,10 +747,18 @@ def initialize_network():
             B6,
             BF14,
             B7,
+        ]
+    )
+    dn2.add_buses(
+        [
             BF21,
             B8,
             BF22,
             B9,
+        ]
+    )
+    dn3.add_buses(
+        [
             BF31,
             B10,
             BF32,
@@ -694,6 +769,11 @@ def initialize_network():
             B14,
             BF34,
             B15,
+        ]
+    )
+
+    dn4.add_buses(
+        [
             BF41,
             B16,
             B17,
@@ -708,7 +788,7 @@ def initialize_network():
         ]
     )
 
-    dn.add_lines(
+    dn1.add_lines(
         [
             L1,
             L2,
@@ -721,10 +801,20 @@ def initialize_network():
             L9,
             L10,
             L11,
+            LB1,
+        ]
+    )
+    dn2.add_lines(
+        [
             L12,
             L13,
             L14,
             L15,
+            LB1,
+        ]
+    )
+    dn3.add_lines(
+        [
             L16,
             L17,
             L18,
@@ -735,6 +825,11 @@ def initialize_network():
             L23,
             L24,
             L25,
+            LB2,
+        ]
+    )
+    dn4.add_lines(
+        [
             L26,
             L27,
             L28,
@@ -746,7 +841,6 @@ def initialize_network():
             L34,
             L35,
             L36,
-            LB1,
             LB2,
         ]
     )
