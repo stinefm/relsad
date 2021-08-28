@@ -88,6 +88,7 @@ class Microgrid(Network):
 
         self.buses = list()
         self.lines = list()
+        self.sections = list()
         self.comp_dict = dict()
         self.distribution_network = distribution_network
         self.distribution_network.add_child_network(self)

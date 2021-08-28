@@ -74,6 +74,7 @@ class Distribution(Network):
 
         self.buses = list()
         self.lines = list()
+        self.sections = list()
         self.comp_dict = dict()
         self.parent_network = transmission_network
         transmission_network.add_child_network(self)

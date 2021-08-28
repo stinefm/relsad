@@ -1,4 +1,100 @@
+import itertools
+from stinetwork.network.components import Line
+from stinetwork.network.systems import Section
 from stinetwork.utils import unique, intersection
+
+
+def get_paths(parent_bus):
+    """Function that finds all downstream paths in a radial tree
+
+    Input:
+    parent_bus(Bus): Parent bus of radial tree
+
+    Output:
+    paths(list): List of all downstream paths from parent_bus
+
+    """
+    if len(parent_bus.nextbus) == 0:
+        return [[[parent_bus]]]
+    paths = []
+    for nbus in parent_bus.nextbus:
+        for path in get_paths(nbus):
+            paths.append([[parent_bus]] + path)
+    return paths
+
+
+def get_line_paths(parent_line):
+    """Function that finds all downstream paths in a radial tree
+
+    Input:
+    parent_line(Line): Parent line of radial tree
+
+    Output:
+    paths(list): List of all downstream paths from parent_bus
+
+    """
+    if len(parent_line.tbus.fromline_list) == 0:
+        return [[parent_line]]
+    paths = []
+    for nbus in parent_line.tbus.fromline_list:
+        for path in get_line_paths(nbus):
+            paths.append([parent_line] + path)
+    return paths
+
+
+def create_sections(
+    connected_line: Line, lines: list, sections: list, rank: int = 0
+):
+    if sections == []:
+        lines = unique(
+            itertools.chain.from_iterable(get_line_paths(connected_line))
+        )
+        section = Section(rank, lines)
+        sections.append(section)
+        sections = create_sections(
+            connected_line, [connected_line], sections, rank + 1
+        )
+    else:
+        curr_lines = connected_line.tbus.fromline_list
+        for curr_line in curr_lines:
+            next_lines = curr_line.tbus.fromline_list
+            if next_lines != []:
+                if curr_line.disconnectors == []:
+                    sections = create_sections(
+                        curr_line, lines, sections, rank
+                    )
+                else:
+                    if len(curr_line.disconnectors) == 2:
+                        section = Section(rank + 1, [curr_line])
+                        sections.append(section)
+                        sections = unique(sections)
+                    for discon in curr_line.disconnectors:
+                        if discon.base_bus == curr_line.fbus:
+                            lines = unique(
+                                itertools.chain.from_iterable(
+                                    get_line_paths(curr_line)
+                                )
+                            )
+                            section = Section(rank, lines)
+                            sections.append(section)
+                            sections = unique(sections)
+                            sections = create_sections(
+                                curr_line, [curr_line], sections, rank + 1
+                            )
+                        elif discon.base_bus == curr_line.tbus:
+                            for next_line in next_lines:
+                                lines = unique(
+                                    itertools.chain.from_iterable(
+                                        get_line_paths(next_line)
+                                    )
+                                )
+                                section = Section(rank, lines)
+                                sections.append(section)
+                                sections = unique(sections)
+                                sections = create_sections(
+                                    next_line, [next_line], sections, rank + 1
+                                )
+    return sections
 
 
 # flake8: noqa: C901
@@ -27,24 +123,6 @@ def configure(bus_list, line_list):
                 checked_buses.append(target_bus)
                 checked_buses = unique(checked_buses)
         return new_target_buses, checked_buses
-
-    def get_paths(parent_bus):
-        """Function that finds all downstream paths in a radial tree
-
-        Input:
-        parent_bus(Bus): Parent bus of radial tree
-
-        Output:
-        paths(list): List of all downstream paths from parent_bus
-
-        """
-        if len(parent_bus.nextbus) == 0:
-            return [[[parent_bus]]]
-        paths = []
-        for nbus in parent_bus.nextbus:
-            for path in get_paths(nbus):
-                paths.append([[parent_bus]] + path)
-        return paths
 
     def get_topology(paths):
         """Function that constructs a nested topology array

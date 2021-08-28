@@ -10,6 +10,9 @@ class Network(ABC):
     # Enforce line-list as attribute
     lines: list = None
 
+    # Enforce section-list as attribute
+    sections: list = None
+
     @abstractmethod
     def add_bus(self, bus: Bus):
         pass

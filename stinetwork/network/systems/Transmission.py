@@ -25,6 +25,7 @@ class Transmission(Network):
 
         self.bus = bus
         self.buses = [bus]
+        self.sections = list()
 
         bus.handle.color = self.color
         bus.color = self.color
