@@ -1,3 +1,4 @@
+from stinetwork.topology.paths import create_sections
 from stinetwork.network.components import (
     Bus,
     CircuitBreaker,
@@ -459,11 +460,25 @@ if __name__ == "__main__":
     import os
 
     ps = initialize_network()
-    fig = plot_topology(ps.buses, ps.lines, figsize=(40, 40))
+    fig = plot_topology(ps.buses, ps.lines)
 
     fig.savefig(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "IEEE33_testnetwork.pdf",
+            "RBTS6_testnetwork.pdf",
         )
     )
+
+    def print_sections(section, level=0):
+        print("\nSection: (level {})".format(level))
+        print("Lines: ", section.comp_list)
+        print("Disconnectors: ", section.disconnectors)
+        level += 1
+        for child_section in section.child_sections:
+            print_sections(child_section, level)
+
+    for network in ps.child_network_list:
+        print("\n\n", network)
+        if not isinstance(network, Transmission):
+            parent_section = create_sections(network.connected_line)
+            print_sections(parent_section)

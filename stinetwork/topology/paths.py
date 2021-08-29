@@ -33,68 +33,110 @@ def get_line_paths(parent_line):
     paths(list): List of all downstream paths from parent_bus
 
     """
-    if len(parent_line.tbus.fromline_list) == 0:
+    lines = [
+        x
+        for x in parent_line.tbus.fromline_list
+        if x in parent_line.parent_network.lines
+    ]
+    if len(lines) == 0:
         return [[parent_line]]
     paths = []
-    for nbus in parent_line.tbus.fromline_list:
-        for path in get_line_paths(nbus):
+    for nline in lines:
+        for path in get_line_paths(nline):
             paths.append([parent_line] + path)
     return paths
 
 
-def create_sections(
-    connected_line: Line, lines: list, sections: list, rank: int = 0
+def create_downstream_sections(
+    curr_line: Line, parent_section: Section = None
 ):
-    if sections == []:
+    if not parent_section:
         lines = unique(
-            itertools.chain.from_iterable(get_line_paths(connected_line))
+            itertools.chain.from_iterable(get_line_paths(curr_line))
         )
-        section = Section(rank, lines)
-        sections.append(section)
-        sections = create_sections(
-            connected_line, [connected_line], sections, rank + 1
+        disconnectors = (
+            curr_line.disconnectors + curr_line.circuitbreaker.disconnectors
+            if curr_line.circuitbreaker != None
+            else curr_line.disconnectors
         )
+        parent_section = Section(None, lines, disconnectors)
+        parent_section = create_downstream_sections(curr_line, parent_section)
     else:
-        curr_lines = connected_line.tbus.fromline_list
-        for curr_line in curr_lines:
-            next_lines = curr_line.tbus.fromline_list
-            if next_lines != []:
-                if curr_line.disconnectors == []:
-                    sections = create_sections(
-                        curr_line, lines, sections, rank
+        next_lines = [
+            x
+            for x in curr_line.tbus.fromline_list
+            if x in curr_line.parent_network.lines
+        ]
+        if next_lines != []:
+            for next_line in next_lines:
+                if next_line.disconnectors == []:
+                    parent_section = create_downstream_sections(
+                        next_line, parent_section
                     )
                 else:
-                    if len(curr_line.disconnectors) == 2:
-                        section = Section(rank + 1, [curr_line])
-                        sections.append(section)
-                        sections = unique(sections)
-                    for discon in curr_line.disconnectors:
-                        if discon.base_bus == curr_line.fbus:
-                            lines = unique(
-                                itertools.chain.from_iterable(
-                                    get_line_paths(curr_line)
-                                )
-                            )
-                            section = Section(rank, lines)
-                            sections.append(section)
-                            sections = unique(sections)
-                            sections = create_sections(
-                                curr_line, [curr_line], sections, rank + 1
-                            )
-                        elif discon.base_bus == curr_line.tbus:
-                            for next_line in next_lines:
-                                lines = unique(
-                                    itertools.chain.from_iterable(
-                                        get_line_paths(next_line)
-                                    )
-                                )
-                                section = Section(rank, lines)
-                                sections.append(section)
-                                sections = unique(sections)
-                                sections = create_sections(
-                                    next_line, [next_line], sections, rank + 1
-                                )
-    return sections
+                    lines = unique(
+                        itertools.chain.from_iterable(
+                            get_line_paths(next_line)
+                        )
+                    )
+                    section = Section(
+                        parent_section, lines, next_line.disconnectors
+                    )
+                    section = create_downstream_sections(next_line, section)
+                    parent_section.add_child_section(section)
+                    if len(next_line.disconnectors) > 1 and lines != [
+                        next_line
+                    ]:
+                        child_section = Section(
+                            section, [next_line], next_line.disconnectors
+                        )
+                        section.add_child_section(child_section)
+    return parent_section
+
+
+def create_internal_sections(parent_section):
+    child_lines = set(
+        itertools.chain.from_iterable(
+            [x.comp_list for x in parent_section.child_sections]
+        )
+    )
+    comp_list = list(set(parent_section.comp_list) - child_lines)
+    child_sections = parent_section.child_sections
+    for child_section in child_sections:
+        child_section = create_internal_sections(child_section)
+    if comp_list == [] and parent_section.parent != None:
+        parent_section.parent.child_sections.remove(parent_section)
+        parent_section = parent_section.parent
+        for child_section in child_sections:
+            if not child_section in parent_section.child_sections:
+                parent_section.child_sections.append(child_section)
+        parent_section = create_internal_sections(parent_section)
+    else:
+        parent_section.comp_list = comp_list
+        parent_section.disconnectors = unique(
+            parent_section.disconnectors
+            + [
+                x
+                for child_section in parent_section.child_sections
+                for x in child_section.disconnectors
+            ]
+        )
+    if len(parent_section.comp_list) == 1:
+        if len(parent_section.comp_list[0].disconnectors) > 0:
+            parent_section.disconnectors = (
+                parent_section.comp_list[0].disconnectors
+                + parent_section.comp_list[0].circuitbreaker.disconnectors
+                if parent_section.comp_list[0].circuitbreaker != None
+                else parent_section.comp_list[0].disconnectors
+            )
+    return parent_section
+
+
+def create_sections(connected_line):
+    parent_section = create_downstream_sections(connected_line, [])
+    parent_section = create_internal_sections(parent_section)
+    parent_section.attach_to_comp()
+    return parent_section
 
 
 # flake8: noqa: C901

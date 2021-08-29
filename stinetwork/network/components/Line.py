@@ -135,7 +135,7 @@ class Line(Component):
         self.disconnectors = list()
         self.circuitbreaker = None
         self.parent_network = None
-        self.sections = []
+        self.section = None
         Line.lineCount += 1
 
         ##  Power flow attributes

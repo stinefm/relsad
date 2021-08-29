@@ -798,10 +798,16 @@ if __name__ == "__main__":
         )
     )
 
+    def print_sections(section, level=0):
+        print("\nSection: (level {})".format(level))
+        print("Lines: ", section.comp_list)
+        print("Disconnectors: ", section.disconnectors)
+        level += 1
+        for child_section in section.child_sections:
+            print_sections(child_section, level)
+
     for network in ps.child_network_list:
-        print(network)
+        print("\n\n", network)
         if not isinstance(network, Transmission):
-            network.sections = create_sections(network.connected_line, [], [])
-            for section in network.sections:
-                print(section.rank)
-                print(section.comp_list)
+            parent_section = create_sections(network.connected_line)
+            print_sections(parent_section)

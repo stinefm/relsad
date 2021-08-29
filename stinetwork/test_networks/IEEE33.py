@@ -1,3 +1,4 @@
+from stinetwork.topology.paths import create_sections
 from stinetwork.network.components import (
     Bus,
     CircuitBreaker,
@@ -18,18 +19,14 @@ from stinetwork.visualization.plotting import plot_topology
 def initialize_network():
     ps = PowerSystem()
 
-    fail_rate_trafo = 0.007 # fails per year
-    fail_rate_line = 0.07   # fails per year
-    outage_time_trafo = 8   # hours
-    outage_time_line = 4    # hours
-    battery_capacity = 1    # MWh
+    fail_rate_trafo = 0.007  # fails per year
+    fail_rate_line = 0.07  # fails per year
+    outage_time_trafo = 8  # hours
+    outage_time_line = 4  # hours
+    battery_capacity = 1  # MWh
     microgrid_mode = "limited support"
 
-    B1 = Bus(
-         "B1",
-         n_customers=0,
-         coordinate=[0, 0],
-         fail_rate_per_year=0)
+    B1 = Bus("B1", n_customers=0, coordinate=[0, 0], fail_rate_per_year=0)
     B2 = Bus(
         "B2",
         n_customers=1,
@@ -856,7 +853,7 @@ if __name__ == "__main__":
     import os
 
     ps = initialize_network()
-    fig = plot_topology(ps.buses, ps.lines, figsize=(40, 40))
+    fig = plot_topology(ps.buses, ps.lines)
 
     fig.savefig(
         os.path.join(
@@ -864,3 +861,17 @@ if __name__ == "__main__":
             "IEEE33_testnetwork.pdf",
         )
     )
+
+    def print_sections(section, level=0):
+        print("\nSection: (level {})".format(level))
+        print("Lines: ", section.comp_list)
+        print("Disconnectors: ", section.disconnectors)
+        level += 1
+        for child_section in section.child_sections:
+            print_sections(child_section, level)
+
+    for network in ps.child_network_list:
+        print("\n\n", network)
+        if not isinstance(network, Transmission):
+            parent_section = create_sections(network.connected_line)
+            print_sections(parent_section)
