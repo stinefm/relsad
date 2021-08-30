@@ -15,3 +15,7 @@ from .Circuitbreaker import *
 from .Disconnector import *
 from .Battery import *
 from .Production import *
+from .Controller import *
+from .ManualController import *
+from .Sensor import *
+from .Router import *

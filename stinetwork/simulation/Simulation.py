@@ -55,6 +55,8 @@ class Simulation:
         self.power_system.set_prod(curr_time)
         ## Set fail status
         self.power_system.update_fail_status(curr_time)
+        ## Run control loop
+        self.power_system.controller.run_control_loop(curr_time)
         if (
             self.power_system.failed_comp()
             or not self.power_system.full_batteries()

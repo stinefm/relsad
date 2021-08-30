@@ -8,6 +8,9 @@ from stinetwork.network.components import (
     CircuitBreaker,
     Battery,
     Production,
+    Controller,
+    Sensor,
+    Router,
 )
 from stinetwork.network.systems import (
     PowerSystem,
@@ -18,7 +21,9 @@ from stinetwork.network.systems import (
 
 
 def initialize_network():
-    ps = PowerSystem()
+    C1 = Controller("C1")
+
+    ps = PowerSystem(C1)
 
     ## Transmission network
     T = Bus("T", n_customers=0, coordinate=[0, 0], fail_rate_per_year=0)
@@ -158,27 +163,60 @@ def initialize_network():
     E1 = CircuitBreaker("E1", L1)
     E2 = CircuitBreaker("E2", L7)
 
-    Disconnector("L1a", L1, T, E1)
-    Disconnector("L1b", L1, B1, E1)
-    Disconnector("L1c", L1, B1)
-    Disconnector("L2a", L2, B1)
-    Disconnector("L2b", L2, B2)
-    Disconnector("L3a", L3, B1)
-    Disconnector("L3b", L3, B3)
-    Disconnector("L4a", L4, B3)
-    Disconnector("L4b", L4, B4)
-    Disconnector("L5a", L5, B2)
-    Disconnector("L5b", L5, B5)
-    Disconnector("L6a", L6, B3)
-    Disconnector("L6b", L6, B5)
-    Disconnector("L7a", L7, B1, E2)
-    Disconnector("L7b", L7, M1, E2)
-    Disconnector("L7c", L7, M1)
+    DL1a = Disconnector("L1a", L1, T, E1)
+    DL1b = Disconnector("L1b", L1, B1, E1)
+    DL1c = Disconnector("L1c", L1, B1)
+    DL2a = Disconnector("L2a", L2, B1)
+    DL2b = Disconnector("L2b", L2, B2)
+    DL3a = Disconnector("L3a", L3, B1)
+    DL3b = Disconnector("L3b", L3, B3)
+    DL4a = Disconnector("L4a", L4, B3)
+    DL4b = Disconnector("L4b", L4, B4)
+    DL5a = Disconnector("L5a", L5, B2)
+    DL5b = Disconnector("L5b", L5, B5)
+    DL6a = Disconnector("L6a", L6, B3)
+    DL6b = Disconnector("L6b", L6, B5)
+    DL7a = Disconnector("L7a", L7, B1, E2)
+    DL7b = Disconnector("L7b", L7, M1, E2)
+    DL7c = Disconnector("L7c", L7, M1)
 
-    Disconnector("ML1a", ML1, M1)
-    Disconnector("ML1b", ML1, M2)
-    Disconnector("ML2a", ML2, M1)
-    Disconnector("ML2b", ML2, M3)
+    DML1a = Disconnector("ML1a", ML1, M1)
+    DML1b = Disconnector("ML1b", ML1, M2)
+    DML2a = Disconnector("ML2a", ML2, M1)
+    DML2b = Disconnector("ML2b", ML2, M3)
+
+    Sensor("SL1", L1)
+    Sensor("SL2", L2)
+    Sensor("SL3", L3)
+    Sensor("SL4", L4)
+    Sensor("SL5", L5)
+    Sensor("SL6", L6)
+    Sensor("SL7", L7)
+
+    Sensor("SML1", ML1)
+    Sensor("SML2", ML2)
+
+    Router("RL1a", DL1a)
+    Router("RL1b", DL1b)
+    Router("RL1c", DL1c)
+    Router("RL2a", DL2a)
+    Router("RL2b", DL2b)
+    Router("RL3a", DL3a)
+    Router("RL3b", DL3b)
+    Router("RL4a", DL4a)
+    Router("RL4b", DL4b)
+    Router("RL5a", DL5a)
+    Router("RL5b", DL5b)
+    Router("RL6a", DL6a)
+    Router("RL6b", DL6b)
+    Router("RL7a", DL7a)
+    Router("RL7b", DL7b)
+    Router("RL7c", DL7c)
+
+    Router("RML1a", DML1a)
+    Router("RML1b", DML1b)
+    Router("RML2a", DML2a)
+    Router("RML2b", DML2b)
 
     L6.set_backup()
 

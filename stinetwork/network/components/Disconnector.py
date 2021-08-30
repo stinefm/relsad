@@ -119,6 +119,9 @@ class Disconnector(Component):
                 circuitbreaker.coordinate[1] - dy / 10,
             ]
 
+        ## Communication
+        self.router = None
+
         ## History
         self.history = {}
 
@@ -130,7 +133,7 @@ class Disconnector(Component):
 
     def __eq__(self, other):
         if hasattr(other, "name"):
-            return self.name == other.name
+            return self.name == other.name and isinstance(other, Disconnector)
         else:
             return False
 

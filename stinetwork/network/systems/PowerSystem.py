@@ -20,7 +20,7 @@ class PowerSystem(Network):
     ## Load shed configurations
     shed_configs: list = list()
 
-    def __init__(self):
+    def __init__(self, controller):
         """Initializing power system content
         Content:
             buses(set): List of buses
@@ -44,8 +44,11 @@ class PowerSystem(Network):
         self.batteries = list()
         self.productions = list()
         self.lines = list()
+        self.sensors = list()
         self.circuitbreakers = list()
         self.disconnectors = list()
+        self.routers = list()
+        self.controller = controller
         self.comp_list = list()
         self.comp_dict = dict()
         ## Child networks
@@ -109,11 +112,19 @@ class PowerSystem(Network):
         self.comp_list.append(line)
         self.lines.append(line)
         self.lines = unique(self.lines)
+        if line.sensor:
+            self.sensors.append(line.sensor)
+            self.sensors = unique(self.sensors)
+            self.controller.sensors.append(line.sensor)
+            self.controller.sensors = unique(self.controller.sensors)
         for discon in line.disconnectors:
             self.comp_dict[discon.name] = discon
             self.comp_list.append(discon)
             self.disconnectors.append(discon)
             self.disconnectors = unique(self.disconnectors)
+            if discon.router:
+                self.routers.append(discon.router)
+                self.routers = unique(self.routers)
         if line.circuitbreaker is not None:
             c_b = line.circuitbreaker
             self.comp_dict[c_b.name] = c_b
@@ -218,6 +229,11 @@ class PowerSystem(Network):
             line.update_fail_status(curr_time)
         for circuitbreaker in self.circuitbreakers:
             circuitbreaker.update_fail_status(curr_time)
+        for sensor in self.sensors:
+            sensor.update_fail_status(curr_time)
+        for router in self.routers:
+            router.update_fail_status(curr_time)
+        self.controller.update_fail_status(curr_time)
 
     def get_system_load(self):
         """

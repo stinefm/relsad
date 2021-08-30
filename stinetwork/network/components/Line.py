@@ -165,6 +165,9 @@ class Line(Component):
         self.failed = False
         self.remaining_outage_time = 0
 
+        ## Communication
+        self.sensor = None
+
         ## History
         self.history = {}
 
@@ -176,7 +179,7 @@ class Line(Component):
 
     def __eq__(self, other):
         if hasattr(other, "name"):
-            return self.name == other.name
+            return self.name == other.name and isinstance(other, Line)
         else:
             return False
 
@@ -268,9 +271,9 @@ class Line(Component):
         self.parent_network.failed_line = True
         self.remaining_outage_time = self.outage_time
         if self.connected:
-            for discon in self.disconnectors:
-                if not discon.is_open:
-                    discon.open(curr_time)
+            # for discon in self.disconnectors:
+            #     if not discon.is_open:
+            #         discon.open(curr_time)
             self.parent_network.connected_line.circuitbreaker.open(curr_time)
             if self.parent_network.child_network_list is not None:
                 for child_network in self.parent_network.child_network_list:
@@ -296,13 +299,13 @@ class Line(Component):
         ):
             self.parent_network.failed_line = False
         self.failed = False
-        if not self.is_backup:
-            if self.circuitbreaker is not None and self.circuitbreaker.is_open:
-                pass
-            else:
-                for discon in self.disconnectors:
-                    if discon.is_open:
-                        discon.close(curr_time)
+        # if not self.is_backup:
+        #     if self.circuitbreaker is not None and self.circuitbreaker.is_open:
+        #         pass
+        #     else:
+        #         for discon in self.disconnectors:
+        #             if discon.is_open:
+        #                 discon.close(curr_time)
 
     def change_direction(self):
         """

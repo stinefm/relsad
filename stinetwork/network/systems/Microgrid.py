@@ -56,7 +56,7 @@ class Microgrid(Network):
     """
 
     ## Visual attributes
-    color = "seagreen"
+    color = "orange"
 
     ## Counter
     counter = 0

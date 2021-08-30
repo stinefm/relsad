@@ -72,6 +72,26 @@ def plot_topology(buses: list, lines: list, **kwargs):
                     size=6,
                 )
 
+                if discon.router:
+                    ax.plot(
+                        discon.coordinate[0],
+                        discon.coordinate[1],
+                        marker=discon.router.marker,
+                        markeredgewidth=1,
+                        markersize=discon.router.size,
+                        linestyle="None",
+                        color=discon.router.color,
+                        zorder=3,
+                    )
+                    ax.text(
+                        discon.coordinate[0],
+                        discon.coordinate[1] - 0.2,
+                        discon.router.name,
+                        ha="center",
+                        va="center",
+                        size=6,
+                    )
+
         for discon in line.disconnectors:
             ax.plot(
                 discon.coordinate[0],
@@ -88,6 +108,46 @@ def plot_topology(buses: list, lines: list, **kwargs):
                 discon.coordinate[0],
                 discon.coordinate[1] - 0.2,
                 discon.name,
+                ha="center",
+                va="center",
+                size=6,
+            )
+
+            if discon.router:
+                ax.plot(
+                    discon.coordinate[0],
+                    discon.coordinate[1],
+                    marker=discon.router.marker,
+                    markeredgewidth=1,
+                    markersize=discon.router.size,
+                    linestyle="None",
+                    color=discon.router.color,
+                    zorder=3,
+                )
+                ax.text(
+                    discon.coordinate[0],
+                    discon.coordinate[1] - 0.2,
+                    discon.router.name,
+                    ha="center",
+                    va="center",
+                    size=6,
+                )
+
+        if line.sensor:
+            ax.plot(
+                (line.fbus.coordinate[0] + line.tbus.coordinate[0]) / 2,
+                (line.fbus.coordinate[1] + line.tbus.coordinate[1]) / 2,
+                marker=line.sensor.marker,
+                markeredgewidth=1,
+                markersize=line.sensor.size,
+                linestyle="None",
+                color=line.sensor.color,
+                zorder=3,
+            )
+            ax.text(
+                (line.fbus.coordinate[0] + line.tbus.coordinate[0]) / 2,
+                (line.fbus.coordinate[1] + line.tbus.coordinate[1]) / 2 - 0.2,
+                line.sensor.name,
                 ha="center",
                 va="center",
                 size=6,
