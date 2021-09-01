@@ -57,19 +57,19 @@ class Router(Component):
     def __hash__(self):
         return hash(self.name)
 
-    def open_disconnector(self, curr_time):
+    def open(self):
         if self.state == RouterState.OK:
             self.disconnector.open()
         elif self.state == RouterState.FAILED:
             pass
 
-    def close_disconnector(self, curr_time):
+    def close(self):
         if self.state == RouterState.OK:
             self.disconnector.close()
         elif self.state == RouterState.FAILED:
             pass
 
-    def update_fail_status(self, curr_time):
+    def update_fail_status(self):
         pass
 
     def update_history(self, curr_time, save_flag: bool):

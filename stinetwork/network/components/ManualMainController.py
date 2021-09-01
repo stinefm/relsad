@@ -5,7 +5,7 @@ from .Component import Component
 from stinetwork.utils import random_choice
 
 
-class ManualController(Component):
+class ManualMainController(Component):
     def __init__(
         self,
         name: str,
@@ -16,16 +16,19 @@ class ManualController(Component):
         self.section_time
         self.power_system = None
 
+        self.distribution_controllers = list()
+        self.microgrid_controllers = list()
+
     def __str__(self):
         return self.name
 
     def __repr__(self):
-        return f"ManualController(name={self.name})"
+        return f"ManualMainController(name={self.name})"
 
     def __eq__(self, other):
         if hasattr(other, "name"):
             return self.name == other.name and isinstance(
-                other, ManualController
+                other, ManualMainController
             )
         else:
             return False
@@ -34,15 +37,12 @@ class ManualController(Component):
         return hash(self.name)
 
     def run_control_loop(self, curr_time):
-        for line in self.power_system.lines:
-            if line.failed and line.connected:
-                for disconnector in line.section.disconnectors:
-                    disconnector.open(curr_time)
-            elif not line.failed and not line.connected:
-                for disconnector in line.section.disconnectors:
-                    disconnector.close(curr_time)
+        for controller in self.distribution_controllers:
+            controller.run_control_loop(curr_time)
+        for controller in self.microgrid_controllers:
+            controller.run_control_loop(curr_time)
 
-    def update_fail_status(self, curr_time):
+    def update_fail_status(self):
         pass
 
     def update_history(self, curr_time, save_flag: bool):

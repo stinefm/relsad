@@ -115,8 +115,6 @@ class PowerSystem(Network):
         if line.sensor:
             self.sensors.append(line.sensor)
             self.sensors = unique(self.sensors)
-            self.controller.sensors.append(line.sensor)
-            self.controller.sensors = unique(self.controller.sensors)
         for discon in line.disconnectors:
             self.comp_dict[discon.name] = discon
             self.comp_list.append(discon)
@@ -213,27 +211,22 @@ class PowerSystem(Network):
         """
         p, q = self.get_system_load_balance()
         for battery in self.batteries:
-            if (
-                battery.mode in ["survival", "full support"]
-                and fail_duration == 1
-            ):
-                battery.draw_SOC_state()
-            p, q = battery.update_bus_load_and_prod(p, q)
+            p, q = battery.update(p, q, fail_duration)
 
-    def update_fail_status(self, curr_time):
+    def update_fail_status(self):
         for bus in self.buses:
-            bus.update_fail_status(curr_time)
+            bus.update_fail_status()
         for battery in self.batteries:
-            battery.update_fail_status(curr_time)
+            battery.update_fail_status()
         for line in self.lines:
-            line.update_fail_status(curr_time)
+            line.update_fail_status()
         for circuitbreaker in self.circuitbreakers:
-            circuitbreaker.update_fail_status(curr_time)
+            circuitbreaker.update_fail_status()
         for sensor in self.sensors:
-            sensor.update_fail_status(curr_time)
+            sensor.update_fail_status()
         for router in self.routers:
-            router.update_fail_status(curr_time)
-        self.controller.update_fail_status(curr_time)
+            router.update_fail_status()
+        self.controller.update_fail_status()
 
     def get_system_load(self):
         """

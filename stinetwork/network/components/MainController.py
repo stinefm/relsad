@@ -10,7 +10,7 @@ class ControllerState(Enum):
     FAILED = 2
 
 
-class Controller(Component):
+class MainController(Component):
     def __init__(
         self,
         name: str,
@@ -26,7 +26,8 @@ class Controller(Component):
         self.state = state
         self.section_time = section_time
 
-        self.sensors = list()
+        self.distribution_controllers = list()
+        self.microgrid_controllers = list()
 
     def __str__(self):
         return self.name
@@ -36,7 +37,9 @@ class Controller(Component):
 
     def __eq__(self, other):
         if hasattr(other, "name"):
-            return self.name == other.name and isinstance(other, Controller)
+            return self.name == other.name and isinstance(
+                other, MainController
+            )
         else:
             return False
 
@@ -44,23 +47,12 @@ class Controller(Component):
         return hash(self.name)
 
     def run_control_loop(self, curr_time):
-        for sensor in self.sensors:
-            if (
-                sensor.get_line_fail_status is True
-                and sensor.get_line_connection_status is True
-            ):
-                section = sensor.get_section()
-                for disconnector in section.disconnectors:
-                    disconnector.router.open_disconnector(curr_time)
-            elif (
-                sensor.get_line_fail_status is False
-                and sensor.get_line_connection_status is False
-            ):
-                section = sensor.get_section()
-                for disconnector in section.disconnectors:
-                    disconnector.router.close_disconnector(curr_time)
+        for controller in self.distribution_controllers:
+            controller.run_control_loop(curr_time)
+        for controller in self.microgrid_controllers:
+            controller.run_control_loop(curr_time)
 
-    def update_fail_status(self, curr_time):
+    def update_fail_status(self):
         pass
 
     def update_history(self, curr_time, save_flag: bool):

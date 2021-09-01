@@ -72,7 +72,7 @@ class Sensor(Component):
     def get_section(self):
         return self.line.section
 
-    def update_fail_status(self, curr_time):
+    def update_fail_status(self):
         pass
 
     def update_history(self, curr_time, save_flag: bool):

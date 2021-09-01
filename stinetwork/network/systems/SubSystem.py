@@ -146,12 +146,7 @@ class SubSystem:
         """
         p, q = self.get_system_load_balance()
         for battery in self.batteries:
-            if (
-                battery.mode in ["survival", "full support"]
-                and fail_duration == 1
-            ):
-                battery.draw_SOC_state()
-            p, q = battery.update_bus_load_and_prod(p, q)
+            p, q = battery.update(p, q, fail_duration)
 
     def reset_load_flow_data(self):
         """

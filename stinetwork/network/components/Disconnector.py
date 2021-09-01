@@ -38,15 +38,15 @@ class Disconnector(Component):
 
         Methods
         ----------
-        close(curr_time)
+        close()
             Closes the disconnector
-        open(curr_time)
+        open()
             Opens the disconnector
-        fail(curr_time)
+        fail()
             Sets the diconnecotr to failed
-        not_fail(curr_time)
+        not_fail()
             Sets the doconnector to not failed
-        update_fail_status(curr_time)
+        update_fail_status()
         update_history(curr_time)
             Updates the history variables
         get_history(attribute)
@@ -140,38 +140,31 @@ class Disconnector(Component):
     def __hash__(self):
         return hash(self.name)
 
-    def close(self, curr_time):
+    def close(self):
         """
         Closes the disconnector
 
         Parameters
         ----------
-        curr_time : int
-            Current time
+        None
 
         Returns
         ----------
         None
 
         """
-        if (
-            curr_time > self.prev_open_time
-            or self.line.is_backup
-            or curr_time == 0
-        ):
-            self.is_open = False
-            self.color = "black"
-            if not self.line.connected:
-                self.line.connect()
+        self.is_open = False
+        self.color = "black"
+        if not self.line.connected:
+            self.line.connect()
 
-    def open(self, curr_time):
+    def open(self):
         """
         Opens the disconnector
 
         Parameters
         ----------
-        curr_time : int
-            Current time
+        None
 
         Returns
         ----------
@@ -179,19 +172,17 @@ class Disconnector(Component):
 
         """
         self.is_open = True
-        self.prev_open_time = curr_time
         self.color = "white"
         if self.line.connected:
             self.line.disconnect()
 
-    def fail(self, curr_time):
+    def fail(self):
         """
         Sets the diconnecotr to failed
 
         Parameters
         ----------
-        curr_time : int
-            Current time
+        None
 
         Returns
         ----------
@@ -199,16 +190,15 @@ class Disconnector(Component):
 
         """
         self.failed = True
-        self.open(curr_time)
+        self.open()
 
-    def not_fail(self, curr_time):
+    def not_fail(self):
         """
         Sets the doconnector to not failed
 
         Parameters
         ----------
-        curr_time : int
-            Current time
+        None
 
         Returns
         ----------
@@ -216,15 +206,14 @@ class Disconnector(Component):
 
         """
         self.failed = False
-        self.close(curr_time)
+        self.close()
 
-    def update_fail_status(self, curr_time):
+    def update_fail_status(self):
         """
 
         Parameters
         ----------
-        curr_time : int
-            Current time
+        None
 
         Returns
         ----------
@@ -312,7 +301,7 @@ class Disconnector(Component):
         """
         self.prev_open_time = 0
 
-        self.not_fail(0)
+        self.not_fail()
         if save_flag:
             self.initialize_history()
 

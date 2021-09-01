@@ -5,8 +5,10 @@ from multiprocessing import Pool
 from stinetwork.network.systems import (
     Network,
     PowerSystem,
+    Transmission,
 )
 from stinetwork.loadflow.ac import run_bfs_load_flow
+from stinetwork.topology.paths import create_sections
 from stinetwork.simulation.system_config import (
     find_sub_systems,
     update_sub_system_slack,
@@ -54,7 +56,7 @@ class Simulation:
         ## Set productions
         self.power_system.set_prod(curr_time)
         ## Set fail status
-        self.power_system.update_fail_status(curr_time)
+        self.power_system.update_fail_status()
         ## Run control loop
         self.power_system.controller.run_control_loop(curr_time)
         if (
@@ -101,6 +103,12 @@ class Simulation:
         else:
             random_instance = np.random.default_rng(random_seed)
         self.distribute_random_instance(random_instance)
+        # Sectioning
+        for network in self.power_system.child_network_list:
+            if not isinstance(network, Transmission):
+                network.parent_section = create_sections(
+                    network.connected_line
+                )
         save_dict = initialize_monte_carlo_history(self.power_system)
         print("it: {}".format(it), flush=True)
         save_flag = it in save_iterations

@@ -17,6 +17,7 @@ from stinetwork.simulation.sequence.history import (
     save_line_history,
     save_circuitbreaker_history,
     save_disconnector_history,
+    save_controller_history,
 )
 from stinetwork.reliability.indices import (
     SAIFI,
@@ -172,6 +173,18 @@ def save_iteration_history(power_system: PowerSystem, it: int, save_dir: str):
         save_disconnector_history(
             power_system.disconnectors,
             os.path.join(save_dir, str(it), "disconnector"),
+        )
+
+    if len(power_system.controller.distribution_controllers) > 0:
+        save_controller_history(
+            power_system.controller.distribution_controllers,
+            os.path.join(save_dir, str(it), "distribution_controllers"),
+        )
+
+    if len(power_system.controller.microgrid_controllers) > 0:
+        save_controller_history(
+            power_system.controller.microgrid_controllers,
+            os.path.join(save_dir, str(it), "microgrid_controllers"),
         )
 
 

@@ -205,7 +205,7 @@ class Bus(Component):
         """
         return self.pload, self.qload
 
-    def trafo_fail(self, curr_time):
+    def trafo_fail(self):
         """
         Trafo fails, load and generation is set to zero
         """
@@ -215,7 +215,7 @@ class Bus(Component):
         if self.prod is not None:
             self.prod.reset_prod()
 
-    def trafo_not_fail(self, curr_time):
+    def trafo_not_fail(self):
         self.trafo_failed = False
 
     def get_battery(self):
@@ -224,11 +224,11 @@ class Bus(Component):
     def get_production(self):
         return self.prod
 
-    def update_fail_status(self, curr_time):
+    def update_fail_status(self):
         if self.trafo_failed:
             self.remaining_outage_time -= 1
             if self.remaining_outage_time == 0:
-                self.trafo_not_fail(curr_time)
+                self.trafo_not_fail()
             else:
                 self.shed_load()
                 if self.prod is not None:
@@ -236,9 +236,9 @@ class Bus(Component):
         else:
             p_fail = self.fail_rate_per_hour
             if random_choice(self.ps_random, p_fail):
-                self.trafo_fail(curr_time)
+                self.trafo_fail()
             else:
-                self.trafo_not_fail(curr_time)
+                self.trafo_not_fail()
 
     def set_slack(self):
         self.is_slack = True

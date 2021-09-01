@@ -63,13 +63,13 @@ class Line(Component):
         Disconnects a line and removes the line
     connect()
         Connects a line and append the line
-    fail(curr_time)
+    fail()
         Sets the fail status of the line to True and opens the connected disconnectors and the connected circuit breaker
-    not_fail(curr_time)
+    not_fail()
         Sets the fail status of the line to False and closes the connected disconnectors and connected circuit breaker
     change_direciton()
         Changes the direction of the line
-    update_fail_status(curr_time)
+    update_fail_status()
         Updates the fail status of the line
     get_line_load()
         Gets the power flow over the line
@@ -201,7 +201,7 @@ class Line(Component):
         """
         self.is_backup = True
         for discon in self.disconnectors:
-            discon.open(curr_time=1)
+            discon.open()
 
     def disconnect(self):
         """
@@ -253,14 +253,13 @@ class Line(Component):
         self.fbus.fromline_list.append(self)
         self.fbus.nextbus.append(self.tbus)
 
-    def fail(self, curr_time):
+    def fail(self):
         """
         Sets the fail status of the line to False and opens the connected disconnectors and the connected circuit breaker
 
         Parameters
         ----------
-        curr_time : int
-            Current time
+        None
 
         Returns
         ----------
@@ -271,22 +270,19 @@ class Line(Component):
         self.parent_network.failed_line = True
         self.remaining_outage_time = self.outage_time
         if self.connected:
-            # for discon in self.disconnectors:
-            #     if not discon.is_open:
-            #         discon.open(curr_time)
-            self.parent_network.connected_line.circuitbreaker.open(curr_time)
+            # Relay
+            self.parent_network.connected_line.circuitbreaker.open()
             if self.parent_network.child_network_list is not None:
                 for child_network in self.parent_network.child_network_list:
-                    child_network.connected_line.circuitbreaker.open(curr_time)
+                    child_network.connected_line.circuitbreaker.open()
 
-    def not_fail(self, curr_time):
+    def not_fail(self):
         """
         Sets the fail status of the line to False and closes the connected disconnectors and connected circuit breaker
 
         Parameters
         ----------
-        curr_time : int
-            Current time
+        None
 
         Returns
         ----------
@@ -347,14 +343,13 @@ class Line(Component):
         self.fbus = self.tbus
         self.tbus = bus
 
-    def update_fail_status(self, curr_time):
+    def update_fail_status(self):
         """
         Updates the fail status of the line
 
         Parameters
         ----------
-        curr_time : int
-            Current time
+        None
 
         Returns
         ----------
@@ -364,17 +359,17 @@ class Line(Component):
         if self.is_backup:
             for discon in self.disconnectors:
                 if not discon.is_open:
-                    discon.open(curr_time)
+                    discon.open()
         if self.failed:
             self.remaining_outage_time -= 1
             if self.remaining_outage_time == 0:
-                self.not_fail(curr_time)
+                self.not_fail()
         else:
             p_fail = self.fail_rate_per_hour
             if random_choice(self.ps_random, p_fail):
-                self.fail(curr_time)
+                self.fail()
             else:
-                self.not_fail(curr_time)
+                self.not_fail()
 
     def get_line_load(self):
         """
@@ -583,7 +578,7 @@ class Line(Component):
         """
         self.remaining_outage_time = 0
 
-        self.not_fail(0)
+        self.not_fail()
         if save_flag:
             self.initialize_history()
 

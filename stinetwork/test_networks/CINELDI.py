@@ -8,7 +8,7 @@ from stinetwork.network.components import (
     CircuitBreaker,
     Battery,
     Production,
-    Controller,
+    MainController,
     Sensor,
     Router,
 )
@@ -21,7 +21,7 @@ from stinetwork.network.systems import (
 
 
 def initialize_network():
-    C1 = Controller("C1")
+    C1 = MainController("C1")
 
     ps = PowerSystem(C1)
 

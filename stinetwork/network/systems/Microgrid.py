@@ -1,6 +1,7 @@
-from stinetwork.network.components import Bus, Line
+from stinetwork.network.components import Bus, Line, MicrogridController
 from .Network import Network
 from .Distribution import Distribution
+from stinetwork.utils import unique
 
 
 class Microgrid(Network):
@@ -86,13 +87,35 @@ class Microgrid(Network):
                 "The mode {} is not implemented".format(mode)
             )
 
+        # Components
         self.buses = list()
+        self.batteries = list()
+        self.productions = list()
         self.lines = list()
-        self.sections = list()
+        self.sensors = list()
+        self.circuitbreakers = list()
+        self.disconnectors = list()
+        self.routers = list()
+        self.controller = MicrogridController(
+            name=self.name + "_controller",
+            network=self,
+        )
+        self.comp_list = list()
         self.comp_dict = dict()
+
+        # Network connections
         self.distribution_network = distribution_network
         self.distribution_network.add_child_network(self)
+        self.distribution_network.power_system.controller.microgrid_controllers.append(
+            self.controller
+        )
         self.child_network_list = None
+        self.distribution_network.power_system.comp_dict[
+            self.controller.name
+        ] = self.controller
+        self.distribution_network.power_system.comp_list.append(
+            self.controller
+        )
 
         self.failed_line = False
 
@@ -115,6 +138,8 @@ class Microgrid(Network):
         self.acc_p_load_shed = 0
         self.q_load_shed = 0
         self.acc_q_load_shed = 0
+        # Sectioning
+        self.parent_section = None
         ## History
         self.history: dict = {}
         self.monte_carlo_history: dict = {}
@@ -155,6 +180,17 @@ class Microgrid(Network):
         bus.color = self.color
         bus.parent_network = self
         self.buses.append(bus)
+        self.buses = unique(self.buses)
+        if bus.battery is not None:
+            self.comp_dict[bus.battery.name] = bus.battery
+            self.comp_list.append(bus.battery)
+            self.batteries.append(bus.battery)
+            self.batteries = unique(self.batteries)
+        if bus.prod is not None:
+            self.comp_dict[bus.prod.name] = bus.prod
+            self.comp_list.append(bus.prod)
+            self.productions.append(bus.prod)
+            self.productions = unique(self.productions)
         self.distribution_network.power_system.add_bus(bus)
 
     def add_buses(self, buses: list):
@@ -192,10 +228,21 @@ class Microgrid(Network):
         """
         line.handle.color = self.color
         line.color = self.color
-        self.comp_dict[line.name] = line
+        self.lines.append(line)
+        self.lines = unique(self.lines)
+        if line.sensor:
+            self.sensors.append(line.sensor)
+            self.sensors = unique(self.sensors)
+            self.controller.sensors.append(line.sensor)
+            self.controller.sensors = unique(self.controller.sensors)
         for discon in line.disconnectors:
             self.comp_dict[discon.name] = discon
-        self.lines.append(line)
+            self.comp_list.append(discon)
+            self.disconnectors.append(discon)
+            self.disconnectors = unique(self.disconnectors)
+            if discon.router:
+                self.routers.append(discon.router)
+                self.routers = unique(self.routers)
         line.add_parent_network(self)
         self.distribution_network.power_system.add_line(line)
 

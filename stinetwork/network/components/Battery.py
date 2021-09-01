@@ -453,14 +453,13 @@ class Battery(Component):
         """
         return self.history[attribute]
 
-    def update_fail_status(self, hour):
+    def update_fail_status(self):
         """
         Locks og unlocks the battery functionality based on failure states of the basestation
 
         Parameters
         ----------
-        hour : int
-            Current time
+        None
 
         Returns
         ----------
@@ -547,6 +546,12 @@ class Battery(Component):
             high=self.E_max,
         )
         self.update_SOC()
+
+    def update(self, p, q, fail_duration):
+        if self.mode in ["survival", "full support"] and fail_duration == 1:
+            self.draw_SOC_state()
+        p, q = self.update_bus_load_and_prod(p, q)
+        return p, q
 
 
 if __name__ == "__main__":

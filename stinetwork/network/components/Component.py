@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class Component(ABC):
     @abstractmethod
-    def update_fail_status(self, hour):
+    def update_fail_status(self):
         pass
 
     @abstractmethod

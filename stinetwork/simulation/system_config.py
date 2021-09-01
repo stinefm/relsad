@@ -108,7 +108,7 @@ def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time):
                     if not line.connected and not line.failed:
                         for discon in line.get_disconnectors():
                             if discon.is_open:
-                                discon.close(curr_time)
+                                discon.close()
                         update = True
                         break
             if update:

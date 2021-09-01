@@ -1,6 +1,7 @@
-from stinetwork.network.components import Bus, Line
+from stinetwork.network.components import Bus, Line, DistributionController
 from .Network import Network
 from .Transmission import Transmission
+from stinetwork.utils import unique
 
 
 class Distribution(Network):
@@ -72,14 +73,32 @@ class Distribution(Network):
         Distribution.counter += 1
         self.name = "dist_network{:d}".format(Distribution.counter)
 
+        # Components
         self.buses = list()
+        self.batteries = list()
+        self.productions = list()
         self.lines = list()
-        self.sections = list()
+        self.sensors = list()
+        self.circuitbreakers = list()
+        self.disconnectors = list()
+        self.routers = list()
+        self.controller = DistributionController(
+            name=self.name + "_controller",
+            network=self,
+        )
+        self.comp_list = list()
         self.comp_dict = dict()
+
+        # Network connections
         self.parent_network = transmission_network
         transmission_network.add_child_network(self)
         self.power_system = transmission_network.parent_network
+        self.power_system.controller.distribution_controllers.append(
+            self.controller
+        )
         self.child_network_list = list()
+        self.power_system.comp_dict[self.controller.name] = self.controller
+        self.power_system.comp_list.append(self.controller)
 
         self.failed_line = False
         # Load shedding
@@ -101,6 +120,8 @@ class Distribution(Network):
         for discon in c_b.disconnectors:
             self.comp_dict[discon.name] = discon
         self.add_line(connected_line)
+        # Sectioning
+        self.parent_section = None
         ## History
         self.history: dict = {}
         self.monte_carlo_history: dict = {}
@@ -139,6 +160,17 @@ class Distribution(Network):
         bus.color = self.color
         bus.parent_network = self
         self.buses.append(bus)
+        self.buses = unique(self.buses)
+        if bus.battery is not None:
+            self.comp_dict[bus.battery.name] = bus.battery
+            self.comp_list.append(bus.battery)
+            self.batteries.append(bus.battery)
+            self.batteries = unique(self.batteries)
+        if bus.prod is not None:
+            self.comp_dict[bus.prod.name] = bus.prod
+            self.comp_list.append(bus.prod)
+            self.productions.append(bus.prod)
+            self.productions = unique(self.productions)
         self.power_system.add_bus(bus)
 
     def add_buses(self, buses: set):
@@ -178,6 +210,20 @@ class Distribution(Network):
         for discon in line.disconnectors:
             self.comp_dict[discon.name] = discon
         self.lines.append(line)
+        self.lines = unique(self.lines)
+        if line.sensor:
+            self.sensors.append(line.sensor)
+            self.sensors = unique(self.sensors)
+            self.controller.sensors.append(line.sensor)
+            self.controller.sensors = unique(self.controller.sensors)
+        for discon in line.disconnectors:
+            self.comp_dict[discon.name] = discon
+            self.comp_list.append(discon)
+            self.disconnectors.append(discon)
+            self.disconnectors = unique(self.disconnectors)
+            if discon.router:
+                self.routers.append(discon.router)
+                self.routers = unique(self.routers)
         line.add_parent_network(self)
         self.power_system.add_line(line)
 

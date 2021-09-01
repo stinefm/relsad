@@ -42,12 +42,12 @@ class CircuitBreaker(Component):
 
         Methods
         ----------
-        close(curr_time)
+        close()
             Closes the circuit breaker and the disconnectors connected to the circuit breaker
-        open(curr_time)
+        open()
             Opens the circuit breaker and the disconnectors connected to the circuit breaker
-        update_fail_status(curr_time)
-        update_history(curr_time)
+        update_fail_status()
+        update_history()
             Updates the history variables
         get_history(attribute)
             Returns the history variables of an attribute
@@ -84,7 +84,6 @@ class CircuitBreaker(Component):
         name: str,
         line: Line,
         is_open: bool = False,
-        section_time: float = 1,
         fail_rate: float = 0.0,
         outage_time: float = 1,
     ):
@@ -99,9 +98,6 @@ class CircuitBreaker(Component):
         self.initial_state = is_open
         self.is_open = is_open
         self.failed = False
-        self.section_time = section_time
-        self.prev_section_time = 0
-        self.remaining_section_time = 0
         self.fail_rate = fail_rate
         self.outage_time = outage_time
         self.line = line
@@ -128,35 +124,32 @@ class CircuitBreaker(Component):
     def __hash__(self):
         return hash(self.name)
 
-    def close(self, curr_time):
+    def close(self):
         """
         Closes the circuit breaker and the disconnectors connected to the circuit breaker
 
         Parameters
         ----------
-        curr_time : int
-            Current time
+        None
 
         Returns
         ----------
         None
 
         """
-        if curr_time > self.prev_section_time or curr_time == 0:
-            self.is_open = False
-            self.color = "black"
-            for discon in self.disconnectors + self.line.disconnectors:
-                if discon.is_open:
-                    discon.close(curr_time)
+        self.is_open = False
+        self.color = "black"
+        for discon in self.disconnectors + self.line.disconnectors:
+            if discon.is_open:
+                discon.close()
 
-    def open(self, curr_time):
+    def open(self):
         """
         Opens the circuit breaker and the disconnectors connected to the circuit breaker
 
         Parameters
         ----------
-        curr_time : int
-            Current time
+        None
 
         Returns
         ----------
@@ -164,42 +157,39 @@ class CircuitBreaker(Component):
 
         """
         self.is_open = True
-        self.prev_section_time = curr_time
-        self.remaining_section_time = self.section_time
         self.color = "white"
         for discon in unique(self.line.disconnectors + self.disconnectors):
             if not discon.is_open:
-                discon.open(curr_time)
+                discon.open()
 
-    def update_fail_status(self, curr_time):
+    def update_fail_status(self):
         """
 
         Parameters
         ----------
-        curr_time : int
-            Current time
+        None
 
         Returns
         ----------
         None
 
         """
-        if self.is_open and curr_time > self.prev_section_time:
-            if self.remaining_section_time >= 1:
-                self.remaining_section_time -= 1
-            if self.remaining_section_time == 0 and not self.line.failed:
-                # If circuitbreaker in Microgrid with survival mode and parent Distribution
-                # system has no failed lines
-                if (
-                    self.line.parent_network.child_network_list is None
-                    and self.line.parent_network.mode == "survival"
-                ):
-                    if (
-                        not self.line.parent_network.distribution_network.failed_line
-                    ):
-                        self.close(curr_time)
-                else:
-                    self.close(curr_time)
+        # if self.is_open and curr_time > self.prev_section_time:
+        #     if self.remaining_section_time >= 1:
+        #         self.remaining_section_time -= 1
+        #     if self.remaining_section_time == 0 and not self.line.failed:
+        #         # If circuitbreaker in Microgrid with survival mode and parent Distribution
+        #         # system has no failed lines
+        #         if (
+        #             self.line.parent_network.child_network_list is None
+        #             and self.line.parent_network.mode == "survival"
+        #         ):
+        #             if (
+        #                 not self.line.parent_network.distribution_network.failed_line
+        #             ):
+        #                 self.close(curr_time)
+        #         else:
+        #             self.close(curr_time)
 
     def initialize_history(self):
         self.history["is_open"] = {}
@@ -222,12 +212,6 @@ class CircuitBreaker(Component):
         """
         if save_flag:
             self.history["is_open"][curr_time] = self.is_open
-            self.history["remaining_section_time"][
-                curr_time
-            ] = self.remaining_section_time
-            self.history["prev_section_time"][
-                curr_time
-            ] = self.prev_section_time
 
     def get_history(self, attribute: str):
         """
@@ -288,10 +272,7 @@ class CircuitBreaker(Component):
         None
 
         """
-        self.prev_section_time = 0
-        self.remaining_section_time = 0
-
-        self.close(0)
+        self.close()
         if save_flag:
             self.initialize_history()
 

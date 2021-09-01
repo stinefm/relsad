@@ -38,7 +38,7 @@ class Production(Component):
         Decides how much active and reactive power that will be produced
     update_bus_prod()
         Updates the production on the bus with the amount of generated active and reactive power
-    update_fail_status(curr_time)
+    update_fail_status()
     update_history(curr_time)
         Updates the history variables
     get_history(attribute)
@@ -179,13 +179,12 @@ class Production(Component):
         self.pprod = 0
         self.qprod = 0
 
-    def update_fail_status(self, curr_time):
+    def update_fail_status(self):
         """
 
         Parameters
         ----------
-        curr_time : int
-            Current time
+        None
 
         Returns
         ----------
