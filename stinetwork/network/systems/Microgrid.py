@@ -106,7 +106,7 @@ class Microgrid(Network):
         # Network connections
         self.distribution_network = distribution_network
         self.distribution_network.add_child_network(self)
-        self.distribution_network.power_system.controller.microgrid_controllers.append(
+        self.distribution_network.power_system.controller.add_microgrid_controller(
             self.controller
         )
         self.child_network_list = None
@@ -139,7 +139,7 @@ class Microgrid(Network):
         self.q_load_shed = 0
         self.acc_q_load_shed = 0
         # Sectioning
-        self.parent_section = None
+        self.sections = None
         ## History
         self.history: dict = {}
         self.monte_carlo_history: dict = {}

@@ -1,6 +1,6 @@
 import itertools
 from stinetwork.network.components import Line
-from stinetwork.network.systems import Section
+from stinetwork.network.containers import Section
 from stinetwork.utils import unique, intersection
 
 
@@ -97,14 +97,14 @@ def create_downstream_sections(
 def create_internal_sections(parent_section):
     child_lines = set(
         itertools.chain.from_iterable(
-            [x.comp_list for x in parent_section.child_sections]
+            [x.lines for x in parent_section.child_sections]
         )
     )
-    comp_list = list(set(parent_section.comp_list) - child_lines)
+    lines = list(set(parent_section.lines) - child_lines)
     child_sections = parent_section.child_sections
     for child_section in child_sections:
         child_section = create_internal_sections(child_section)
-    if comp_list == [] and parent_section.parent != None:
+    if lines == [] and parent_section.parent != None:
         parent_section.parent.child_sections.remove(parent_section)
         parent_section = parent_section.parent
         for child_section in child_sections:
@@ -112,30 +112,47 @@ def create_internal_sections(parent_section):
                 parent_section.child_sections.append(child_section)
         parent_section = create_internal_sections(parent_section)
     else:
-        parent_section.comp_list = comp_list
+        parent_section.lines = lines
         parent_section.disconnectors = unique(
             parent_section.disconnectors
             + [
                 x
                 for child_section in parent_section.child_sections
                 for x in child_section.disconnectors
+                if x.line in parent_section.lines
+                or sum(
+                    [
+                        l in parent_section.lines
+                        for l in x.line.fbus.toline_list
+                    ]
+                )
+                > 0
             ]
         )
-    if len(parent_section.comp_list) == 1:
-        if len(parent_section.comp_list[0].disconnectors) > 0:
+    if len(parent_section.lines) == 1:
+        if len(parent_section.lines[0].disconnectors) > 0:
             parent_section.disconnectors = (
-                parent_section.comp_list[0].disconnectors
-                + parent_section.comp_list[0].circuitbreaker.disconnectors
-                if parent_section.comp_list[0].circuitbreaker != None
-                else parent_section.comp_list[0].disconnectors
+                parent_section.lines[0].disconnectors
+                + parent_section.lines[0].circuitbreaker.disconnectors
+                if parent_section.lines[0].circuitbreaker != None
+                else parent_section.lines[0].disconnectors
             )
     return parent_section
+
+
+def get_section_list(parent_section, section_list=[]):
+    if section_list == []:
+        section_list.append(parent_section)
+    section_list += parent_section.child_sections
+    for child in parent_section.child_sections:
+        section_list = get_section_list(child, section_list)
+    return section_list
 
 
 def create_sections(connected_line):
     parent_section = create_downstream_sections(connected_line, [])
     parent_section = create_internal_sections(parent_section)
-    parent_section.attach_to_comp()
+    parent_section.attach_to_lines()
     return parent_section
 
 

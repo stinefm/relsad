@@ -93,7 +93,7 @@ class Distribution(Network):
         self.parent_network = transmission_network
         transmission_network.add_child_network(self)
         self.power_system = transmission_network.parent_network
-        self.power_system.controller.distribution_controllers.append(
+        self.power_system.controller.add_distribution_controller(
             self.controller
         )
         self.child_network_list = list()
@@ -121,7 +121,7 @@ class Distribution(Network):
             self.comp_dict[discon.name] = discon
         self.add_line(connected_line)
         # Sectioning
-        self.parent_section = None
+        self.sections = None
         ## History
         self.history: dict = {}
         self.monte_carlo_history: dict = {}

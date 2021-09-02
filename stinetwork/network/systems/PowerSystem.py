@@ -5,8 +5,14 @@ from stinetwork.network.components import (
 )
 from stinetwork.network.systems import Network
 from .Transmission import Transmission
-from stinetwork.utils import eq
-from stinetwork.utils import unique
+from stinetwork.utils import (
+    eq,
+    unique,
+)
+from stinetwork.topology.paths import (
+    create_sections,
+    get_section_list,
+)
 
 
 class PowerSystem(Network):
@@ -177,6 +183,12 @@ class PowerSystem(Network):
         """
         for child_network in self.child_network_list:
             child_network.reset_slack_bus()
+
+    def create_sections(self):
+        for network in self.child_network_list:
+            if not isinstance(network, Transmission):
+                parent_section = create_sections(network.connected_line)
+                network.sections = get_section_list(parent_section, [])
 
     def print_status(self):
         """

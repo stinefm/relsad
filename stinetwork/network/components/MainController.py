@@ -46,6 +46,14 @@ class MainController(Component):
     def __hash__(self):
         return hash(self.name)
 
+    def add_distribution_controller(self, controller):
+        self.distribution_controllers.append(controller)
+        controller.section_time = self.section_time
+
+    def add_microgrid_controller(self, controller):
+        self.microgrid_controllers.append(controller)
+        controller.section_time = self.section_time
+
     def run_control_loop(self, curr_time):
         for controller in self.distribution_controllers:
             controller.run_control_loop(curr_time)

@@ -105,7 +105,18 @@ def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time):
                     s_1, s_2
                 )
                 for line in external_backup_lines:
-                    if not line.connected and not line.failed:
+                    if (
+                        not line.connected
+                        and not line.failed
+                        and sum(
+                            [
+                                not x.section.connected if x.section else False
+                                for x in line.tbus.connected_lines
+                                + line.fbus.connected_lines
+                            ]
+                        )
+                        == 0
+                    ):
                         for discon in line.get_disconnectors():
                             if discon.is_open:
                                 discon.close()

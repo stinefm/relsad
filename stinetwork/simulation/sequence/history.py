@@ -96,8 +96,6 @@ def plot_circuitbreaker_history(circuitbreakers, save_dir: str):
     """
     whole_state_list = [
         "is_open",
-        "remaining_section_time",
-        "prev_section_time",
     ]
     for state_var in whole_state_list:
         plot_history(circuitbreakers, state_var, save_dir)
@@ -109,8 +107,6 @@ def save_circuitbreaker_history(circuitbreakers, save_dir: str):
     """
     whole_state_list = [
         "is_open",
-        "remaining_section_time",
-        "prev_section_time",
     ]
     for state_var in whole_state_list:
         save_history(circuitbreakers, state_var, save_dir)

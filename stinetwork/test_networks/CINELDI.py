@@ -1,5 +1,4 @@
 import os
-from stinetwork.topology.paths import create_sections
 from stinetwork.visualization.plotting import plot_topology
 from stinetwork.network.components import (
     Bus,
@@ -246,16 +245,16 @@ if __name__ == "__main__":
         )
     )
 
-    def print_sections(section, level=0):
-        print("\nSection: (level {})".format(level))
-        print("Lines: ", section.comp_list)
-        print("Disconnectors: ", section.disconnectors)
-        level += 1
-        for child_section in section.child_sections:
-            print_sections(child_section, level)
+    # def print_sections(section, level=0):
+    #     print("\nSection: (level {})".format(level))
+    #     print("Lines: ", section.comp_list)
+    #     print("Disconnectors: ", section.disconnectors)
+    #     level += 1
+    #     for child_section in section.child_sections:
+    #         print_sections(child_section, level)
 
-    for network in ps.child_network_list:
-        print("\n\n", network)
-        if not isinstance(network, Transmission):
-            parent_section = create_sections(network.connected_line)
-            print_sections(parent_section)
+    # for network in ps.child_network_list:
+    #     print("\n\n", network)
+    #     if not isinstance(network, Transmission):
+    #         parent_section = create_sections(network.connected_line)
+    #         print_sections(parent_section)

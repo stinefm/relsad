@@ -1,16 +1,25 @@
-from stinetwork.topology.paths import create_sections
 from stinetwork.network.components import (
     Bus,
-    CircuitBreaker,
-    Disconnector,
     Line,
+    Disconnector,
+    CircuitBreaker,
+    Battery,
+    Production,
+    ManualMainController,
+    Sensor,
+    Router,
 )
 from stinetwork.network.systems import Distribution, PowerSystem, Transmission
 from stinetwork.visualization.plotting import plot_topology
 
 
 def initialize_network():
-    ps = PowerSystem()
+    C1 = ManualMainController(
+        name="C1",
+        section_time=1,
+    )
+
+    ps = PowerSystem(C1)
     fail_rate_trafo = 0.0150  # 0.008
     fail_rate_line = 0.0650  # 0.08
     outage_time_line = 5
@@ -798,16 +807,16 @@ if __name__ == "__main__":
         )
     )
 
-    def print_sections(section, level=0):
-        print("\nSection: (level {})".format(level))
-        print("Lines: ", section.comp_list)
-        print("Disconnectors: ", section.disconnectors)
-        level += 1
-        for child_section in section.child_sections:
-            print_sections(child_section, level)
+    # def print_sections(section, level=0):
+    #     print("\nSection: (level {})".format(level))
+    #     print("Lines: ", section.comp_list)
+    #     print("Disconnectors: ", section.disconnectors)
+    #     level += 1
+    #     for child_section in section.child_sections:
+    #         print_sections(child_section, level)
 
-    for network in ps.child_network_list:
-        print("\n\n", network)
-        if not isinstance(network, Transmission):
-            parent_section = create_sections(network.connected_line)
-            print_sections(parent_section)
+    # for network in ps.child_network_list:
+    #     print("\n\n", network)
+    #     if not isinstance(network, Transmission):
+    #         parent_section = create_sections(network.connected_line)
+    #         print_sections(parent_section)

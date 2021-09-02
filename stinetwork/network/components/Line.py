@@ -295,13 +295,6 @@ class Line(Component):
         ):
             self.parent_network.failed_line = False
         self.failed = False
-        # if not self.is_backup:
-        #     if self.circuitbreaker is not None and self.circuitbreaker.is_open:
-        #         pass
-        #     else:
-        #         for discon in self.disconnectors:
-        #             if discon.is_open:
-        #                 discon.close(curr_time)
 
     def change_direction(self):
         """
