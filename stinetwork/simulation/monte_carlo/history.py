@@ -52,6 +52,9 @@ def plot_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
         "acc_p_load_shed",
         "acc_q_load_shed",
         "avg_outage_time",
+        "acc_outage_time",
+        "interruption_fraction",
+        "acc_interruptions",
     ]
     for bus in power_system.buses:
         bus_save_dir = os.path.join(save_dir, bus.name)
@@ -90,6 +93,9 @@ def save_network_monte_carlo_history(
         "acc_p_load_shed",
         "acc_q_load_shed",
         "avg_outage_time",
+        "acc_outage_time",
+        "interruption_fraction",
+        "acc_interruptions",
     ]
     for bus in power_system.buses:
         bus_save_dir = os.path.join(save_dir, bus.name)
@@ -136,6 +142,9 @@ def initialize_monte_carlo_history(power_system: PowerSystem):
         "acc_p_load_shed",
         "acc_q_load_shed",
         "avg_outage_time",
+        "acc_outage_time",
+        "interruption_fraction",
+        "acc_interruptions",
     ]
     for bus in power_system.buses:
         save_dict[bus.name] = {}
@@ -233,6 +242,9 @@ def update_monte_carlo_comp_history(
             "acc_p_load_shed": bus.acc_p_load_shed,
             "acc_q_load_shed": bus.acc_q_load_shed,
             "avg_outage_time": bus.avg_outage_time,
+            "acc_outage_time": bus.acc_outage_time,
+            "interruption_fraction": bus.interruption_fraction,
+            "acc_interruptions": bus.acc_interruptions,
         }
         for state_var, value in bus_state_dict.items():
             save_dict[bus.name][state_var][it] = value
@@ -297,6 +309,9 @@ def merge_monte_carlo_comp_history(
             "acc_p_load_shed": bus.acc_p_load_shed,
             "acc_q_load_shed": bus.acc_q_load_shed,
             "avg_outage_time": bus.avg_outage_time,
+            "acc_outage_time": bus.acc_outage_time,
+            "interruption_fraction": bus.interruption_fraction,
+            "acc_interruptions": bus.acc_interruptions,
         }
         for state_var in bus_state_dict.keys():
             save_dict[bus.name][state_var][it] = it_dict[bus.name][state_var][

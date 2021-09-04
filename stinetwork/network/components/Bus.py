@@ -113,7 +113,11 @@ class Bus(Component):
         self.acc_outage_time = 0
         self.avg_fail_rate = 0
         self.avg_outage_time = 0
-        self.interruptions = 0
+        self.prev_interruption_time = None
+        self.curr_interruption_duration = 0
+        self.interruption_fraction = 0
+        self.curr_interruptions = 0
+        self.acc_interruptions = 0
 
         ## Production and battery
         self.prod = None
@@ -266,17 +270,51 @@ class Bus(Component):
         self.history["vomag"] = {}
         self.history["avg_fail_rate"] = {}
         self.history["avg_outage_time"] = {}
+        self.history["acc_outage_time"] = {}
+        self.history["interruption_fraction"] = {}
+        self.history["acc_interruptions"] = {}
 
-    def update_history(self, curr_time, save_flag: bool):
+    def update_history(self, prev_time, curr_time, save_flag: bool):
         # Update accumulated load shed for bus
         self.acc_p_load_shed += self.p_load_shed_stack
         self.acc_q_load_shed += self.q_load_shed_stack
-        self.acc_outage_time += 1 if self.p_load_shed_stack > 0 else 0
-        self.avg_outage_time = self.acc_outage_time / (curr_time + 1)
+        self.acc_outage_time += (
+            curr_time - prev_time if self.p_load_shed_stack > 0 else 0
+        )
+        self.avg_outage_time = self.acc_outage_time / curr_time
         self.avg_fail_rate = self.get_avg_fail_rate()
         # Accumulate fraction of interupted customers
-        if self.pload > 0:
-            self.interruptions += self.p_load_shed_stack / self.pload
+        self.interruption_fraction = (
+            self.p_load_shed_stack / self.pload if self.pload != 0 else 0
+        )
+        if self.prev_interruption_time == prev_time:
+            if self.interruption_fraction > 0:
+                self.prev_interruption_time = curr_time
+                self.curr_interruptions += self.interruption_fraction
+                self.curr_interruption_duration += (
+                    curr_time - prev_time
+                    if prev_time is not None
+                    else curr_time
+                )
+
+            else:
+                if self.curr_interruption_duration > 0:
+                    self.acc_interruptions += (
+                        self.curr_interruptions
+                        / self.curr_interruption_duration
+                    )
+                self.curr_interruptions = 0
+                self.curr_interruption_duration = 0
+        else:
+            if self.interruption_fraction > 0:
+                self.prev_interruption_time = curr_time
+                self.curr_interruptions += self.interruption_fraction
+                self.curr_interruption_duration += (
+                    curr_time - prev_time
+                    if prev_time is not None
+                    else curr_time
+                )
+
         if save_flag:
             self.history["pload"][curr_time] = self.pload
             self.history["qload"][curr_time] = self.qload
@@ -302,6 +340,15 @@ class Bus(Component):
             self.history["avg_outage_time"][
                 curr_time
             ] = self.avg_outage_time  # Average outage time (r_s)
+            self.history["acc_outage_time"][
+                curr_time
+            ] = self.acc_outage_time  # Accumulated outage time
+            self.history["interruption_fraction"][
+                curr_time
+            ] = self.interruption_fraction
+            self.history["acc_interruptions"][
+                curr_time
+            ] = self.acc_interruptions
         self.clear_load_shed_stack()
 
     def get_history(self, attribute: str):
@@ -347,7 +394,10 @@ class Bus(Component):
         # Accumulated load shed for bus
         self.acc_p_load_shed = 0
         self.acc_q_load_shed = 0
-        self.interruptions = 0
+        self.prev_interruption_time = None
+        self.interruption_fraction = 0
+        self.curr_interruptions = 0
+        self.acc_interruptions = 0
         if save_flag:
             self.initialize_history()
 

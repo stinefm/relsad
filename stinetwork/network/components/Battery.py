@@ -64,11 +64,11 @@ class Battery(Component):
         Prints the status of the battery
     update_bus_load_and_prod(system_load_balance_p, system_load_balance_q)
         Updates the load and production on the bus based on the system load balance
-    update_history(hour)
+    update_history(curr_time, dt, save_flag)
         Updates the history variables
     get_history(attribute)
         Returns the history variables of an attribute
-    update_fail_status(hour)
+    update_fail_status(curr_time)
         Locks and unlocks the battery functionality based on failure states of the basestation
     add_random_seed(random_gen)
         Adds global random seed
@@ -417,13 +417,13 @@ class Battery(Component):
         self.history["SOC_min"] = {}
         self.history["remaining_survival_time"] = {}
 
-    def update_history(self, hour, save_flag: bool):
+    def update_history(self, prev_time, curr_time, save_flag: bool):
         """
         Updates the history variables
 
         Parameters
         ----------
-        hour : int
+        curr_time : int
             Current time
 
         Returns
@@ -431,10 +431,10 @@ class Battery(Component):
         None
         """
         if save_flag:
-            self.history["SOC"][hour] = self.SOC
-            self.history["SOC_min"][hour] = self.SOC_min
+            self.history["SOC"][curr_time] = self.SOC
+            self.history["SOC_min"][curr_time] = self.SOC_min
             self.history["remaining_survival_time"][
-                hour
+                curr_time
             ] = self.remaining_survival_time
 
     def get_history(self, attribute: str):

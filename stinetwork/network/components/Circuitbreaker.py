@@ -140,7 +140,7 @@ class CircuitBreaker(Component):
         self.is_open = False
         self.color = "black"
         for discon in self.disconnectors + self.line.disconnectors:
-            if discon.is_open:
+            if discon.is_open and self.line.section.connected:
                 discon.close()
 
     def open(self):
@@ -196,7 +196,7 @@ class CircuitBreaker(Component):
         self.history["remaining_section_time"] = {}
         self.history["prev_section_time"] = {}
 
-    def update_history(self, curr_time, save_flag: bool):
+    def update_history(self, prev_time, curr_time, save_flag: bool):
         """
         Updates the history variables
 

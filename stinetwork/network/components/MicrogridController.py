@@ -135,7 +135,7 @@ class MicrogridController(Component):
     def update_fail_status(self):
         pass
 
-    def update_history(self, curr_time, save_flag: bool):
+    def update_history(self, prev_time, curr_time, save_flag: bool):
         if save_flag:
             self.history["remaining_section_time"][
                 curr_time

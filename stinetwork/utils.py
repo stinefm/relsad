@@ -34,11 +34,11 @@ def random_instance(seed=None):
     return np.random.default_rng(seed)
 
 
-def eq(x: float, y: float):
+def eq(x: float, y: float, tol: float = 1e-6):
     """
     Checks for equality within a tolerance
     """
-    return abs(x - y) < 1e-6
+    return abs(x - y) < tol
 
 
 def random_choice(random_instance: np.random.Generator, p_true: float):

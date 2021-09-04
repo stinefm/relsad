@@ -224,7 +224,7 @@ class Disconnector(Component):
     def initialize_history(self):
         self.history["is_open"] = {}
 
-    def update_history(self, curr_time, save_flag: bool):
+    def update_history(self, prev_time, curr_time, save_flag: bool):
         """
         Updates the history variables
 

@@ -22,7 +22,7 @@ def initialize_network():
     ps = PowerSystem(C1)
     fail_rate_trafo = 0.0150  # 0.008
     fail_rate_line = 0.0650  # 0.08
-    outage_time_line = 5
+    outage_time_line = 6
     # repair_time_trafo = 200
     outage_time_trafo = 10
     rho = 1.72e-8
@@ -646,24 +646,32 @@ def initialize_network():
         outage_time=outage_time_line,
     )
 
-    CircuitBreaker("E1", L1)
-    CircuitBreaker("E2", L12)
-    CircuitBreaker("E3", L16)
-    CircuitBreaker("E4", L26)
+    E1 = CircuitBreaker("E1", L1)
+    E2 = CircuitBreaker("E2", L12)
+    E3 = CircuitBreaker("E3", L16)
+    E4 = CircuitBreaker("E4", L26)
 
+    Disconnector("DL1a", L1, B0, E1)
+    Disconnector("DL1b", L1, BF11, E1)
     Disconnector("DL4", L4, BF11)
     Disconnector("DL7", L7, BF12)
     Disconnector("DL10", L10, BF13)
     Disconnector("DLB1a", LB1, BF14)
 
+    Disconnector("DL12a", L12, B0, E2)
+    Disconnector("DL12b", L12, BF21, E2)
     Disconnector("DL14", L14, BF21)
     Disconnector("DLB1b", LB1, BF22)
 
+    Disconnector("DL16a", L16, B0, E3)
+    Disconnector("DL16b", L16, BF31, E3)
     Disconnector("DL18", L18, BF31)
     Disconnector("DL21", L21, BF32)
     Disconnector("DL24", L24, BF33)
     Disconnector("DLB2a", LB2, BF34)
 
+    Disconnector("DL26a", L26, B0, E4)
+    Disconnector("DL26b", L26, BF41, E4)
     Disconnector("DL29", L29, BF41)
     Disconnector("DL32", L32, BF42)
     Disconnector("DL34", L34, BF43)

@@ -5,6 +5,9 @@ from stinetwork.network.components import (
     Line,
     Battery,
     Production,
+    ManualMainController,
+    Sensor,
+    Router,
 )
 from stinetwork.network.systems import (
     Distribution,
@@ -16,7 +19,12 @@ from stinetwork.visualization.plotting import plot_topology
 
 
 def initialize_network():
-    ps = PowerSystem()
+
+    C1 = ManualMainController(
+        name="C1",
+        section_time=1,
+    )
+    ps = PowerSystem(C1)
 
     fail_rate_trafo = 0.007  # fails per year
     fail_rate_line = 0.07  # fails per year

@@ -72,7 +72,7 @@ class Router(Component):
     def update_fail_status(self):
         pass
 
-    def update_history(self, curr_time, save_flag: bool):
+    def update_history(self, prev_time, curr_time, save_flag: bool):
         pass
 
     def get_history(self, attribute: str):

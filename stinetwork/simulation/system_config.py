@@ -116,6 +116,14 @@ def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time):
                             ]
                         )
                         == 0
+                        and all(
+                            [
+                                x.parent_network.controller.remaining_section_time
+                                == 0
+                                for x in line.tbus.connected_lines
+                                + line.fbus.connected_lines
+                            ]
+                        )
                     ):
                         for discon in line.get_disconnectors():
                             if discon.is_open:

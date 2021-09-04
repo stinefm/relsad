@@ -46,7 +46,7 @@ class Simulation:
         ## Run load flow
         run_bfs_load_flow(network)
 
-    def run_increment(self, curr_time, save_flag: bool):
+    def run_increment(self, prev_time, curr_time, save_flag: bool):
         """
         Runs power system at current state for one time increment
         """
@@ -77,17 +77,22 @@ class Simulation:
                 ## Shed load
                 shed_loads(sub_system)
             ## Log results
-            update_history(self.power_system, curr_time, save_flag)
+            update_history(self.power_system, prev_time, curr_time, save_flag)
         else:
             if self.fail_duration > 0:
+                update_history(
+                    self.power_system, prev_time, curr_time, save_flag
+                )
                 self.fail_duration = 0
 
     def run_sequence(self, increments: int, save_flag: bool):
         """
         Runs power system for a sequence of increments
         """
+        prev_time = None
         for curr_time in range(1, increments + 1):
-            self.run_increment(curr_time, save_flag)
+            self.run_increment(prev_time, curr_time, save_flag)
+            prev_time = curr_time
 
     def run_iteration(
         self,

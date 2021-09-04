@@ -497,7 +497,7 @@ class Line(Component):
         self.history["failed"] = {}
         self.history["line_loading"] = {}
 
-    def update_history(self, curr_time, save_flag: bool):
+    def update_history(self, prev_time, curr_time, save_flag: bool):
         """
         Updates the history variables
 

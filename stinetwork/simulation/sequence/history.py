@@ -11,7 +11,9 @@ from stinetwork.visualization.plotting import (
 )
 
 
-def update_history(power_system: PowerSystem, curr_time, save_flag: bool):
+def update_history(
+    power_system: PowerSystem, prev_time, curr_time, save_flag: bool
+):
     """
     Updates the history variables in the power system
     """
@@ -53,7 +55,7 @@ def update_history(power_system: PowerSystem, curr_time, save_flag: bool):
         network.p_load_shed = 0
         network.q_load_shed = 0
     for comp in power_system.comp_list:
-        comp.update_history(curr_time, save_flag)
+        comp.update_history(prev_time, curr_time, save_flag)
 
 
 def plot_line_history(lines, save_dir: str):
@@ -157,6 +159,8 @@ def plot_bus_history(buses, save_dir: str):
         "acc_q_load_shed",
         "avg_fail_rate",
         "avg_outage_time",
+        "acc_outage_time",
+        "interruption_fraction",
     ]
     for state_var in last_state_list:
         plot_history_last_state(buses, state_var, save_dir)
@@ -181,6 +185,8 @@ def save_bus_history(buses, save_dir: str):
         "acc_q_load_shed",
         "avg_fail_rate",
         "avg_outage_time",
+        "acc_outage_time",
+        "interruption_fraction",
     ]
     for state_var in whole_state_list:
         save_history(buses, state_var, save_dir)
