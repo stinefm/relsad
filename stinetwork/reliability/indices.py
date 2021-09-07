@@ -21,7 +21,7 @@ def SAIDI(network: Network):
     """
     sum_outage_time_x_n_customer = sum(
         [
-            bus.acc_outage_time * bus.n_customers
+            bus.acc_outage_time.quantity * bus.n_customers
             for bus in network.buses
             if bus.acc_interruptions > 0
         ]

@@ -1,13 +1,16 @@
 from abc import ABC, abstractmethod
+from stinetwork.utils import Time
 
 
 class Component(ABC):
     @abstractmethod
-    def update_fail_status(self):
+    def update_fail_status(self, dt: Time):
         pass
 
     @abstractmethod
-    def update_history(self, prev_time, curr_time, save_flag: bool):
+    def update_history(
+        self, prev_time: Time, curr_time: Time, save_flag: bool
+    ):
         pass
 
     @abstractmethod

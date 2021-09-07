@@ -3,15 +3,12 @@ from stinetwork.network.systems import (
     SubSystem,
     Transmission,
 )
-from stinetwork.utils import (
-    unique,
-    subtract,
-)
+from stinetwork.utils import unique, subtract, Time
 from stinetwork.topology.paths import find_backup_lines_between_sub_systems
 from stinetwork.simulation.monte_carlo.history import initialize_history
 
 
-def find_sub_systems(p_s: PowerSystem, curr_time):
+def find_sub_systems(p_s: PowerSystem, curr_time: Time):
     """
     Function that find the independent sub systems of the given power system
     and adds them to the sub_systems list of the power system
@@ -92,7 +89,7 @@ def find_sub_systems(p_s: PowerSystem, curr_time):
         update_backup_lines_between_sub_systems(p_s, curr_time)
 
 
-def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time):
+def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time: Time):
     """
     Function that updates the backup lines between the sub systems of the
     power system if they exist and are not failed
@@ -119,7 +116,7 @@ def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time):
                         and all(
                             [
                                 x.parent_network.controller.remaining_section_time
-                                == 0
+                                == Time(0)
                                 for x in line.tbus.connected_lines
                                 + line.fbus.connected_lines
                             ]
@@ -179,7 +176,7 @@ def set_slack(p_s: PowerSystem, sub_system: SubSystem):
             ):  # Battery in Microgrid
                 if (
                     bus.battery.mode == "limited support"
-                    and bus.battery.remaining_survival_time == 0
+                    and bus.battery.remaining_survival_time == Time(0)
                     and not bus.is_slack
                 ):
                     bus.battery.start_survival_time()

@@ -1,6 +1,10 @@
 from .Component import Component
 from .Bus import Bus
 import numpy as np
+from stinetwork.utils import (
+    Time,
+    TimeUnit,
+)
 
 
 class Battery(Component):
@@ -15,9 +19,9 @@ class Battery(Component):
         Name of the battery
     mode : str
         Microgrid mode
-    survival_time : int
+    survival_time : Time
         Total amount of hours the microgrid should survive on battery capacity
-    remaining_survival_time : int
+    remaining_survival_time : Time
         The time left for the battery to ensure energy for the microgrid load
     standard_SOC_min : float
         The minimum State of Charge for the battery which can change based on wanted battery capacity
@@ -104,9 +108,9 @@ class Battery(Component):
             Name of the battery
         mode : str
             Microgrid mode
-        survival_time : int
+        survival_time : Time
             Total amount of hours the microgrid should survive on battery capacity
-        remaining_survival_time : int
+        remaining_survival_time : Time
             The time left for the battery to ensure energy for the microgrid load
         standard_SOC_min : float
             The minimum State of Charge for the battery which can change based on wanted battery capacity
@@ -147,8 +151,8 @@ class Battery(Component):
         self.name = name
 
         self.mode = None
-        self.survival_time = 4
-        self.remaining_survival_time = 0
+        self.survival_time = Time(4, TimeUnit.HOUR)
+        self.remaining_survival_time = Time(0)
         self.standard_SOC_min = SOC_min
 
         self.bus = bus
@@ -209,7 +213,7 @@ class Battery(Component):
         """
         self.SOC = self.E_battery / self.E_max
 
-    def charge(self, p_ch):
+    def charge(self, p_ch, dt: Time):
 
         """
         Charge the battery
@@ -235,10 +239,10 @@ class Battery(Component):
         """
 
         p_ch_remaining = 0
-        if p_ch > self.inj_p_max:
-            p_ch_remaining += p_ch - self.inj_p_max
+        if p_ch > self.inj_p_max * dt.get_hours():
+            p_ch_remaining += p_ch - self.inj_p_max * dt.get_hours()
             if p_ch == np.inf:
-                p_ch = self.inj_p_max
+                p_ch = self.inj_p_max * dt.get_hours()
             else:
                 p_ch -= p_ch_remaining
         dE = self.n_battery * p_ch
@@ -255,7 +259,7 @@ class Battery(Component):
         self.update_SOC()
         return p_ch_remaining
 
-    def discharge(self, p_dis, q_dis):
+    def discharge(self, p_dis, q_dis, dt: Time):
 
         """
         Discharge the battery
@@ -283,11 +287,11 @@ class Battery(Component):
 
         """
 
-        if self.remaining_survival_time > 0:
-            self.remaining_survival_time -= 1
+        if self.remaining_survival_time > Time(0):
+            self.remaining_survival_time -= dt
             self.SOC_min = min(
                 self.bus.parent_network.get_max_load()[0]
-                * self.remaining_survival_time
+                * self.remaining_survival_time.get_hours()
                 / self.E_max
                 + self.standard_SOC_min,
                 self.SOC_max,
@@ -297,16 +301,16 @@ class Battery(Component):
 
         p_dis_remaining = 0
         q_dis_remaining = 0
-        if p_dis > self.inj_p_max:
-            p_dis_remaining += p_dis - self.inj_p_max
+        if p_dis > self.inj_p_max * dt.get_hours():
+            p_dis_remaining += p_dis - self.inj_p_max * dt.get_hours()
             p_dis -= p_dis_remaining
-        if q_dis > self.inj_q_max:
-            q_dis_remaining += q_dis - self.inj_q_max
+        if q_dis > self.inj_q_max * dt.get_hours():
+            q_dis_remaining += q_dis - self.inj_q_max * dt.get_hours()
             q_dis -= q_dis_remaining
-        if p_dis + q_dis > self.inj_max:
+        if p_dis + q_dis > self.inj_max * dt.get_hours():
             f_p = p_dis / (p_dis + q_dis)  # active fraction
             f_q = 1 - f_p  # reactive fraction
-            diff = p_dis + q_dis - self.inj_max
+            diff = p_dis + q_dis - self.inj_max * dt.get_hours()
             p_dis_remaining += diff * (1 - f_p)
             q_dis_remaining += diff * (1 - f_q)
             p_dis -= diff * (1 - f_p)
@@ -352,7 +356,10 @@ class Battery(Component):
         print("SOC: {:.2f}".format(self.SOC))
 
     def update_bus_load_and_prod(
-        self, system_load_balance_p: float, system_load_balance_q: float
+        self,
+        system_load_balance_p: float,
+        system_load_balance_q: float,
+        dt: Time,
     ):
         """
         Updates the load and production on the bus based on the system load balance.
@@ -382,22 +389,22 @@ class Battery(Component):
 
         pprod, qprod, pload, qload = 0, 0, 0, 0
         if p >= 0 and q >= 0:
-            p_dis, q_dis = self.discharge(p, q)
+            p_dis, q_dis = self.discharge(p, q, dt)
             pprod = p - p_dis
             qprod = q - q_dis
         if p < 0 and q >= 0:
             if -p == np.inf:
-                pload = self.inj_p_max - self.charge(self.inj_p_max)
+                pload = self.inj_p_max - self.charge(self.inj_p_max, dt)
             else:
-                pload = -p - self.charge(-p)
-            qprod = q - self.discharge(0, q)[1]
+                pload = -p - self.charge(-p, dt)
+            qprod = q - self.discharge(0, q, dt)[1]
         if p >= 0 and q < 0:
-            pprod = p - self.discharge(p, 0)[0]
+            pprod = p - self.discharge(p, 0, dt)[0]
         if p < 0 and q < 0:
             if -p == np.inf:
-                pload = self.inj_p_max - self.charge(self.inj_p_max)
+                pload = self.inj_p_max - self.charge(self.inj_p_max, dt)
             else:
-                pload = -p - self.charge(-p)
+                pload = -p - self.charge(-p, dt)
         # if self.SOC >= self.SOC_min:
         self.bus.pprod += pprod  # MW
         self.bus.qprod += qprod  # MVar
@@ -417,13 +424,15 @@ class Battery(Component):
         self.history["SOC_min"] = {}
         self.history["remaining_survival_time"] = {}
 
-    def update_history(self, prev_time, curr_time, save_flag: bool):
+    def update_history(
+        self, prev_time: Time, curr_time: Time, save_flag: bool
+    ):
         """
         Updates the history variables
 
         Parameters
         ----------
-        curr_time : int
+        curr_time : Time
             Current time
 
         Returns
@@ -435,7 +444,7 @@ class Battery(Component):
             self.history["SOC_min"][curr_time] = self.SOC_min
             self.history["remaining_survival_time"][
                 curr_time
-            ] = self.remaining_survival_time
+            ] = self.remaining_survival_time.quantity
 
     def get_history(self, attribute: str):
         """
@@ -453,7 +462,7 @@ class Battery(Component):
         """
         return self.history[attribute]
 
-    def update_fail_status(self):
+    def update_fail_status(self, dt: Time):
         """
         Locks og unlocks the battery functionality based on failure states of the basestation
 
@@ -547,10 +556,10 @@ class Battery(Component):
         )
         self.update_SOC()
 
-    def update(self, p, q, fail_duration):
-        if self.mode in ["survival", "full support"] and fail_duration == 1:
+    def update(self, p, q, fail_duration: Time, dt: Time):
+        if self.mode in ["survival", "full support"] and fail_duration == dt:
             self.draw_SOC_state()
-        p, q = self.update_bus_load_and_prod(p, q)
+        p, q = self.update_bus_load_and_prod(p, q, dt)
         return p, q
 
 

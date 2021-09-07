@@ -1,5 +1,8 @@
 from stinetwork.test_networks.CINELDI import initialize_network
 from stinetwork.simulation import Simulation
+from stinetwork.utils import (
+    TimeUnit,
+)
 from load_and_gen_data import (
     WeatherGen,
     LoadGen,
@@ -108,9 +111,10 @@ if __name__ == "__main__":
 
     sim = Simulation(ps, random_seed=3)
     sim.run_monte_carlo(
-        iterations=10,
+        iterations=50,
         increments=8760,
-        save_iterations=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        time_unit=TimeUnit.HOUR,
+        save_iterations=[1, 10, 20, 30, 40, 50],
         save_dir=save_dir,
         n_procs=4,
     )

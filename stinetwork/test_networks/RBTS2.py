@@ -11,20 +11,21 @@ from stinetwork.network.components import (
 )
 from stinetwork.network.systems import Distribution, PowerSystem, Transmission
 from stinetwork.visualization.plotting import plot_topology
+from stinetwork.utils import (
+    Time,
+    TimeUnit,
+)
 
 
 def initialize_network():
-    C1 = ManualMainController(
-        name="C1",
-        section_time=1,
-    )
+    C1 = ManualMainController(name="C1", section_time=Time(1, TimeUnit.HOUR))
 
     ps = PowerSystem(C1)
     fail_rate_trafo = 0.0150  # 0.008
     fail_rate_line = 0.0650  # 0.08
-    outage_time_line = 6
+    outage_time_line = Time(6, TimeUnit.HOUR)
     # repair_time_trafo = 200
-    outage_time_trafo = 10
+    outage_time_trafo = Time(10, TimeUnit.HOUR)
     rho = 1.72e-8
     a = 64.52e-6
     l1 = 0.6  # km

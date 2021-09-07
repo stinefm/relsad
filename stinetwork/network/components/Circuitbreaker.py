@@ -3,6 +3,10 @@ from .Component import Component
 from .Line import Line
 import matplotlib.lines as mlines
 import numpy as np
+from stinetwork.utils import (
+    Time,
+    TimeUnit,
+)
 
 
 class CircuitBreaker(Component):
@@ -24,14 +28,10 @@ class CircuitBreaker(Component):
             Tells if the switch is open (True) or closed (False)
         failed : bool
             True if the circuit breaker is in a failed state, False if not
-        section_time : float
-            The section time of the circuit breaker, the time it takes from a line has failed to it is isolated and disconnected
-        prev_section_time : float
-            The section time for the previous time step
         fail_rate : float
             The failure rate of the circuit breaker [no of fails per year]
-        outage_time : float
-            The outage time of the circuit breaker [time units]
+        outage_time : Time
+            The outage time of the circuit breaker
         line : Line
             The line the circuit breaker is connected to
         disconnecter : list(Disconnectors)
@@ -85,7 +85,7 @@ class CircuitBreaker(Component):
         line: Line,
         is_open: bool = False,
         fail_rate: float = 0.0,
-        outage_time: float = 1,
+        outage_time: Time = Time(1, TimeUnit.HOUR),
     ):
         self.name = name
 
@@ -162,7 +162,7 @@ class CircuitBreaker(Component):
             if not discon.is_open:
                 discon.open()
 
-    def update_fail_status(self):
+    def update_fail_status(self, dt: Time):
         """
 
         Parameters
@@ -174,35 +174,19 @@ class CircuitBreaker(Component):
         None
 
         """
-        # if self.is_open and curr_time > self.prev_section_time:
-        #     if self.remaining_section_time >= 1:
-        #         self.remaining_section_time -= 1
-        #     if self.remaining_section_time == 0 and not self.line.failed:
-        #         # If circuitbreaker in Microgrid with survival mode and parent Distribution
-        #         # system has no failed lines
-        #         if (
-        #             self.line.parent_network.child_network_list is None
-        #             and self.line.parent_network.mode == "survival"
-        #         ):
-        #             if (
-        #                 not self.line.parent_network.distribution_network.failed_line
-        #             ):
-        #                 self.close(curr_time)
-        #         else:
-        #             self.close(curr_time)
 
     def initialize_history(self):
         self.history["is_open"] = {}
-        self.history["remaining_section_time"] = {}
-        self.history["prev_section_time"] = {}
 
-    def update_history(self, prev_time, curr_time, save_flag: bool):
+    def update_history(
+        self, prev_time: Time, curr_time: Time, save_flag: bool
+    ):
         """
         Updates the history variables
 
         Parameters
         ----------
-        curr_time : int
+        curr_time : Time
             Current time
 
         Returns

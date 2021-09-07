@@ -5,8 +5,12 @@ from stinetwork.network.components import (
 )
 from stinetwork.network.systems import Network
 from .Transmission import Transmission
-from stinetwork.utils import eq
-from stinetwork.utils import unique
+from stinetwork.utils import (
+    eq,
+    unique,
+    Time,
+    TimeUnit,
+)
 
 
 class SubSystem:
@@ -140,13 +144,13 @@ class SubSystem:
             system_load_balance_q += bus.qload - bus.qprod
         return system_load_balance_p, system_load_balance_q
 
-    def update_batteries(self, fail_duration: int):
+    def update_batteries(self, fail_duration: Time, dt: Time):
         """
         Updates the batteries in the power system
         """
         p, q = self.get_system_load_balance()
         for battery in self.batteries:
-            p, q = battery.update(p, q, fail_duration)
+            p, q = battery.update(p, q, fail_duration, dt)
 
     def reset_load_flow_data(self):
         """

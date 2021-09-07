@@ -3,7 +3,12 @@ import matplotlib.lines as mlines
 import numpy as np
 from .Component import Component
 from .Disconnector import Disconnector
-from stinetwork.utils import random_choice
+from stinetwork.utils import (
+    random_choice,
+    TimeUnit,
+    Time,
+    convert_yearly_fail_rate,
+)
 
 
 class RouterState(Enum):
@@ -30,15 +35,15 @@ class Router(Component):
         self,
         name: str,
         disconnector: Disconnector,
-        fail_rate: float = 0,
-        outage_time: float = 1,
+        fail_rate_per_year: float = 0,
+        outage_time: Time = Time(1, TimeUnit.SECOND),
         state: RouterState = RouterState.OK,
     ):
 
         self.name = name
         self.disconnector = disconnector
         disconnector.router = self
-        self.fail_rate = fail_rate
+        self.fail_rate_per_year = fail_rate_per_year
         self.outage_time = outage_time
         self.state = state
 
@@ -69,7 +74,7 @@ class Router(Component):
         elif self.state == RouterState.FAILED:
             pass
 
-    def update_fail_status(self):
+    def update_fail_status(self, dt: Time):
         pass
 
     def update_history(self, prev_time, curr_time, save_flag: bool):

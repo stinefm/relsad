@@ -2,7 +2,12 @@ import matplotlib.lines as mlines
 import numpy as np
 from .Component import Component
 from .Bus import Bus
-from stinetwork.utils import random_choice
+from stinetwork.utils import (
+    random_choice,
+    Time,
+    TimeUnit,
+    convert_yearly_fail_rate,
+)
 
 
 class Line(Component):
@@ -41,8 +46,6 @@ class Line(Component):
         The reactive power loss over the line \[MW\]
     fail_rate_per_year : float
         Failure rate per year \[fault/year/km\]
-    fail_rate_per_hour : float
-        Failure rate per hour \[fault/hour/km\]
     outage_time : float
         Outage time \[hours/fault\]
     connected : str
@@ -112,7 +115,7 @@ class Line(Component):
         rho: float = 1.72e-8,  # resistivity [Ohm*m]
         area: float = 64.52e-6,  # cross-sectional area [m**2]
         fail_rate_density_per_year: float = 0.2,
-        outage_time: float = 4,
+        outage_time: Time = Time(4, TimeUnit.HOUR),
         capacity: float = 100,  # MW
         connected=True,
     ):
@@ -157,13 +160,12 @@ class Line(Component):
         self.fail_rate_per_year = (
             fail_rate_density_per_year * self.length
         )  # failures per year
-        self.fail_rate_per_hour = self.fail_rate_per_year / (365 * 24)
-        self.outage_time = outage_time  # hours
+        self.outage_time = outage_time
 
         ## Status attribute
         self.connected = connected
         self.failed = False
-        self.remaining_outage_time = 0
+        self.remaining_outage_time = Time(0)
 
         ## Communication
         self.sensor = None
@@ -336,7 +338,7 @@ class Line(Component):
         self.fbus = self.tbus
         self.tbus = bus
 
-    def update_fail_status(self):
+    def update_fail_status(self, dt: Time):
         """
         Updates the fail status of the line
 
@@ -354,11 +356,11 @@ class Line(Component):
                 if not discon.is_open:
                     discon.open()
         if self.failed:
-            self.remaining_outage_time -= 1
-            if self.remaining_outage_time == 0:
+            self.remaining_outage_time -= dt
+            if self.remaining_outage_time <= Time(0):
                 self.not_fail()
         else:
-            p_fail = self.fail_rate_per_hour
+            p_fail = convert_yearly_fail_rate(self.fail_rate_per_year, dt)
             if random_choice(self.ps_random, p_fail):
                 self.fail()
             else:
@@ -497,13 +499,15 @@ class Line(Component):
         self.history["failed"] = {}
         self.history["line_loading"] = {}
 
-    def update_history(self, prev_time, curr_time, save_flag: bool):
+    def update_history(
+        self, prev_time: Time, curr_time: Time, save_flag: bool
+    ):
         """
         Updates the history variables
 
         Parameters
         ----------
-        curr_time : int
+        curr_time : Time
             Current time
 
         Returns
@@ -519,7 +523,7 @@ class Line(Component):
             self.history["q_to"][curr_time] = q_to * self.s_ref
             self.history["remaining_outage_time"][
                 curr_time
-            ] = self.remaining_outage_time
+            ] = self.remaining_outage_time.quantity
             self.history["failed"][curr_time] = self.failed
             self.history["line_loading"][curr_time] = self.get_line_loading()
 
@@ -569,7 +573,7 @@ class Line(Component):
         None
 
         """
-        self.remaining_outage_time = 0
+        self.remaining_outage_time = Time(0)
 
         self.not_fail()
         if save_flag:

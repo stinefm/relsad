@@ -9,6 +9,9 @@ from load_and_gen_data import (
 import time
 import numpy as np
 import os
+from stinetwork.utils import (
+    TimeUnit,
+)
 
 if __name__ == "__main__":
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -114,12 +117,19 @@ if __name__ == "__main__":
         # DL34 = ps.get_comp("DL34")
         # DLB2b = ps.get_comp("DLB2b")
 
-    load_res1 = np.ones((365, 24)) * (0.535 / 210)
-    load_res2 = np.ones((365, 24)) * (0.450 / 200)
-    load_small1 = np.ones((365, 24)) * 1
-    load_small2 = np.ones((365, 24)) * 1.15
-    load_gov = np.ones((365, 24)) * 0.566
-    load_com = np.ones((365, 24)) * 0.454
+    # load_res1 = np.ones((365, 24)) * (0.535 / 210)
+    # load_res2 = np.ones((365, 24)) * (0.450 / 200)
+    # load_small1 = np.ones((365, 24)) * (1 / 1)
+    # load_small2 = np.ones((365, 24)) * (1.15 / 1 )
+    # load_gov = np.ones((365, 24)) * (0.566 / 1)
+    # load_com = np.ones((365, 24)) * (0.454 / 10)
+
+    load_res1 = np.ones((365, 24)) * (0.8668 / 210)
+    load_res2 = np.ones((365, 24)) * (0.7291 / 200)
+    load_small1 = np.ones((365, 24)) * (1.6279 / 1)
+    load_small2 = np.ones((365, 24)) * (1.8721 / 1)
+    load_gov = np.ones((365, 24)) * (0.9167 / 1)
+    load_com = np.ones((365, 24)) * (0.7500 / 10)
 
     load_dict = dict()
 
@@ -188,9 +198,16 @@ if __name__ == "__main__":
 
     sim = Simulation(ps, random_seed=3)
     sim.run_monte_carlo(
-        iterations=10,
+        iterations=200,
         increments=8760,
-        save_iterations=[1, 2, 5, 6, 10],
+        time_unit=TimeUnit.HOUR,
+        save_iterations=[
+            1,
+            50,
+            100,
+            150,
+            200,
+        ],  # , 250, 300, 350, 400, 450, 499],
         save_dir=save_dir,
         n_procs=4,
     )

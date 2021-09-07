@@ -1,6 +1,7 @@
 import numpy as np
 from .Component import Component
 from .Bus import Bus
+from stinetwork.utils import Time
 
 
 class Production(Component):
@@ -120,13 +121,13 @@ class Production(Component):
         """
         self.prod_dict = prod_dict
 
-    def set_prod(self, curr_time):
+    def set_prod(self, curr_time: Time):
         """
         Decides how much active and reactive power that will be produced
 
         Parameters
         ----------
-        curr_time : int
+        curr_time : Time
             Current time
 
         Returns
@@ -135,8 +136,8 @@ class Production(Component):
 
         """
 
-        day = curr_time // 24
-        hour = curr_time % 24
+        day = curr_time.get_hours() // 24
+        hour = curr_time.get_hours() % 24
         day_idx = day - 1
         hour_idx = hour - 1
 
@@ -179,7 +180,7 @@ class Production(Component):
         self.pprod = 0
         self.qprod = 0
 
-    def update_fail_status(self):
+    def update_fail_status(self, dt: Time):
         """
 
         Parameters
@@ -192,13 +193,15 @@ class Production(Component):
 
         """
 
-    def update_history(self, prev_time, curr_time, save_flag: bool):
+    def update_history(
+        self, prev_time: Time, curr_time: Time, save_flag: bool
+    ):
         """
         Updates the history variables
 
         Parameters
         ----------
-        curr_time : int
+        curr_time : Time
             Current time
 
         Returns

@@ -16,20 +16,24 @@ from stinetwork.network.systems import (
     Microgrid,
 )
 from stinetwork.visualization.plotting import plot_topology
+from stinetwork.utils import (
+    Time,
+    TimeUnit,
+)
 
 
 def initialize_network():
 
     C1 = ManualMainController(
         name="C1",
-        section_time=1,
+        section_time=Time(1, TimeUnit.HOUR),
     )
     ps = PowerSystem(C1)
 
     fail_rate_trafo = 0.007  # fails per year
     fail_rate_line = 0.07  # fails per year
-    outage_time_trafo = 8  # hours
-    outage_time_line = 4  # hours
+    outage_time_trafo = Time(8, TimeUnit.HOUR)  # hours
+    outage_time_line = Time(4, TimeUnit.HOUR)  # hours
     battery_capacity = 1  # MWh
     microgrid_mode = "limited support"
 

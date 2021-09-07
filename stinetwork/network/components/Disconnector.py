@@ -4,6 +4,10 @@ from .Bus import Bus
 from .Circuitbreaker import CircuitBreaker
 import matplotlib.lines as mlines
 import numpy as np
+from stinetwork.utils import (
+    Time,
+    TimeUnit,
+)
 
 
 class Disconnector(Component):
@@ -25,9 +29,9 @@ class Disconnector(Component):
             True if the disconnector is in a failed state, False if not
         fail_rate : float
             The failure rate of the disconnector [no of fails per year]
-        outage_time : float
-            The outage time of the diconnector [time units]
-        prev_open_time : float
+        outage_time : Time
+            The outage time of the diconnector
+        prev_open_time : Time
             The time for the previous time step
         line : Line
             The line the disconnecor is connected to
@@ -86,7 +90,7 @@ class Disconnector(Component):
         circuitbreaker: CircuitBreaker = None,
         is_open: bool = False,
         fail_rate: float = 0.014,
-        outage_time: float = 1,
+        outage_time: Time = Time(1, TimeUnit.HOUR),
     ):
         self.name = name
         self.initial_state = is_open
@@ -94,7 +98,7 @@ class Disconnector(Component):
         self.failed = False
         self.fail_rate = fail_rate
         self.outage_time = outage_time
-        self.prev_open_time = 0
+        self.prev_open_time = Time(0)
         self.line = line
         self.circuitbreaker = circuitbreaker
 
@@ -208,7 +212,7 @@ class Disconnector(Component):
         self.failed = False
         self.close()
 
-    def update_fail_status(self):
+    def update_fail_status(self, dt: Time):
         """
 
         Parameters
@@ -224,13 +228,15 @@ class Disconnector(Component):
     def initialize_history(self):
         self.history["is_open"] = {}
 
-    def update_history(self, prev_time, curr_time, save_flag: bool):
+    def update_history(
+        self, prev_time: Time, curr_time: Time, save_flag: bool
+    ):
         """
         Updates the history variables
 
         Parameters
         ----------
-        curr_time : int
+        curr_time : Time
             Current time
 
         Returns
@@ -299,7 +305,7 @@ class Disconnector(Component):
         None
 
         """
-        self.prev_open_time = 0
+        self.prev_open_time = Time(0)
 
         self.not_fail()
         if save_flag:

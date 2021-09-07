@@ -8,6 +8,7 @@ from .Transmission import Transmission
 from stinetwork.utils import (
     eq,
     unique,
+    Time,
 )
 from stinetwork.topology.paths import (
     create_sections,
@@ -119,6 +120,8 @@ class PowerSystem(Network):
         self.lines.append(line)
         self.lines = unique(self.lines)
         if line.sensor:
+            self.comp_dict[line.sensor.name] = line.sensor
+            self.comp_list.append(line.sensor)
             self.sensors.append(line.sensor)
             self.sensors = unique(self.sensors)
         for discon in line.disconnectors:
@@ -127,6 +130,8 @@ class PowerSystem(Network):
             self.disconnectors.append(discon)
             self.disconnectors = unique(self.disconnectors)
             if discon.router:
+                self.comp_dict[discon.router.name] = discon.router
+                self.comp_list.append(discon.router)
                 self.routers.append(discon.router)
                 self.routers = unique(self.routers)
         if line.circuitbreaker is not None:
@@ -217,28 +222,28 @@ class PowerSystem(Network):
             system_load_balance_q += bus.qload - bus.qprod
         return system_load_balance_p, system_load_balance_q
 
-    def update_batteries(self, fail_duration: int):
+    def update_batteries(self, fail_duration: Time, dt: Time):
         """
         Updates the batteries in the power system
         """
         p, q = self.get_system_load_balance()
         for battery in self.batteries:
-            p, q = battery.update(p, q, fail_duration)
+            p, q = battery.update(p, q, fail_duration, dt)
 
-    def update_fail_status(self):
+    def update_fail_status(self, dt: Time):
         for bus in self.buses:
-            bus.update_fail_status()
+            bus.update_fail_status(dt)
         for battery in self.batteries:
-            battery.update_fail_status()
+            battery.update_fail_status(dt)
         for line in self.lines:
-            line.update_fail_status()
+            line.update_fail_status(dt)
         for circuitbreaker in self.circuitbreakers:
-            circuitbreaker.update_fail_status()
+            circuitbreaker.update_fail_status(dt)
         for sensor in self.sensors:
-            sensor.update_fail_status()
+            sensor.update_fail_status(dt)
         for router in self.routers:
-            router.update_fail_status()
-        self.controller.update_fail_status()
+            router.update_fail_status(dt)
+        self.controller.update_fail_status(dt)
 
     def get_system_load(self):
         """
@@ -304,11 +309,11 @@ class PowerSystem(Network):
             if prod in prod_dict:
                 prod.add_prod_dict(prod_dict[prod])
 
-    def set_load(self, curr_time):
+    def set_load(self, curr_time: Time):
         for bus in self.buses:
             bus.set_load(curr_time)
 
-    def set_prod(self, curr_time):
+    def set_prod(self, curr_time: Time):
         for prod in self.productions:
             prod.set_prod(curr_time)
         for bus in self.buses:

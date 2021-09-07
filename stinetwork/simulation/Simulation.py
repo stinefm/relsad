@@ -1,4 +1,5 @@
 import os
+import copy
 import numpy as np
 from numpy.random import SeedSequence
 from multiprocessing import Pool
@@ -23,13 +24,17 @@ from stinetwork.simulation.monte_carlo.history import (
     save_network_monte_carlo_history,
     save_iteration_history,
 )
+from stinetwork.utils import (
+    TimeUnit,
+    Time,
+)
 
 
 class Simulation:
     def __init__(self, power_system: PowerSystem, random_seed: int = None):
         self.power_system = power_system
         self.random_seed = random_seed
-        self.fail_duration = 0
+        self.fail_duration = Time(0)
 
     def distribute_random_instance(self, random_instance):
         """
@@ -46,7 +51,7 @@ class Simulation:
         ## Run load flow
         run_bfs_load_flow(network)
 
-    def run_increment(self, prev_time, curr_time, save_flag: bool):
+    def run_increment(self, prev_time: Time, curr_time: Time, save_flag: bool):
         """
         Runs power system at current state for one time increment
         """
@@ -55,21 +60,22 @@ class Simulation:
         ## Set productions
         self.power_system.set_prod(curr_time)
         ## Set fail status
-        self.power_system.update_fail_status()
+        dt = curr_time - prev_time if prev_time is not None else curr_time
+        self.power_system.update_fail_status(dt)
         ## Run control loop
-        self.power_system.controller.run_control_loop(curr_time)
+        self.power_system.controller.run_control_loop(curr_time, dt)
         if (
             self.power_system.failed_comp()
             or not self.power_system.full_batteries()
         ):
-            self.fail_duration += 1
+            self.fail_duration += dt
             ## Find sub systems
             find_sub_systems(self.power_system, curr_time)
             update_sub_system_slack(self.power_system)
             ## Load flow
             for sub_system in self.power_system.sub_systems:
                 ## Update batteries and history
-                sub_system.update_batteries(self.fail_duration)
+                sub_system.update_batteries(self.fail_duration, dt)
                 ## Run load flow
                 sub_system.reset_load_flow_data()
                 if sub_system.slack is not None:
@@ -79,25 +85,30 @@ class Simulation:
             ## Log results
             update_history(self.power_system, prev_time, curr_time, save_flag)
         else:
-            if self.fail_duration > 0:
+            if self.fail_duration > Time(0):
                 update_history(
                     self.power_system, prev_time, curr_time, save_flag
                 )
-                self.fail_duration = 0
+                self.fail_duration = Time(0)
 
-    def run_sequence(self, increments: int, save_flag: bool):
+    def run_sequence(
+        self, increments: int, time_unit: TimeUnit, save_flag: bool
+    ):
         """
         Runs power system for a sequence of increments
         """
-        prev_time = None
-        for curr_time in range(1, increments + 1):
+        prev_time = Time(0, unit=time_unit)
+        curr_time = Time(0, unit=time_unit)
+        for time_quantity in range(1, increments + 1):
+            curr_time = Time(time_quantity, unit=time_unit)
             self.run_increment(prev_time, curr_time, save_flag)
-            prev_time = curr_time
+            prev_time = copy.deepcopy(curr_time)
 
     def run_iteration(
         self,
         it: int,
         increments: int,
+        time_unit: TimeUnit,
         save_dir: str,
         save_iterations: list,
         random_seed: int,
@@ -111,7 +122,7 @@ class Simulation:
         print("it: {}".format(it), flush=True)
         save_flag = it in save_iterations
         reset_system(self.power_system, save_flag)
-        self.run_sequence(increments, save_flag)
+        self.run_sequence(increments, time_unit, save_flag)
         save_dict = update_monte_carlo_history(
             self.power_system, it, save_dict
         )
@@ -123,6 +134,7 @@ class Simulation:
         self,
         iterations: int,
         increments: int,
+        time_unit: TimeUnit,
         save_iterations: list = [],
         save_dir: str = "results",
         n_procs: int = 1,
@@ -138,6 +150,7 @@ class Simulation:
                     [
                         it,
                         increments,
+                        time_unit,
                         save_dir,
                         save_iterations,
                         child_seeds[it - 1],

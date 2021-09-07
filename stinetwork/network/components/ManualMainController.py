@@ -2,14 +2,19 @@ from enum import Enum
 import matplotlib.lines as mlines
 import numpy as np
 from .Component import Component
-from stinetwork.utils import random_choice
+from stinetwork.utils import (
+    random_choice,
+    Time,
+    TimeUnit,
+    convert_yearly_fail_rate,
+)
 
 
 class ManualMainController(Component):
     def __init__(
         self,
         name: str,
-        section_time: float,
+        section_time: Time,
     ):
 
         self.name = name
@@ -44,16 +49,18 @@ class ManualMainController(Component):
         self.microgrid_controllers.append(controller)
         controller.section_time = self.section_time
 
-    def run_control_loop(self, curr_time):
+    def run_control_loop(self, curr_time: Time, dt: Time):
         for controller in self.distribution_controllers:
-            controller.run_manual_control_loop(curr_time)
+            controller.run_manual_control_loop(curr_time, dt)
         for controller in self.microgrid_controllers:
-            controller.run_manual_control_loop(curr_time)
+            controller.run_manual_control_loop(curr_time, dt)
 
-    def update_fail_status(self):
+    def update_fail_status(self, dt: Time):
         pass
 
-    def update_history(self, prev_time, curr_time, save_flag: bool):
+    def update_history(
+        self, prev_time: Time, curr_time: Time, save_flag: bool
+    ):
         pass
 
     def get_history(self, attribute: str):

@@ -9,10 +9,17 @@ from stinetwork.visualization.plotting import (
     plot_history,
     plot_history_last_state,
 )
+from stinetwork.utils import (
+    TimeUnit,
+    Time,
+)
 
 
 def update_history(
-    power_system: PowerSystem, prev_time, curr_time, save_flag: bool
+    power_system: PowerSystem,
+    prev_time: Time,
+    curr_time: Time,
+    save_flag: bool,
 ):
     """
     Updates the history variables in the power system

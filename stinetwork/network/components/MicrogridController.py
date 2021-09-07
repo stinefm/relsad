@@ -3,7 +3,12 @@ import matplotlib.lines as mlines
 import numpy as np
 from .Component import Component
 from .MainController import ControllerState
-from stinetwork.utils import random_choice
+from stinetwork.utils import (
+    random_choice,
+    Time,
+    TimeUnit,
+    convert_yearly_fail_rate,
+)
 
 
 class MicrogridController(Component):
@@ -12,7 +17,7 @@ class MicrogridController(Component):
         name: str,
         network,
         fail_rate: float = 0,
-        outage_time: float = 1,
+        outage_time: Time = Time(1, TimeUnit.HOUR),
         state: ControllerState = ControllerState.OK,
     ):
 
@@ -20,9 +25,9 @@ class MicrogridController(Component):
         self.fail_rate = fail_rate
         self.outage_time = outage_time
         self.state = state
-        self.section_time = None
-        self.prev_section_time = 0
-        self.remaining_section_time = 0
+        self.section_time = Time(0)
+        self.prev_section_time = Time(0)
+        self.remaining_section_time = Time(0)
 
         self.network = network
 
@@ -49,10 +54,10 @@ class MicrogridController(Component):
     def __hash__(self):
         return hash(self.name)
 
-    def check_circuitbreaker(self, curr_time):
+    def check_circuitbreaker(self, curr_time: Time, dt: Time):
         if (
             self.network.connected_line.circuitbreaker.is_open
-            and self.remaining_section_time == 0
+            and self.remaining_section_time == Time(0)
         ):
             self.remaining_section_time = self.section_time
             self.prev_section_time = curr_time
@@ -60,10 +65,10 @@ class MicrogridController(Component):
             self.network.connected_line.circuitbreaker.is_open
             and curr_time > self.prev_section_time
         ):
-            if self.remaining_section_time >= 1:
-                self.remaining_section_time -= 1
+            if self.remaining_section_time > Time(0):
+                self.remaining_section_time -= dt
             if (
-                self.remaining_section_time == 0
+                self.remaining_section_time <= Time(0)
                 and not self.network.connected_line.failed
             ):
                 # If circuitbreaker in Microgrid with survival mode and parent Distribution
@@ -73,10 +78,10 @@ class MicrogridController(Component):
                         self.network.connected_line.circuitbreaker.close()
                 else:
                     self.network.connected_line.circuitbreaker.close()
-        elif curr_time == 0:
+        elif curr_time == Time(0):
             self.network.connected_line.circuitbreaker.close()
 
-    def check_sensors(self, curr_time):
+    def check_sensors(self, curr_time: Time, dt: Time):
         connected_sections = [x for x in self.network.sections if x.connected]
         disconnected_sections = [
             x for x in self.network.sections if not x.connected
@@ -86,7 +91,7 @@ class MicrogridController(Component):
                 if (
                     sum(
                         [
-                            x.sensor.get_line_fail_status()
+                            x.line.sensor.get_line_fail_status(dt)[1]
                             for x in section.disconnectors
                         ]
                     )
@@ -97,7 +102,7 @@ class MicrogridController(Component):
             if (
                 sum(
                     [
-                        x.sensor.get_line_fail_status()
+                        x.line.sensor.get_line_fail_status(dt)[1]
                         for x in section.disconnectors
                     ]
                 )
@@ -108,9 +113,9 @@ class MicrogridController(Component):
                 self.remaining_section_time = self.section_time
                 section.disconnect()
 
-    def run_control_loop(self, curr_time):
-        self.check_circuitbreaker(curr_time)
-        self.check_sensors(curr_time)
+    def run_control_loop(self, curr_time: Time, dt: Time):
+        self.check_circuitbreaker(curr_time, dt)
+        self.check_sensors(curr_time, dt)
 
     def check_lines_manually(self, curr_time):
         connected_sections = [x for x in self.network.sections if x.connected]
@@ -128,14 +133,16 @@ class MicrogridController(Component):
                 self.remaining_section_time = self.section_time
                 section.disconnect_manually()
 
-    def run_manual_control_loop(self, curr_time):
-        self.check_circuitbreaker(curr_time)
+    def run_manual_control_loop(self, curr_time: Time, dt: Time):
+        self.check_circuitbreaker(curr_time, dt)
         self.check_lines_manually(curr_time)
 
-    def update_fail_status(self):
+    def update_fail_status(self, dt: Time):
         pass
 
-    def update_history(self, prev_time, curr_time, save_flag: bool):
+    def update_history(
+        self, prev_time: Time, curr_time: Time, save_flag: bool
+    ):
         if save_flag:
             self.history["remaining_section_time"][
                 curr_time
@@ -154,9 +161,9 @@ class MicrogridController(Component):
         pass
 
     def reset_status(self, save_flag: bool):
-        self.prev_open_time = 0
-        self.prev_section_time = 0
-        self.remaining_section_time = 0
+        self.prev_open_time = Time(0)
+        self.prev_section_time = Time(0)
+        self.remaining_section_time = Time(0)
         if save_flag:
             self.initialize_history()
 

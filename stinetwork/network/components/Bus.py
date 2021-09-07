@@ -1,7 +1,12 @@
 import matplotlib.lines as mlines
 import numpy as np
 from .Component import Component
-from stinetwork.utils import random_choice
+from stinetwork.utils import (
+    random_choice,
+    Time,
+    TimeUnit,
+    convert_yearly_fail_rate,
+)
 
 
 class Bus(Component):
@@ -75,7 +80,7 @@ class Bus(Component):
         pqcostRatio=100,
         is_slack: bool = False,
         fail_rate_per_year: float = 0.5,
-        outage_time: float = 8,
+        outage_time: Time = Time(8, TimeUnit.HOUR),
         calc_sensitivities: bool = False,
     ):
         ## Informative attributes
@@ -110,11 +115,11 @@ class Bus(Component):
         self.fail_rate_per_year = fail_rate_per_year  # failures per year
         self.fail_rate_per_hour = self.fail_rate_per_year / (365 * 24)
         self.outage_time = outage_time  # hours
-        self.acc_outage_time = 0
+        self.acc_outage_time = Time(0)
         self.avg_fail_rate = 0
-        self.avg_outage_time = 0
-        self.prev_interruption_time = None
-        self.curr_interruption_duration = 0
+        self.avg_outage_time = Time(0)
+        self.prev_interruption_time = Time(0)
+        self.curr_interruption_duration = Time(0)
         self.interruption_fraction = 0
         self.curr_interruptions = 0
         self.acc_interruptions = 0
@@ -163,9 +168,9 @@ class Bus(Component):
     def add_load_dict(self, load_dict: dict):
         self.load_dict = load_dict
 
-    def set_load(self, curr_time):
-        day = curr_time // 24
-        hour = curr_time % 24
+    def set_load(self, curr_time: Time):
+        day = curr_time.get_hours() // 24
+        hour = curr_time.get_hours() % 24
         day_idx = day - 1
         hour_idx = hour - 1
         self.reset_load()
@@ -228,10 +233,10 @@ class Bus(Component):
     def get_production(self):
         return self.prod
 
-    def update_fail_status(self):
+    def update_fail_status(self, dt: Time):
         if self.trafo_failed:
-            self.remaining_outage_time -= 1
-            if self.remaining_outage_time == 0:
+            self.remaining_outage_time -= dt
+            if self.remaining_outage_time <= Time(0):
                 self.trafo_not_fail()
             else:
                 self.shed_load()
@@ -274,14 +279,18 @@ class Bus(Component):
         self.history["interruption_fraction"] = {}
         self.history["acc_interruptions"] = {}
 
-    def update_history(self, prev_time, curr_time, save_flag: bool):
+    def update_history(
+        self, prev_time: Time, curr_time: Time, save_flag: bool
+    ):
         # Update accumulated load shed for bus
         self.acc_p_load_shed += self.p_load_shed_stack
         self.acc_q_load_shed += self.q_load_shed_stack
         self.acc_outage_time += (
-            curr_time - prev_time if self.p_load_shed_stack > 0 else 0
+            curr_time - prev_time if self.p_load_shed_stack > 0 else Time(0)
         )
-        self.avg_outage_time = self.acc_outage_time / curr_time
+        self.avg_outage_time = (
+            self.acc_outage_time.quantity / curr_time.quantity
+        )
         self.avg_fail_rate = self.get_avg_fail_rate()
         # Accumulate fraction of interupted customers
         self.interruption_fraction = (
@@ -298,13 +307,13 @@ class Bus(Component):
                 )
 
             else:
-                if self.curr_interruption_duration > 0:
+                if self.curr_interruption_duration > Time(0):
                     self.acc_interruptions += (
                         self.curr_interruptions
-                        / self.curr_interruption_duration
+                        / self.curr_interruption_duration.quantity
                     )
                 self.curr_interruptions = 0
-                self.curr_interruption_duration = 0
+                self.curr_interruption_duration = Time(0)
         else:
             if self.interruption_fraction > 0:
                 self.prev_interruption_time = curr_time
@@ -322,7 +331,7 @@ class Bus(Component):
             self.history["qprod"][curr_time] = self.qprod
             self.history["remaining_outage_time"][
                 curr_time
-            ] = self.remaining_outage_time
+            ] = self.remaining_outage_time.quantity
             self.history["trafo_failed"][curr_time] = self.trafo_failed
             self.history["p_load_shed_stack"][
                 curr_time
@@ -378,23 +387,23 @@ class Bus(Component):
         """
         Returns the average failure rate of the bus
         """
-        avg_fail_rate = self.fail_rate_per_hour
+        avg_fail_rate = self.fail_rate_per_year
         if self.parent_network is not None:
             for line in self.parent_network.get_lines():
-                avg_fail_rate += line.fail_rate_per_hour
+                avg_fail_rate += line.fail_rate_per_year
         return avg_fail_rate
 
     def reset_status(self, save_flag: bool):
         self.trafo_failed = False
-        self.remaining_outage_time = 0
-        self.acc_outage_time = 0
+        self.remaining_outage_time = Time(0)
+        self.acc_outage_time = Time(0)
         self.reset_load_and_prod_attributes()
         self.cost = 0  # cost
         self.clear_load_shed_stack()
         # Accumulated load shed for bus
         self.acc_p_load_shed = 0
         self.acc_q_load_shed = 0
-        self.prev_interruption_time = None
+        self.prev_interruption_time = Time(0)
         self.interruption_fraction = 0
         self.curr_interruptions = 0
         self.acc_interruptions = 0
