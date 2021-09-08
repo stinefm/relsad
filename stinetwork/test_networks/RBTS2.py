@@ -25,7 +25,7 @@ def initialize_network():
     fail_rate_line = 0.0650  # 0.08
     outage_time_line = Time(6, TimeUnit.HOUR)
     # repair_time_trafo = 200
-    outage_time_trafo = Time(10, TimeUnit.HOUR)
+    outage_time_trafo = Time(200, TimeUnit.HOUR)
     rho = 1.72e-8
     a = 64.52e-6
     l1 = 0.6  # km
@@ -126,7 +126,7 @@ def initialize_network():
         "B8",
         n_customers=1,
         coordinate=[-3, -2],
-        fail_rate_per_year=fail_rate_trafo,
+        fail_rate_per_year=0,
         outage_time=outage_time_trafo,
     )
     BF21 = Bus(
@@ -218,7 +218,7 @@ def initialize_network():
         "B15",
         n_customers=10,
         coordinate=[3, -10],
-        fail_rate_per_year=fail_rate_trafo,
+        fail_rate_per_year=0,
         outage_time=outage_time_trafo,
     )
 

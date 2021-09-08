@@ -5,6 +5,7 @@ from stinetwork.network.components import (
     Line,
     Battery,
     Production,
+    MicrogridMode,
 )
 from stinetwork.network.systems import (
     Distribution,
@@ -23,7 +24,7 @@ def initialize_network():
     outage_time_trafo = 8  # hours
     outage_time_line = 4  # hours
     # battery_capacity = 1  # MWh
-    # microgrid_mode = "limited support"
+    # microgrid_mode = MicrogridMode.LIMITED_SUPPORT
 
     B1 = Bus("B1", n_customers=0, coordinate=[0, 0], fail_rate_per_year=0)
     B2 = Bus(

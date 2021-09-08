@@ -5,6 +5,7 @@ from stinetwork.network.components import (
     CircuitBreaker,
     Battery,
     Production,
+    MicrogridMode,
 )
 from stinetwork.network.systems import (
     PowerSystem,
@@ -1036,7 +1037,7 @@ def initialize_network():
         ]
     )
 
-    m = Microgrid(dn, L67, mode="survival")
+    m = Microgrid(dn, L67, mode=MicrogridMode.SURVIVAL)
     m.add_buses([B68, B69, B70, B71])
     m.add_lines([L68, ML3, ML4])
 

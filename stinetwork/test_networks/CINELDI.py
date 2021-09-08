@@ -8,14 +8,20 @@ from stinetwork.network.components import (
     Battery,
     Production,
     MainController,
+    ManualMainController,
     Sensor,
     Router,
+    MicrogridMode,
 )
 from stinetwork.network.systems import (
     PowerSystem,
     Transmission,
     Distribution,
     Microgrid,
+)
+from stinetwork.utils import (
+    Time,
+    TimeUnit,
 )
 
 
@@ -226,7 +232,7 @@ def initialize_network():
     dn.add_buses([B1, B2, B3, B4, B5])
     dn.add_lines([L2, L3, L4, L5, L6])
 
-    m = Microgrid(dn, L7, mode="survival")
+    m = Microgrid(dn, L7, mode=MicrogridMode.FULL_SUPPORT)
 
     m.add_buses([M1, M2, M3])
     m.add_lines([ML1, ML2])

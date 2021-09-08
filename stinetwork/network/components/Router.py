@@ -14,6 +14,7 @@ from stinetwork.utils import (
 class RouterState(Enum):
     OK = 1
     FAILED = 2
+    REPAIR = 3
 
 
 class Router(Component):

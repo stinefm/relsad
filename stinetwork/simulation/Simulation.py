@@ -138,26 +138,41 @@ class Simulation:
         save_iterations: list = [],
         save_dir: str = "results",
         n_procs: int = 1,
+        debug: bool = False,
     ):
         ss = SeedSequence(self.random_seed)
         child_seeds = ss.spawn(iterations)
         self.power_system.create_sections()
         initialize_history(self.power_system)
-        with Pool(processes=n_procs) as pool:
-            it_dicts = pool.starmap(
-                self.run_iteration,
-                [
-                    [
+        if debug:
+            it_dicts = []
+            for it in range(1, iterations + 1):
+                it_dicts.append(
+                    self.run_iteration(
                         it,
                         increments,
                         time_unit,
                         save_dir,
                         save_iterations,
                         child_seeds[it - 1],
-                    ]
-                    for it in range(1, iterations + 1)
-                ],
-            )
+                    )
+                )
+        else:
+            with Pool(processes=n_procs) as pool:
+                it_dicts = pool.starmap(
+                    self.run_iteration,
+                    [
+                        [
+                            it,
+                            increments,
+                            time_unit,
+                            save_dir,
+                            save_iterations,
+                            child_seeds[it - 1],
+                        ]
+                        for it in range(1, iterations + 1)
+                    ],
+                )
         save_dict = merge_monte_carlo_history(
             self.power_system,
             it_dicts,

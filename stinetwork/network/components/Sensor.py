@@ -39,10 +39,10 @@ class Sensor(Component):
         self,
         name: str,
         line: Line,
-        fail_rate_per_year: float = 0,
-        p_repair_new_signal: float = 0,
-        p_repair_reboot: float = 0,
-        new_signal_time: Time = Time(0, TimeUnit.SECOND),
+        fail_rate_per_year: float = 0.2,
+        p_repair_new_signal: float = 0.95,
+        p_repair_reboot: float = 0.9,
+        new_signal_time: Time = Time(2, TimeUnit.SECOND),
         reboot_time: Time = Time(2, TimeUnit.MINUTE),
         manual_repair_time: Time = Time(2, TimeUnit.HOUR),
         state: SensorState = SensorState.OK,
@@ -93,12 +93,12 @@ class Sensor(Component):
 
     def repair(self, dt: Time):
         repair_time = self.new_signal_time
-        self.draw_status(dt, self.p_repair_new_signal)
+        self.draw_status(self.p_repair_new_signal)
         if self.state == SensorState.OK:
             return repair_time, self.line.failed
         elif self.state == SensorState.FAILED:
             repair_time += self.reboot_time
-            self.draw_status(dt, self.p_repair_reboot)
+            self.draw_status(self.p_repair_reboot)
             if self.state == SensorState.OK:
                 return repair_time, self.line.failed
             elif self.state == SensorState.FAILED:
@@ -107,23 +107,18 @@ class Sensor(Component):
                 return repair_time, True
 
     def get_line_fail_status(self, dt: Time):
-        self.draw_fail_status(dt)
-        if self.state == SensorState.OK:
-            return 0, self.line.failed
-        elif self.state == SensorState.FAILED:
-            return self.repair(dt)
-        elif self.state == SensorState.REPAIR:
+        if self.state == SensorState.REPAIR:
             self.remaining_repair_time -= dt
-            if self.remaining_repair_time.is_zero():
+            if self.remaining_repair_time <= Time(0):
                 self.not_fail()
-            return None
-
-    def get_line_connection_status(self, dt: Time):
-        self.set_fail_status(dt)
-        if self.state == SensorState.OK:
-            return self.line.connected
-        elif self.state == SensorState.FAILED:
-            return None
+                return Time(0), self.line.failed
+            return Time(0), True
+        else:
+            self.draw_fail_status(dt)
+            if self.state == SensorState.OK:
+                return Time(0), self.line.failed
+            elif self.state == SensorState.FAILED:
+                return self.repair(dt)
 
     def get_section(self):
         return self.line.section

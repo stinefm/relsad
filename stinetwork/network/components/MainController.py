@@ -12,7 +12,9 @@ from stinetwork.utils import (
 
 class ControllerState(Enum):
     OK = 1
-    FAILED = 2
+    SOFTWARE_FAIL = 2
+    HARDWARE_FAIL = 3
+    REPAIR = 4
 
 
 class MainController(Component):

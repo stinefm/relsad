@@ -359,6 +359,7 @@ class Line(Component):
             self.remaining_outage_time -= dt
             if self.remaining_outage_time <= Time(0):
                 self.not_fail()
+                self.parent_network.controller.check_components = True
         else:
             p_fail = convert_yearly_fail_rate(self.fail_rate_per_year, dt)
             if random_choice(self.ps_random, p_fail):

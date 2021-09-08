@@ -288,9 +288,7 @@ class Bus(Component):
         self.acc_outage_time += (
             curr_time - prev_time if self.p_load_shed_stack > 0 else Time(0)
         )
-        self.avg_outage_time = (
-            self.acc_outage_time.quantity / curr_time.quantity
-        )
+        self.avg_outage_time = self.acc_outage_time / curr_time
         self.avg_fail_rate = self.get_avg_fail_rate()
         # Accumulate fraction of interupted customers
         self.interruption_fraction = (
@@ -348,10 +346,10 @@ class Bus(Component):
             ] = self.get_avg_fail_rate()  # Average failure rate (lamda_s)
             self.history["avg_outage_time"][
                 curr_time
-            ] = self.avg_outage_time  # Average outage time (r_s)
+            ] = self.avg_outage_time.quantity  # Average outage time (r_s)
             self.history["acc_outage_time"][
                 curr_time
-            ] = self.acc_outage_time  # Accumulated outage time
+            ] = self.acc_outage_time.quantity  # Accumulated outage time
             self.history["interruption_fraction"][
                 curr_time
             ] = self.interruption_fraction

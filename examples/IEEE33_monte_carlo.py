@@ -1,7 +1,7 @@
 from stinetwork.test_networks.IEEE33 import initialize_network
 from stinetwork.visualization.plotting import plot_topology
-from stinetwork.utils import random_instance
 from stinetwork.simulation import Simulation
+from stinetwork.utils import TimeUnit
 from load_and_gen_data import (
     WeatherGen,
     LoadGen,
@@ -315,18 +315,20 @@ if __name__ == "__main__":
     ps.add_load_dict(load_dict)
     ps.add_prod_dict(prod_dict)
 
-    save_dir = "res"
+    save_dir = r"test_IEEE33"
 
-    fig = plot_topology(ps.buses, ps.lines, figsize=(6.5, 4.5))
-    fig.savefig(os.path.join(save_dir, "topology.pdf"))
+    # fig = plot_topology(ps.buses, ps.lines, figsize=(6.5, 4.5))
+    # fig.savefig(os.path.join(save_dir, "topology.pdf"))
 
     sim = Simulation(ps, random_seed=0)
 
     sim.run_monte_carlo(
-        iterations=1500,
+        iterations=100,
         increments=8760,
-        save_iterations=[1, 250, 500, 750, 1000, 1250, 1500],
+        time_unit=TimeUnit.HOUR,
+        save_iterations=[1, 10, 20, 30, 40, 50, 100],
         save_dir=save_dir,
+        n_procs=4,
     )
 
     end = time.time()

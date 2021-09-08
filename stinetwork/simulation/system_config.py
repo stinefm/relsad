@@ -3,7 +3,12 @@ from stinetwork.network.systems import (
     SubSystem,
     Transmission,
 )
-from stinetwork.utils import unique, subtract, Time
+from stinetwork.network.components import MicrogridMode
+from stinetwork.utils import (
+    unique,
+    subtract,
+    Time,
+)
 from stinetwork.topology.paths import find_backup_lines_between_sub_systems
 from stinetwork.simulation.monte_carlo.history import initialize_history
 
@@ -115,8 +120,8 @@ def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time: Time):
                         == 0
                         and all(
                             [
-                                x.parent_network.controller.remaining_section_time
-                                == Time(0)
+                                x.parent_network.controller.section_time
+                                <= Time(0)
                                 for x in line.tbus.connected_lines
                                 + line.fbus.connected_lines
                             ]
@@ -175,7 +180,7 @@ def set_slack(p_s: PowerSystem, sub_system: SubSystem):
                 bus.battery is not None and bus.battery.mode is not None
             ):  # Battery in Microgrid
                 if (
-                    bus.battery.mode == "limited support"
+                    bus.battery.mode == MicrogridMode.LIMITED_SUPPORT
                     and bus.battery.remaining_survival_time == Time(0)
                     and not bus.is_slack
                 ):

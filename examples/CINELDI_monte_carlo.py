@@ -1,8 +1,6 @@
 from stinetwork.test_networks.CINELDI import initialize_network
 from stinetwork.simulation import Simulation
-from stinetwork.utils import (
-    TimeUnit,
-)
+from stinetwork.utils import TimeUnit
 from load_and_gen_data import (
     WeatherGen,
     LoadGen,

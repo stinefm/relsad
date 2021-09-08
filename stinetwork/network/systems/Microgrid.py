@@ -1,4 +1,9 @@
-from stinetwork.network.components import Bus, Line, MicrogridController
+from stinetwork.network.components import (
+    Bus,
+    Line,
+    MicrogridController,
+    MicrogridMode,
+)
 from .Network import Network
 from .Distribution import Distribution
 from stinetwork.utils import unique
@@ -66,11 +71,11 @@ class Microgrid(Network):
         self,
         distribution_network: Distribution,
         connected_line: Line,
-        mode: str = "survival",
+        mode: MicrogridMode = MicrogridMode.SURVIVAL,
     ):
         """Initializing microgrid network type content
         Content:
-            mode(str): Microgrid mode, 1) survival, 2) full support, 3) limited support
+            mode(MicrogridMode): Microgrid mode, 1) survival, 2) full support, 3) limited support
 
             buses(list): List of buses
             lines(list): List of lines
@@ -79,13 +84,7 @@ class Microgrid(Network):
         """
         Microgrid.counter += 1
         self.name = "microgrid{:d}".format(Microgrid.counter)
-
-        if mode in ["survival", "full support", "limited support"]:
-            self.mode = mode
-        else:
-            raise NotImplementedError(
-                "The mode {} is not implemented".format(mode)
-            )
+        self.mode = mode
 
         # Components
         self.buses = list()

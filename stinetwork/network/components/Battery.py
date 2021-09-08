@@ -1,5 +1,6 @@
 from .Component import Component
 from .Bus import Bus
+from .MicrogridController import MicrogridMode
 import numpy as np
 from stinetwork.utils import (
     Time,
@@ -557,7 +558,10 @@ class Battery(Component):
         self.update_SOC()
 
     def update(self, p, q, fail_duration: Time, dt: Time):
-        if self.mode in ["survival", "full support"] and fail_duration == dt:
+        if (
+            self.mode in [MicrogridMode.SURVIVAL, MicrogridMode.FULL_SUPPORT]
+            and fail_duration == dt
+        ):
             self.draw_SOC_state()
         p, q = self.update_bus_load_and_prod(p, q, dt)
         return p, q

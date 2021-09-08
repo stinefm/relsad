@@ -283,8 +283,7 @@ def plot_controller_history(controllers, save_dir: str):
     Plots the history of the controllers in the power system
     """
     whole_state_list = [
-        "remaining_section_time",
-        "prev_section_time",
+        "section_time",
     ]
     for state_var in whole_state_list:
         plot_history(controllers, state_var, save_dir)
@@ -295,8 +294,7 @@ def save_controller_history(controllers, save_dir: str):
     Saves the history of the controllers in the power system
     """
     whole_state_list = [
-        "remaining_section_time",
-        "prev_section_time",
+        "section_time",
     ]
     for state_var in whole_state_list:
         save_history(controllers, state_var, save_dir)

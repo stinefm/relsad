@@ -104,32 +104,63 @@ class Time:
             return self.get_hours()
 
     def __lt__(self, other):
-        return self.quantity < other.get_unit_quantity(self.unit)
+        return isinstance(
+            other, self.__class__
+        ) and self.quantity < other.get_unit_quantity(self.unit)
 
     def __le__(self, other):
-        return self.quantity <= other.get_unit_quantity(self.unit)
+        return isinstance(
+            other, self.__class__
+        ) and self.quantity <= other.get_unit_quantity(self.unit)
 
     def __gt__(self, other):
-        return self.quantity > other.get_unit_quantity(self.unit)
+        return isinstance(
+            other, self.__class__
+        ) and self.quantity > other.get_unit_quantity(self.unit)
 
     def __ge__(self, other):
-        return self.quantity >= other.get_unit_quantity(self.unit)
+        return isinstance(
+            other, self.__class__
+        ) and self.quantity >= other.get_unit_quantity(self.unit)
 
     def __eq__(self, other):
-        return self.quantity == other.get_unit_quantity(self.unit)
+        return isinstance(
+            other, self.__class__
+        ) and self.quantity == other.get_unit_quantity(self.unit)
 
     def __ne__(self, other):
-        return self.quantity != other.get_unit_quantity(self.unit)
+        return isinstance(
+            other, self.__class__
+        ) and self.quantity != other.get_unit_quantity(self.unit)
 
     def __add__(self, other):
+        if not isinstance(other, self.__class__):
+            raise Exception("Wrong type")
         return Time(
             self.quantity + other.get_unit_quantity(self.unit), self.unit
         )
 
     def __sub__(self, other):
+        if not isinstance(other, self.__class__):
+            raise Exception("Wrong type")
         return Time(
             self.quantity - other.get_unit_quantity(self.unit), self.unit
         )
+
+    def __truediv__(self, other):
+        if not isinstance(other, self.__class__):
+            raise Exception("Wrong type")
+        return Time(self.get_hours() / other.get_hours(), self.unit)
+
+    def __mul__(self, other):
+        if not isinstance(other, self.__class__):
+            raise Exception("Wrong type")
+        if self.unit == TimeUnit.SECOND:
+            return Time(self.get_seconds() * other.quantity, self.unit)
+        elif self.unit == TimeUnit.MINUTE:
+            return Time(self.get_minutes() * other.quantity, self.unit)
+        elif self.unit == TimeUnit.HOUR:
+            return Time(self.get_hours() * other.quantity, self.unit)
 
     def get_hours(self):
         if self.unit == TimeUnit.SECOND:

@@ -43,11 +43,11 @@ class ManualMainController(Component):
 
     def add_distribution_controller(self, controller):
         self.distribution_controllers.append(controller)
-        controller.section_time = self.section_time
+        controller.manual_section_time = self.section_time
 
     def add_microgrid_controller(self, controller):
         self.microgrid_controllers.append(controller)
-        controller.section_time = self.section_time
+        controller.manual_section_time = self.section_time
 
     def run_control_loop(self, curr_time: Time, dt: Time):
         for controller in self.distribution_controllers:
