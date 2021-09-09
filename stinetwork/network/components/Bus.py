@@ -375,7 +375,7 @@ class Bus(Component):
         self.p_load_shed_stack = 0
         self.q_load_shed_stack = 0
 
-    def add_random_seed(self, random_gen):
+    def add_random_instance(self, random_gen):
         """
         Adds global random seed
         """

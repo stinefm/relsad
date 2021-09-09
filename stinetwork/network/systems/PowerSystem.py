@@ -54,7 +54,7 @@ class PowerSystem(Network):
         self.sensors = list()
         self.circuitbreakers = list()
         self.disconnectors = list()
-        self.routers = list()
+        self.intelligent_switches = list()
         self.controller = controller
         self.comp_list = list()
         self.comp_dict = dict()
@@ -129,11 +129,13 @@ class PowerSystem(Network):
             self.comp_list.append(discon)
             self.disconnectors.append(discon)
             self.disconnectors = unique(self.disconnectors)
-            if discon.router:
-                self.comp_dict[discon.router.name] = discon.router
-                self.comp_list.append(discon.router)
-                self.routers.append(discon.router)
-                self.routers = unique(self.routers)
+            if discon.intelligent_switch:
+                self.comp_dict[
+                    discon.intelligent_switch.name
+                ] = discon.intelligent_switch
+                self.comp_list.append(discon.intelligent_switch)
+                self.intelligent_switches.append(discon.intelligent_switch)
+                self.intelligent_switches = unique(self.intelligent_switches)
         if line.circuitbreaker is not None:
             c_b = line.circuitbreaker
             self.comp_dict[c_b.name] = c_b
@@ -241,8 +243,8 @@ class PowerSystem(Network):
             circuitbreaker.update_fail_status(dt)
         for sensor in self.sensors:
             sensor.update_fail_status(dt)
-        for router in self.routers:
-            router.update_fail_status(dt)
+        for intelligent_switch in self.intelligent_switches:
+            intelligent_switch.update_fail_status(dt)
         self.controller.update_fail_status(dt)
 
     def get_system_load(self):

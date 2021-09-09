@@ -42,7 +42,7 @@ class Simulation:
         """
         self.power_system.random_instance = random_instance
         for comp in self.power_system.comp_list:
-            comp.add_random_seed(random_instance)
+            comp.add_random_instance(random_instance)
 
     def run_load_flow(self, network: Network):
         """

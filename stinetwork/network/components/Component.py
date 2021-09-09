@@ -18,7 +18,7 @@ class Component(ABC):
         pass
 
     @abstractmethod
-    def add_random_seed(self, random_gen):
+    def add_random_instance(self, random_gen):
         pass
 
     @abstractmethod

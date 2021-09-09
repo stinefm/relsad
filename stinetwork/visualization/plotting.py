@@ -72,21 +72,21 @@ def plot_topology(buses: list, lines: list, **kwargs):
                     size=6,
                 )
 
-                if discon.router:
+                if discon.intelligent_switch:
                     ax.plot(
                         discon.coordinate[0],
                         discon.coordinate[1],
-                        marker=discon.router.marker,
+                        marker=discon.intelligent_switch.marker,
                         markeredgewidth=1,
-                        markersize=discon.router.size,
+                        markersize=discon.intelligent_switch.size,
                         linestyle="None",
-                        color=discon.router.color,
+                        color=discon.intelligent_switch.color,
                         zorder=3,
                     )
                     ax.text(
                         discon.coordinate[0],
                         discon.coordinate[1] - 0.2,
-                        discon.router.name,
+                        discon.intelligent_switch.name,
                         ha="center",
                         va="center",
                         size=6,
@@ -113,21 +113,21 @@ def plot_topology(buses: list, lines: list, **kwargs):
                 size=6,
             )
 
-            if discon.router:
+            if discon.intelligent_switch:
                 ax.plot(
                     discon.coordinate[0],
                     discon.coordinate[1],
-                    marker=discon.router.marker,
+                    marker=discon.intelligent_switch.marker,
                     markeredgewidth=1,
-                    markersize=discon.router.size,
+                    markersize=discon.intelligent_switch.size,
                     linestyle="None",
-                    color=discon.router.color,
+                    color=discon.intelligent_switch.color,
                     zorder=3,
                 )
                 ax.text(
                     discon.coordinate[0],
                     discon.coordinate[1] - 0.2,
-                    discon.router.name,
+                    discon.intelligent_switch.name,
                     ha="center",
                     va="center",
                     size=6,

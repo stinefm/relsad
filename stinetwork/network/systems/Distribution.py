@@ -81,7 +81,7 @@ class Distribution(Network):
         self.sensors = list()
         self.circuitbreakers = list()
         self.disconnectors = list()
-        self.routers = list()
+        self.intelligent_switches = list()
         self.controller = DistributionController(
             name=self.name + "_controller",
             network=self,
@@ -221,9 +221,9 @@ class Distribution(Network):
             self.comp_list.append(discon)
             self.disconnectors.append(discon)
             self.disconnectors = unique(self.disconnectors)
-            if discon.router:
-                self.routers.append(discon.router)
-                self.routers = unique(self.routers)
+            if discon.intelligent_switch:
+                self.intelligent_switches.append(discon.intelligent_switch)
+                self.intelligent_switches = unique(self.intelligent_switches)
         line.add_parent_network(self)
         self.power_system.add_line(line)
 

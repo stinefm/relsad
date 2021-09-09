@@ -10,7 +10,7 @@ from stinetwork.network.components import (
     MainController,
     ManualMainController,
     Sensor,
-    Router,
+    IntelligentSwitch,
     MicrogridMode,
 )
 from stinetwork.network.systems import (
@@ -201,27 +201,27 @@ def initialize_network():
     Sensor("SML1", ML1)
     Sensor("SML2", ML2)
 
-    Router("RL1a", DL1a)
-    Router("RL1b", DL1b)
-    Router("RL1c", DL1c)
-    Router("RL2a", DL2a)
-    Router("RL2b", DL2b)
-    Router("RL3a", DL3a)
-    Router("RL3b", DL3b)
-    Router("RL4a", DL4a)
-    Router("RL4b", DL4b)
-    Router("RL5a", DL5a)
-    Router("RL5b", DL5b)
-    Router("RL6a", DL6a)
-    Router("RL6b", DL6b)
-    Router("RL7a", DL7a)
-    Router("RL7b", DL7b)
-    Router("RL7c", DL7c)
+    IntelligentSwitch("RL1a", DL1a)
+    IntelligentSwitch("RL1b", DL1b)
+    IntelligentSwitch("RL1c", DL1c)
+    IntelligentSwitch("RL2a", DL2a)
+    IntelligentSwitch("RL2b", DL2b)
+    IntelligentSwitch("RL3a", DL3a)
+    IntelligentSwitch("RL3b", DL3b)
+    IntelligentSwitch("RL4a", DL4a)
+    IntelligentSwitch("RL4b", DL4b)
+    IntelligentSwitch("RL5a", DL5a)
+    IntelligentSwitch("RL5b", DL5b)
+    IntelligentSwitch("RL6a", DL6a)
+    IntelligentSwitch("RL6b", DL6b)
+    IntelligentSwitch("RL7a", DL7a)
+    IntelligentSwitch("RL7b", DL7b)
+    IntelligentSwitch("RL7c", DL7c)
 
-    Router("RML1a", DML1a)
-    Router("RML1b", DML1b)
-    Router("RML2a", DML2a)
-    Router("RML2b", DML2b)
+    IntelligentSwitch("RML1a", DML1a)
+    IntelligentSwitch("RML1b", DML1b)
+    IntelligentSwitch("RML2a", DML2a)
+    IntelligentSwitch("RML2b", DML2b)
 
     L6.set_backup()
 

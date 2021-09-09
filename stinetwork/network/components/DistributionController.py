@@ -77,7 +77,7 @@ class DistributionController(Component):
                 self.section_time += repair_time
                 num_fails += 1 if line_fail_status else 0
             if num_fails == 0:
-                section.connect()
+                section.connect(dt)
         for section in connected_sections:
             sensors = unique([x.line.sensor for x in section.disconnectors])
             num_fails = 0
@@ -86,7 +86,7 @@ class DistributionController(Component):
                 self.section_time += repair_time
                 num_fails += 1 if line_fail_status else 0
             if num_fails > 0:
-                section.disconnect()
+                self.section_time += section.disconnect(dt)
 
     def run_control_loop(self, curr_time: Time, dt: Time):
         self.section_time = (
@@ -149,7 +149,7 @@ class DistributionController(Component):
     def get_history(self, attribute: str):
         return self.history[attribute]
 
-    def add_random_seed(self, random_gen):
+    def add_random_instance(self, random_gen):
         pass
 
     def print_status(self):

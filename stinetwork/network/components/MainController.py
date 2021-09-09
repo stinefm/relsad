@@ -21,15 +21,26 @@ class MainController(Component):
     def __init__(
         self,
         name: str,
-        fail_rate_per_year: float = 0,
-        outage_time: Time = Time(1, TimeUnit.HOUR),
+        fail_rate_per_year_hardware: float = 0.2,
+        fail_rate_per_year_software: float = 12,
+        p_repair_new_signal: float = 0.95,
+        p_repair_reboot: float = 0.9,
+        new_signal_time: Time = Time(2, TimeUnit.SECOND),
+        reboot_time: Time = Time(5, TimeUnit.MINUTE),
+        manual_repair_time_software: Time = Time(0.3, TimeUnit.HOUR),
+        manual_repair_time_hardware: Time = Time(2.5, TimeUnit.HOUR),
         state: ControllerState = ControllerState.OK,
         section_time: Time = Time(1, TimeUnit.HOUR),
     ):
 
         self.name = name
-        self.fail_rate_per_year = fail_rate_per_year
-        self.outage_time = outage_time
+        self.fail_rate_per_year_hardware = fail_rate_per_year_hardware
+        self.fail_rate_per_year_software = fail_rate_per_year_software
+        self.p_repair_new_signal = p_repair_new_signal
+        self.p_repair_reboot = p_repair_reboot
+        self.reboot_time = reboot_time
+        self.manual_repair_time_software = manual_repair_time_software
+        self.manual_repair_time_hardware = manual_repair_time_hardware
         self.state = state
         self.section_time = section_time
 
@@ -78,7 +89,7 @@ class MainController(Component):
     def get_history(self, attribute: str):
         pass
 
-    def add_random_seed(self, random_gen):
+    def add_random_instance(self, random_gen):
         pass
 
     def print_status(self):

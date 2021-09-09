@@ -20,4 +20,4 @@ from .ManualMainController import *
 from .DistributionController import *
 from .MicrogridController import *
 from .Sensor import *
-from .Router import *
+from .IntelligentSwitch import *

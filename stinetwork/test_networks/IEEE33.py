@@ -7,7 +7,7 @@ from stinetwork.network.components import (
     Production,
     ManualMainController,
     Sensor,
-    Router,
+    IntelligentSwitch,
     MicrogridMode,
 )
 from stinetwork.network.systems import (

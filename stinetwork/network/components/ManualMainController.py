@@ -66,7 +66,7 @@ class ManualMainController(Component):
     def get_history(self, attribute: str):
         pass
 
-    def add_random_seed(self, random_gen):
+    def add_random_instance(self, random_gen):
         pass
 
     def print_status(self):

@@ -7,7 +7,7 @@ from stinetwork.network.components import (
     Production,
     ManualMainController,
     Sensor,
-    Router,
+    IntelligentSwitch,
 )
 from stinetwork.network.systems import Distribution, PowerSystem, Transmission
 from stinetwork.visualization.plotting import plot_topology

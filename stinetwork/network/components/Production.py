@@ -44,7 +44,7 @@ class Production(Component):
         Updates the history variables
     get_history(attribute)
         Returns the history variables of an attribute
-    add_random_seed(random_gen)
+    add_random_instance(random_gen)
         Adds global random seed
     print_status()
         Prints the status
@@ -227,7 +227,7 @@ class Production(Component):
         """
         return self.history[attribute]
 
-    def add_random_seed(self, random_gen):
+    def add_random_instance(self, random_gen):
         """
         Adds global random seed
 

@@ -55,7 +55,7 @@ class Disconnector(Component):
             Updates the history variables
         get_history(attribute)
             Returns the history variables of an attribute
-        add_random_seed(random_gen)
+        add_random_instance(random_gen)
             Adds global random
         print_status()
         reset_status()
@@ -124,7 +124,7 @@ class Disconnector(Component):
             ]
 
         ## Communication
-        self.router = None
+        self.intelligent_switch = None
 
         ## History
         self.history = {}
@@ -264,7 +264,7 @@ class Disconnector(Component):
         """
         return self.history[attribute]
 
-    def add_random_seed(self, random_gen):
+    def add_random_instance(self, random_gen):
         """
         Adds global random seed
 

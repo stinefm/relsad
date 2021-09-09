@@ -75,7 +75,7 @@ class Battery(Component):
         Returns the history variables of an attribute
     update_fail_status(curr_time)
         Locks and unlocks the battery functionality based on failure states of the basestation
-    add_random_seed(random_gen)
+    add_random_instance(random_gen)
         Adds global random seed
     reset_status()
         Resets and sets the status of the system parameters
@@ -481,7 +481,7 @@ class Battery(Component):
         else:
             self.lock = False
 
-    def add_random_seed(self, random_gen):
+    def add_random_instance(self, random_gen):
         """
         Adds global random seed
 

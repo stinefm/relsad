@@ -1,3 +1,6 @@
+from stinetwork.utils import Time
+
+
 class Section:
     __slots__ = (
         "rank",
@@ -40,20 +43,22 @@ class Section:
         for child_section in self.child_sections:
             child_section.attach_to_lines()
 
-    def connect(self):
+    def connect(self, dt: Time):
         self.connected = True
         for discon in self.disconnectors:
-            discon.router.close()
+            discon.intelligent_switch.close(dt)
 
     def connect_manually(self):
         self.connected = True
         for discon in self.disconnectors:
             discon.close()
 
-    def disconnect(self):
+    def disconnect(self, dt: Time):
+        section_time = Time(0)
         self.connected = False
         for discon in self.disconnectors:
-            discon.router.open()
+            section_time += discon.intelligent_switch.open(dt)
+        return section_time
 
     def disconnect_manually(self):
         self.connected = False
