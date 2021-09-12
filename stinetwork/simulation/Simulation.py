@@ -20,7 +20,7 @@ from stinetwork.simulation.monte_carlo.history import (
     initialize_history,
     initialize_monte_carlo_history,
     merge_monte_carlo_history,
-    update_monte_carlo_history,
+    update_monte_carlo_power_system_history,
     save_network_monte_carlo_history,
     save_iteration_history,
 )
@@ -43,6 +43,7 @@ class Simulation:
         self.power_system.random_instance = random_instance
         for comp in self.power_system.comp_list:
             comp.add_random_instance(random_instance)
+        self.power_system.controller.add_random_instance(random_instance)
 
     def run_load_flow(self, network: Network):
         """
@@ -51,14 +52,16 @@ class Simulation:
         ## Run load flow
         run_bfs_load_flow(network)
 
-    def run_increment(self, prev_time: Time, curr_time: Time, save_flag: bool):
+    def run_increment(
+        self, inc_idx: int, prev_time: Time, curr_time: Time, save_flag: bool
+    ):
         """
         Runs power system at current state for one time increment
         """
         ## Set loads
-        self.power_system.set_load(curr_time)
+        self.power_system.set_load(inc_idx)
         ## Set productions
-        self.power_system.set_prod(curr_time)
+        self.power_system.set_prod(inc_idx)
         ## Set fail status
         dt = curr_time - prev_time if prev_time is not None else curr_time
         self.power_system.update_fail_status(dt)
@@ -81,7 +84,7 @@ class Simulation:
                 if sub_system.slack is not None:
                     self.run_load_flow(sub_system)
                 ## Shed load
-                shed_loads(sub_system)
+                shed_loads(sub_system, dt)
             ## Log results
             update_history(self.power_system, prev_time, curr_time, save_flag)
         else:
@@ -92,22 +95,22 @@ class Simulation:
                 self.fail_duration = Time(0)
 
     def run_sequence(
-        self, increments: int, time_unit: TimeUnit, save_flag: bool
+        self, time_increments: np.ndarray, time_unit: TimeUnit, save_flag: bool
     ):
         """
         Runs power system for a sequence of increments
         """
         prev_time = Time(0, unit=time_unit)
         curr_time = Time(0, unit=time_unit)
-        for time_quantity in range(1, increments + 1):
+        for inc_idx, time_quantity in enumerate(time_increments):
             curr_time = Time(time_quantity, unit=time_unit)
-            self.run_increment(prev_time, curr_time, save_flag)
+            self.run_increment(inc_idx, prev_time, curr_time, save_flag)
             prev_time = copy.deepcopy(curr_time)
 
     def run_iteration(
         self,
         it: int,
-        increments: int,
+        time_increments: np.ndarray,
         time_unit: TimeUnit,
         save_dir: str,
         save_iterations: list,
@@ -122,9 +125,9 @@ class Simulation:
         print("it: {}".format(it), flush=True)
         save_flag = it in save_iterations
         reset_system(self.power_system, save_flag)
-        self.run_sequence(increments, time_unit, save_flag)
-        save_dict = update_monte_carlo_history(
-            self.power_system, it, save_dict
+        self.run_sequence(time_increments, time_unit, save_flag)
+        save_dict = update_monte_carlo_power_system_history(
+            self.power_system, it, time_unit, save_dict
         )
         if save_flag:
             save_iteration_history(self.power_system, it, save_dir)
@@ -134,7 +137,10 @@ class Simulation:
         self,
         iterations: int,
         increments: int,
+        time_step: Time,
         time_unit: TimeUnit,
+        load_dict: dict,
+        prod_dict: dict,
         save_iterations: list = [],
         save_dir: str = "results",
         n_procs: int = 1,
@@ -143,6 +149,13 @@ class Simulation:
         ss = SeedSequence(self.random_seed)
         child_seeds = ss.spawn(iterations)
         self.power_system.create_sections()
+        time_increments = np.arange(
+            stop=increments * time_step.get_unit_quantity(time_unit),
+            step=time_step.get_unit_quantity(time_unit),
+        )
+        time_increment_indices = np.arange(increments)
+        self.power_system.add_load_dict(load_dict, time_increment_indices)
+        self.power_system.add_prod_dict(prod_dict, time_increment_indices)
         initialize_history(self.power_system)
         if debug:
             it_dicts = []
@@ -150,7 +163,7 @@ class Simulation:
                 it_dicts.append(
                     self.run_iteration(
                         it,
-                        increments,
+                        time_increments,
                         time_unit,
                         save_dir,
                         save_iterations,
@@ -164,7 +177,7 @@ class Simulation:
                     [
                         [
                             it,
-                            increments,
+                            time_increments,
                             time_unit,
                             save_dir,
                             save_iterations,
@@ -175,6 +188,7 @@ class Simulation:
                 )
         save_dict = merge_monte_carlo_history(
             self.power_system,
+            time_unit,
             it_dicts,
         )
         save_network_monte_carlo_history(

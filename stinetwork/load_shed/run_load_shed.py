@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.optimize import linprog
 import warnings
+from stinetwork.utils import Time
 from stinetwork.network.systems import (
     PowerSystem,
     Transmission,
@@ -10,7 +11,7 @@ np.set_printoptions(suppress=True, linewidth=np.nan)
 warnings.filterwarnings("ignore")
 
 # flake8: noqa: C901
-def shed_loads(power_system: PowerSystem, alpha: float = 1e-4):
+def shed_loads(power_system: PowerSystem, dt: Time, alpha: float = 1e-4):
     """
     Sheds the unsupplied loads of the power system using a linear minimization
     problem solved with linear programming
@@ -61,6 +62,7 @@ def shed_loads(power_system: PowerSystem, alpha: float = 1e-4):
             buses,
             lines,
             alpha,
+            dt,
         )
     if sum(q_b) > alpha:
         # Shed reactive loads
@@ -72,6 +74,7 @@ def shed_loads(power_system: PowerSystem, alpha: float = 1e-4):
             buses,
             lines,
             alpha,
+            dt,
         )
 
 
@@ -160,6 +163,7 @@ def _shed_active_loads(
     buses,
     lines,
     alpha,
+    dt: Time,
 ):
     p_res = linprog(
         c,
@@ -188,7 +192,9 @@ def _shed_active_loads(
     if p_res.fun > 0:
         for i, bus in enumerate(buses):
             bus.add_to_load_shed_stack(
-                p_res.x[i] if p_res.x[i] > alpha else 0, 0
+                p_res.x[i] if p_res.x[i] > alpha else 0,
+                0,
+                dt,
             )
         _add_to_shed_configs()
 
@@ -201,6 +207,7 @@ def _shed_reactive_loads(
     buses,
     lines,
     alpha,
+    dt: Time,
 ):
     q_res = linprog(
         c,
@@ -229,7 +236,9 @@ def _shed_reactive_loads(
     if q_res.fun > 0:
         for i, bus in enumerate(buses):
             bus.add_to_load_shed_stack(
-                q_res.x[i] if q_res.x[i] > alpha else 0, 0
+                q_res.x[i] if q_res.x[i] > alpha else 0,
+                0,
+                dt,
             )
         _add_to_shed_configs()
 

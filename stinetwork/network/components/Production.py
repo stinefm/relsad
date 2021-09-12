@@ -121,7 +121,7 @@ class Production(Component):
         """
         self.prod_dict = prod_dict
 
-    def set_prod(self, curr_time: Time):
+    def set_prod(self, inc_idx: int):
         """
         Decides how much active and reactive power that will be produced
 
@@ -135,14 +135,8 @@ class Production(Component):
         None
 
         """
-
-        day = curr_time.get_hours() // 24
-        hour = curr_time.get_hours() % 24
-        day_idx = day - 1
-        hour_idx = hour - 1
-
-        pprod = self.prod_dict["pprod"][day_idx, hour_idx]
-        qprod = self.prod_dict["qprod"][day_idx, hour_idx]
+        pprod = self.prod_dict["pprod"][inc_idx]
+        qprod = self.prod_dict["qprod"][inc_idx]
         if pprod > self.pmax:
             self.pprod = self.pmax
         else:

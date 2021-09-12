@@ -113,13 +113,11 @@ class Bus(Component):
 
         ## Reliabilility attributes
         self.fail_rate_per_year = fail_rate_per_year  # failures per year
-        self.fail_rate_per_hour = self.fail_rate_per_year / (365 * 24)
         self.outage_time = outage_time  # hours
         self.acc_outage_time = Time(0)
         self.avg_fail_rate = 0
         self.avg_outage_time = Time(0)
-        self.prev_interruption_time = Time(0)
-        self.curr_interruption_duration = Time(0)
+        self.num_consecutive_interruptions = 0
         self.interruption_fraction = 0
         self.curr_interruptions = 0
         self.acc_interruptions = 0
@@ -168,33 +166,21 @@ class Bus(Component):
     def add_load_dict(self, load_dict: dict):
         self.load_dict = load_dict
 
-    def set_load(self, curr_time: Time):
-        day = curr_time.get_hours() // 24
-        hour = curr_time.get_hours() % 24
-        day_idx = day - 1
-        hour_idx = hour - 1
+    def set_load(self, inc_idx: int):
         self.reset_load()
-        cost_functions = {
-            "Jordbruk": {"A": 21.4 - 17.5, "B": 17.5},
-            "Microgrid": {"A": (21.4 - 17.5) * 1000, "B": 17.5 * 1000},
-            "Industri": {"A": 132.6 - 92.5, "B": 92.5},
-            "Handel og tjenester": {"A": 220.3 - 102.4, "B": 102.4},
-            "Offentlig virksomhet": {"A": 194.5 - 31.4, "B": 31.4},
-            "Husholdning": {"A": 8.8, "B": 14.7},
-        }
         if self.load_dict:
-            for load_type in self.load_dict:
+            for load_type in self.load_dict["load"]:
                 try:
-                    type_cost = cost_functions[load_type]
+                    type_cost = self.load_dict["cost"][load_type]
                     A = type_cost["A"]
                     B = type_cost["B"]
                     self.set_cost(A + B * 1)
                     self.pload += (
-                        self.load_dict[load_type]["pload"][day_idx, hour_idx]
+                        self.load_dict["load"][load_type]["pload"][inc_idx]
                         * self.n_customers
                     )
                     self.qload += (
-                        self.load_dict[load_type]["qload"][day_idx, hour_idx]
+                        self.load_dict["load"][load_type]["qload"][inc_idx]
                         * self.n_customers
                     )
                 except KeyError:
@@ -214,13 +200,13 @@ class Bus(Component):
         """
         return self.pload, self.qload
 
-    def trafo_fail(self):
+    def trafo_fail(self, dt: Time):
         """
         Trafo fails, load and generation is set to zero
         """
         self.trafo_failed = True
         self.remaining_outage_time = self.outage_time
-        self.shed_load()
+        self.shed_load(dt)
         if self.prod is not None:
             self.prod.reset_prod()
 
@@ -239,13 +225,13 @@ class Bus(Component):
             if self.remaining_outage_time <= Time(0):
                 self.trafo_not_fail()
             else:
-                self.shed_load()
+                self.shed_load(dt)
                 if self.prod is not None:
                     self.prod.reset_prod()
         else:
-            p_fail = self.fail_rate_per_hour
+            p_fail = convert_yearly_fail_rate(self.fail_rate_per_year, dt)
             if random_choice(self.ps_random, p_fail):
-                self.trafo_fail()
+                self.trafo_fail(dt)
             else:
                 self.trafo_not_fail()
 
@@ -285,42 +271,28 @@ class Bus(Component):
         # Update accumulated load shed for bus
         self.acc_p_load_shed += self.p_load_shed_stack
         self.acc_q_load_shed += self.q_load_shed_stack
-        self.acc_outage_time += (
-            curr_time - prev_time if self.p_load_shed_stack > 0 else Time(0)
-        )
+        dt = curr_time - prev_time if prev_time is not None else curr_time
+        self.acc_outage_time += dt if self.p_load_shed_stack > 0 else Time(0)
         self.avg_outage_time = self.acc_outage_time / curr_time
         self.avg_fail_rate = self.get_avg_fail_rate()
         # Accumulate fraction of interupted customers
         self.interruption_fraction = (
-            self.p_load_shed_stack / self.pload if self.pload != 0 else 0
+            self.p_load_shed_stack / (self.pload * dt.get_hours())
+            if self.pload != 0
+            else 0
         )
-        if self.prev_interruption_time == prev_time:
-            if self.interruption_fraction > 0:
-                self.prev_interruption_time = curr_time
-                self.curr_interruptions += self.interruption_fraction
-                self.curr_interruption_duration += (
-                    curr_time - prev_time
-                    if prev_time is not None
-                    else curr_time
-                )
 
-            else:
-                if self.curr_interruption_duration > Time(0):
-                    self.acc_interruptions += (
-                        self.curr_interruptions
-                        / self.curr_interruption_duration.quantity
-                    )
-                self.curr_interruptions = 0
-                self.curr_interruption_duration = Time(0)
+        if self.interruption_fraction > 0:
+            self.curr_interruptions += self.interruption_fraction
+            self.num_consecutive_interruptions += 1
         else:
-            if self.interruption_fraction > 0:
-                self.prev_interruption_time = curr_time
-                self.curr_interruptions += self.interruption_fraction
-                self.curr_interruption_duration += (
-                    curr_time - prev_time
-                    if prev_time is not None
-                    else curr_time
+            if self.num_consecutive_interruptions >= 1:
+                self.acc_interruptions += (
+                    self.curr_interruptions
+                    / self.num_consecutive_interruptions
                 )
+            self.curr_interruptions = 0
+            self.num_consecutive_interruptions = 0
 
         if save_flag:
             self.history["pload"][curr_time] = self.pload
@@ -329,7 +301,7 @@ class Bus(Component):
             self.history["qprod"][curr_time] = self.qprod
             self.history["remaining_outage_time"][
                 curr_time
-            ] = self.remaining_outage_time.quantity
+            ] = self.remaining_outage_time.get_unit_quantity(curr_time.unit)
             self.history["trafo_failed"][curr_time] = self.trafo_failed
             self.history["p_load_shed_stack"][
                 curr_time
@@ -346,10 +318,14 @@ class Bus(Component):
             ] = self.get_avg_fail_rate()  # Average failure rate (lamda_s)
             self.history["avg_outage_time"][
                 curr_time
-            ] = self.avg_outage_time.quantity  # Average outage time (r_s)
+            ] = self.avg_outage_time.get_unit_quantity(
+                curr_time.unit
+            )  # Average outage time (r_s)
             self.history["acc_outage_time"][
                 curr_time
-            ] = self.acc_outage_time.quantity  # Accumulated outage time
+            ] = self.acc_outage_time.get_unit_quantity(
+                curr_time.unit
+            )  # Accumulated outage time
             self.history["interruption_fraction"][
                 curr_time
             ] = self.interruption_fraction
@@ -367,8 +343,12 @@ class Bus(Component):
     def get_cost(self):
         return self.cost
 
-    def shed_load(self):
-        self.add_to_load_shed_stack(self.pload, self.qload)
+    def shed_load(self, dt: Time):
+        self.add_to_load_shed_stack(
+            self.pload,  # MW
+            self.qload,  # MW
+            dt,
+        )
         self.reset_load()
 
     def clear_load_shed_stack(self):
@@ -401,17 +381,16 @@ class Bus(Component):
         # Accumulated load shed for bus
         self.acc_p_load_shed = 0
         self.acc_q_load_shed = 0
-        self.prev_interruption_time = Time(0)
         self.interruption_fraction = 0
         self.curr_interruptions = 0
         self.acc_interruptions = 0
         if save_flag:
             self.initialize_history()
 
-    def add_to_load_shed_stack(self, p_load: float, q_load: float):
+    def add_to_load_shed_stack(self, p_load: float, q_load: float, dt: Time):
         if self.battery is None:
-            self.p_load_shed_stack += p_load
-            self.q_load_shed_stack += q_load
+            self.p_load_shed_stack += p_load * dt.get_hours()  # MWh
+            self.q_load_shed_stack += q_load * dt.get_hours()  # MWh
 
     def reset_load_flow_data(self):
         """

@@ -9,6 +9,7 @@ from stinetwork.utils import (
     eq,
     unique,
     Time,
+    interpolate,
 )
 from stinetwork.topology.paths import (
     create_sections,
@@ -147,6 +148,15 @@ class PowerSystem(Network):
                 self.comp_list.append(discon)
                 self.disconnectors.append(discon)
                 self.disconnectors = unique(self.disconnectors)
+                if discon.intelligent_switch:
+                    self.comp_dict[
+                        discon.intelligent_switch.name
+                    ] = discon.intelligent_switch
+                    self.comp_list.append(discon.intelligent_switch)
+                    self.intelligent_switches.append(discon.intelligent_switch)
+                    self.intelligent_switches = unique(
+                        self.intelligent_switches
+                    )
         self.comp_list = unique(self.comp_list)
 
     def add_lines(self, lines: list):
@@ -301,23 +311,42 @@ class PowerSystem(Network):
             q_load_max = max(q_load_max, q_load)
         return p_load_max, q_load_max
 
-    def add_load_dict(self, load_dict: dict):
+    def add_load_dict(self, load_dict: dict, time_indices: np.ndarray):
         for bus in self.buses:
-            if bus in load_dict:
-                bus.add_load_dict(load_dict[bus])
+            if bus in load_dict["load"]:
+                bus_load_dict = {}
+                bus_load_dict["load"] = {}
+                bus_load_dict["cost"] = load_dict["cost"]
+                for load_type in load_dict["load"][bus]:
+                    bus_load_dict["load"][load_type] = {}
+                    bus_load_dict["load"][load_type]["pload"] = interpolate(
+                        array=load_dict["load"][bus][load_type]["pload"],
+                        time_indices=time_indices,
+                    )
+                    bus_load_dict["load"][load_type]["qload"] = interpolate(
+                        array=load_dict["load"][bus][load_type]["qload"],
+                        time_indices=time_indices,
+                    )
+                bus.add_load_dict(bus_load_dict)
 
-    def add_prod_dict(self, prod_dict: dict):
+    def add_prod_dict(self, prod_dict: dict, time_indices: np.ndarray):
         for prod in self.productions:
             if prod in prod_dict:
+                bus_prod_dict = {}
+                for prod_type in prod_dict[prod]:
+                    bus_prod_dict[prod_type] = interpolate(
+                        array=prod_dict[prod][prod_type],
+                        time_indices=time_indices,
+                    )
                 prod.add_prod_dict(prod_dict[prod])
 
-    def set_load(self, curr_time: Time):
+    def set_load(self, inc_idx: int):
         for bus in self.buses:
-            bus.set_load(curr_time)
+            bus.set_load(inc_idx)
 
-    def set_prod(self, curr_time: Time):
+    def set_prod(self, inc_idx: int):
         for prod in self.productions:
-            prod.set_prod(curr_time)
+            prod.set_prod(inc_idx)
         for bus in self.buses:
             if bus.battery is not None:
                 bus.reset_prod()

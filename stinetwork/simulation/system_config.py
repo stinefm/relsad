@@ -207,6 +207,7 @@ def reset_system(power_system: PowerSystem, save_flag: bool):
 
     for comp in power_system.comp_list:
         comp.reset_status(save_flag)
+    power_system.controller.reset_status(save_flag)
 
     ## Find sub systems
     find_sub_systems(power_system, 0)

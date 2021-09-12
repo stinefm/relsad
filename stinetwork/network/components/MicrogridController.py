@@ -35,7 +35,6 @@ class MicrogridController(Component):
         self.section_time = Time(0)
         self.check_components = False
 
-        self.parent_section_time = Time(0)
         self.manual_section_time = None
 
         self.network = network
@@ -113,11 +112,6 @@ class MicrogridController(Component):
         if self.check_components:
             self.check_sensors(curr_time, dt)
             self.check_components = False
-        self.section_time = max(
-            self.section_time,
-            self.parent_section_time,
-        )
-        self.parent_section_time = Time(0)
         self.check_circuitbreaker(curr_time, dt)
 
     def check_lines_manually(self, curr_time):
@@ -145,12 +139,13 @@ class MicrogridController(Component):
         if self.check_components:
             self.check_lines_manually(curr_time)
             self.check_components = False
+        self.check_circuitbreaker(curr_time, dt)
+
+    def set_section_time(self, section_time):
         self.section_time = max(
             self.section_time,
-            self.parent_section_time,
+            section_time,
         )
-        self.parent_section_time = Time(0)
-        self.check_circuitbreaker(curr_time, dt)
 
     def update_fail_status(self, dt: Time):
         pass
@@ -161,7 +156,7 @@ class MicrogridController(Component):
         if save_flag:
             self.history["section_time"][
                 curr_time
-            ] = self.section_time.quantity
+            ] = self.section_time.get_unit_quantity(curr_time.unit)
 
     def get_history(self, attribute: str):
         return self.history[attribute]

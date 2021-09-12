@@ -445,7 +445,7 @@ class Battery(Component):
             self.history["SOC_min"][curr_time] = self.SOC_min
             self.history["remaining_survival_time"][
                 curr_time
-            ] = self.remaining_survival_time.quantity
+            ] = self.remaining_survival_time.get_unit_quantity(curr_time.unit)
 
     def get_history(self, attribute: str):
         """

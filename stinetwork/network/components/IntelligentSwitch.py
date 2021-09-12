@@ -54,6 +54,10 @@ class IntelligentSwitch(Component):
         self.manual_section_time = manual_section_time
         self.state = state
 
+        ## History
+        self.history = {}
+        self.monte_carlo_history = {}
+
     def __str__(self):
         return self.name
 
@@ -122,10 +126,14 @@ class IntelligentSwitch(Component):
                 self.not_fail()
 
     def update_history(self, prev_time, curr_time, save_flag: bool):
-        pass
+        if save_flag:
+            self.history["remaining_repair_time"][
+                curr_time
+            ] = self.remaining_repair_time.get_unit_quantity(curr_time.unit)
+            self.history["state"][curr_time] = self.state.value
 
     def get_history(self, attribute: str):
-        pass
+        return self.history[attribute]
 
     def add_random_instance(self, random_gen):
         """
@@ -147,4 +155,10 @@ class IntelligentSwitch(Component):
         pass
 
     def reset_status(self, save_flag: bool):
-        pass
+        self.remaining_repair_time = Time(0)
+        if save_flag:
+            self.initialize_history()
+
+    def initialize_history(self):
+        self.history["remaining_repair_time"] = {}
+        self.history["state"] = {}

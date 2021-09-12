@@ -1,6 +1,9 @@
 from stinetwork.test_networks.CINELDI import initialize_network
 from stinetwork.simulation import Simulation
-from stinetwork.utils import TimeUnit
+from stinetwork.utils import (
+    Time,
+    TimeUnit,
+)
 from load_and_gen_data import (
     WeatherGen,
     LoadGen,
@@ -71,30 +74,42 @@ if __name__ == "__main__":
         load_office,
     ) = LoadGen(temp_profiles)
 
-    load_dict = dict()
+    cost_functions = {
+        "Jordbruk": {"A": 21.4 - 17.5, "B": 17.5},
+        "Microgrid": {"A": (21.4 - 17.5) * 1000, "B": 17.5 * 1000},
+        "Industri": {"A": 132.6 - 92.5, "B": 92.5},
+        "Handel og tjenester": {"A": 220.3 - 102.4, "B": 102.4},
+        "Offentlig virksomhet": {"A": 194.5 - 31.4, "B": 31.4},
+        "Husholdning": {"A": 8.8, "B": 14.7},
+    }
 
-    load_dict[B1] = {
+    load_dict = dict()
+    load_dict["load"] = {}
+
+    load_dict["cost"] = cost_functions
+
+    load_dict["load"][B1] = {
         "Industri": {"pload": load_industry2, "qload": load_industry2 * 0},
     }
-    load_dict[B2] = {
+    load_dict["load"][B2] = {
         "Husholdning": {"pload": load_house, "qload": load_house * 0}
     }
-    load_dict[B3] = {
+    load_dict["load"][B3] = {
         "Husholdning": {"pload": load_house, "qload": load_house * 0}
     }
-    load_dict[B4] = {
+    load_dict["load"][B4] = {
         "Husholdning": {"pload": load_house, "qload": load_house * 0}
     }
-    load_dict[B5] = {
+    load_dict["load"][B5] = {
         "Husholdning": {"pload": load_office, "qload": load_house * 0}
     }
-    load_dict[M1] = {
+    load_dict["load"][M1] = {
         "Husholdning": {"pload": load_house, "qload": load_house * 0}
     }
-    load_dict[M2] = {
+    load_dict["load"][M2] = {
         "Husholdning": {"pload": load_house, "qload": load_house * 0}
     }
-    load_dict[M3] = {
+    load_dict["load"][M3] = {
         "Microgrid": {"pload": load_microgrid, "qload": load_microgrid * 0}
     }
 
@@ -102,19 +117,20 @@ if __name__ == "__main__":
 
     prod_dict[P1] = {"pprod": (PV + wind), "qprod": PV * 0}
 
-    ps.add_load_dict(load_dict)
-    ps.add_prod_dict(prod_dict)
-
     save_dir = r"test_CINELDI"
 
     sim = Simulation(ps, random_seed=3)
     sim.run_monte_carlo(
         iterations=50,
         increments=8760,
+        time_step=Time(1, TimeUnit.HOUR),
         time_unit=TimeUnit.HOUR,
+        load_dict=load_dict,
+        prod_dict=prod_dict,
         save_iterations=[1, 10, 20, 30, 40, 50],
         save_dir=save_dir,
         n_procs=4,
+        debug=True,
     )
 
     end = time.time()

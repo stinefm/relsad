@@ -31,6 +31,8 @@ class DistributionController(Component):
 
         self.manual_section_time = None
 
+        self.parent_controller = None
+
         self.network = network
 
         self.sensors = list()
@@ -131,9 +133,18 @@ class DistributionController(Component):
             self.check_components = False
         self.check_circuitbreaker(curr_time, dt)
 
+    def set_section_time(self, section_time):
+        self.section_time = max(
+            self.section_time,
+            section_time,
+        )
+
     def spread_section_time_to_children(self):
         for child_network in self.network.child_network_list:
-            child_network.controller.parent_section_time = self.section_time
+            if (
+                child_network.controller.network.connected_line.circuitbreaker.is_open
+            ):
+                child_network.controller.set_section_time(self.section_time)
 
     def update_fail_status(self, dt: Time):
         pass
@@ -144,7 +155,7 @@ class DistributionController(Component):
         if save_flag:
             self.history["section_time"][
                 curr_time
-            ] = self.section_time.quantity
+            ] = self.section_time.get_unit_quantity(curr_time.unit)
 
     def get_history(self, attribute: str):
         return self.history[attribute]

@@ -1,5 +1,8 @@
 from stinetwork.network.systems import Network
-from stinetwork.utils import eq
+from stinetwork.utils import (
+    eq,
+    TimeUnit,
+)
 
 
 def SAIFI(network: Network):
@@ -15,13 +18,13 @@ def SAIFI(network: Network):
     return interrupted_customers / total_customers
 
 
-def SAIDI(network: Network):
+def SAIDI(network: Network, time_unit: TimeUnit):
     """
     Returns the current SAIDI (System average interruption duration index)
     """
     sum_outage_time_x_n_customer = sum(
         [
-            bus.acc_outage_time.quantity * bus.n_customers
+            bus.acc_outage_time.get_unit_quantity(time_unit) * bus.n_customers
             for bus in network.buses
             if bus.acc_interruptions > 0
         ]
@@ -34,13 +37,13 @@ def SAIDI(network: Network):
     return sum_outage_time_x_n_customer / total_customers
 
 
-def CAIDI(network):
+def CAIDI(network: Network, time_unit: TimeUnit):
     """
     Returns the current CAIFI (Customer average interruption duration index)
     """
     saifi = SAIFI(network)
     if not eq(saifi, 0):
-        return SAIDI(network) / saifi
+        return SAIDI(network, time_unit) / saifi
     else:
         return 0
 

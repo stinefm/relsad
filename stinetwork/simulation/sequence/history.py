@@ -63,6 +63,7 @@ def update_history(
         network.q_load_shed = 0
     for comp in power_system.comp_list:
         comp.update_history(prev_time, curr_time, save_flag)
+    power_system.controller.update_history(prev_time, curr_time, save_flag)
 
 
 def plot_line_history(lines, save_dir: str):
@@ -141,6 +142,54 @@ def save_disconnector_history(disconnectors, save_dir: str):
     ]
     for state_var in whole_state_list:
         save_history(disconnectors, state_var, save_dir)
+
+
+def plot_intelligent_switch_history(intelligent_switches, save_dir: str):
+    """
+    Plots the history of the intelligent switches in the power system
+    """
+    whole_state_list = [
+        "remaining_repair_time",
+        "state",
+    ]
+    for state_var in whole_state_list:
+        plot_history(intelligent_switches, state_var, save_dir)
+
+
+def save_intelligent_switch_history(intelligent_switches, save_dir: str):
+    """
+    Saves the history of the intelligent switches in the power system
+    """
+    whole_state_list = [
+        "remaining_repair_time",
+        "state",
+    ]
+    for state_var in whole_state_list:
+        save_history(intelligent_switches, state_var, save_dir)
+
+
+def plot_sensor_history(sensors, save_dir: str):
+    """
+    Plots the history of the sensors in the power system
+    """
+    whole_state_list = [
+        "remaining_repair_time",
+        "state",
+    ]
+    for state_var in whole_state_list:
+        plot_history(sensors, state_var, save_dir)
+
+
+def save_sensor_history(sensors, save_dir: str):
+    """
+    Saves the history of the sensors in the power system
+    """
+    whole_state_list = [
+        "remaining_repair_time",
+        "state",
+    ]
+    for state_var in whole_state_list:
+        save_history(sensors, state_var, save_dir)
 
 
 def plot_bus_history(buses, save_dir: str):
@@ -278,7 +327,7 @@ def save_power_system_history(power_system: PowerSystem, save_dir: str):
             save_history([network], state_var, network_save_dir)
 
 
-def plot_controller_history(controllers, save_dir: str):
+def plot_network_controller_history(controllers, save_dir: str):
     """
     Plots the history of the controllers in the power system
     """
@@ -289,12 +338,38 @@ def plot_controller_history(controllers, save_dir: str):
         plot_history(controllers, state_var, save_dir)
 
 
-def save_controller_history(controllers, save_dir: str):
+def save_network_controller_history(controllers, save_dir: str):
     """
     Saves the history of the controllers in the power system
     """
     whole_state_list = [
         "section_time",
+    ]
+    for state_var in whole_state_list:
+        save_history(controllers, state_var, save_dir)
+
+
+def plot_system_controller_history(controllers, save_dir: str):
+    """
+    Plots the history of the controllers in the power system
+    """
+    whole_state_list = [
+        "section_time",
+        "remaining_repair_time",
+        "state",
+    ]
+    for state_var in whole_state_list:
+        plot_history(controllers, state_var, save_dir)
+
+
+def save_system_controller_history(controllers, save_dir: str):
+    """
+    Saves the history of the controllers in the power system
+    """
+    whole_state_list = [
+        "section_time",
+        "remaining_repair_time",
+        "state",
     ]
     for state_var in whole_state_list:
         save_history(controllers, state_var, save_dir)

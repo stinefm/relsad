@@ -49,6 +49,10 @@ def random_choice(random_instance: np.random.Generator, p_true: float):
     return random_instance.random() < p_true
 
 
+def interpolate(array: np.ndarray, time_indices: np.ndarray):
+    return np.interp(time_indices, np.arange(array.size), array)
+
+
 class TimeUnit(Enum):
     SECOND = 1
     MINUTE = 2

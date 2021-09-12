@@ -1,7 +1,11 @@
 import os
 import copy
+from stinetwork.utils import TimeUnit
 from stinetwork.network.systems import (
     PowerSystem,
+)
+from stinetwork.network.components import (
+    MainController,
 )
 from stinetwork.visualization.plotting import (
     plot_monte_carlo_history,
@@ -17,7 +21,10 @@ from stinetwork.simulation.sequence.history import (
     save_line_history,
     save_circuitbreaker_history,
     save_disconnector_history,
-    save_controller_history,
+    save_intelligent_switch_history,
+    save_sensor_history,
+    save_network_controller_history,
+    save_system_controller_history,
 )
 from stinetwork.reliability.indices import (
     SAIFI,
@@ -119,6 +126,7 @@ def initialize_history(power_system: PowerSystem):
     for network in power_system.child_network_list:
         for state_var in network_state_list:
             network.history[state_var] = {}
+    power_system.controller.initialize_history()
 
 
 def initialize_monte_carlo_history(power_system: PowerSystem):
@@ -184,49 +192,67 @@ def save_iteration_history(power_system: PowerSystem, it: int, save_dir: str):
             os.path.join(save_dir, str(it), "disconnector"),
         )
 
+    if len(power_system.intelligent_switches) > 0:
+        save_intelligent_switch_history(
+            power_system.intelligent_switches,
+            os.path.join(save_dir, str(it), "intelligent_switch"),
+        )
+
+    if len(power_system.sensors) > 0:
+        save_sensor_history(
+            power_system.sensors,
+            os.path.join(save_dir, str(it), "sensor"),
+        )
+
     if len(power_system.controller.distribution_controllers) > 0:
-        save_controller_history(
+        save_network_controller_history(
             power_system.controller.distribution_controllers,
             os.path.join(save_dir, str(it), "distribution_controllers"),
         )
 
     if len(power_system.controller.microgrid_controllers) > 0:
-        save_controller_history(
+        save_network_controller_history(
             power_system.controller.microgrid_controllers,
             os.path.join(save_dir, str(it), "microgrid_controllers"),
         )
 
+    if isinstance(power_system.controller, MainController):
+        save_system_controller_history(
+            [power_system.controller],
+            os.path.join(save_dir, str(it), "main_controller"),
+        )
 
-def update_monte_carlo_history(
-    power_system: PowerSystem, it: int, save_dict: dict
+
+def update_monte_carlo_power_system_history(
+    power_system: PowerSystem, it: int, time_unit: TimeUnit, save_dict: dict
 ):
     network_state_dict = {
         "acc_p_load_shed": power_system.acc_p_load_shed,
         "acc_q_load_shed": power_system.acc_q_load_shed,
         "SAIFI": SAIFI(power_system),
-        "SAIDI": SAIDI(power_system),
-        "CAIDI": CAIDI(power_system),
+        "SAIDI": SAIDI(power_system, time_unit),
+        "CAIDI": CAIDI(power_system, time_unit),
         "EENS": EENS(power_system),
     }
     for state_var, value in network_state_dict.items():
         save_dict[power_system.name][state_var][it] = value
     save_dict = update_monte_carlo_child_network_history(
-        power_system, it, save_dict
+        power_system, it, time_unit, save_dict
     )
     save_dict = update_monte_carlo_comp_history(power_system, it, save_dict)
     return save_dict
 
 
 def update_monte_carlo_child_network_history(
-    power_system: PowerSystem, it: int, save_dict: dict
+    power_system: PowerSystem, it: int, time_unit: TimeUnit, save_dict: dict
 ):
     for network in power_system.child_network_list:
         network_state_dict = {
             "acc_p_load_shed": network.acc_p_load_shed,
             "acc_q_load_shed": network.acc_q_load_shed,
             "SAIFI": SAIFI(network),
-            "SAIDI": SAIDI(network),
-            "CAIDI": CAIDI(network),
+            "SAIDI": SAIDI(network, time_unit),
+            "CAIDI": CAIDI(network, time_unit),
             "EENS": EENS(network),
         }
         for state_var, value in network_state_dict.items():
@@ -252,15 +278,15 @@ def update_monte_carlo_comp_history(
 
 
 def merge_monte_carlo_history(
-    power_system: PowerSystem, iteration_dicts: list
+    power_system: PowerSystem, time_unit: TimeUnit, iteration_dicts: list
 ):
     save_dict = copy.deepcopy(iteration_dicts[0])
     network_state_dict = {
         "acc_p_load_shed": power_system.acc_p_load_shed,
         "acc_q_load_shed": power_system.acc_q_load_shed,
         "SAIFI": SAIFI(power_system),
-        "SAIDI": SAIDI(power_system),
-        "CAIDI": CAIDI(power_system),
+        "SAIDI": SAIDI(power_system, time_unit),
+        "CAIDI": CAIDI(power_system, time_unit),
         "EENS": EENS(power_system),
     }
     for it_dict in iteration_dicts:
@@ -274,7 +300,7 @@ def merge_monte_carlo_history(
                 power_system.name
             ][state_var][it]
         save_dict = merge_monte_carlo_child_network_history(
-            power_system, it_dict, it, save_dict
+            power_system, it_dict, it, time_unit, save_dict
         )
         save_dict = merge_monte_carlo_comp_history(
             power_system, it_dict, it, save_dict
@@ -283,15 +309,19 @@ def merge_monte_carlo_history(
 
 
 def merge_monte_carlo_child_network_history(
-    power_system: PowerSystem, it_dict: dict, it: int, save_dict: dict
+    power_system: PowerSystem,
+    it_dict: dict,
+    it: int,
+    time_unit: TimeUnit,
+    save_dict: dict,
 ):
     for network in power_system.child_network_list:
         network_state_dict = {
             "acc_p_load_shed": network.acc_p_load_shed,
             "acc_q_load_shed": network.acc_q_load_shed,
             "SAIFI": SAIFI(network),
-            "SAIDI": SAIDI(network),
-            "CAIDI": CAIDI(network),
+            "SAIDI": SAIDI(network, time_unit),
+            "CAIDI": CAIDI(network, time_unit),
             "EENS": EENS(network),
         }
         for state_var in network_state_dict.keys():

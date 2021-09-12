@@ -40,8 +40,8 @@ class Sensor(Component):
         name: str,
         line: Line,
         fail_rate_per_year: float = 0.023,
-        p_repair_new_signal: float = 0.95,
-        p_repair_reboot: float = 0.9,
+        p_fail_repair_new_signal: float = 1 - 0.95,
+        p_fail_repair_reboot: float = 1 - 0.9,
         new_signal_time: Time = Time(2, TimeUnit.SECOND),
         reboot_time: Time = Time(5, TimeUnit.MINUTE),
         manual_repair_time: Time = Time(2, TimeUnit.HOUR),
@@ -52,13 +52,17 @@ class Sensor(Component):
         self.line = line
         line.sensor = self
         self.fail_rate_per_year = fail_rate_per_year
-        self.p_repair_new_signal = p_repair_new_signal
-        self.p_repair_reboot = p_repair_reboot
+        self.p_fail_repair_new_signal = p_fail_repair_new_signal
+        self.p_fail_repair_reboot = p_fail_repair_reboot
         self.new_signal_time = new_signal_time
         self.reboot_time = reboot_time
         self.remaining_repair_time = Time(0)
         self.manual_repair_time = manual_repair_time
         self.state = state
+
+        ## History
+        self.history = {}
+        self.monte_carlo_history = {}
 
     def __str__(self):
         return self.name
@@ -82,8 +86,8 @@ class Sensor(Component):
         self.state = SensorState.OK
 
     def draw_fail_status(self, dt: Time):
-        p_fail = convert_yearly_fail_rate(self.fail_rate_per_year, dt)
-        self.draw_status(p_fail)
+        p_not_fail = convert_yearly_fail_rate(self.fail_rate_per_year, dt)
+        self.draw_status(p_not_fail)
 
     def draw_status(self, prob):
         if random_choice(self.ps_random, prob):
@@ -93,12 +97,12 @@ class Sensor(Component):
 
     def repair(self, dt: Time):
         repair_time = self.new_signal_time
-        self.draw_status(self.p_repair_new_signal)
+        self.draw_status(self.p_fail_repair_new_signal)
         if self.state == SensorState.OK:
             return repair_time, self.line.failed
         elif self.state == SensorState.FAILED:
             repair_time += self.reboot_time
-            self.draw_status(self.p_repair_reboot)
+            self.draw_status(self.p_fail_repair_reboot)
             if self.state == SensorState.OK:
                 return repair_time, self.line.failed
             elif self.state == SensorState.FAILED:
@@ -126,10 +130,14 @@ class Sensor(Component):
                 self.not_fail()
 
     def update_history(self, prev_time, curr_time, save_flag: bool):
-        pass
+        if save_flag:
+            self.history["remaining_repair_time"][
+                curr_time
+            ] = self.remaining_repair_time.get_unit_quantity(curr_time.unit)
+            self.history["state"][curr_time] = self.state.value
 
     def get_history(self, attribute: str):
-        pass
+        return self.history[attribute]
 
     def add_random_instance(self, random_gen):
         """
@@ -151,4 +159,10 @@ class Sensor(Component):
         pass
 
     def reset_status(self, save_flag: bool):
-        pass
+        self.remaining_repair_time = Time(0)
+        if save_flag:
+            self.initialize_history()
+
+    def initialize_history(self):
+        self.history["remaining_repair_time"] = {}
+        self.history["state"] = {}

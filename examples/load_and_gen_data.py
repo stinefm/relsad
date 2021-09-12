@@ -65,12 +65,12 @@ def LoadGen(temp):
             load_office[i, j] = office_A[j] * temp[i, j] + office_B[j]
 
     return (
-        load_house * 1e-3,
-        load_farm * 1e-3,
-        load_microgrid * 1e-3,
-        load_industry2 * 1e-3,
-        load_trade * 1e-3,
-        load_office * 1e-3,
+        load_house.reshape((8760)) * 1e-3,
+        load_farm.reshape((8760)) * 1e-3,
+        load_microgrid.reshape((8760)) * 1e-3,
+        load_industry2.reshape((8760)) * 1e-3,
+        load_trade.reshape((8760)) * 1e-3,
+        load_office.reshape((8760)) * 1e-3,
     )
 
 
@@ -176,7 +176,7 @@ def windGen(wind):
                     * 10 ** (-3)
                 )
 
-    return P_out
+    return P_out.reshape((8760))
 
 
 def PVgeneration(temp, irridation):
@@ -286,7 +286,7 @@ def PVgeneration(temp, irridation):
 
     P_out_mod_inv *= 10 ** (-6)
 
-    return P_out_mod_inv
+    return P_out_mod_inv.reshape((8760))
 
 
 if __name__ == "__main__":
@@ -339,16 +339,18 @@ if __name__ == "__main__":
     # print(np.median(load_microgrid)*40)
     # print(load_microgrid*40)
     # print(np.max(PV))
-    house = np.max(load_house) * 300  # 400
-    farm = np.max(load_farm) * 250  # 340
-    industry = np.max(load_industry2) * 4  # 5
-    office = np.max(load_office) * 4
-    trade = np.max(load_trade) * 6  # 7
+    house = np.max(load_house) * 357  # * 300  # 400
+    farm = np.max(load_farm) * 273  # * 250  # 340
+    industry = np.max(load_industry2) * 8  # * 4  # 5
+    office = np.max(load_office) * 3  # * 4
+    trade = np.max(load_trade) * 2  # * 6  # 7
     print("Max load house:", house)
     print("Max load farm:", farm)
     print("Max load industry:", industry)
     print("Max load office:", office)
     print("Max load trade:", trade)
+    print("Wind:", np.max(wind))
+    print("PV:", np.max(PV))
     print("Sum:", np.sum(house + farm + industry + office + trade))
 
     plt.show()

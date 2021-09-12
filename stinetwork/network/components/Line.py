@@ -524,7 +524,7 @@ class Line(Component):
             self.history["q_to"][curr_time] = q_to * self.s_ref
             self.history["remaining_outage_time"][
                 curr_time
-            ] = self.remaining_outage_time.quantity
+            ] = self.remaining_outage_time.get_unit_quantity(curr_time.unit)
             self.history["failed"][curr_time] = self.failed
             self.history["line_loading"][curr_time] = self.get_line_loading()
 

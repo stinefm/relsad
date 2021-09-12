@@ -74,3 +74,6 @@ class ManualMainController(Component):
 
     def reset_status(self, save_flag: bool):
         pass
+
+    def initialize_history(self):
+        pass

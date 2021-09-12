@@ -118,20 +118,10 @@ class Microgrid(Network):
 
         self.failed_line = False
 
-        self.connected_line = connected_line
-        self.circuitbreaker = connected_line.circuitbreaker
-        self.circuitbreaker.mode = mode
-        if self.circuitbreaker is None:
-            raise Exception(
-                "{} connects the microgrid to the "
-                "distribution network, it must contain a circuitbreaker".format(
-                    connected_line
-                )
-            )
-        self.comp_dict[self.circuitbreaker.name] = self.circuitbreaker
-        for discon in self.circuitbreaker.disconnectors:
-            self.comp_dict[discon.name] = discon
-        self.add_line(connected_line)
+        self.connected_line = None
+        self.circuitbreaker = None
+        self.add_connected_line(connected_line, mode)
+
         # Load shedding
         self.p_load_shed = 0
         self.acc_p_load_shed = 0
@@ -157,6 +147,30 @@ class Microgrid(Network):
 
     def __hash__(self):
         return hash(self.name)
+
+    def add_connected_line(self, connected_line, mode):
+        self.connected_line = connected_line
+        self.circuitbreaker = connected_line.circuitbreaker
+        self.circuitbreaker.mode = mode
+        if self.circuitbreaker is None:
+            raise Exception(
+                "{} connects the microgrid to the "
+                "distribution network, it must contain a circuitbreaker".format(
+                    connected_line
+                )
+            )
+        self.comp_dict[self.circuitbreaker.name] = self.circuitbreaker
+        self.comp_list.append(self.circuitbreaker)
+        for discon in self.circuitbreaker.disconnectors:
+            self.comp_dict[discon.name] = discon
+            if discon.intelligent_switch:
+                self.comp_dict[
+                    discon.intelligent_switch.name
+                ] = discon.intelligent_switch
+                self.comp_list.append(discon.intelligent_switch)
+                self.intelligent_switches.append(discon.intelligent_switch)
+                self.intelligent_switches = unique(self.intelligent_switches)
+        self.add_line(connected_line)
 
     def add_bus(self, bus: Bus):
         """
@@ -230,6 +244,8 @@ class Microgrid(Network):
         self.lines.append(line)
         self.lines = unique(self.lines)
         if line.sensor:
+            self.comp_dict[line.sensor.name] = line.sensor
+            self.comp_list.append(line.sensor)
             self.sensors.append(line.sensor)
             self.sensors = unique(self.sensors)
             self.controller.sensors.append(line.sensor)
@@ -240,6 +256,10 @@ class Microgrid(Network):
             self.disconnectors.append(discon)
             self.disconnectors = unique(self.disconnectors)
             if discon.intelligent_switch:
+                self.comp_dict[
+                    discon.intelligent_switch.name
+                ] = discon.intelligent_switch
+                self.comp_list.append(discon.intelligent_switch)
                 self.intelligent_switches.append(discon.intelligent_switch)
                 self.intelligent_switches = unique(self.intelligent_switches)
         line.add_parent_network(self)

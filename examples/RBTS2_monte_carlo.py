@@ -10,6 +10,7 @@ import time
 import numpy as np
 import os
 from stinetwork.utils import (
+    Time,
     TimeUnit,
 )
 
@@ -117,82 +118,100 @@ if __name__ == "__main__":
         # DL34 = ps.get_comp("DL34")
         # DLB2b = ps.get_comp("DLB2b")
 
-    # load_res1 = np.ones((365, 24)) * (0.535 / 210)
-    # load_res2 = np.ones((365, 24)) * (0.450 / 200)
-    # load_small1 = np.ones((365, 24)) * (1 / 1)
-    # load_small2 = np.ones((365, 24)) * (1.15 / 1 )
-    # load_gov = np.ones((365, 24)) * (0.566 / 1)
-    # load_com = np.ones((365, 24)) * (0.454 / 10)
+    load_res1 = np.ones(8760) * (0.535 / 210)
+    load_res2 = np.ones(8760) * (0.450 / 200)
+    load_small1 = np.ones(8760) * (1 / 1)
+    load_small2 = np.ones(8760) * (1.15 / 1)
+    load_gov = np.ones(8760) * (0.566 / 1)
+    load_com = np.ones(8760) * (0.454 / 10)
 
-    load_res1 = np.ones((365, 24)) * (0.8668 / 210)
-    load_res2 = np.ones((365, 24)) * (0.7291 / 200)
-    load_small1 = np.ones((365, 24)) * (1.6279 / 1)
-    load_small2 = np.ones((365, 24)) * (1.8721 / 1)
-    load_gov = np.ones((365, 24)) * (0.9167 / 1)
-    load_com = np.ones((365, 24)) * (0.7500 / 10)
+    # load_res1 = np.ones(8760) * (0.8668 / 210)
+    # load_res2 = np.ones(8760) * (0.7291 / 200)
+    # load_small1 = np.ones(8760) * (1.6279 / 1)
+    # load_small2 = np.ones(8760) * (1.8721 / 1)
+    # load_gov = np.ones(8760) * (0.9167 / 1)
+    # load_com = np.ones(8760) * (0.7500 / 10)
+
+    cost_functions = {
+        "Jordbruk": {"A": 21.4 - 17.5, "B": 17.5},
+        "Microgrid": {"A": (21.4 - 17.5) * 1000, "B": 17.5 * 1000},
+        "Industri": {"A": 132.6 - 92.5, "B": 92.5},
+        "Handel og tjenester": {"A": 220.3 - 102.4, "B": 102.4},
+        "Offentlig virksomhet": {"A": 194.5 - 31.4, "B": 31.4},
+        "Husholdning": {"A": 8.8, "B": 14.7},
+    }
 
     load_dict = dict()
+    load_dict["load"] = {}
 
-    load_dict[B1] = {
+    load_dict["cost"] = cost_functions
+
+    load_dict["load"][B1] = {
         "Husholdning": {"pload": load_res1, "qload": load_res1 * 0},
     }
-    load_dict[B2] = {
+    load_dict["load"][B2] = {
         "Husholdning": {"pload": load_res1, "qload": load_res1 * 0}
     }
-    load_dict[B3] = {
+    load_dict["load"][B3] = {
         "Husholdning": {"pload": load_res1, "qload": load_res1 * 0}
     }
-    load_dict[B4] = {"Husholdning": {"pload": load_gov, "qload": load_gov * 0}}
-    load_dict[B5] = {"Husholdning": {"pload": load_gov, "qload": load_gov * 0}}
-    load_dict[B6] = {"Husholdning": {"pload": load_com, "qload": load_com * 0}}
-    load_dict[B7] = {"Husholdning": {"pload": load_com, "qload": load_com * 0}}
-    load_dict[B8] = {
+    load_dict["load"][B4] = {
+        "Husholdning": {"pload": load_gov, "qload": load_gov * 0}
+    }
+    load_dict["load"][B5] = {
+        "Husholdning": {"pload": load_gov, "qload": load_gov * 0}
+    }
+    load_dict["load"][B6] = {
+        "Husholdning": {"pload": load_com, "qload": load_com * 0}
+    }
+    load_dict["load"][B7] = {
+        "Husholdning": {"pload": load_com, "qload": load_com * 0}
+    }
+    load_dict["load"][B8] = {
         "Husholdning": {"pload": load_small1, "qload": load_gov * 0}
     }
-    load_dict[B9] = {
+    load_dict["load"][B9] = {
         "Husholdning": {"pload": load_small2, "qload": load_gov * 0}
     }
-    load_dict[B10] = {
+    load_dict["load"][B10] = {
         "Husholdning": {"pload": load_res1, "qload": load_gov * 0}
     }
-    load_dict[B11] = {
+    load_dict["load"][B11] = {
         "Husholdning": {"pload": load_res1, "qload": load_gov * 0}
     }
-    load_dict[B12] = {
+    load_dict["load"][B12] = {
         "Husholdning": {"pload": load_res2, "qload": load_gov * 0}
     }
-    load_dict[B13] = {
+    load_dict["load"][B13] = {
         "Husholdning": {"pload": load_gov, "qload": load_gov * 0}
     }
-    load_dict[B14] = {
+    load_dict["load"][B14] = {
         "Husholdning": {"pload": load_gov, "qload": load_gov * 0}
     }
-    load_dict[B15] = {
+    load_dict["load"][B15] = {
         "Husholdning": {"pload": load_com, "qload": load_gov * 0}
     }
-    load_dict[B16] = {
+    load_dict["load"][B16] = {
         "Husholdning": {"pload": load_com, "qload": load_gov * 0}
     }
-    load_dict[B17] = {
+    load_dict["load"][B17] = {
         "Husholdning": {"pload": load_res2, "qload": load_gov * 0}
     }
-    load_dict[B18] = {
+    load_dict["load"][B18] = {
         "Husholdning": {"pload": load_res2, "qload": load_gov * 0}
     }
-    load_dict[B19] = {
+    load_dict["load"][B19] = {
         "Husholdning": {"pload": load_res2, "qload": load_gov * 0}
     }
-    load_dict[B20] = {
+    load_dict["load"][B20] = {
         "Husholdning": {"pload": load_gov, "qload": load_gov * 0}
     }
-    load_dict[B21] = {
+    load_dict["load"][B21] = {
         "Husholdning": {"pload": load_gov, "qload": load_gov * 0}
     }
-    load_dict[B22] = {
+    load_dict["load"][B22] = {
         "Husholdning": {"pload": load_com, "qload": load_gov * 0}
     }
-
-    ps.add_load_dict(load_dict)
 
     save_dir = r"test_RBTS2"
 
@@ -200,7 +219,10 @@ if __name__ == "__main__":
     sim.run_monte_carlo(
         iterations=200,
         increments=8760,
+        time_step=Time(1, TimeUnit.HOUR),
         time_unit=TimeUnit.HOUR,
+        load_dict=load_dict,
+        prod_dict={},
         save_iterations=[
             1,
             50,
