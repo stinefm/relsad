@@ -41,7 +41,6 @@ class IntelligentSwitch(Component):
         disconnector: Disconnector,
         fail_rate_per_year: float = 0.03,
         manual_repair_time: Time = Time(2, TimeUnit.HOUR),
-        manual_section_time: Time = Time(1, TimeUnit.HOUR),
         state: IntelligentSwitchState = IntelligentSwitchState.OK,
     ):
 
@@ -51,7 +50,6 @@ class IntelligentSwitch(Component):
         self.fail_rate_per_year = fail_rate_per_year
         self.remaining_repair_time = Time(0)
         self.manual_repair_time = manual_repair_time
-        self.manual_section_time = manual_section_time
         self.state = state
 
         ## History
@@ -93,8 +91,11 @@ class IntelligentSwitch(Component):
 
     def repair_open(self, dt: Time):
         self.remaining_repair_time = self.manual_repair_time
+        self.disconnector.open()
         self.state = IntelligentSwitchState.REPAIR
-        return self.remaining_repair_time
+        return (
+            self.disconnector.line.parent_network.controller.manual_section_time
+        )
 
     def open(self, dt: Time):
         if self.state == IntelligentSwitchState.REPAIR:
@@ -109,11 +110,11 @@ class IntelligentSwitch(Component):
 
     def repair_close(self, dt: Time):
         self.remaining_repair_time = self.manual_repair_time
+        self.disconnector.close()
         self.state = IntelligentSwitchState.REPAIR
 
     def close(self, dt: Time):
         if not self.state == IntelligentSwitchState.REPAIR:
-            self.draw_fail_status(dt)
             if self.state == IntelligentSwitchState.OK:
                 self.disconnector.close()
             elif self.state == IntelligentSwitchState.FAILED:
@@ -124,6 +125,8 @@ class IntelligentSwitch(Component):
             self.remaining_repair_time -= dt
             if self.remaining_repair_time <= Time(0):
                 self.not_fail()
+        elif self.state == IntelligentSwitchState.OK:
+            self.draw_fail_status(dt)
 
     def update_history(self, prev_time, curr_time, save_flag: bool):
         if save_flag:
@@ -155,6 +158,7 @@ class IntelligentSwitch(Component):
         pass
 
     def reset_status(self, save_flag: bool):
+        self.state = IntelligentSwitchState.OK
         self.remaining_repair_time = Time(0)
         if save_flag:
             self.initialize_history()

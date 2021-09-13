@@ -114,7 +114,6 @@ class Sensor(Component):
         if self.state == SensorState.REPAIR:
             return Time(0), True
         else:
-            self.draw_fail_status(dt)
             if self.state == SensorState.OK:
                 return Time(0), self.line.failed
             elif self.state == SensorState.FAILED:
@@ -128,6 +127,8 @@ class Sensor(Component):
             self.remaining_repair_time -= dt
             if self.remaining_repair_time <= Time(0):
                 self.not_fail()
+        elif self.state == SensorState.OK:
+            self.draw_fail_status(dt)
 
     def update_history(self, prev_time, curr_time, save_flag: bool):
         if save_flag:
@@ -159,6 +160,7 @@ class Sensor(Component):
         pass
 
     def reset_status(self, save_flag: bool):
+        self.state = SensorState.OK
         self.remaining_repair_time = Time(0)
         if save_flag:
             self.initialize_history()

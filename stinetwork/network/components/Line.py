@@ -218,21 +218,22 @@ class Line(Component):
         None
 
         """
-        self.connected = False
-        self.linestyle = "--"
-        self.fbus.fromline_list.remove(self)
-        if self.fbus.fromline == self:
-            if len(self.fbus.fromline_list) > 0:
-                self.fbus.fromline = next(iter(self.fbus.fromline_list))
-            else:
-                self.fbus.fromline = None
-        self.tbus.toline_list.remove(self)
-        if self.tbus.toline == self:
-            if len(self.tbus.toline_list) > 0:
-                self.tbus.toline = next(iter(self.tbus.toline_list))
-            else:
-                self.tbus.toline = None
-        self.fbus.nextbus.remove(self.tbus)
+        if self.connected:
+            self.connected = False
+            self.linestyle = "--"
+            self.fbus.fromline_list.remove(self)
+            if self.fbus.fromline == self:
+                if len(self.fbus.fromline_list) > 0:
+                    self.fbus.fromline = next(iter(self.fbus.fromline_list))
+                else:
+                    self.fbus.fromline = None
+            self.tbus.toline_list.remove(self)
+            if self.tbus.toline == self:
+                if len(self.tbus.toline_list) > 0:
+                    self.tbus.toline = next(iter(self.tbus.toline_list))
+                else:
+                    self.tbus.toline = None
+            self.fbus.nextbus.remove(self.tbus)
 
     def connect(self):
         """
@@ -247,13 +248,14 @@ class Line(Component):
         None
 
         """
-        self.connected = True
-        self.linestyle = "-"
-        self.tbus.toline = self
-        self.tbus.toline_list.append(self)
-        self.fbus.fromline = self
-        self.fbus.fromline_list.append(self)
-        self.fbus.nextbus.append(self.tbus)
+        if not self.connected:
+            self.connected = True
+            self.linestyle = "-"
+            self.tbus.toline = self
+            self.tbus.toline_list.append(self)
+            self.fbus.fromline = self
+            self.fbus.fromline_list.append(self)
+            self.fbus.nextbus.append(self.tbus)
 
     def fail(self):
         """

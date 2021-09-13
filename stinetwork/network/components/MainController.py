@@ -125,7 +125,7 @@ class MainController(Component):
             self.remaining_repair_time -= dt
             if self.remaining_repair_time <= Time(0):
                 self.not_fail()
-        else:
+        elif self.state == ControllerState.OK:
             self.draw_fail_status(dt)
             if self.state == ControllerState.HARDWARE_FAIL:
                 self.remaining_repair_time = self.manual_hardware_repair_time
@@ -184,6 +184,7 @@ class MainController(Component):
         pass
 
     def reset_status(self, save_flag: bool):
+        self.state = ControllerState.OK
         self.section_time = Time(0)
         self.remaining_repair_time = Time(0)
         if save_flag:

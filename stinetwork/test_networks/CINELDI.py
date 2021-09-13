@@ -26,15 +26,27 @@ from stinetwork.utils import (
 
 
 def initialize_network():
-    C1 = MainController("C1")
+    fail_rate_trafo = 0.007
+    fail_rate_line = 0.07
+    fail_rate_intelligent_switch = 1000
+    fail_rate_hardware = 0.2
+    fail_rate_software = 12
+    fail_rate_sensor = 0.023
+    p_fail_repair_new_signal = 1 - 0.95
+    p_fail_repair_reboot = 1 - 0.9
+
+    C1 = MainController(
+        "C1",
+        hardware_fail_rate_per_year=fail_rate_hardware,
+        software_fail_rate_per_year=fail_rate_software,
+        p_fail_repair_new_signal=p_fail_repair_new_signal,
+        p_fail_repair_reboot=p_fail_repair_reboot,
+    )
 
     ps = PowerSystem(C1)
 
     ## Transmission network
     T = Bus("T", n_customers=0, coordinate=[0, 0], fail_rate_per_year=0)
-
-    fail_rate_trafo = 0.007
-    fail_rate_line = 0.07
 
     ## Distribution network
     B1 = Bus(
@@ -190,38 +202,132 @@ def initialize_network():
     DML2a = Disconnector("ML2a", ML2, M1)
     DML2b = Disconnector("ML2b", ML2, M3)
 
-    Sensor("SL1", L1)
-    Sensor("SL2", L2)
-    Sensor("SL3", L3)
-    Sensor("SL4", L4)
-    Sensor("SL5", L5)
-    Sensor("SL6", L6)
-    Sensor("SL7", L7)
+    Sensor(
+        "SL1",
+        L1,
+        fail_rate_per_year=fail_rate_sensor,
+        p_fail_repair_new_signal=p_fail_repair_new_signal,
+        p_fail_repair_reboot=p_fail_repair_reboot,
+    )
+    Sensor(
+        "SL2",
+        L2,
+        fail_rate_per_year=fail_rate_sensor,
+        p_fail_repair_new_signal=p_fail_repair_new_signal,
+        p_fail_repair_reboot=p_fail_repair_reboot,
+    )
+    Sensor(
+        "SL3",
+        L3,
+        fail_rate_per_year=fail_rate_sensor,
+        p_fail_repair_new_signal=p_fail_repair_new_signal,
+        p_fail_repair_reboot=p_fail_repair_reboot,
+    )
+    Sensor(
+        "SL4",
+        L4,
+        fail_rate_per_year=fail_rate_sensor,
+        p_fail_repair_new_signal=p_fail_repair_new_signal,
+        p_fail_repair_reboot=p_fail_repair_reboot,
+    )
+    Sensor(
+        "SL5",
+        L5,
+        fail_rate_per_year=fail_rate_sensor,
+        p_fail_repair_new_signal=p_fail_repair_new_signal,
+        p_fail_repair_reboot=p_fail_repair_reboot,
+    )
+    Sensor(
+        "SL6",
+        L6,
+        fail_rate_per_year=fail_rate_sensor,
+        p_fail_repair_new_signal=p_fail_repair_new_signal,
+        p_fail_repair_reboot=p_fail_repair_reboot,
+    )
+    Sensor(
+        "SL7",
+        L7,
+        fail_rate_per_year=fail_rate_sensor,
+        p_fail_repair_new_signal=p_fail_repair_new_signal,
+        p_fail_repair_reboot=p_fail_repair_reboot,
+    )
 
-    Sensor("SML1", ML1)
-    Sensor("SML2", ML2)
+    Sensor(
+        "SML1",
+        ML1,
+        fail_rate_per_year=fail_rate_sensor,
+        p_fail_repair_new_signal=p_fail_repair_new_signal,
+        p_fail_repair_reboot=p_fail_repair_reboot,
+    )
+    Sensor(
+        "SML2",
+        ML2,
+        fail_rate_per_year=fail_rate_sensor,
+        p_fail_repair_new_signal=p_fail_repair_new_signal,
+        p_fail_repair_reboot=p_fail_repair_reboot,
+    )
 
-    IntelligentSwitch("RL1a", DL1a)
-    IntelligentSwitch("RL1b", DL1b)
-    IntelligentSwitch("RL1c", DL1c)
-    IntelligentSwitch("RL2a", DL2a)
-    IntelligentSwitch("RL2b", DL2b)
-    IntelligentSwitch("RL3a", DL3a)
-    IntelligentSwitch("RL3b", DL3b)
-    IntelligentSwitch("RL4a", DL4a)
-    IntelligentSwitch("RL4b", DL4b)
-    IntelligentSwitch("RL5a", DL5a)
-    IntelligentSwitch("RL5b", DL5b)
-    IntelligentSwitch("RL6a", DL6a)
-    IntelligentSwitch("RL6b", DL6b)
-    IntelligentSwitch("RL7a", DL7a)
-    IntelligentSwitch("RL7b", DL7b)
-    IntelligentSwitch("RL7c", DL7c)
+    IntelligentSwitch(
+        "RL1a", DL1a, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL1b", DL1b, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL1c", DL1c, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL2a", DL2a, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL2b", DL2b, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL3a", DL3a, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL3b", DL3b, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL4a", DL4a, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL4b", DL4b, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL5a", DL5a, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL5b", DL5b, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL6a", DL6a, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL6b", DL6b, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL7a", DL7a, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL7b", DL7b, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RL7c", DL7c, fail_rate_per_year=fail_rate_intelligent_switch
+    )
 
-    IntelligentSwitch("RML1a", DML1a)
-    IntelligentSwitch("RML1b", DML1b)
-    IntelligentSwitch("RML2a", DML2a)
-    IntelligentSwitch("RML2b", DML2b)
+    IntelligentSwitch(
+        "RML1a", DML1a, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RML1b", DML1b, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RML2a", DML2a, fail_rate_per_year=fail_rate_intelligent_switch
+    )
+    IntelligentSwitch(
+        "RML2b", DML2b, fail_rate_per_year=fail_rate_intelligent_switch
+    )
 
     L6.set_backup()
 

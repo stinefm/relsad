@@ -3,6 +3,7 @@ from stinetwork.network.systems import (
     SubSystem,
     Transmission,
 )
+from stinetwork.network.containers import SectionState
 from stinetwork.network.components import MicrogridMode
 from stinetwork.utils import (
     unique,
@@ -110,14 +111,6 @@ def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time: Time):
                     if (
                         not line.connected
                         and not line.failed
-                        and sum(
-                            [
-                                not x.section.connected if x.section else False
-                                for x in line.tbus.connected_lines
-                                + line.fbus.connected_lines
-                            ]
-                        )
-                        == 0
                         and all(
                             [
                                 x.parent_network.controller.section_time

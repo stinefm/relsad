@@ -1,11 +1,12 @@
-from stinetwork.utils import unique
 from .Component import Component
 from .Line import Line
 import matplotlib.lines as mlines
 import numpy as np
+from stinetwork.network.containers import SectionState
 from stinetwork.utils import (
     Time,
     TimeUnit,
+    unique,
 )
 
 
@@ -140,7 +141,10 @@ class CircuitBreaker(Component):
         self.is_open = False
         self.color = "black"
         for discon in self.disconnectors + self.line.disconnectors:
-            if discon.is_open and self.line.section.connected:
+            if (
+                discon.is_open
+                and self.line.section.state == SectionState.CONNECTED
+            ):
                 discon.close()
 
     def open(self):

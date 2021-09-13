@@ -3,6 +3,7 @@ import matplotlib.lines as mlines
 import numpy as np
 from .Component import Component
 from .MainController import ControllerState
+from stinetwork.network.containers import SectionState
 from stinetwork.utils import (
     random_choice,
     Time,
@@ -67,9 +68,15 @@ class DistributionController(Component):
                 self.network.connected_line.circuitbreaker.close()
 
     def check_sensors(self, curr_time: Time, dt: Time):
-        connected_sections = [x for x in self.network.sections if x.connected]
+        connected_sections = [
+            x
+            for x in self.network.sections
+            if x.state == SectionState.CONNECTED
+        ]
         disconnected_sections = [
-            x for x in self.network.sections if not x.connected
+            x
+            for x in self.network.sections
+            if x.state == SectionState.DISCONNECTED
         ]
         for section in disconnected_sections:
             sensors = unique([x.line.sensor for x in section.disconnectors])
@@ -106,9 +113,15 @@ class DistributionController(Component):
         self.check_circuitbreaker(curr_time, dt)
 
     def check_lines_manually(self, curr_time):
-        connected_sections = [x for x in self.network.sections if x.connected]
+        connected_sections = [
+            x
+            for x in self.network.sections
+            if x.state == SectionState.CONNECTED
+        ]
         disconnected_sections = [
-            x for x in self.network.sections if not x.connected
+            x
+            for x in self.network.sections
+            if x.state == SectionState.DISCONNECTED
         ]
         for section in disconnected_sections:
             if sum([x.failed for x in section.lines]) == 0:
@@ -144,7 +157,9 @@ class DistributionController(Component):
             if (
                 child_network.controller.network.connected_line.circuitbreaker.is_open
             ):
-                child_network.controller.set_section_time(self.section_time)
+                child_network.controller.set_parent_section_time(
+                    self.section_time
+                )
 
     def update_fail_status(self, dt: Time):
         pass

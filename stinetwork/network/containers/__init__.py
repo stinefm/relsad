@@ -8,4 +8,7 @@ Container types
 
 """
 
-from .Section import Section
+from .Section import (
+    Section,
+    SectionState,
+)
