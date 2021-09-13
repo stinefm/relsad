@@ -94,7 +94,7 @@ class IntelligentSwitch(Component):
     def repair_open(self, dt: Time):
         self.remaining_repair_time = self.manual_repair_time
         self.state = IntelligentSwitchState.REPAIR
-        return self.remaining_section_time
+        return self.remaining_repair_time
 
     def open(self, dt: Time):
         if self.state == IntelligentSwitchState.REPAIR:
