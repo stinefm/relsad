@@ -163,6 +163,12 @@ class MicrogridController(Component):
             self.check_components = False
         self.check_circuitbreaker(curr_time, dt)
 
+    def set_section_time(self, section_time):
+        self.section_time = max(
+            self.section_time,
+            section_time,
+        )
+
     def set_parent_section_time(self, section_time):
         self.parent_section_time = section_time
 
