@@ -5,6 +5,7 @@ from stinetwork.network.components import (
     Line,
     Battery,
     Production,
+    MainController,
     ManualMainController,
     Sensor,
     IntelligentSwitch,
@@ -25,18 +26,26 @@ from stinetwork.utils import (
 
 def initialize_network():
 
-    C1 = ManualMainController(
-        name="C1",
-        section_time=Time(1, TimeUnit.HOUR),
-    )
+    include_microgrid = True
+    include_production = True
+    include_ICT = True
+
+    if include_ICT:
+        C1 = MainController(
+            name="C1",
+        )
+    else:
+        C1 = ManualMainController(
+            name="C1",
+            section_time=Time(1, TimeUnit.HOUR),
+        )
+
     ps = PowerSystem(C1)
 
     fail_rate_trafo = 0.007  # fails per year
     fail_rate_line = 0.07  # fails per year
     outage_time_trafo = Time(8, TimeUnit.HOUR)  # hours
     outage_time_line = Time(4, TimeUnit.HOUR)  # hours
-    battery_capacity = 1  # MWh
-    microgrid_mode = MicrogridMode.LIMITED_SUPPORT
 
     B1 = Bus("B1", n_customers=0, coordinate=[0, 0], fail_rate_per_year=0)
     B2 = Bus(
@@ -263,40 +272,6 @@ def initialize_network():
         fail_rate_per_year=fail_rate_trafo,
         outage_time=outage_time_trafo,
     )
-
-    # Micorgird:
-    BM1 = Bus(
-        "BM1",
-        n_customers=0,
-        coordinate=[14, 2],
-        fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
-    )
-    BM2 = Bus(
-        "BM2",
-        n_customers=40,
-        coordinate=[15, 2],
-        fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
-    )
-    BM3 = Bus(
-        "BM3",
-        n_customers=0,
-        coordinate=[15, 2.5],
-        fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
-    )
-    BM4 = Bus(
-        "BM4",
-        n_customers=0,
-        coordinate=[15, 1.5],
-        fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
-    )
-
-    Battery("Bat1", BM1, E_max=battery_capacity)
-    Production("P1", BM3)
-    Production("P2", BM4)
 
     L1 = Line(
         "L1",
@@ -587,6 +562,77 @@ def initialize_network():
         outage_time=outage_time_line,
     )
 
+    E1 = CircuitBreaker("E1", L1)
+
+    DL1a = Disconnector("L1a", L1, B1, E1)
+    DL1b = Disconnector("L1b", L1, B2, E1)
+    DL1c = Disconnector("L1c", L1, B2)
+    DL2a = Disconnector("L2a", L2, B2)
+    DL2b = Disconnector("L2b", L2, B3)
+    DL3a = Disconnector("L3a", L3, B3)
+    DL3b = Disconnector("L3b", L3, B4)
+    DL4a = Disconnector("L4a", L4, B4)
+    DL4b = Disconnector("L4b", L4, B5)
+    DL5a = Disconnector("L5a", L5, B5)
+    DL5b = Disconnector("L5b", L5, B6)
+    DL6a = Disconnector("L6a", L6, B6)
+    DL6b = Disconnector("L6b", L6, B7)
+    DL7a = Disconnector("L7a", L7, B7)
+    DL7b = Disconnector("L7b", L7, B8)
+    DL8a = Disconnector("L8a", L8, B8)
+    DL8b = Disconnector("L8b", L8, B9)
+    DL9a = Disconnector("L9a", L9, B9)
+    DL9b = Disconnector("L9b", L9, B10)
+    DL10a = Disconnector("L10a", L10, B10)
+    DL10b = Disconnector("L10b", L10, B11)
+    DL11a = Disconnector("L11a", L11, B11)
+    DL11b = Disconnector("L11b", L11, B12)
+    DL12a = Disconnector("L12a", L12, B12)
+    DL12b = Disconnector("L12b", L12, B13)
+    DL13a = Disconnector("L13a", L13, B13)
+    DL13b = Disconnector("L13b", L13, B14)
+    DL14a = Disconnector("L14a", L14, B14)
+    DL14b = Disconnector("L14b", L14, B15)
+    DL15a = Disconnector("L15a", L15, B15)
+    DL15b = Disconnector("L15b", L15, B16)
+    DL16a = Disconnector("L16a", L16, B16)
+    DL16b = Disconnector("L16b", L16, B17)
+    DL17a = Disconnector("L17a", L17, B17)
+    DL17b = Disconnector("L17b", L17, B18)
+
+    DL18a = Disconnector("L18a", L18, B2)
+    DL18b = Disconnector("L18b", L18, B19)
+    DL19a = Disconnector("L19a", L19, B19)
+    DL19b = Disconnector("L19b", L19, B20)
+    DL20a = Disconnector("L20a", L20, B20)
+    DL20b = Disconnector("L20b", L20, B21)
+    DL21a = Disconnector("L21a", L21, B21)
+    DL21b = Disconnector("L21b", L21, B22)
+
+    DL22a = Disconnector("L22a", L22, B3)
+    DL22b = Disconnector("L22b", L22, B23)
+    DL23a = Disconnector("L23a", L23, B23)
+    DL23b = Disconnector("L23b", L23, B24)
+    DL24a = Disconnector("L24a", L24, B24)
+    DL24b = Disconnector("L24b", L24, B25)
+
+    DL25a = Disconnector("L25a", L25, B6)
+    DL25b = Disconnector("L25b", L25, B26)
+    DL26a = Disconnector("L26a", L26, B26)
+    DL26b = Disconnector("L26b", L26, B27)
+    DL27a = Disconnector("L27a", L27, B27)
+    DL27b = Disconnector("L27b", L27, B28)
+    DL28a = Disconnector("L28a", L28, B28)
+    DL28b = Disconnector("L28b", L28, B29)
+    DL29a = Disconnector("L29a", L29, B29)
+    DL29b = Disconnector("L29b", L29, B30)
+    DL30a = Disconnector("L30a", L30, B30)
+    DL30b = Disconnector("L30b", L30, B31)
+    DL31a = Disconnector("L31a", L31, B31)
+    DL31b = Disconnector("L31b", L31, B32)
+    DL32a = Disconnector("L32a", L32, B32)
+    DL32b = Disconnector("L32b", L32, B33)
+
     # Backup lines
 
     # L33 = Line(
@@ -630,147 +676,23 @@ def initialize_network():
     #     fail_rate_density_per_year=fail_rate_line,
     # )
 
-    # Microgrid
-
-    ML1 = Line(
-        "ML1",
-        B33,
-        BM1,
-        r=0.1872,  # 0.7394,
-        x=0.0619,  # 0.2444,
-        fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
-    )
-
-    ML2 = Line(
-        "ML2",
-        BM1,
-        BM2,
-        r=0.0047,
-        x=0.0016,
-        fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
-    )
-    ML3 = Line(
-        "ML3",
-        BM1,
-        BM3,
-        r=0.0047,
-        x=0.0016,
-        fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
-    )
-    ML4 = Line(
-        "ML4",
-        BM1,
-        BM4,
-        r=0.0047,
-        x=0.0016,
-        fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
-    )
-
-    E1 = CircuitBreaker("E1", L1)
-    E2 = CircuitBreaker("E2", ML1)
-
-    Disconnector("L1a", L1, B1, E1)
-    Disconnector("L1b", L1, B2, E1)
-    Disconnector("L1c", L1, B2)
-    Disconnector("L2a", L2, B2)
-    Disconnector("L2b", L2, B3)
-    Disconnector("L3a", L3, B3)
-    Disconnector("L3b", L3, B4)
-    Disconnector("L4a", L4, B4)
-    Disconnector("L4b", L4, B5)
-    Disconnector("L5a", L5, B5)
-    Disconnector("L5b", L5, B6)
-    Disconnector("L6a", L6, B6)
-    Disconnector("L6b", L6, B7)
-    Disconnector("L7a", L7, B7)
-    Disconnector("L7b", L7, B8)
-    Disconnector("L8a", L8, B8)
-    Disconnector("L8b", L8, B9)
-    Disconnector("L9a", L9, B9)
-    Disconnector("L9b", L9, B10)
-    Disconnector("L10a", L10, B10)
-    Disconnector("L10b", L10, B11)
-    Disconnector("L11a", L11, B11)
-    Disconnector("L11b", L11, B12)
-    Disconnector("L12a", L12, B12)
-    Disconnector("L12b", L12, B13)
-    Disconnector("L13a", L13, B13)
-    Disconnector("L13b", L13, B14)
-    Disconnector("L14a", L14, B14)
-    Disconnector("L14b", L14, B15)
-    Disconnector("L15a", L15, B15)
-    Disconnector("L15b", L15, B16)
-    Disconnector("L16a", L16, B16)
-    Disconnector("L16b", L16, B17)
-    Disconnector("L17a", L17, B17)
-    Disconnector("L17b", L17, B18)
-
-    Disconnector("L18a", L18, B2)
-    Disconnector("L18b", L18, B19)
-    Disconnector("L19a", L19, B19)
-    Disconnector("L19b", L19, B20)
-    Disconnector("L20a", L20, B20)
-    Disconnector("L20b", L20, B21)
-    Disconnector("L21a", L21, B21)
-    Disconnector("L21b", L21, B22)
-
-    Disconnector("L22a", L22, B3)
-    Disconnector("L22b", L22, B23)
-    Disconnector("L23a", L23, B23)
-    Disconnector("L23b", L23, B24)
-    Disconnector("L24a", L24, B24)
-    Disconnector("L24b", L24, B25)
-
-    Disconnector("L25a", L25, B6)
-    Disconnector("L25b", L25, B26)
-    Disconnector("L26a", L26, B26)
-    Disconnector("L26b", L26, B27)
-    Disconnector("L27a", L27, B27)
-    Disconnector("L27b", L27, B28)
-    Disconnector("L28a", L28, B28)
-    Disconnector("L28b", L28, B29)
-    Disconnector("L29a", L29, B29)
-    Disconnector("L29b", L29, B30)
-    Disconnector("L30a", L30, B30)
-    Disconnector("L30b", L30, B31)
-    Disconnector("L31a", L31, B31)
-    Disconnector("L31b", L31, B32)
-    Disconnector("L32a", L32, B32)
-    Disconnector("L32b", L32, B33)
-
     # # Backup
-    # Disconnector("L33a", L33, B9)
-    # Disconnector("L33b", L33, B15)
-    # Disconnector("L34a", L34, B12)
-    # Disconnector("L34b", L34, B22)
-    # Disconnector("L35a", L35, B18)
-    # Disconnector("L35b", L35, B33)
-    # Disconnector("L36a", L36, B25)
-    # Disconnector("L36b", L36, B29)
-    # Disconnector("L37a", L37, B8)
-    # Disconnector("L37b", L37, B21)
+    # DL33a = Disconnector("L33a", L33, B9)
+    # DL33b = Disconnector("L33b", L33, B15)
+    # DL34a = Disconnector("L34a", L34, B12)
+    # DL34b = Disconnector("L34b", L34, B22)
+    # DL35a = Disconnector("L35a", L35, B18)
+    # DL35b = Disconnector("L35b", L35, B33)
+    # DL36a = Disconnector("L36a", L36, B25)
+    # DL36b = Disconnector("L36b", L36, B29)
+    # DL37a = Disconnector("L37a", L37, B8)
+    # DL37b = Disconnector("L37b", L37, B21)
 
     # L33.set_backup()
     # L34.set_backup()
     # L35.set_backup()
     # L36.set_backup()
     # L37.set_backup()
-
-    # Microgrid
-
-    Disconnector("ML1a", ML1, B33, E2)
-    Disconnector("ML1b", ML1, BM1, E2)
-    Disconnector("ML1c", ML1, BM1)
-    Disconnector("ML2a", ML2, BM1)
-    Disconnector("ML2b", ML2, BM2)
-    Disconnector("ML3a", ML3, BM1)
-    Disconnector("ML3b", ML3, BM3)
-    Disconnector("ML4a", ML4, BM1)
-    Disconnector("ML4b", ML4, BM4)
 
     tn = Transmission(ps, B1)
 
@@ -854,11 +776,246 @@ def initialize_network():
         ]
     )
 
-    m = Microgrid(dn, ML1, mode=microgrid_mode)
-    m.add_buses([BM1, BM2, BM3, BM4])
-    m.add_lines([ML2, ML3, ML4])
+    if include_production:
 
-    return ps
+        battery_capacity = 1  # MWh
+
+        Battery("Battery", B30, E_max=battery_capacity)
+        Production("Wind_Plant", B15)
+
+    if include_microgrid:
+
+        # Micorgrid:
+
+        microgrid_mode = MicrogridMode.LIMITED_SUPPORT
+        battery_capacity = 1  # MWh
+
+        BM1 = Bus(
+            "BM1",
+            n_customers=0,
+            coordinate=[14, 2],
+            fail_rate_per_year=fail_rate_trafo,
+            outage_time=outage_time_trafo,
+        )
+        BM2 = Bus(
+            "BM2",
+            n_customers=40,
+            coordinate=[15, 2],
+            fail_rate_per_year=fail_rate_trafo,
+            outage_time=outage_time_trafo,
+        )
+        BM3 = Bus(
+            "BM3",
+            n_customers=0,
+            coordinate=[15, 2.5],
+            fail_rate_per_year=fail_rate_trafo,
+            outage_time=outage_time_trafo,
+        )
+        BM4 = Bus(
+            "BM4",
+            n_customers=0,
+            coordinate=[15, 1.5],
+            fail_rate_per_year=fail_rate_trafo,
+            outage_time=outage_time_trafo,
+        )
+
+        Battery("Bat1", BM1, E_max=battery_capacity)
+        Production("P1", BM3)
+        Production("P2", BM4)
+
+        # Microgrid
+
+        ML1 = Line(
+            "ML1",
+            B33,
+            BM1,
+            r=0.1872,  # 0.7394,
+            x=0.0619,  # 0.2444,
+            fail_rate_density_per_year=fail_rate_line,
+            outage_time=outage_time_line,
+        )
+
+        ML2 = Line(
+            "ML2",
+            BM1,
+            BM2,
+            r=0.0047,
+            x=0.0016,
+            fail_rate_density_per_year=fail_rate_line,
+            outage_time=outage_time_line,
+        )
+        ML3 = Line(
+            "ML3",
+            BM1,
+            BM3,
+            r=0.0047,
+            x=0.0016,
+            fail_rate_density_per_year=fail_rate_line,
+            outage_time=outage_time_line,
+        )
+        ML4 = Line(
+            "ML4",
+            BM1,
+            BM4,
+            r=0.0047,
+            x=0.0016,
+            fail_rate_density_per_year=fail_rate_line,
+            outage_time=outage_time_line,
+        )
+
+        E2 = CircuitBreaker("E2", ML1)
+
+        DML1a = Disconnector("ML1a", ML1, B33, E2)
+        DML1b = Disconnector("ML1b", ML1, BM1, E2)
+        DML1c = Disconnector("ML1c", ML1, BM1)
+        DML2a = Disconnector("ML2a", ML2, BM1)
+        DML2b = Disconnector("ML2b", ML2, BM2)
+        DML3a = Disconnector("ML3a", ML3, BM1)
+        DML3b = Disconnector("ML3b", ML3, BM3)
+        DML4a = Disconnector("ML4a", ML4, BM1)
+        DML4b = Disconnector("ML4b", ML4, BM4)
+
+        m = Microgrid(dn, ML1, mode=microgrid_mode)
+        m.add_buses([BM1, BM2, BM3, BM4])
+        m.add_lines([ML2, ML3, ML4])
+
+    if include_ICT:
+
+        Sensor("SL1", L1)
+        Sensor("SL2", L2)
+        Sensor("SL3", L3)
+        Sensor("SL4", L4)
+        Sensor("SL5", L5)
+        Sensor("SL6", L6)
+        Sensor("SL7", L7)
+        Sensor("SL8", L8)
+        Sensor("SL9", L9)
+        Sensor("SL10", L10)
+        Sensor("SL11", L11)
+        Sensor("SL12", L12)
+        Sensor("SL13", L13)
+        Sensor("SL14", L14)
+        Sensor("SL15", L15)
+        Sensor("SL16", L16)
+        Sensor("SL17", L17)
+        Sensor("SL18", L18)
+        Sensor("SL19", L19)
+        Sensor("SL20", L20)
+        Sensor("SL21", L21)
+        Sensor("SL22", L22)
+        Sensor("SL23", L23)
+        Sensor("SL24", L24)
+        Sensor("SL25", L25)
+        Sensor("SL26", L26)
+        Sensor("SL27", L27)
+        Sensor("SL28", L28)
+        Sensor("SL29", L29)
+        Sensor("SL30", L30)
+        Sensor("SL31", L31)
+        Sensor("SL32", L32)
+
+        # Backup lines
+        # Sensor("SL33", L33)
+        # Sensor("SL34", L34)
+        # Sensor("SL35", L35)
+        # Sensor("SL36", L36)
+        # Sensor("SL37", L37)
+
+        IntelligentSwitch("ISwL1a", DL1a)
+        IntelligentSwitch("ISwL1b", DL1b)
+        IntelligentSwitch("ISwL1c", DL1c)
+        IntelligentSwitch("ISwL2a", DL2a)
+        IntelligentSwitch("ISwL2b", DL2b)
+        IntelligentSwitch("ISwL3a", DL3a)
+        IntelligentSwitch("ISwL3b", DL3b)
+        IntelligentSwitch("ISwL4a", DL4a)
+        IntelligentSwitch("ISwL4b", DL4b)
+        IntelligentSwitch("ISwL5a", DL5a)
+        IntelligentSwitch("ISwL5b", DL5b)
+        IntelligentSwitch("ISwL6a", DL6a)
+        IntelligentSwitch("ISwL6b", DL6b)
+        IntelligentSwitch("ISwL7a", DL7a)
+        IntelligentSwitch("ISwL7b", DL7b)
+        IntelligentSwitch("ISwL8a", DL8a)
+        IntelligentSwitch("ISwL8b", DL8b)
+        IntelligentSwitch("ISwL9a", DL9a)
+        IntelligentSwitch("ISwL9b", DL9b)
+        IntelligentSwitch("ISwL10a", DL10a)
+        IntelligentSwitch("ISwL10b", DL10b)
+        IntelligentSwitch("ISwL11a", DL11a)
+        IntelligentSwitch("ISwL11b", DL11b)
+        IntelligentSwitch("ISwL12a", DL12a)
+        IntelligentSwitch("ISwL12b", DL12b)
+        IntelligentSwitch("ISwL13a", DL13a)
+        IntelligentSwitch("ISwL13b", DL13b)
+        IntelligentSwitch("ISwL14a", DL14a)
+        IntelligentSwitch("ISwL14b", DL14b)
+        IntelligentSwitch("ISwL15a", DL15a)
+        IntelligentSwitch("ISwL15b", DL15b)
+        IntelligentSwitch("ISwL16a", DL16a)
+        IntelligentSwitch("ISwL16b", DL16b)
+        IntelligentSwitch("ISwL17a", DL17a)
+        IntelligentSwitch("ISwL17b", DL17b)
+        IntelligentSwitch("ISwL18a", DL18a)
+        IntelligentSwitch("ISwL18b", DL18b)
+        IntelligentSwitch("ISwL19a", DL19a)
+        IntelligentSwitch("ISwL19b", DL19b)
+        IntelligentSwitch("ISwL20a", DL20a)
+        IntelligentSwitch("ISwL20b", DL20b)
+        IntelligentSwitch("ISwL21a", DL21a)
+        IntelligentSwitch("ISwL21b", DL21b)
+        IntelligentSwitch("ISwL22a", DL22a)
+        IntelligentSwitch("ISwL22b", DL22b)
+        IntelligentSwitch("ISwL23a", DL23a)
+        IntelligentSwitch("ISwL23b", DL23b)
+        IntelligentSwitch("ISwL24a", DL24a)
+        IntelligentSwitch("ISwL24b", DL24b)
+        IntelligentSwitch("ISwL25a", DL25a)
+        IntelligentSwitch("ISwL25b", DL25b)
+        IntelligentSwitch("ISwL26a", DL26a)
+        IntelligentSwitch("ISwL26b", DL26b)
+        IntelligentSwitch("ISwL27a", DL27a)
+        IntelligentSwitch("ISwL27b", DL27b)
+        IntelligentSwitch("ISwL28a", DL28a)
+        IntelligentSwitch("ISwL28b", DL28b)
+        IntelligentSwitch("ISwL29a", DL29a)
+        IntelligentSwitch("ISwL29b", DL29b)
+        IntelligentSwitch("ISwL30a", DL30a)
+        IntelligentSwitch("ISwL30b", DL30b)
+        IntelligentSwitch("ISwL31a", DL31a)
+        IntelligentSwitch("ISwL31b", DL31b)
+        IntelligentSwitch("ISwL32a", DL32a)
+        IntelligentSwitch("ISwL32b", DL32b)
+
+        # Backup lines:
+        # IntelligentSwitch("ISwL33a", DL33a)
+        # IntelligentSwitch("ISwL33b", DL33b)
+        # IntelligentSwitch("ISwL34a", DL34a)
+        # IntelligentSwitch("ISwL34b", DL34b)
+        # IntelligentSwitch("ISwL35a", DL35a)
+        # IntelligentSwitch("ISwL35b", DL35b)
+        # IntelligentSwitch("ISwL36a", DL36a)
+        # IntelligentSwitch("ISwL36b", DL36b)
+        # IntelligentSwitch("ISwL37a", DL37a)
+        # IntelligentSwitch("ISwL37b", DL37b)
+
+        if include_microgrid:
+            Sensor("SML1", ML1)
+            Sensor("SML2", ML2)
+            Sensor("SML3", ML3)
+            Sensor("SML4", ML4)
+
+            IntelligentSwitch("ISwML1a", DML1a)
+            IntelligentSwitch("ISwML1b", DML1b)
+            IntelligentSwitch("ISwML1c", DML1c)
+            IntelligentSwitch("ISwML2a", DML2a)
+            IntelligentSwitch("ISwML2b", DML2b)
+            IntelligentSwitch("ISwML3a", DML3a)
+            IntelligentSwitch("ISwML3b", DML3b)
+            IntelligentSwitch("ISwML4a", DML4a)
+            IntelligentSwitch("ISwML4b", DML4b)
+
+    return ps, include_microgrid, include_production
 
 
 if __name__ == "__main__":

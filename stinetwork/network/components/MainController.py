@@ -129,7 +129,7 @@ class MainController(Component):
             self.draw_fail_status(dt)
             if self.state == ControllerState.HARDWARE_FAIL:
                 self.remaining_repair_time = self.manual_hardware_repair_time
-                self.state == ControllerState.REPAIR
+                self.state = ControllerState.REPAIR
             elif self.state == ControllerState.SOFTWARE_FAIL:
                 self.section_time = self.repair_software_fail(dt)
                 self.spread_section_time_to_sub_controllers()

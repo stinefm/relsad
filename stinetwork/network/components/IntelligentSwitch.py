@@ -101,7 +101,6 @@ class IntelligentSwitch(Component):
         if self.state == IntelligentSwitchState.REPAIR:
             return Time(0)
         else:
-            self.draw_fail_status(dt)
             if self.state == IntelligentSwitchState.OK:
                 self.disconnector.open()
                 return Time(0)

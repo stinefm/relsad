@@ -290,23 +290,28 @@ class PowerSystem(Network):
             if bus.load_dict != dict():
                 d_bus = bus  # Dummy bus used to find number of increments
                 n_increments = len(
-                    d_bus.load_dict[list(d_bus.load_dict.keys())[0]][
-                        "pload"
-                    ].flatten()
+                    d_bus.load_dict["load"][
+                        list(d_bus.load_dict["load"].keys())[0]
+                    ]["pload"].flatten()
                 )  # Number of increments
                 break
         for increment in range(n_increments):
             p_load, q_load = 0, 0
             for bus in self.buses:
-                for load_type in bus.load_dict:
-                    p_load += (
-                        bus.load_dict[load_type]["pload"].flatten()[increment]
-                        * bus.n_customers
-                    )
-                    q_load += (
-                        bus.load_dict[load_type]["qload"].flatten()[increment]
-                        * bus.n_customers
-                    )
+                if bus.load_dict != dict():
+                    for load_type in bus.load_dict["load"]:
+                        p_load += (
+                            bus.load_dict["load"][load_type][
+                                "pload"
+                            ].flatten()[increment]
+                            * bus.n_customers
+                        )
+                        q_load += (
+                            bus.load_dict["load"][load_type][
+                                "qload"
+                            ].flatten()[increment]
+                            * bus.n_customers
+                        )
             p_load_max = max(p_load_max, p_load)
             q_load_max = max(q_load_max, q_load)
         return p_load_max, q_load_max

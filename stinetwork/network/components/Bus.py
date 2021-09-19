@@ -79,7 +79,7 @@ class Bus(Component):
         iloss=0,
         pqcostRatio=100,
         is_slack: bool = False,
-        fail_rate_per_year: float = 0.5,
+        fail_rate_per_year: float = 0.007,
         outage_time: Time = Time(8, TimeUnit.HOUR),
         calc_sensitivities: bool = False,
     ):
