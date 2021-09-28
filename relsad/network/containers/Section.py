@@ -67,7 +67,7 @@ class Section:
     def get_disconnect_time(self, dt: Time):
         section_time = Time(0)
         for discon in self.disconnectors:
-            section_time += discon.intelligent_switch.get_disconnect_time(dt)
+            section_time += discon.intelligent_switch.get_open_time(dt)
         for line in self.lines:
             line.remaining_outage_time += section_time
         return section_time
