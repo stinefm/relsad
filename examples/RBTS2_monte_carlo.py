@@ -1,5 +1,5 @@
-from stinetwork.test_networks.RBTS2 import initialize_network
-from stinetwork.simulation import Simulation
+from relsad.test_networks.RBTS2 import initialize_network
+from relsad.simulation import Simulation
 from load_and_gen_data import (
     WeatherGen,
     LoadGen,
@@ -9,7 +9,7 @@ from load_and_gen_data import (
 import time
 import numpy as np
 import os
-from stinetwork.utils import (
+from relsad.utils import (
     Time,
     TimeUnit,
 )

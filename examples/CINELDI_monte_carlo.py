@@ -1,6 +1,6 @@
-from stinetwork.test_networks.CINELDI import initialize_network
-from stinetwork.simulation import Simulation
-from stinetwork.utils import (
+from relsad.test_networks.CINELDI import initialize_network
+from relsad.simulation import Simulation
+from relsad.utils import (
     Time,
     TimeUnit,
 )
@@ -130,7 +130,7 @@ if __name__ == "__main__":
         save_iterations=[1, 10, 20, 30, 40, 50],
         save_dir=save_dir,
         n_procs=4,
-        debug=True,
+        debug=False,
     )
 
     end = time.time()

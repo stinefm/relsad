@@ -1,21 +1,21 @@
-stinetwork.loadflow package
+relsad.loadflow package
 ===========================
 
 Submodules
 ----------
 
-stinetwork.loadflow.ac module
+relsad.loadflow.ac module
 -----------------------------
 
-.. automodule:: stinetwork.loadflow.ac
+.. automodule:: relsad.loadflow.ac
    :members:
    :undoc-members:
    :show-inheritance:
 
-stinetwork.loadflow.dc module
+relsad.loadflow.dc module
 -----------------------------
 
-.. automodule:: stinetwork.loadflow.dc
+.. automodule:: relsad.loadflow.dc
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ stinetwork.loadflow.dc module
 Module contents
 ---------------
 
-.. automodule:: stinetwork.loadflow
+.. automodule:: relsad.loadflow
    :members:
    :undoc-members:
    :show-inheritance:

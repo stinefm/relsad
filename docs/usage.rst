@@ -2,6 +2,6 @@
 Usage
 =====
 
-To use stinetwork in a project::
+To use relsad in a project::
 
-    import stinetwork
+    import relsad

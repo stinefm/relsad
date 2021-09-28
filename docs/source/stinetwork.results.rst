@@ -1,13 +1,13 @@
-stinetwork.results package
+relsad.results package
 ==========================
 
 Submodules
 ----------
 
-stinetwork.results.storage module
+relsad.results.storage module
 ---------------------------------
 
-.. automodule:: stinetwork.results.storage
+.. automodule:: relsad.results.storage
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ stinetwork.results.storage module
 Module contents
 ---------------
 
-.. automodule:: stinetwork.results
+.. automodule:: relsad.results
    :members:
    :undoc-members:
    :show-inheritance:

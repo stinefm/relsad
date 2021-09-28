@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "stinetwork"
+name = "relsad"
 version = "0.0.1"
 description = "A package that facilitates reliability investigations in power systems"
 authors = ["Stine Fleischer Myhre"]

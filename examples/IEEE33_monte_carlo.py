@@ -1,7 +1,7 @@
-from stinetwork.test_networks.IEEE33 import initialize_network
-from stinetwork.visualization.plotting import plot_topology
-from stinetwork.simulation import Simulation
-from stinetwork.utils import (
+from relsad.test_networks.IEEE33 import initialize_network
+from relsad.visualization.plotting import plot_topology
+from relsad.simulation import Simulation
+from relsad.utils import (
     Time,
     TimeUnit,
 )
@@ -228,7 +228,7 @@ if __name__ == "__main__":
     sim = Simulation(ps, random_seed=0)
 
     sim.run_monte_carlo(
-        iterations=10,
+        iterations=1,
         increments=8760,
         time_step=Time(1, TimeUnit.HOUR),
         time_unit=TimeUnit.HOUR,
@@ -237,6 +237,7 @@ if __name__ == "__main__":
         save_iterations=[1, 10, 20, 30, 40, 50, 100],
         save_dir=save_dir,
         n_procs=4,
+        debug=True,
     )
 
     end = time.time()

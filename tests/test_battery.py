@@ -1,5 +1,5 @@
-from stinetwork.network.components import Bus, Battery
-from stinetwork.utils import eq
+from relsad.network.components import Bus, Battery
+from relsad.utils import eq
 
 
 def test_charge_from_min():

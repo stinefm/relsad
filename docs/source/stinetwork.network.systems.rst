@@ -1,45 +1,45 @@
-stinetwork.network.systems package
+relsad.network.systems package
 ==================================
 
 Submodules
 ----------
 
-stinetwork.network.systems.Distribution module
+relsad.network.systems.Distribution module
 ----------------------------------------------
 
-.. automodule:: stinetwork.network.systems.Distribution
+.. automodule:: relsad.network.systems.Distribution
    :members:
    :undoc-members:
    :show-inheritance:
 
-stinetwork.network.systems.Microgrid module
+relsad.network.systems.Microgrid module
 -------------------------------------------
 
-.. automodule:: stinetwork.network.systems.Microgrid
+.. automodule:: relsad.network.systems.Microgrid
    :members:
    :undoc-members:
    :show-inheritance:
 
-stinetwork.network.systems.Network module
+relsad.network.systems.Network module
 -----------------------------------------
 
-.. automodule:: stinetwork.network.systems.Network
+.. automodule:: relsad.network.systems.Network
    :members:
    :undoc-members:
    :show-inheritance:
 
-stinetwork.network.systems.PowerSystem module
+relsad.network.systems.PowerSystem module
 ---------------------------------------------
 
-.. automodule:: stinetwork.network.systems.PowerSystem
+.. automodule:: relsad.network.systems.PowerSystem
    :members:
    :undoc-members:
    :show-inheritance:
 
-stinetwork.network.systems.Transmission module
+relsad.network.systems.Transmission module
 ----------------------------------------------
 
-.. automodule:: stinetwork.network.systems.Transmission
+.. automodule:: relsad.network.systems.Transmission
    :members:
    :undoc-members:
    :show-inheritance:
@@ -47,7 +47,7 @@ stinetwork.network.systems.Transmission module
 Module contents
 ---------------
 
-.. automodule:: stinetwork.network.systems
+.. automodule:: relsad.network.systems
    :members:
    :undoc-members:
    :show-inheritance:

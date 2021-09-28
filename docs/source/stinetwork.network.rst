@@ -1,4 +1,4 @@
-stinetwork.network package
+relsad.network package
 ==========================
 
 Subpackages
@@ -7,13 +7,13 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   stinetwork.network.components
-   stinetwork.network.systems
+   relsad.network.components
+   relsad.network.systems
 
 Module contents
 ---------------
 
-.. automodule:: stinetwork.network
+.. automodule:: relsad.network
    :members:
    :undoc-members:
    :show-inheritance:

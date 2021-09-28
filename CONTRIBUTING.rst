@@ -15,7 +15,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/stinefm/stinetwork/issues.
+Report bugs at https://github.com/stinefm/relsad/issues.
 
 If you are reporting a bug, please include:
 
@@ -38,14 +38,14 @@ and "help wanted" is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-stinetwork could always use more documentation, whether as part of the
-official stinetwork docs, in docstrings, or even on the web in blog posts,
+relsad could always use more documentation, whether as part of the
+official relsad docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/stinefm/stinetwork/issues.
+The best way to send feedback is to file an issue at https://github.com/stinefm/relsad/issues.
 
 If you are proposing a feature:
 
@@ -57,21 +57,21 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `stinetwork` for local development.
+Ready to contribute? Here's how to set up `relsad` for local development.
 
-1. Fork the `stinetwork` repo on GitHub.
+1. Fork the `relsad` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/stinetwork.git
+    $ git clone git@github.com:your_name_here/relsad.git
 
 3. Install your local copy (it is recommended to do this with a virtual environment). The method of installation will depend on the packaging library being used.
-   For example, if `setuptools` is being used (a setup.py file is present), install stinetwork with:
+   For example, if `setuptools` is being used (a setup.py file is present), install relsad with:
 
    .. code-block:: console
 
        $ python setup.py install
 
-   If `poetry` is being used (poetry.lock and pyproject.toml files are present), install stinetwork with:
+   If `poetry` is being used (poetry.lock and pyproject.toml files are present), install relsad with:
 
    .. code-block:: console
 
@@ -84,8 +84,8 @@ Ready to contribute? Here's how to set up `stinetwork` for local development.
 5. When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.
    For example, if the package uses the poetry package management library, black and flake8 formatting style and pytest for testing::
 
-    $ poetry run black stinetwork examples
-    $ poetry run flake8 stinetwork examples
+    $ poetry run black relsad examples
+    $ poetry run flake8 relsad examples
     $ poetry run pytest
 
 6. Commit your changes and push your branch to GitHub::
@@ -107,4 +107,4 @@ Before you submit a pull request, check that it meets these guidelines:
 
 Code of Conduct
 ---------------
-Please note that the stinetwork project is released with a Contributor Code of Conduct. By contributing to this project you agree to abide by its terms.
+Please note that the relsad project is released with a Contributor Code of Conduct. By contributing to this project you agree to abide by its terms.

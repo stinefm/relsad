@@ -1,13 +1,13 @@
-stinetwork.topology package
+relsad.topology package
 ===========================
 
 Submodules
 ----------
 
-stinetwork.topology.paths module
+relsad.topology.paths module
 --------------------------------
 
-.. automodule:: stinetwork.topology.paths
+.. automodule:: relsad.topology.paths
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ stinetwork.topology.paths module
 Module contents
 ---------------
 
-.. automodule:: stinetwork.topology
+.. automodule:: relsad.topology
    :members:
    :undoc-members:
    :show-inheritance:

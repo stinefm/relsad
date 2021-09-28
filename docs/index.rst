@@ -1,4 +1,4 @@
-Welcome to stinetwork's documentation!
+Welcome to relsad's documentation!
 ===========================================================
 
 .. image:: https://img.shields.io/badge/tutorial-py--pkgs-blue

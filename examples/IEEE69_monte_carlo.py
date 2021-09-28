@@ -1,7 +1,7 @@
-from stinetwork.test_networks.IEEE69 import initialize_network
-from stinetwork.visualization.plotting import plot_topology
-from stinetwork.utils import random_instance
-from stinetwork.simulation import Simulation
+from relsad.test_networks.IEEE69 import initialize_network
+from relsad.visualization.plotting import plot_topology
+from relsad.utils import random_instance
+from relsad.simulation import Simulation
 from load_and_gen_data import (
     WeatherGen,
     LoadGen,

@@ -1,21 +1,21 @@
-stinetwork.visualization package
+relsad.visualization package
 ================================
 
 Submodules
 ----------
 
-stinetwork.visualization.plotting module
+relsad.visualization.plotting module
 ----------------------------------------
 
-.. automodule:: stinetwork.visualization.plotting
+.. automodule:: relsad.visualization.plotting
    :members:
    :undoc-members:
    :show-inheritance:
 
-stinetwork.visualization.printing module
+relsad.visualization.printing module
 ----------------------------------------
 
-.. automodule:: stinetwork.visualization.printing
+.. automodule:: relsad.visualization.printing
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ stinetwork.visualization.printing module
 Module contents
 ---------------
 
-.. automodule:: stinetwork.visualization
+.. automodule:: relsad.visualization
    :members:
    :undoc-members:
    :show-inheritance:

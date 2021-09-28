@@ -1,4 +1,4 @@
-stinetwork package
+relsad package
 ==================
 
 Subpackages
@@ -7,28 +7,28 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   stinetwork.loadflow
-   stinetwork.network
-   stinetwork.results
-   stinetwork.test_networks
-   stinetwork.topology
-   stinetwork.visualization
+   relsad.loadflow
+   relsad.network
+   relsad.results
+   relsad.test_networks
+   relsad.topology
+   relsad.visualization
 
 Submodules
 ----------
 
-stinetwork.reliability module
+relsad.reliability module
 -----------------------------
 
-.. automodule:: stinetwork.reliability
+.. automodule:: relsad.reliability
    :members:
    :undoc-members:
    :show-inheritance:
 
-stinetwork.utils module
+relsad.utils module
 -----------------------
 
-.. automodule:: stinetwork.utils
+.. automodule:: relsad.utils
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ stinetwork.utils module
 Module contents
 ---------------
 
-.. automodule:: stinetwork
+.. automodule:: relsad
    :members:
    :undoc-members:
    :show-inheritance:

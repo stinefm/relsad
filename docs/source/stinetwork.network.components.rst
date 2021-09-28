@@ -1,61 +1,61 @@
-stinetwork.network.components package
+relsad.network.components package
 =====================================
 
 Submodules
 ----------
 
-stinetwork.network.components.Battery module
+relsad.network.components.Battery module
 --------------------------------------------
 
-.. automodule:: stinetwork.network.components.Battery
+.. automodule:: relsad.network.components.Battery
    :members:
    :undoc-members:
    :show-inheritance:
 
-stinetwork.network.components.Bus module
+relsad.network.components.Bus module
 ----------------------------------------
 
-.. automodule:: stinetwork.network.components.Bus
+.. automodule:: relsad.network.components.Bus
    :members:
    :undoc-members:
    :show-inheritance:
 
-stinetwork.network.components.Circuitbreaker module
+relsad.network.components.Circuitbreaker module
 ---------------------------------------------------
 
-.. automodule:: stinetwork.network.components.Circuitbreaker
+.. automodule:: relsad.network.components.Circuitbreaker
    :members:
    :undoc-members:
    :show-inheritance:
 
-stinetwork.network.components.Component module
+relsad.network.components.Component module
 ----------------------------------------------
 
-.. automodule:: stinetwork.network.components.Component
+.. automodule:: relsad.network.components.Component
    :members:
    :undoc-members:
    :show-inheritance:
 
-stinetwork.network.components.Disconnector module
+relsad.network.components.Disconnector module
 -------------------------------------------------
 
-.. automodule:: stinetwork.network.components.Disconnector
+.. automodule:: relsad.network.components.Disconnector
    :members:
    :undoc-members:
    :show-inheritance:
 
-stinetwork.network.components.Line module
+relsad.network.components.Line module
 -----------------------------------------
 
-.. automodule:: stinetwork.network.components.Line
+.. automodule:: relsad.network.components.Line
    :members:
    :undoc-members:
    :show-inheritance:
 
-stinetwork.network.components.Production module
+relsad.network.components.Production module
 -----------------------------------------------
 
-.. automodule:: stinetwork.network.components.Production
+.. automodule:: relsad.network.components.Production
    :members:
    :undoc-members:
    :show-inheritance:
@@ -63,7 +63,7 @@ stinetwork.network.components.Production module
 Module contents
 ---------------
 
-.. automodule:: stinetwork.network.components
+.. automodule:: relsad.network.components
    :members:
    :undoc-members:
    :show-inheritance:

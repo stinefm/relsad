@@ -1,5 +1,5 @@
-from stinetwork.test_networks.CINELDI import initialize_network
-from stinetwork.network.systems import find_sub_systems
+from relsad.test_networks.CINELDI import initialize_network
+from relsad.network.systems import find_sub_systems
 
 
 class MyError(Exception):

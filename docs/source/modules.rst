@@ -1,7 +1,7 @@
-stinetwork
+relsad
 ==========
 
 .. toctree::
    :maxdepth: 4
 
-   stinetwork
+   relsad
