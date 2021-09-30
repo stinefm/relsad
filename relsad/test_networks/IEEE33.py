@@ -27,8 +27,8 @@ from relsad.utils import (
 def initialize_network():
 
     include_microgrid = False
-    include_production = False
-    include_ICT = False
+    include_production = True
+    include_ICT = True
 
     if include_ICT:
         C1 = MainController(
@@ -1021,7 +1021,7 @@ def initialize_network():
 if __name__ == "__main__":
     import os
 
-    ps = initialize_network()
+    ps, _, _ = initialize_network()
     fig = plot_topology(ps.buses, ps.lines)
 
     fig.savefig(
