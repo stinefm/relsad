@@ -55,12 +55,12 @@ class Bus(Component):
 
     ## Visual attributes
     marker = "|"
-    size = 5 ** 2
+    size = 4 ** 2
     handle = mlines.Line2D(
         [],
         [],
         marker=marker,
-        markeredgewidth=3,
+        markeredgewidth=2,
         markersize=size,
         linestyle="None",
     )

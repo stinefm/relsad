@@ -20,6 +20,7 @@ class IntelligentSwitchState(Enum):
 class IntelligentSwitch(Component):
 
     ## Visual attributes
+    color = "seagreen"
     marker = "x"
     size = 2 ** 2
     handle = mlines.Line2D(
@@ -28,9 +29,9 @@ class IntelligentSwitch(Component):
         marker=marker,
         markeredgewidth=1,
         markersize=size,
+        color=color,
         linestyle="None",
     )
-    color = "orange"
 
     ## Random instance
     ps_random: np.random.Generator = None

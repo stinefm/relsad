@@ -20,6 +20,7 @@ class SensorState(Enum):
 class Sensor(Component):
 
     ## Visual attributes
+    color = "rosybrown"
     marker = "s"
     size = 2 ** 2
     handle = mlines.Line2D(
@@ -28,9 +29,9 @@ class Sensor(Component):
         marker=marker,
         markeredgewidth=1,
         markersize=size,
+        color=color,
         linestyle="None",
     )
-    color = "red"
 
     ## Random instance
     ps_random: np.random.Generator = None

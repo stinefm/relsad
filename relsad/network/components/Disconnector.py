@@ -72,7 +72,7 @@ class Disconnector(Component):
         [],
         [],
         marker=marker,
-        markeredgewidth=3,
+        markeredgewidth=2,
         markersize=size,
         linestyle="None",
         color=color,

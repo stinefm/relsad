@@ -47,7 +47,7 @@ def initialize_network():
     outage_time_trafo = Time(8, TimeUnit.HOUR)  # hours
     outage_time_line = Time(4, TimeUnit.HOUR)  # hours
 
-    B1 = Bus("B1", n_customers=0, coordinate=[0, 0], fail_rate_per_year=0)
+    B1 = Bus("B1", n_customers=0, coordinate=[-1, 0], fail_rate_per_year=0)
     B2 = Bus(
         "B2",
         n_customers=1,
@@ -1022,7 +1022,11 @@ if __name__ == "__main__":
     import os
 
     ps, _, _ = initialize_network()
-    fig = plot_topology(ps.buses, ps.lines)
+    fig = plot_topology(
+        buses=ps.buses, 
+        lines=ps.lines,
+        figsize=(8,2),
+    )
 
     fig.savefig(
         os.path.join(
