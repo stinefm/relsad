@@ -78,10 +78,12 @@ class MicrogridController(Component):
                     if not self.network.distribution_network.failed_line:
                         self.disconnect_failed_sections()
                         self.network.connected_line.circuitbreaker.close()
+                        self.network.connected_line.section.connect_manually()
                         self.failed_sections = []
                 else:
                     self.disconnect_failed_sections()
                     self.network.connected_line.circuitbreaker.close()
+                    self.network.connected_line.section.connect_manually()
                     self.failed_sections = []
 
     def disconnect_failed_sections(self):

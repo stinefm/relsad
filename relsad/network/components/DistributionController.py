@@ -69,6 +69,7 @@ class DistributionController(Component):
             ):
                 self.disconnect_failed_sections()
                 self.network.connected_line.circuitbreaker.close()
+                self.network.connected_line.section.connect_manually()
                 self.failed_sections = []
 
     def disconnect_failed_sections(self):
