@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     start = time.time()
 
-    ps = initialize_network()
+    ps, include_microgrid, include_production = initialize_network()
 
     # Fetching bus-objects
     T = ps.get_comp("T")
@@ -27,9 +27,10 @@ if __name__ == "__main__":
     B3 = ps.get_comp("B3")
     B4 = ps.get_comp("B4")
     B5 = ps.get_comp("B5")
-    M1 = ps.get_comp("M1")
-    M2 = ps.get_comp("M2")
-    M3 = ps.get_comp("M3")
+    if include_microgrid:
+        M1 = ps.get_comp("M1")
+        M2 = ps.get_comp("M2")
+        M3 = ps.get_comp("M3")
 
     # Fetching line-objects
     L1 = ps.get_comp("L1")
@@ -38,9 +39,10 @@ if __name__ == "__main__":
     L4 = ps.get_comp("L4")
     L5 = ps.get_comp("L5")
     L6 = ps.get_comp("L6")
-    L7 = ps.get_comp("L7")
-    ML1 = ps.get_comp("ML1")
-    ML2 = ps.get_comp("ML2")
+    if include_microgrid:
+        L7 = ps.get_comp("L7")
+        ML1 = ps.get_comp("ML1")
+        ML2 = ps.get_comp("ML2")
 
     # Fetching disconnector objects
     L1a = ps.get_comp("L1a")
@@ -52,13 +54,14 @@ if __name__ == "__main__":
     L4a = ps.get_comp("L4a")
     L5a = ps.get_comp("L5a")
     L6a = ps.get_comp("L6a")
-    L7a = ps.get_comp("L7a")
-    L7b = ps.get_comp("L7b")
+    if include_microgrid:
+        L7a = ps.get_comp("L7a")
+        L7b = ps.get_comp("L7b")
 
-    # Fetching battery and production objects
-    Bat1 = M1.get_battery()
-    P1 = M2.get_production()
-    # P2 = B5.get_production()
+        # Fetching battery and production objects
+        Bat1 = M1.get_battery()
+        P1 = M2.get_production()
+        # P2 = B5.get_production()
 
     temp_profiles, wind_profiles, solar_profiles = WeatherGen()
 
@@ -103,34 +106,37 @@ if __name__ == "__main__":
     load_dict["load"][B5] = {
         "Husholdning": {"pload": load_office, "qload": load_house * 0}
     }
-    load_dict["load"][M1] = {
-        "Husholdning": {"pload": load_house, "qload": load_house * 0}
-    }
-    load_dict["load"][M2] = {
-        "Husholdning": {"pload": load_house, "qload": load_house * 0}
-    }
-    load_dict["load"][M3] = {
-        "Microgrid": {"pload": load_microgrid, "qload": load_microgrid * 0}
-    }
 
     prod_dict = dict()
 
-    prod_dict[P1] = {"pprod": (PV + wind), "qprod": PV * 0}
+    if include_microgrid:
+        load_dict["load"][M1] = {
+            "Husholdning": {"pload": load_house, "qload": load_house * 0}
+        }
+        load_dict["load"][M2] = {
+            "Husholdning": {"pload": load_house, "qload": load_house * 0}
+        }
+        load_dict["load"][M3] = {
+            "Microgrid": {"pload": load_microgrid, "qload": load_microgrid * 0}
+        }
+        
+        if include_production:
+            prod_dict[P1] = {"pprod": (PV + wind), "qprod": PV * 0}
 
     save_dir = r"test_CINELDI"
 
     sim = Simulation(ps, random_seed=3)
     sim.run_monte_carlo(
-        iterations=50,
+        iterations=1,
         increments=8760,
         time_step=Time(1, TimeUnit.HOUR),
         time_unit=TimeUnit.HOUR,
         load_dict=load_dict,
         prod_dict=prod_dict,
-        save_iterations=[1, 10, 20, 30, 40, 50],
+        save_iterations=[1],
         save_dir=save_dir,
-        n_procs=4,
-        debug=False,
+        n_procs=1,
+        debug=True,
     )
 
     end = time.time()

@@ -35,13 +35,25 @@ def initialize_network():
     p_fail_repair_new_signal = 1 - 0.95
     p_fail_repair_reboot = 1 - 0.9
 
-    C1 = MainController(
-        "C1",
-        hardware_fail_rate_per_year=fail_rate_hardware,
-        software_fail_rate_per_year=fail_rate_software,
-        p_fail_repair_new_signal=p_fail_repair_new_signal,
-        p_fail_repair_reboot=p_fail_repair_reboot,
-    )
+    include_microgrid = True
+    include_production = True
+    include_ICT = False
+
+    if include_ICT:
+        C1 = MainController(
+            "C1",
+            hardware_fail_rate_per_year=fail_rate_hardware,
+            software_fail_rate_per_year=fail_rate_software,
+            p_fail_repair_new_signal=p_fail_repair_new_signal,
+            p_fail_repair_reboot=p_fail_repair_reboot,
+        )
+    else:
+        C1 = ManualMainController(
+            name="C1",
+            section_time=Time(1, TimeUnit.HOUR),
+        )
+
+    
 
     ps = PowerSystem(C1)
 
@@ -80,29 +92,7 @@ def initialize_network():
         fail_rate_per_year=fail_rate_trafo,
     )
 
-    ## Microgridn_customers=,
-    M1 = Bus(
-        "M1",
-        n_customers=0,
-        coordinate=[-1, -2],
-        fail_rate_per_year=fail_rate_trafo,
-    )
-    M2 = Bus(
-        "M2",
-        n_customers=0,
-        coordinate=[-2, -3],
-        fail_rate_per_year=fail_rate_trafo,
-    )
-    M3 = Bus(
-        "M3",
-        n_customers=40,
-        coordinate=[-1, -3],
-        fail_rate_per_year=fail_rate_trafo,
-    )
-
-    Battery("Bat1", M1)
-    Production("P1", M2)
-
+    
     L1 = Line(
         "L1",
         T,
@@ -152,33 +142,11 @@ def initialize_network():
         fail_rate_density_per_year=fail_rate_line,
         capacity=6,
     )
-    L7 = Line(
-        "L7",
-        B1,
-        M1,
-        r=0.057526629463617,
-        x=0.029324854498807,
-        fail_rate_density_per_year=fail_rate_line,
-    )
-    ML1 = Line(
-        "ML1",
-        M1,
-        M2,
-        r=0.057526629463617,
-        x=0.029324854498807,
-        fail_rate_density_per_year=fail_rate_line,
-    )
-    ML2 = Line(
-        "ML2",
-        M1,
-        M3,
-        r=0.057526629463617,
-        x=0.029324854498807,
-        fail_rate_density_per_year=fail_rate_line,
-    )
+    
+    
 
     E1 = CircuitBreaker("E1", L1)
-    E2 = CircuitBreaker("E2", L7)
+    
 
     DL1a = Disconnector("L1a", L1, T, E1)
     DL1b = Disconnector("L1b", L1, B1, E1)
@@ -193,141 +161,6 @@ def initialize_network():
     DL5b = Disconnector("L5b", L5, B5)
     DL6a = Disconnector("L6a", L6, B3)
     DL6b = Disconnector("L6b", L6, B5)
-    DL7a = Disconnector("L7a", L7, B1, E2)
-    DL7b = Disconnector("L7b", L7, M1, E2)
-    DL7c = Disconnector("L7c", L7, M1)
-
-    DML1a = Disconnector("ML1a", ML1, M1)
-    DML1b = Disconnector("ML1b", ML1, M2)
-    DML2a = Disconnector("ML2a", ML2, M1)
-    DML2b = Disconnector("ML2b", ML2, M3)
-
-    Sensor(
-        "SL1",
-        L1,
-        fail_rate_per_year=fail_rate_sensor,
-        p_fail_repair_new_signal=p_fail_repair_new_signal,
-        p_fail_repair_reboot=p_fail_repair_reboot,
-    )
-    Sensor(
-        "SL2",
-        L2,
-        fail_rate_per_year=fail_rate_sensor,
-        p_fail_repair_new_signal=p_fail_repair_new_signal,
-        p_fail_repair_reboot=p_fail_repair_reboot,
-    )
-    Sensor(
-        "SL3",
-        L3,
-        fail_rate_per_year=fail_rate_sensor,
-        p_fail_repair_new_signal=p_fail_repair_new_signal,
-        p_fail_repair_reboot=p_fail_repair_reboot,
-    )
-    Sensor(
-        "SL4",
-        L4,
-        fail_rate_per_year=fail_rate_sensor,
-        p_fail_repair_new_signal=p_fail_repair_new_signal,
-        p_fail_repair_reboot=p_fail_repair_reboot,
-    )
-    Sensor(
-        "SL5",
-        L5,
-        fail_rate_per_year=fail_rate_sensor,
-        p_fail_repair_new_signal=p_fail_repair_new_signal,
-        p_fail_repair_reboot=p_fail_repair_reboot,
-    )
-    Sensor(
-        "SL6",
-        L6,
-        fail_rate_per_year=fail_rate_sensor,
-        p_fail_repair_new_signal=p_fail_repair_new_signal,
-        p_fail_repair_reboot=p_fail_repair_reboot,
-    )
-    Sensor(
-        "SL7",
-        L7,
-        fail_rate_per_year=fail_rate_sensor,
-        p_fail_repair_new_signal=p_fail_repair_new_signal,
-        p_fail_repair_reboot=p_fail_repair_reboot,
-    )
-
-    Sensor(
-        "SML1",
-        ML1,
-        fail_rate_per_year=fail_rate_sensor,
-        p_fail_repair_new_signal=p_fail_repair_new_signal,
-        p_fail_repair_reboot=p_fail_repair_reboot,
-    )
-    Sensor(
-        "SML2",
-        ML2,
-        fail_rate_per_year=fail_rate_sensor,
-        p_fail_repair_new_signal=p_fail_repair_new_signal,
-        p_fail_repair_reboot=p_fail_repair_reboot,
-    )
-
-    IntelligentSwitch(
-        "RL1a", DL1a, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL1b", DL1b, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL1c", DL1c, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL2a", DL2a, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL2b", DL2b, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL3a", DL3a, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL3b", DL3b, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL4a", DL4a, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL4b", DL4b, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL5a", DL5a, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL5b", DL5b, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL6a", DL6a, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL6b", DL6b, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL7a", DL7a, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL7b", DL7b, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RL7c", DL7c, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-
-    IntelligentSwitch(
-        "RML1a", DML1a, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RML1b", DML1b, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RML2a", DML2a, fail_rate_per_year=fail_rate_intelligent_switch
-    )
-    IntelligentSwitch(
-        "RML2b", DML2b, fail_rate_per_year=fail_rate_intelligent_switch
-    )
 
     L6.set_backup()
 
@@ -337,17 +170,211 @@ def initialize_network():
 
     dn.add_buses([B1, B2, B3, B4, B5])
     dn.add_lines([L2, L3, L4, L5, L6])
+    
+    if include_microgrid:
+        M1 = Bus(
+            "M1",
+            n_customers=0,
+            coordinate=[-1, -2],
+            fail_rate_per_year=fail_rate_trafo,
+        )
+        M2 = Bus(
+            "M2",
+            n_customers=0,
+            coordinate=[-2, -3],
+            fail_rate_per_year=fail_rate_trafo,
+        )
+        M3 = Bus(
+            "M3",
+            n_customers=40,
+            coordinate=[-1, -3],
+            fail_rate_per_year=fail_rate_trafo,
+        )
 
-    m = Microgrid(dn, L7, mode=MicrogridMode.FULL_SUPPORT)
+        Battery("Bat1", M1)
+        Production("P1", M2)
 
-    m.add_buses([M1, M2, M3])
-    m.add_lines([ML1, ML2])
+        ML1 = Line(
+            "ML1",
+            M1,
+            M2,
+            r=0.057526629463617,
+            x=0.029324854498807,
+            fail_rate_density_per_year=fail_rate_line,
+        )
+        ML2 = Line(
+            "ML2",
+            M1,
+            M3,
+            r=0.057526629463617,
+            x=0.029324854498807,
+            fail_rate_density_per_year=fail_rate_line,
+        )
 
-    return ps
+        L7 = Line(
+            "L7",
+            B1,
+            M1,
+            r=0.057526629463617,
+            x=0.029324854498807,
+            fail_rate_density_per_year=fail_rate_line,
+        )
+
+        E2 = CircuitBreaker("E2", L7)
+
+        DL7a = Disconnector("L7a", L7, B1, E2)
+        DL7b = Disconnector("L7b", L7, M1, E2)
+        DL7c = Disconnector("L7c", L7, M1)
+        DML1a = Disconnector("ML1a", ML1, M1)
+        DML1b = Disconnector("ML1b", ML1, M2)
+        DML2a = Disconnector("ML2a", ML2, M1)
+        DML2b = Disconnector("ML2b", ML2, M3)
+
+        m = Microgrid(dn, L7, mode=MicrogridMode.SURVIVAL)
+
+        m.add_buses([M1, M2, M3])
+        m.add_lines([ML1, ML2])
+
+    if include_ICT:
+
+        Sensor(
+            "SL1",
+            L1,
+            fail_rate_per_year=fail_rate_sensor,
+            p_fail_repair_new_signal=p_fail_repair_new_signal,
+            p_fail_repair_reboot=p_fail_repair_reboot,
+        )
+        Sensor(
+            "SL2",
+            L2,
+            fail_rate_per_year=fail_rate_sensor,
+            p_fail_repair_new_signal=p_fail_repair_new_signal,
+            p_fail_repair_reboot=p_fail_repair_reboot,
+        )
+        Sensor(
+            "SL3",
+            L3,
+            fail_rate_per_year=fail_rate_sensor,
+            p_fail_repair_new_signal=p_fail_repair_new_signal,
+            p_fail_repair_reboot=p_fail_repair_reboot,
+        )
+        Sensor(
+            "SL4",
+            L4,
+            fail_rate_per_year=fail_rate_sensor,
+            p_fail_repair_new_signal=p_fail_repair_new_signal,
+            p_fail_repair_reboot=p_fail_repair_reboot,
+        )
+        Sensor(
+            "SL5",
+            L5,
+            fail_rate_per_year=fail_rate_sensor,
+            p_fail_repair_new_signal=p_fail_repair_new_signal,
+            p_fail_repair_reboot=p_fail_repair_reboot,
+        )
+        Sensor(
+            "SL6",
+            L6,
+            fail_rate_per_year=fail_rate_sensor,
+            p_fail_repair_new_signal=p_fail_repair_new_signal,
+            p_fail_repair_reboot=p_fail_repair_reboot,
+        )
+        
+
+        IntelligentSwitch(
+            "RL1a", DL1a, fail_rate_per_year=fail_rate_intelligent_switch
+        )
+        IntelligentSwitch(
+            "RL1b", DL1b, fail_rate_per_year=fail_rate_intelligent_switch
+        )
+        IntelligentSwitch(
+            "RL1c", DL1c, fail_rate_per_year=fail_rate_intelligent_switch
+        )
+        IntelligentSwitch(
+            "RL2a", DL2a, fail_rate_per_year=fail_rate_intelligent_switch
+        )
+        IntelligentSwitch(
+            "RL2b", DL2b, fail_rate_per_year=fail_rate_intelligent_switch
+        )
+        IntelligentSwitch(
+            "RL3a", DL3a, fail_rate_per_year=fail_rate_intelligent_switch
+        )
+        IntelligentSwitch(
+            "RL3b", DL3b, fail_rate_per_year=fail_rate_intelligent_switch
+        )
+        IntelligentSwitch(
+            "RL4a", DL4a, fail_rate_per_year=fail_rate_intelligent_switch
+        )
+        IntelligentSwitch(
+            "RL4b", DL4b, fail_rate_per_year=fail_rate_intelligent_switch
+        )
+        IntelligentSwitch(
+            "RL5a", DL5a, fail_rate_per_year=fail_rate_intelligent_switch
+        )
+        IntelligentSwitch(
+            "RL5b", DL5b, fail_rate_per_year=fail_rate_intelligent_switch
+        )
+        IntelligentSwitch(
+            "RL6a", DL6a, fail_rate_per_year=fail_rate_intelligent_switch
+        )
+        IntelligentSwitch(
+            "RL6b", DL6b, fail_rate_per_year=fail_rate_intelligent_switch
+        )
+
+        if include_microgrid:
+
+            Sensor(
+                "SL7",
+                L7,
+                fail_rate_per_year=fail_rate_sensor,
+                p_fail_repair_new_signal=p_fail_repair_new_signal,
+                p_fail_repair_reboot=p_fail_repair_reboot,
+            )
+
+            Sensor(
+                "SML1",
+                ML1,
+                fail_rate_per_year=fail_rate_sensor,
+                p_fail_repair_new_signal=p_fail_repair_new_signal,
+                p_fail_repair_reboot=p_fail_repair_reboot,
+            )
+            Sensor(
+                "SML2",
+                ML2,
+                fail_rate_per_year=fail_rate_sensor,
+                p_fail_repair_new_signal=p_fail_repair_new_signal,
+                p_fail_repair_reboot=p_fail_repair_reboot,
+            )
+
+        
+            IntelligentSwitch(
+                "RL7a", DL7a, fail_rate_per_year=fail_rate_intelligent_switch
+            )
+            IntelligentSwitch(
+                "RL7b", DL7b, fail_rate_per_year=fail_rate_intelligent_switch
+            )
+            IntelligentSwitch(
+                "RL7c", DL7c, fail_rate_per_year=fail_rate_intelligent_switch
+            )
+
+            IntelligentSwitch(
+                "RML1a", DML1a, fail_rate_per_year=fail_rate_intelligent_switch
+            )
+            IntelligentSwitch(
+                "RML1b", DML1b, fail_rate_per_year=fail_rate_intelligent_switch
+            )
+            IntelligentSwitch(
+                "RML2a", DML2a, fail_rate_per_year=fail_rate_intelligent_switch
+            )
+            IntelligentSwitch(
+                "RML2b", DML2b, fail_rate_per_year=fail_rate_intelligent_switch
+            )
+
+    return ps, include_microgrid, include_production
 
 
 if __name__ == "__main__":
-    ps = initialize_network()
+    ps, _, _ = initialize_network()
     fig = plot_topology(ps.buses, ps.lines)
 
     fig.savefig(
