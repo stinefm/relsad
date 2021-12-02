@@ -17,6 +17,7 @@ from relsad.results.storage import (
 from relsad.simulation.sequence.history import (
     save_power_system_history,
     save_bus_history,
+    save_ev_park_history,
     save_battery_history,
     save_line_history,
     save_circuitbreaker_history,
@@ -173,6 +174,10 @@ def save_iteration_history(power_system: PowerSystem, it: int, save_dir: str):
     save_bus_history(
         power_system.buses, os.path.join(save_dir, str(it), "bus")
     )
+    if len(power_system.ev_parks) > 0:
+        save_ev_park_history(
+            power_system.ev_parks, os.path.join(save_dir, str(it), "ev_parks")
+        )
     if len(power_system.batteries) > 0:
         save_battery_history(
             power_system.batteries, os.path.join(save_dir, str(it), "battery")

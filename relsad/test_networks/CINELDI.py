@@ -5,6 +5,7 @@ from relsad.network.components import (
     Line,
     Disconnector,
     CircuitBreaker,
+    EVPark,
     Battery,
     Production,
     MainController,
@@ -35,9 +36,10 @@ def initialize_network():
     p_fail_repair_new_signal = 1 - 0.95
     p_fail_repair_reboot = 1 - 0.9
 
-    include_microgrid = True
-    include_production = True
+    include_microgrid = False
+    include_production = False
     include_ICT = False
+    include_ev = True
 
     if include_ICT:
         C1 = MainController(
@@ -168,8 +170,7 @@ def initialize_network():
 
     dn = Distribution(tn, L1)
 
-    dn.add_buses([B1, B2, B3, B4, B5])
-    dn.add_lines([L2, L3, L4, L5, L6])
+    
     
     if include_microgrid:
         M1 = Bus(
@@ -369,6 +370,16 @@ def initialize_network():
             IntelligentSwitch(
                 "RML2b", DML2b, fail_rate_per_year=fail_rate_intelligent_switch
             )
+
+    if include_ev:
+        EVPark(
+            name="EV1",
+            bus=B5,
+            max_num_ev=5,
+        )
+    
+    dn.add_buses([B1, B2, B3, B4, B5])
+    dn.add_lines([L2, L3, L4, L5, L6])
 
     return ps, include_microgrid, include_production
 

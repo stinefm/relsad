@@ -13,6 +13,7 @@ from .Bus import *
 from .Line import *
 from .Circuitbreaker import *
 from .Disconnector import *
+from .EVPark import *
 from .Battery import *
 from .Production import *
 from .MainController import *

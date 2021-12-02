@@ -98,6 +98,7 @@ class Battery(Component):
         SOC_min: float = 0.1,
         SOC_max: float = 1,
         n_battery: float = 0.95,
+        ev_flag: bool = False,
     ):
 
         """
@@ -157,7 +158,8 @@ class Battery(Component):
         self.standard_SOC_min = SOC_min
 
         self.bus = bus
-        bus.battery = self
+        if ev_flag is not True:
+            bus.battery = self
 
         self.inj_p_max = inj_p_max  # MW
         self.inj_q_max = inj_q_max  # MVar

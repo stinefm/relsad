@@ -35,6 +35,7 @@ class SubSystem:
         self.slack = None
         # Components
         self.buses = list()
+        self.ev_parks = list()
         self.batteries = list()
         self.productions = list()
         self.lines = list()
@@ -71,6 +72,11 @@ class SubSystem:
         self.comp_list.append(bus)
         self.buses.append(bus)
         self.buses = unique(self.buses)
+        if bus.ev_park is not None:
+            self.comp_dict[bus.ev_park.name] = bus.ev_park
+            self.comp_list.append(bus.ev_park)
+            self.ev_parks.append(bus.ev_park)
+            self.ev_parks = unique(self.ev_parks)
         if bus.battery is not None:
             self.comp_dict[bus.battery.name] = bus.battery
             self.comp_list.append(bus.battery)
@@ -151,6 +157,14 @@ class SubSystem:
         p, q = self.get_system_load_balance()
         for battery in self.batteries:
             p, q = battery.update(p, q, fail_duration, dt)
+
+    def update_ev_parks(self, fail_duration: Time, dt: Time):
+        """
+        Updates the EV parks in the power system
+        """
+        p, q = self.get_system_load_balance()
+        for ev_park in self.ev_parks:
+            p, q = ev_park.update(p, q, fail_duration, dt)
 
     def reset_load_flow_data(self):
         """

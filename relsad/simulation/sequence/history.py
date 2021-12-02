@@ -247,6 +247,28 @@ def save_bus_history(buses, save_dir: str):
     for state_var in whole_state_list:
         save_history(buses, state_var, save_dir)
 
+def plot_ev_park_history(ev_parks, save_dir: str):
+    """
+    Plots the history of the ev_park in the power system
+    """
+    whole_state_list = [
+        "SOC",
+        "ev_index",
+    ]
+    for state_var in whole_state_list:
+        plot_history(ev_parks, state_var, save_dir)
+
+
+def save_ev_park_history(ev_parks, save_dir: str):
+    """
+    Saves the history of the ev_park in the power system
+    """
+    whole_state_list = [
+        "SOC",
+        "ev_index",
+    ]
+    for state_var in whole_state_list:
+        save_history(ev_parks, state_var, save_dir)
 
 def plot_battery_history(batteries, save_dir: str):
     """

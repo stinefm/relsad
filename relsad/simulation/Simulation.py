@@ -77,6 +77,8 @@ class Simulation:
             update_sub_system_slack(self.power_system)
             ## Load flow
             for sub_system in self.power_system.sub_systems:
+                ## Update EV parks
+                sub_system.update_ev_parks(self.fail_duration, dt)
                 ## Update batteries and history
                 sub_system.update_batteries(self.fail_duration, dt)
                 ## Run load flow

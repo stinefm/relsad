@@ -122,8 +122,9 @@ class Bus(Component):
         self.curr_interruptions = 0
         self.acc_interruptions = 0
 
-        ## Production and battery
+        ## Production, EV park and battery
         self.prod = None
+        self.ev_park = None
         self.battery = None
 
         ## History
