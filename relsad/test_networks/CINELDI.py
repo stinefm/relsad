@@ -104,6 +104,8 @@ def initialize_network():
         r=0.057526629463617,
         x=0.029324854498807,
         fail_rate_density_per_year=fail_rate_line,
+        min_outage_time=Time(30,TimeUnit.MINUTE),
+        max_outage_time=Time(2,TimeUnit.HOUR),
     )
     L2 = Line(
         "L2",
@@ -112,6 +114,8 @@ def initialize_network():
         r=0.057526629463617,
         x=0.029324854498807,
         fail_rate_density_per_year=fail_rate_line,
+        min_outage_time=Time(30,TimeUnit.MINUTE),
+        max_outage_time=Time(2,TimeUnit.HOUR),
     )
     L3 = Line(
         "L3",
@@ -120,6 +124,8 @@ def initialize_network():
         r=0.7114,
         x=0.2351,
         fail_rate_density_per_year=fail_rate_line,
+        min_outage_time=Time(30,TimeUnit.MINUTE),
+        max_outage_time=Time(2,TimeUnit.HOUR),
     )
     L4 = Line(
         "L4",
@@ -128,6 +134,8 @@ def initialize_network():
         r=0.7114,
         x=0.2351,
         fail_rate_density_per_year=fail_rate_line,
+        min_outage_time=Time(30,TimeUnit.MINUTE),
+        max_outage_time=Time(2,TimeUnit.HOUR),
     )
     L5 = Line(
         "L5",
@@ -136,6 +144,8 @@ def initialize_network():
         r=0.7114,
         x=0.2351,
         fail_rate_density_per_year=fail_rate_line,
+        min_outage_time=Time(30,TimeUnit.MINUTE),
+        max_outage_time=Time(2,TimeUnit.HOUR),
     )
 
     if include_backup: 
@@ -146,6 +156,8 @@ def initialize_network():
             r=0.7114,
             x=0.2351,
             fail_rate_density_per_year=fail_rate_line,
+            min_outage_time=Time(30,TimeUnit.MINUTE),
+            max_outage_time=Time(2,TimeUnit.HOUR),
             capacity=6,
         )
         
@@ -208,6 +220,8 @@ def initialize_network():
             r=0.057526629463617,
             x=0.029324854498807,
             fail_rate_density_per_year=fail_rate_line,
+            min_outage_time=Time(30,TimeUnit.MINUTE),
+            max_outage_time=Time(2,TimeUnit.HOUR),
         )
         ML2 = Line(
             "ML2",
@@ -216,6 +230,8 @@ def initialize_network():
             r=0.057526629463617,
             x=0.029324854498807,
             fail_rate_density_per_year=fail_rate_line,
+            min_outage_time=Time(30,TimeUnit.MINUTE),
+            max_outage_time=Time(2,TimeUnit.HOUR),
         )
 
         L7 = Line(
@@ -225,6 +241,8 @@ def initialize_network():
             r=0.057526629463617,
             x=0.029324854498807,
             fail_rate_density_per_year=fail_rate_line,
+            min_outage_time=Time(30,TimeUnit.MINUTE),
+            max_outage_time=Time(2,TimeUnit.HOUR),
         )
 
         E2 = CircuitBreaker("E2", L7)

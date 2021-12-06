@@ -115,7 +115,8 @@ class Line(Component):
         rho: float = 1.72e-8,  # resistivity [Ohm*m]
         area: float = 64.52e-6,  # cross-sectional area [m**2]
         fail_rate_density_per_year: float = 0.07,
-        outage_time: Time = Time(4, TimeUnit.HOUR),
+        min_outage_time: Time = Time(4, TimeUnit.HOUR),
+        max_outage_time: Time = Time(4, TimeUnit.HOUR),
         capacity: float = 100,  # MW
         connected=True,
     ):
@@ -160,7 +161,8 @@ class Line(Component):
         self.fail_rate_per_year = (
             fail_rate_density_per_year * self.length
         )  # failures per year
-        self.outage_time = outage_time
+        self.min_outage_time = min_outage_time
+        self.max_outage_time = max_outage_time
 
         ## Status attribute
         self.connected = connected
@@ -257,6 +259,15 @@ class Line(Component):
             self.fbus.fromline_list.append(self)
             self.fbus.nextbus.append(self.tbus)
 
+    def draw_outage_time(self):
+        return Time(
+            self.ps_random.uniform(
+                self.min_outage_time.get_hours(),
+                self.max_outage_time.get_hours(),
+            ),
+            TimeUnit.HOUR,
+        )
+
     def fail(self):
         """
         Sets the fail status of the line to False and opens the connected disconnectors and the connected circuit breaker
@@ -272,7 +283,7 @@ class Line(Component):
         """
         self.failed = True
         self.parent_network.failed_line = True
-        self.remaining_outage_time = self.outage_time
+        self.remaining_outage_time = self.draw_outage_time()
         if self.connected:
             # Relay
             self.parent_network.connected_line.circuitbreaker.open()
