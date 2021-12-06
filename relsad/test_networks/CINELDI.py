@@ -40,6 +40,8 @@ def initialize_network():
     include_production = False
     include_ICT = False
     include_ev = True
+    include_backup = False
+
 
     if include_ICT:
         C1 = MainController(
@@ -135,16 +137,18 @@ def initialize_network():
         x=0.2351,
         fail_rate_density_per_year=fail_rate_line,
     )
-    L6 = Line(
-        "L6",
-        B3,
-        B5,
-        r=0.7114,
-        x=0.2351,
-        fail_rate_density_per_year=fail_rate_line,
-        capacity=6,
-    )
-    
+
+    if include_backup: 
+        L6 = Line(
+            "L6",
+            B3,
+            B5,
+            r=0.7114,
+            x=0.2351,
+            fail_rate_density_per_year=fail_rate_line,
+            capacity=6,
+        )
+        
     
 
     E1 = CircuitBreaker("E1", L1)
@@ -161,10 +165,12 @@ def initialize_network():
     DL4b = Disconnector("L4b", L4, B4)
     DL5a = Disconnector("L5a", L5, B2)
     DL5b = Disconnector("L5b", L5, B5)
-    DL6a = Disconnector("L6a", L6, B3)
-    DL6b = Disconnector("L6b", L6, B5)
 
-    L6.set_backup()
+    if include_backup:
+        DL6a = Disconnector("L6a", L6, B3)
+        DL6b = Disconnector("L6b", L6, B5)
+
+        L6.set_backup()
 
     tn = Transmission(ps, T)
 
@@ -273,13 +279,15 @@ def initialize_network():
             p_fail_repair_new_signal=p_fail_repair_new_signal,
             p_fail_repair_reboot=p_fail_repair_reboot,
         )
-        Sensor(
-            "SL6",
-            L6,
-            fail_rate_per_year=fail_rate_sensor,
-            p_fail_repair_new_signal=p_fail_repair_new_signal,
-            p_fail_repair_reboot=p_fail_repair_reboot,
-        )
+
+        if include_backup: 
+            Sensor(
+                "SL6",
+                L6,
+                fail_rate_per_year=fail_rate_sensor,
+                p_fail_repair_new_signal=p_fail_repair_new_signal,
+                p_fail_repair_reboot=p_fail_repair_reboot,
+            )
         
 
         IntelligentSwitch(
@@ -315,12 +323,14 @@ def initialize_network():
         IntelligentSwitch(
             "RL5b", DL5b, fail_rate_per_year=fail_rate_intelligent_switch
         )
-        IntelligentSwitch(
-            "RL6a", DL6a, fail_rate_per_year=fail_rate_intelligent_switch
-        )
-        IntelligentSwitch(
-            "RL6b", DL6b, fail_rate_per_year=fail_rate_intelligent_switch
-        )
+
+        if include_backup: 
+            IntelligentSwitch(
+                "RL6a", DL6a, fail_rate_per_year=fail_rate_intelligent_switch
+            )
+            IntelligentSwitch(
+                "RL6b", DL6b, fail_rate_per_year=fail_rate_intelligent_switch
+            )
 
         if include_microgrid:
 
@@ -375,13 +385,17 @@ def initialize_network():
         EVPark(
             name="EV1",
             bus=B5,
+            min_num_ev=0,
             max_num_ev=5,
         )
     
     dn.add_buses([B1, B2, B3, B4, B5])
-    dn.add_lines([L2, L3, L4, L5, L6])
+    if include_backup:
+        dn.add_lines([L2, L3, L4, L5, L6])
+    else: 
+        dn.add_lines([L2, L3, L4, L5])
 
-    return ps, include_microgrid, include_production
+    return ps, include_microgrid, include_production, include_backup
 
 
 if __name__ == "__main__":

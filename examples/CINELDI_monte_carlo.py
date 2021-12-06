@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     start = time.time()
 
-    ps, include_microgrid, include_production = initialize_network()
+    ps, include_microgrid, include_production, include_backup = initialize_network()
 
     # Fetching bus-objects
     T = ps.get_comp("T")
@@ -38,7 +38,8 @@ if __name__ == "__main__":
     L3 = ps.get_comp("L3")
     L4 = ps.get_comp("L4")
     L5 = ps.get_comp("L5")
-    L6 = ps.get_comp("L6")
+    if include_backup: 
+        L6 = ps.get_comp("L6")
     if include_microgrid:
         L7 = ps.get_comp("L7")
         ML1 = ps.get_comp("ML1")
@@ -53,7 +54,8 @@ if __name__ == "__main__":
     L3b = ps.get_comp("L3b")
     L4a = ps.get_comp("L4a")
     L5a = ps.get_comp("L5a")
-    L6a = ps.get_comp("L6a")
+    if include_backup: 
+        L6a = ps.get_comp("L6a")
     if include_microgrid:
         L7a = ps.get_comp("L7a")
         L7b = ps.get_comp("L7b")
