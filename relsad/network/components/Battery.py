@@ -323,7 +323,7 @@ class Battery(Component):
         E_tr = self.E_battery - dE
         SOC_tr = E_tr / self.E_max
         dSOC = dE / self.E_max
-        if SOC_tr < self.SOC_min:
+        if SOC_tr < self.SOC_min and dSOC > 0:
             f = 1 - (self.SOC_min - SOC_tr) / dSOC
             self.E_battery -= f * dE
             p_dis_remaining += (1 - f) * p_dis

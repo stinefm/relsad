@@ -45,7 +45,8 @@ class EVPark(Component):
     def __init__(
         self, 
         name: str, 
-        bus: Bus, 
+        bus: Bus,
+        min_num_ev: int, 
         max_num_ev: int, 
         inj_p_max: float = 0.5, 
         inj_q_max: float = 0.5,
@@ -61,6 +62,7 @@ class EVPark(Component):
         self.bus = bus
         bus.ev_park = self
 
+        self.min_num_ev = min_num_ev
         self.max_num_ev = max_num_ev
         self.inj_p_max = inj_p_max
         self.inj_q_max = inj_q_max
@@ -80,12 +82,30 @@ class EVPark(Component):
         ## History
         self.history = {}
 
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f"EVPark(name={self.name})"
+
+    def __eq__(self, other):
+        if hasattr(other, "name"):
+            return self.name == other.name and isinstance(other, EVPark)
+        else:
+            return False
+
+    def __hash__(self):
+        return hash(self.name)
+
     def draw_current_state(self):
         """
         Draw the number of EVs in the park at that time and
         the SOC level of each car which will make the SOC level of the park 
         """
-        self.num_cars = self.ps_random.integers(0, self.max_num_ev)
+        self.num_cars = self.ps_random.integers(
+            self.min_num_ev,
+            self.max_num_ev,
+        )
         soc_states = self.ps_random.uniform(
             low=self.SOC_min,
             high=self.SOC_max,
@@ -112,14 +132,30 @@ class EVPark(Component):
     def update(self, p, q, fail_duration: Time, dt: Time):
         if fail_duration == dt:
             self.draw_current_state()
+        self.curr_demand = self.get_curr_demand(dt)
+        p_start = p
+        q_start = q
         for car in self.cars:
             if self.v2g_flag is True:
                 p, q = car.update_bus_load_and_prod(p, q, dt)
             else:
                 if p > 0 and q > 0:
                     p, q = car.update_bus_load_and_prod(p, q, dt)
-        self.curr_demand = self.get_curr_demand(dt)
-        self.curr_charge = max(0, p)
+        p_change = p_start - p
+        q_change = q_start - q
+        pprod = max(0,p_change)
+        qprod = max(0,q_change)
+        pload = abs(min(0,p_change))
+        qload = abs(min(0,q_change))
+        self.curr_charge = pload - pprod
+        self.bus.pprod += pprod  # MW
+        self.bus.qprod += qprod  # MVar
+        self.bus.pprod_pu += pprod / self.bus.s_ref  # PU
+        self.bus.qprod_pu += qprod / self.bus.s_ref  # PU
+        self.bus.pload += pload  # MW
+        self.bus.qload += qload  # MVar
+        self.bus.pload_pu += pload / self.bus.s_ref  # PU
+        self.bus.qload_pu += qload / self.bus.s_ref  # PU
         return p, q
 
     def get_curr_demand(self, dt: Time):
@@ -132,6 +168,8 @@ class EVPark(Component):
         return curr_demand
 
     def get_SOC(self):
+        if self.num_cars <= 0:
+            return 0
         return np.mean([car.SOC for car in self.cars])
 
     def get_ev_index(self):
@@ -140,6 +178,9 @@ class EVPark(Component):
     def initialize_history(self):
         self.history["SOC"] = {}
         self.history["ev_index"] = {}
+        self.history["demand"] = {}
+        self.history["charge"] = {}
+        self.history["num_cars"] = {}
         
     def update_history(
         self, prev_time: Time, curr_time: Time, save_flag: bool
@@ -161,6 +202,13 @@ class EVPark(Component):
             self.history["ev_index"][
                 curr_time
             ] = self.get_ev_index()
+            self.history["demand"][
+                curr_time
+            ] = self.curr_demand
+            self.history["charge"][
+                curr_time
+            ] = self.curr_charge
+            self.history["num_cars"][curr_time] = self.num_cars
 
     def get_history(self, attribute: str):
         """

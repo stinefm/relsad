@@ -266,6 +266,9 @@ def save_ev_park_history(ev_parks, save_dir: str):
     whole_state_list = [
         "SOC",
         "ev_index",
+        "demand",
+        "charge",
+        "num_cars",
     ]
     for state_var in whole_state_list:
         save_history(ev_parks, state_var, save_dir)

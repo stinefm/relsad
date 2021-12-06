@@ -370,6 +370,8 @@ class PowerSystem(Network):
         for bus in self.buses:
             if bus.battery is not None:
                 bus.reset_prod()
+            elif bus.ev_park is not None:
+                bus.reset_prod()
 
     def failed_comp(self):
         """
