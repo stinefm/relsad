@@ -1,7 +1,10 @@
 import numpy as np
 from scipy.optimize import linprog
 import warnings
-from relsad.utils import Time
+from relsad.utils import (
+    Time,
+    INF,
+)
 from relsad.network.systems import (
     PowerSystem,
     Transmission,
@@ -111,8 +114,8 @@ def _get_generation_boundaries(power_system: PowerSystem):
         for child_network in power_system.child_network_list:
             if isinstance(child_network, Transmission):
                 if bus == child_network.get():
-                    p_gen.append(np.inf)
-                    q_gen.append(np.inf)
+                    p_gen.append(INF)
+                    q_gen.append(INF)
                     flag = True
         if flag is False:
             p_gen.append(max(0, bus.pprod))
