@@ -48,9 +48,9 @@ class EVPark(Component):
         bus: Bus,
         min_num_ev: int, 
         max_num_ev: int, 
-        inj_p_max: float = 0.5, 
-        inj_q_max: float = 0.5,
-        E_max: float = 1,
+        inj_p_max: float = 0.072, 
+        inj_q_max: float = 0.072,
+        E_max: float = 0.75,
         SOC_min: float = 0.1, 
         SOC_max: float = 0.9, 
         n_battery: float = 0.95,
@@ -148,14 +148,6 @@ class EVPark(Component):
         pload = abs(min(0,p_change))
         qload = abs(min(0,q_change))
         self.curr_charge = pload - pprod
-        self.bus.pprod += pprod  # MW
-        self.bus.qprod += qprod  # MVar
-        self.bus.pprod_pu += pprod / self.bus.s_ref  # PU
-        self.bus.qprod_pu += qprod / self.bus.s_ref  # PU
-        self.bus.pload += pload  # MW
-        self.bus.qload += qload  # MVar
-        self.bus.pload_pu += pload / self.bus.s_ref  # PU
-        self.bus.qload_pu += qload / self.bus.s_ref  # PU
         return p, q
 
     def get_curr_demand(self, dt: Time):
@@ -163,7 +155,7 @@ class EVPark(Component):
         for car in self.cars:
             curr_demand += min(
                 car.inj_p_max*dt.get_hours(),
-                car.E_max - car.E_battery,
+                car.E_max*car.SOC_max - car.E_battery,
             )
         return curr_demand
 
