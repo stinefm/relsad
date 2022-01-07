@@ -4,6 +4,7 @@ from relsad.network.components import (
     Disconnector,
     Line,
     Battery,
+    EVPark,
     Production,
     MainController,
     ManualMainController,
@@ -27,8 +28,9 @@ from relsad.utils import (
 def initialize_network():
 
     include_microgrid = False
-    include_production = True
-    include_ICT = True
+    include_production = False
+    include_ICT = False
+    include_ev = True
 
     if include_ICT:
         C1 = MainController(
@@ -42,10 +44,12 @@ def initialize_network():
 
     ps = PowerSystem(C1)
 
-    fail_rate_trafo = 0.007  # fails per year
-    fail_rate_line = 0.07  # fails per year
+    fail_rate_trafo = 0.0  # fails per year
+    fail_rate_line = 0.5  # fails per year
     outage_time_trafo = Time(8, TimeUnit.HOUR)  # hours
-    outage_time_line = Time(4, TimeUnit.HOUR)  # hours
+    min_outage_time_line = Time(2, TimeUnit.HOUR)
+    max_outage_time_line = Time(2, TimeUnit.HOUR)
+    ev_percentage = 0.47
 
     B1 = Bus("B1", n_customers=0, coordinate=[-1, 0], fail_rate_per_year=0)
     B2 = Bus(
@@ -280,7 +284,8 @@ def initialize_network():
         r=0.0922,
         x=0.0470,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L2 = Line(
         "L2",
@@ -289,7 +294,8 @@ def initialize_network():
         r=0.4930,
         x=0.2511,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L3 = Line(
         "L3",
@@ -298,7 +304,8 @@ def initialize_network():
         r=0.3660,
         x=0.1864,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L4 = Line(
         "L4",
@@ -307,7 +314,8 @@ def initialize_network():
         r=0.3811,
         x=0.1941,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L5 = Line(
         "L5",
@@ -316,7 +324,8 @@ def initialize_network():
         r=0.8190,
         x=0.7070,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L6 = Line(
         "L6",
@@ -325,7 +334,8 @@ def initialize_network():
         r=0.1872,
         x=0.6188,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L7 = Line(
         "L7",
@@ -334,7 +344,8 @@ def initialize_network():
         r=0.7114,
         x=0.2351,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L8 = Line(
         "L8",
@@ -343,7 +354,8 @@ def initialize_network():
         r=1.0300,
         x=0.7400,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L9 = Line(
         "L9",
@@ -352,7 +364,8 @@ def initialize_network():
         r=1.0440,
         x=0.7400,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L10 = Line(
         "L10",
@@ -361,7 +374,8 @@ def initialize_network():
         r=0.1966,
         x=0.0650,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L11 = Line(
         "L11",
@@ -370,7 +384,8 @@ def initialize_network():
         r=0.3744,
         x=0.1238,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L12 = Line(
         "L12",
@@ -379,7 +394,8 @@ def initialize_network():
         r=1.4680,
         x=1.1550,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L13 = Line(
         "L13",
@@ -388,7 +404,8 @@ def initialize_network():
         r=0.5416,
         x=0.7129,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L14 = Line(
         "L14",
@@ -397,7 +414,8 @@ def initialize_network():
         r=0.5910,
         x=0.5260,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L15 = Line(
         "L15",
@@ -406,7 +424,8 @@ def initialize_network():
         r=0.7463,
         x=0.5450,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L16 = Line(
         "L16",
@@ -415,7 +434,8 @@ def initialize_network():
         r=1.2890,
         x=1.72010,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L17 = Line(
         "L17",
@@ -424,7 +444,8 @@ def initialize_network():
         r=0.7320,
         x=0.5740,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L18 = Line(
         "L18",
@@ -433,7 +454,8 @@ def initialize_network():
         r=0.1640,
         x=0.1565,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L19 = Line(
         "L19",
@@ -442,7 +464,8 @@ def initialize_network():
         r=1.5042,
         x=1.3554,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L20 = Line(
         "L20",
@@ -451,7 +474,8 @@ def initialize_network():
         r=0.4095,
         x=0.4784,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L21 = Line(
         "L21",
@@ -460,7 +484,8 @@ def initialize_network():
         r=0.7089,
         x=0.9373,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L22 = Line(
         "L22",
@@ -469,7 +494,8 @@ def initialize_network():
         r=0.4512,
         x=0.3083,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L23 = Line(
         "L23",
@@ -478,7 +504,8 @@ def initialize_network():
         r=0.8980,
         x=0.7091,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L24 = Line(
         "L24",
@@ -487,7 +514,8 @@ def initialize_network():
         r=0.8960,
         x=0.7011,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L25 = Line(
         "L25",
@@ -496,7 +524,8 @@ def initialize_network():
         r=0.2030,
         x=0.1034,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L26 = Line(
         "L26",
@@ -505,7 +534,8 @@ def initialize_network():
         r=0.2842,
         x=0.1447,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L27 = Line(
         "L27",
@@ -514,7 +544,8 @@ def initialize_network():
         r=1.0590,
         x=0.9337,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L28 = Line(
         "L28",
@@ -523,7 +554,8 @@ def initialize_network():
         r=0.8042,
         x=0.7006,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L29 = Line(
         "L29",
@@ -532,7 +564,8 @@ def initialize_network():
         r=0.5075,
         x=0.2585,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L30 = Line(
         "L30",
@@ -541,7 +574,8 @@ def initialize_network():
         r=0.9744,
         x=0.9630,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L31 = Line(
         "L31",
@@ -550,7 +584,8 @@ def initialize_network():
         r=0.3105,
         x=0.3619,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
     L32 = Line(
         "L32",
@@ -559,7 +594,8 @@ def initialize_network():
         r=0.3410,
         x=0.5320,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time=outage_time_line,
+        min_outage_time=min_outage_time_line,
+        max_outage_time=max_outage_time_line,
     )
 
     E1 = CircuitBreaker("E1", L1)
@@ -694,87 +730,6 @@ def initialize_network():
     # L36.set_backup()
     # L37.set_backup()
 
-    tn = Transmission(ps, B1)
-
-    dn = Distribution(tn, L1)
-
-    dn.add_buses(
-        [
-            B2,
-            B3,
-            B4,
-            B5,
-            B6,
-            B7,
-            B8,
-            B9,
-            B10,
-            B11,
-            B12,
-            B13,
-            B14,
-            B15,
-            B16,
-            B17,
-            B18,
-            B19,
-            B20,
-            B21,
-            B22,
-            B23,
-            B24,
-            B25,
-            B26,
-            B27,
-            B28,
-            B29,
-            B30,
-            B31,
-            B32,
-            B33,
-        ]
-    )
-
-    dn.add_lines(
-        [
-            L2,
-            L3,
-            L4,
-            L5,
-            L6,
-            L7,
-            L8,
-            L9,
-            L10,
-            L11,
-            L12,
-            L13,
-            L14,
-            L15,
-            L16,
-            L17,
-            L18,
-            L19,
-            L20,
-            L21,
-            L22,
-            L23,
-            L24,
-            L25,
-            L26,
-            L27,
-            L28,
-            L29,
-            L30,
-            L31,
-            L32,
-            # L33,
-            # L34,
-            # L35,
-            # L36,
-            # L37,
-        ]
-    )
 
     if include_production:
 
@@ -878,6 +833,138 @@ def initialize_network():
         m = Microgrid(dn, ML1, mode=microgrid_mode)
         m.add_buses([BM1, BM2, BM3, BM4])
         m.add_lines([ML2, ML3, ML4])
+
+    if include_ev: 
+
+        EVPark(
+            name="EV1",
+            bus=B3,
+            min_num_ev=0,
+            max_num_ev=round(B3.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV2",
+            bus=B5,
+            min_num_ev=0,
+            max_num_ev=round(B5.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV3",
+            bus=B6,
+            min_num_ev=0,
+            max_num_ev=round(B6.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV4",
+            bus=B9,
+            min_num_ev=0,
+            max_num_ev=round(B9.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV5",
+            bus=B10,
+            min_num_ev=0,
+            max_num_ev=round(B10.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV6",
+            bus=B11,
+            min_num_ev=0,
+            max_num_ev=round(B11.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV7",
+            bus=B12,
+            min_num_ev=0,
+            max_num_ev=round(B12.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV8",
+            bus=B13,
+            min_num_ev=0,
+            max_num_ev=round(B13.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV9",
+            bus=B15,
+            min_num_ev=0,
+            max_num_ev=round(B15.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV10",
+            bus=B16,
+            min_num_ev=0,
+            max_num_ev=round(B16.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV11",
+            bus=B17,
+            min_num_ev=0,
+            max_num_ev=round(B17.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV12",
+            bus=B18,
+            min_num_ev=0,
+            max_num_ev=round(B18.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV13",
+            bus=B19,
+            min_num_ev=0,
+            max_num_ev=round(B19.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV14",
+            bus=B20,
+            min_num_ev=0,
+            max_num_ev=round(B20.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV15",
+            bus=B21,
+            min_num_ev=0,
+            max_num_ev=round(B21.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV16",
+            bus=B22,
+            min_num_ev=0,
+            max_num_ev=round(B22.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV17",
+            bus=B23,
+            min_num_ev=0,
+            max_num_ev=round(B23.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV18",
+            bus=B26,
+            min_num_ev=0,
+            max_num_ev=round(B26.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV19",
+            bus=B27,
+            min_num_ev=0,
+            max_num_ev=round(B27.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV20",
+            bus=B28,
+            min_num_ev=0,
+            max_num_ev=round(B28.n_customers*ev_percentage),
+        )
+        EVPark(
+            name="EV21",
+            bus=B33,
+            min_num_ev=0,
+            max_num_ev=round(B33.n_customers*ev_percentage),
+        )
+
+
+        
 
     if include_ICT:
 
@@ -1014,6 +1101,88 @@ def initialize_network():
             IntelligentSwitch("ISwML3b", DML3b)
             IntelligentSwitch("ISwML4a", DML4a)
             IntelligentSwitch("ISwML4b", DML4b)
+    
+    tn = Transmission(ps, B1)
+
+    dn = Distribution(tn, L1)
+
+    dn.add_buses(
+        [
+            B2,
+            B3,
+            B4,
+            B5,
+            B6,
+            B7,
+            B8,
+            B9,
+            B10,
+            B11,
+            B12,
+            B13,
+            B14,
+            B15,
+            B16,
+            B17,
+            B18,
+            B19,
+            B20,
+            B21,
+            B22,
+            B23,
+            B24,
+            B25,
+            B26,
+            B27,
+            B28,
+            B29,
+            B30,
+            B31,
+            B32,
+            B33,
+        ]
+    )
+
+    dn.add_lines(
+        [
+            L2,
+            L3,
+            L4,
+            L5,
+            L6,
+            L7,
+            L8,
+            L9,
+            L10,
+            L11,
+            L12,
+            L13,
+            L14,
+            L15,
+            L16,
+            L17,
+            L18,
+            L19,
+            L20,
+            L21,
+            L22,
+            L23,
+            L24,
+            L25,
+            L26,
+            L27,
+            L28,
+            L29,
+            L30,
+            L31,
+            L32,
+            # L33,
+            # L34,
+            # L35,
+            # L36,
+            # L37,
+        ]
+    )
 
     return ps, include_microgrid, include_production
 
