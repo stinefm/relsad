@@ -10,6 +10,7 @@ from relsad.utils import (
     unique,
     Time,
     TimeUnit,
+    INF,
 )
 
 
@@ -143,7 +144,7 @@ class SubSystem:
             for child_network in self.child_network_list:
                 if isinstance(child_network, Transmission):
                     if bus == child_network.get():
-                        system_load_balance_p = -np.inf
+                        system_load_balance_p = -INF
                         system_load_balance_q = 0
                         return system_load_balance_p, system_load_balance_q
             system_load_balance_p += bus.pload - bus.pprod

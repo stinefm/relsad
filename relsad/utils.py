@@ -5,6 +5,8 @@ This module contains package utils
 from enum import Enum
 import numpy as np
 
+# Numerical value used as "infinite", choose it based on system values
+INF = 1e8
 
 def unique(sequence):
     """

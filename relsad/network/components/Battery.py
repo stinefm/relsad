@@ -5,6 +5,7 @@ import numpy as np
 from relsad.utils import (
     Time,
     TimeUnit,
+    INF,
 )
 
 
@@ -44,9 +45,9 @@ class Battery(Component):
         The maximum state of charge level in the battery
     n_battery : float
         The battery efficiency
-    P_inj : float
+    p_inj : float
         The injected active power in the battery [MW]
-    Q_inj : float
+    q_inj : float
         The injected reactive power in the battery [MVar]
     SOC : float
         The state of charge of the battery
@@ -134,9 +135,9 @@ class Battery(Component):
             The maximum state of charge level in the battery
         n_battery : float
             The battery efficiency
-        P_inj : float
+        p_inj : float
             The injected active power in the battery [MW]
-        Q_inj : float
+        q_inj : float
             The injected reactive power in the battery [MVar]
         SOC : float
             The state of charge of the battery
@@ -175,8 +176,8 @@ class Battery(Component):
         self.SOC_max = SOC_max
         self.n_battery = n_battery
 
-        self.P_inj = 0.0  # MW
-        self.Q_inj = 0.0  # MVar
+        self.p_inj = 0.0  # MW
+        self.q_inj = 0.0  # MVar
         self.SOC = SOC_min
         self.E_battery = self.SOC * self.E_max  # MWh
         self.update_SOC()
@@ -244,7 +245,7 @@ class Battery(Component):
         p_ch_remaining = 0
         if p_ch > self.inj_p_max * dt.get_hours():
             p_ch_remaining += p_ch - self.inj_p_max * dt.get_hours()
-            if p_ch == np.inf:
+            if p_ch >= INF:
                 p_ch = self.inj_p_max * dt.get_hours()
             else:
                 p_ch -= p_ch_remaining
@@ -396,18 +397,12 @@ class Battery(Component):
             pprod = p - p_dis
             qprod = q - q_dis
         if p < 0 and q >= 0:
-            if -p == np.inf:
-                pload = self.inj_p_max - self.charge(self.inj_p_max, dt)
-            else:
-                pload = -p - self.charge(-p, dt)
+            pload = -p - self.charge(-p, dt)
             qprod = q - self.discharge(0, q, dt)[1]
         if p >= 0 and q < 0:
             pprod = p - self.discharge(p, 0, dt)[0]
         if p < 0 and q < 0:
-            if -p == np.inf:
-                pload = self.inj_p_max - self.charge(self.inj_p_max, dt)
-            else:
-                pload = -p - self.charge(-p, dt)
+            pload = -p - self.charge(-p, dt)
         # if self.SOC >= self.SOC_min:
         self.bus.pprod += pprod  # MW
         self.bus.qprod += qprod  # MVar
@@ -420,6 +415,8 @@ class Battery(Component):
         self.bus.qload_pu += qload / self.bus.s_ref  # PU
         p_rem = p + pload - pprod
         q_rem = q + qload - qprod
+        self.p_inj = pload - pprod
+        self.q_inj = qload - qprod
         return p_rem, q_rem
 
     def initialize_history(self):
