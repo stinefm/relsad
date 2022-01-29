@@ -48,7 +48,7 @@ class EVPark(Component):
         bus: Bus,
         min_num_ev: int, 
         max_num_ev: int, 
-        inj_p_max: float = 0.072, 
+        inj_p_max: float = 0.072,
         inj_q_max: float = 0.072,
         E_max: float = 0.75,
         SOC_min: float = 0.1, 
@@ -139,7 +139,7 @@ class EVPark(Component):
             if self.v2g_flag is True:
                 p, q = car.update_bus_load_and_prod(p, q, dt)
             else:
-                if p > 0 and q > 0:
+                if p < 0:
                     p, q = car.update_bus_load_and_prod(p, q, dt)
         p_change = p_start - p
         q_change = q_start - q

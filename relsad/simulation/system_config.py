@@ -191,7 +191,7 @@ def set_slack(p_s: PowerSystem, sub_system: SubSystem):
     ## Buses with EV_park
     if sub_system.slack is None:
         for bus in sub_system.buses:
-            if bus.ev_park is not None:
+            if bus.ev_park is not None and bus.ev_park.v2g_flag is True:
                 bus.set_slack()
                 sub_system.slack = bus
                 return True
