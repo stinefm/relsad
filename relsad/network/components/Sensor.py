@@ -5,9 +5,11 @@ from .Component import Component
 from .Line import Line
 from relsad.utils import (
     random_choice,
+    convert_yearly_fail_rate,
+)
+from relsad.Time import (
     TimeUnit,
     Time,
-    convert_yearly_fail_rate,
 )
 
 

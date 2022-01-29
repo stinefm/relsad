@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from relsad.utils import Time
+from relsad.Time import Time
 
 
 class Component(ABC):

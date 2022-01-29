@@ -6,10 +6,12 @@ from .MainController import ControllerState
 from relsad.network.containers import SectionState
 from relsad.utils import (
     random_choice,
-    Time,
-    TimeUnit,
     convert_yearly_fail_rate,
     unique,
+)
+from relsad.Time import (
+    Time,
+    TimeUnit,
 )
 
 

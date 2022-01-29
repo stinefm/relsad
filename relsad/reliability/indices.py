@@ -1,8 +1,6 @@
 from relsad.network.systems import Network
-from relsad.utils import (
-    eq,
-    TimeUnit,
-)
+from relsad.utils import eq
+from relsad.Time import TimeUnit
 
 
 def SAIFI(network: Network):

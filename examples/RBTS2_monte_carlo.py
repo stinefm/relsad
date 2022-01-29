@@ -9,7 +9,7 @@ from load_and_gen_data import (
 import time
 import numpy as np
 import os
-from relsad.utils import (
+from relsad.Time import (
     Time,
     TimeUnit,
 )

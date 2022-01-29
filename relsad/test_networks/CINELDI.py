@@ -20,7 +20,7 @@ from relsad.network.systems import (
     Distribution,
     Microgrid,
 )
-from relsad.utils import (
+from relsad.Time import (
     Time,
     TimeUnit,
 )
@@ -28,7 +28,7 @@ from relsad.utils import (
 
 def initialize_network():
     fail_rate_trafo = 0.007
-    fail_rate_line = 0.07
+    fail_rate_line = 0.7
     fail_rate_intelligent_switch = 1000
     fail_rate_hardware = 0.2
     fail_rate_software = 12

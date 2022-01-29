@@ -4,7 +4,7 @@ from .Bus import Bus
 from .Circuitbreaker import CircuitBreaker
 import matplotlib.lines as mlines
 import numpy as np
-from relsad.utils import (
+from relsad.Time import (
     Time,
     TimeUnit,
 )

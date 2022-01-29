@@ -1,10 +1,8 @@
 import numpy as np
 from scipy.optimize import linprog
 import warnings
-from relsad.utils import (
-    Time,
-    INF,
-)
+from relsad.utils import INF
+from relsad.Time import Time
 from relsad.network.systems import (
     PowerSystem,
     Transmission,

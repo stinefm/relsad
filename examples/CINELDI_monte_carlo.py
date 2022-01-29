@@ -1,6 +1,6 @@
 from relsad.test_networks.CINELDI import initialize_network
 from relsad.simulation import Simulation
-from relsad.utils import (
+from relsad.Time import (
     Time,
     TimeUnit,
 )

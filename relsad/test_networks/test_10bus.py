@@ -20,7 +20,7 @@ from relsad.network.systems import (
     Distribution,
     Microgrid,
 )
-from relsad.utils import (
+from relsad.Time import (
     Time,
     TimeUnit,
 )

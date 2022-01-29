@@ -9,9 +9,9 @@ from relsad.visualization.plotting import (
     plot_history,
     plot_history_last_state,
 )
-from relsad.utils import (
-    TimeUnit,
+from relsad.Time import (
     Time,
+    TimeUnit,
 )
 
 

@@ -8,10 +8,10 @@ from .Transmission import Transmission
 from relsad.utils import (
     eq,
     unique,
-    Time,
     interpolate,
     INF,
 )
+from relsad.Time import Time
 from relsad.topology.paths import (
     create_sections,
     get_section_list,

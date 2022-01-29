@@ -1,6 +1,6 @@
 import os
 import copy
-from relsad.utils import TimeUnit
+from relsad.Time import TimeUnit
 from relsad.network.systems import (
     PowerSystem,
 )

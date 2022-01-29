@@ -3,9 +3,12 @@ import numpy as np
 from .Component import Component
 from relsad.utils import (
     random_choice,
+    convert_yearly_fail_rate,
+)
+
+from relsad.Time import (
     Time,
     TimeUnit,
-    convert_yearly_fail_rate,
 )
 
 

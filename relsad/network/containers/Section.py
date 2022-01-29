@@ -1,5 +1,5 @@
 from enum import Enum
-from relsad.utils import Time
+from relsad.Time import Time
 
 
 class SectionState(Enum):

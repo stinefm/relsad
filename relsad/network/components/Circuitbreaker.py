@@ -3,10 +3,11 @@ from .Line import Line
 import matplotlib.lines as mlines
 import numpy as np
 from relsad.network.containers import SectionState
-from relsad.utils import (
+from relsad.utils import unique
+
+from relsad.Time import (
     Time,
     TimeUnit,
-    unique,
 )
 
 

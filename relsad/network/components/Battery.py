@@ -2,10 +2,10 @@ from .Component import Component
 from .Bus import Bus
 from .MicrogridController import MicrogridMode
 import numpy as np
-from relsad.utils import (
+from relsad.utils import INF
+from relsad.Time import (
     Time,
     TimeUnit,
-    INF,
 )
 
 

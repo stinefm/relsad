@@ -19,7 +19,7 @@ from relsad.network.systems import (
     Microgrid,
 )
 from relsad.visualization.plotting import plot_topology
-from relsad.utils import (
+from relsad.Time import (
     Time,
     TimeUnit,
 )

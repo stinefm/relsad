@@ -1,7 +1,7 @@
 import numpy as np
 from .Component import Component
 from .Bus import Bus
-from relsad.utils import Time
+from relsad.Time import Time
 
 
 class Production(Component):

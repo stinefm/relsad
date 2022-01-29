@@ -11,7 +11,7 @@ from relsad.network.components import (
 )
 from relsad.network.systems import Distribution, PowerSystem, Transmission
 from relsad.visualization.plotting import plot_topology
-from relsad.utils import (
+from relsad.Time import (
     Time,
     TimeUnit,
 )

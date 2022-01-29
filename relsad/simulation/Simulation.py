@@ -24,9 +24,10 @@ from relsad.simulation.monte_carlo.history import (
     save_network_monte_carlo_history,
     save_iteration_history,
 )
-from relsad.utils import (
-    TimeUnit,
+from relsad.Time import (
     Time,
+    TimeUnit,
+    TimeStamp,
 )
 
 
@@ -53,7 +54,12 @@ class Simulation:
         run_bfs_load_flow(network)
 
     def run_increment(
-        self, inc_idx: int, prev_time: Time, curr_time: Time, save_flag: bool
+        self,
+        inc_idx: int,
+        start_time: TimeStamp,
+        prev_time: Time,
+        curr_time: Time,
+        save_flag: bool,
     ):
         """
         Runs power system at current state for one time increment
@@ -78,7 +84,7 @@ class Simulation:
             ## Load flow
             for sub_system in self.power_system.sub_systems:
                 ## Update EV parks
-                sub_system.update_ev_parks(self.fail_duration, dt)
+                sub_system.update_ev_parks(self.fail_duration, dt, start_time, curr_time)
                 ## Update batteries and history
                 sub_system.update_batteries(self.fail_duration, dt)
                 ## Run load flow
@@ -97,7 +103,11 @@ class Simulation:
                 self.fail_duration = Time(0)
 
     def run_sequence(
-        self, time_increments: np.ndarray, time_unit: TimeUnit, save_flag: bool
+        self,
+        start_time: TimeStamp,
+        time_increments: np.ndarray,
+        time_unit: TimeUnit,
+        save_flag: bool,
     ):
         """
         Runs power system for a sequence of increments
@@ -106,12 +116,19 @@ class Simulation:
         curr_time = Time(0, unit=time_unit)
         for inc_idx, time_quantity in enumerate(time_increments):
             curr_time = Time(time_quantity, unit=time_unit)
-            self.run_increment(inc_idx, prev_time, curr_time, save_flag)
+            self.run_increment(
+                inc_idx, 
+                start_time,
+                prev_time,
+                curr_time,
+                save_flag,
+            )
             prev_time = copy.deepcopy(curr_time)
 
     def run_iteration(
         self,
         it: int,
+        start_time: TimeStamp,
         time_increments: np.ndarray,
         time_unit: TimeUnit,
         save_dir: str,
@@ -127,7 +144,11 @@ class Simulation:
         print("it: {}".format(it), flush=True)
         save_flag = it in save_iterations
         reset_system(self.power_system, save_flag)
-        self.run_sequence(time_increments, time_unit, save_flag)
+        self.run_sequence(
+            start_time,
+            time_increments,
+            time_unit,
+            save_flag)
         save_dict = update_monte_carlo_power_system_history(
             self.power_system, it, time_unit, save_dict
         )
@@ -139,6 +160,7 @@ class Simulation:
         self,
         iterations: int,
         increments: int,
+        start_time: TimeStamp,
         time_step: Time,
         time_unit: TimeUnit,
         load_dict: dict,
@@ -165,6 +187,7 @@ class Simulation:
                 it_dicts.append(
                     self.run_iteration(
                         it,
+                        start_time,
                         time_increments,
                         time_unit,
                         save_dir,
@@ -179,6 +202,7 @@ class Simulation:
                     [
                         [
                             it,
+                            start_time,
                             time_increments,
                             time_unit,
                             save_dir,

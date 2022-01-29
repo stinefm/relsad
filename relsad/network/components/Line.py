@@ -4,9 +4,11 @@ from .Component import Component
 from .Bus import Bus
 from relsad.utils import (
     random_choice,
+    convert_yearly_fail_rate,
+)
+from relsad.Time import (
     Time,
     TimeUnit,
-    convert_yearly_fail_rate,
 )
 
 

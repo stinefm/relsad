@@ -1,7 +1,7 @@
 from relsad.test_networks.IEEE33 import initialize_network
 from relsad.visualization.plotting import plot_topology
 from relsad.simulation import Simulation
-from relsad.utils import (
+from relsad.Time import (
     Time,
     TimeUnit,
 )
@@ -228,13 +228,13 @@ if __name__ == "__main__":
     sim = Simulation(ps, random_seed=0)
 
     sim.run_monte_carlo(
-        iterations=1,
-        increments=8760,
+        iterations=5,
+        increments=100,
         time_step=Time(1, TimeUnit.HOUR),
         time_unit=TimeUnit.HOUR,
         load_dict=load_dict,
         prod_dict=prod_dict,
-        save_iterations=[1, 10, 20, 30, 40, 50, 100],
+        save_iterations=[1, 2, 3, 4, 5],
         save_dir=save_dir,
         n_procs=4,
         debug=True,

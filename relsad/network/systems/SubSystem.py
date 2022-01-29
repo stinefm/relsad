@@ -8,9 +8,12 @@ from .Transmission import Transmission
 from relsad.utils import (
     eq,
     unique,
+    INF,
+)
+from relsad.Time import (
     Time,
     TimeUnit,
-    INF,
+    TimeStamp,
 )
 
 
@@ -159,13 +162,20 @@ class SubSystem:
         for battery in self.batteries:
             p, q = battery.update(p, q, fail_duration, dt)
 
-    def update_ev_parks(self, fail_duration: Time, dt: Time):
+    def update_ev_parks(
+        self,
+        fail_duration: Time,
+        dt: Time,
+        start_time: TimeStamp,
+        curr_time: Time,
+    ):
         """
         Updates the EV parks in the power system
         """
+        hour_of_day = start_time.get_hour_of_day(curr_time)
         p, q = self.get_system_load_balance()
         for ev_park in self.ev_parks:
-            p, q = ev_park.update(p, q, fail_duration, dt)
+            p, q = ev_park.update(p, q, fail_duration, dt, hour_of_day)
 
     def reset_load_flow_data(self):
         """

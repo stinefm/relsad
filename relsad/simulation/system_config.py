@@ -8,8 +8,8 @@ from relsad.network.components import MicrogridMode
 from relsad.utils import (
     unique,
     subtract,
-    Time,
 )
+from relsad.Time import Time
 from relsad.topology.paths import find_backup_lines_between_sub_systems
 from relsad.simulation.monte_carlo.history import initialize_history
 

@@ -5,9 +5,11 @@ from .Component import Component
 from .Disconnector import Disconnector
 from relsad.utils import (
     random_choice,
-    TimeUnit,
-    Time,
     convert_yearly_fail_rate,
+)
+from relsad.Time import (
+    Time,
+    TimeUnit,
 )
 
 

@@ -3,7 +3,7 @@ from .Bus import Bus
 from .Battery import Battery
 from .MicrogridController import MicrogridMode
 import numpy as np
-from relsad.utils import (
+from relsad.Time import (
     Time,
     TimeUnit,
 )
@@ -97,7 +97,7 @@ class EVPark(Component):
     def __hash__(self):
         return hash(self.name)
 
-    def draw_current_state(self):
+    def draw_current_state(self, hour_of_day: int):
         """
         Draw the number of EVs in the park at that time and
         the SOC level of each car which will make the SOC level of the park 
@@ -129,9 +129,9 @@ class EVPark(Component):
             car.E_battery = soc_states[i]*self.E_max
             car.update_SOC()
 
-    def update(self, p, q, fail_duration: Time, dt: Time):
+    def update(self, p, q, fail_duration: Time, dt: Time, hour_of_day: int):
         if fail_duration == dt:
-            self.draw_current_state()
+            self.draw_current_state(hour_of_day)
         self.curr_demand = self.get_curr_demand(dt)
         p_start = p
         q_start = q
