@@ -10,6 +10,7 @@ from relsad.Time import (
     Time,
     TimeUnit,
 )
+from relsad.StatDist import StatDist
 
 
 class Line(Component):
@@ -110,6 +111,7 @@ class Line(Component):
         name: str,
         fbus: Bus,
         tbus: Bus,
+        outage_time_dist: StatDist,
         r: float,  # Ohm
         x: float,  # Ohm
         s_ref: float = 1,  # MVA
@@ -117,8 +119,6 @@ class Line(Component):
         rho: float = 1.72e-8,  # resistivity [Ohm*m]
         area: float = 64.52e-6,  # cross-sectional area [m**2]
         fail_rate_density_per_year: float = 0.07,
-        min_outage_time: Time = Time(4, TimeUnit.HOUR),
-        max_outage_time: Time = Time(4, TimeUnit.HOUR),
         capacity: float = 100,  # MW
         connected=True,
     ):
@@ -163,8 +163,7 @@ class Line(Component):
         self.fail_rate_per_year = (
             fail_rate_density_per_year * self.length
         )  # failures per year
-        self.min_outage_time = min_outage_time
-        self.max_outage_time = max_outage_time
+        self.outage_time_dist = outage_time_dist
 
         ## Status attribute
         self.connected = connected
@@ -261,16 +260,13 @@ class Line(Component):
             self.fbus.fromline_list.append(self)
             self.fbus.nextbus.append(self.tbus)
 
-    def draw_outage_time(self):
+    def draw_outage_time(self, dt: Time):
         return Time(
-            self.ps_random.uniform(
-                self.min_outage_time.get_hours(),
-                self.max_outage_time.get_hours(),
-            ),
-            TimeUnit.HOUR,
+            self.outage_time_dist.draw(self.ps_random),
+            dt.unit,
         )
 
-    def fail(self):
+    def fail(self, dt: Time):
         """
         Sets the fail status of the line to False and opens the connected disconnectors and the connected circuit breaker
 
@@ -285,7 +281,7 @@ class Line(Component):
         """
         self.failed = True
         self.parent_network.failed_line = True
-        self.remaining_outage_time = self.draw_outage_time()
+        self.remaining_outage_time = self.draw_outage_time(dt)
         if self.connected:
             # Relay
             self.parent_network.connected_line.circuitbreaker.open()
@@ -378,7 +374,7 @@ class Line(Component):
         else:
             p_fail = convert_yearly_fail_rate(self.fail_rate_per_year, dt)
             if random_choice(self.ps_random, p_fail):
-                self.fail()
+                self.fail(dt)
             else:
                 self.not_fail()
 

@@ -7,6 +7,7 @@ from relsad.Time import (
     Time,
     TimeUnit,
 )
+from relsad.StatDist import StatDist
 
 """
 ### What it should include: ### 
@@ -46,8 +47,7 @@ class EVPark(Component):
         self, 
         name: str, 
         bus: Bus,
-        min_num_ev: int, 
-        max_num_ev: int, 
+        num_ev_dist: StatDist,
         inj_p_max: float = 0.072,
         inj_q_max: float = 0.072,
         E_max: float = 0.75,
@@ -62,8 +62,7 @@ class EVPark(Component):
         self.bus = bus
         bus.ev_park = self
 
-        self.min_num_ev = min_num_ev
-        self.max_num_ev = max_num_ev
+        self.num_ev_dist = num_ev_dist
         self.inj_p_max = inj_p_max
         self.inj_q_max = inj_q_max
         self.E_max = E_max
@@ -102,10 +101,7 @@ class EVPark(Component):
         Draw the number of EVs in the park at that time and
         the SOC level of each car which will make the SOC level of the park 
         """
-        self.num_cars = self.ps_random.integers(
-            self.min_num_ev,
-            self.max_num_ev,
-        )
+        self.num_cars = round(self.num_ev_dist.get(hour_of_day))
         soc_states = self.ps_random.uniform(
             low=self.SOC_min,
             high=self.SOC_max,
