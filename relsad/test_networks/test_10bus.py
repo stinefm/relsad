@@ -1,4 +1,5 @@
 import os
+import numpy as np
 from relsad.visualization.plotting import plot_topology
 from relsad.network.components import (
     Bus,
@@ -24,6 +25,12 @@ from relsad.Time import (
     Time,
     TimeUnit,
 )
+from relsad.StatDist import (
+    StatDist,
+    StatDistType,
+    NormalParameters,
+    CustomDiscreteParameters,
+)
 
 
 def initialize_network():
@@ -33,6 +40,48 @@ def initialize_network():
     include_ICT = False
     include_ev = True
     include_backup = False
+    v2g_flag = True
+
+    line_stat_dist = StatDist(
+        stat_dist_type=StatDistType.TRUNCNORMAL,
+        parameters=NormalParameters(
+            loc=1.25, 
+            scale=1,
+            min_val=0.5,
+            max_val=2,
+        ),
+        draw_flag=True,
+        get_flag=False,
+    )
+
+    def num_ev_stat_dist_func(
+        n_customers,
+        ev_percentage=0.47,
+        daily_charge_frac=0.61,
+    ):
+        return StatDist(
+            stat_dist_type=StatDistType.CUSTOM_DISCRETE,
+            parameters=CustomDiscreteParameters(
+                xk=np.array(
+                    [
+                        0.52, 0.52, 0.52, 0.52, 0.52,
+                        0.52, 0.52, 0.08, 0.08, 0.18,
+                        0.18, 0.18, 0.18, 0.18, 0.18, 
+                        0.18, 0.28, 0.28, 0.28, 0.28,
+                        0.42, 0.42, 0.42, 0.42,
+                    ]
+                )*n_customers*ev_percentage*daily_charge_frac,
+                pk=[
+                    0, 1, 2, 3, 4,
+                    5, 6, 7, 8, 9,
+                    10, 11, 12, 13, 14,
+                    15, 16, 17, 18, 19,
+                    20, 21, 22, 23,
+                ],
+            ),
+            draw_flag=False,
+            get_flag=True,
+        )
 
 
     if include_ICT:
@@ -136,9 +185,8 @@ def initialize_network():
         B2,
         r=0.0922,
         x=0.0470,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L2 = Line(
         "L2",
@@ -146,9 +194,8 @@ def initialize_network():
         B3,
         r=0.4930,
         x=0.2511,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L3 = Line(
         "L3",
@@ -156,9 +203,8 @@ def initialize_network():
         B4,
         r=0.3660,
         x=0.1864,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L4 = Line(
         "L4",
@@ -166,9 +212,8 @@ def initialize_network():
         B5,
         r=0.3811,
         x=0.1941,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L5 = Line(
         "L5",
@@ -176,9 +221,8 @@ def initialize_network():
         B6,
         r=0.8190,
         x=0.7070,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
 
     L6 = Line(
@@ -187,9 +231,8 @@ def initialize_network():
         B7,
         r=0.8190,
         x=0.7070,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L7 = Line(
         "L7",
@@ -197,9 +240,8 @@ def initialize_network():
         B8,
         r=0.8190,
         x=0.7070,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
 
     L8 = Line(
@@ -208,9 +250,8 @@ def initialize_network():
         B9,
         r=0.8190,
         x=0.7070,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L9 = Line(
         "L9",
@@ -218,9 +259,8 @@ def initialize_network():
         B10,
         r=0.8190,
         x=0.7070,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
 
     if include_backup: 
@@ -230,9 +270,8 @@ def initialize_network():
             B8,
             r=0.7114,
             x=0.2351,
+            outage_time_dist=line_stat_dist,
             fail_rate_density_per_year=fail_rate_line,
-            min_outage_time=min_outage_time_line,
-            max_outage_time=max_outage_time_line,
             capacity=6,
         )
         
@@ -302,9 +341,8 @@ def initialize_network():
             M2,
             r=0.057526629463617,
             x=0.029324854498807,
+            outage_time_dist=line_stat_dist,
             fail_rate_density_per_year=fail_rate_line,
-            min_outage_time=Time(30,TimeUnit.MINUTE),
-            max_outage_time=Time(2,TimeUnit.HOUR),
         )
         ML2 = Line(
             "ML2",
@@ -312,9 +350,8 @@ def initialize_network():
             M3,
             r=0.057526629463617,
             x=0.029324854498807,
+            outage_time_dist=line_stat_dist,
             fail_rate_density_per_year=fail_rate_line,
-            min_outage_time=Time(30,TimeUnit.MINUTE),
-            max_outage_time=Time(2,TimeUnit.HOUR),
         )
 
         L11 = Line(
@@ -323,9 +360,8 @@ def initialize_network():
             M1,
             r=0.057526629463617,
             x=0.029324854498807,
+            outage_time_dist=line_stat_dist,
             fail_rate_density_per_year=fail_rate_line,
-            min_outage_time=Time(30,TimeUnit.MINUTE),
-            max_outage_time=Time(2,TimeUnit.HOUR),
         )
 
         E2 = CircuitBreaker("E2", L11)
@@ -537,35 +573,36 @@ def initialize_network():
             )
 
     if include_ev:
+        
         EVPark(
             name="EVB3",
             bus=B3,
-            min_num_ev=0,
-            max_num_ev=round(B3.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B3.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EVB4",
             bus=B4,
-            min_num_ev=0,
-            max_num_ev=round(B4.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B4.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EVB6",
             bus=B6,
-            min_num_ev=0,
-            max_num_ev=round(B6.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B6.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EVB7",
             bus=B7,
-            min_num_ev=0,
-            max_num_ev=round(B7.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B7.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EVB9",
             bus=B9,
-            min_num_ev=0,
-            max_num_ev=round(B9.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B9.n_customers),
+            v2g_flag=v2g_flag,
         )
 
     

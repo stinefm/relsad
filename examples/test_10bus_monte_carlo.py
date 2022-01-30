@@ -1,8 +1,9 @@
-from relsad.test_networks.test_10bus import initialize_network
+from test_10bus import initialize_network
 from relsad.simulation import Simulation
 from relsad.Time import (
     Time,
     TimeUnit,
+    TimeStamp,
 )
 from load_and_gen_data import (
     WeatherGen,
@@ -137,6 +138,14 @@ if __name__ == "__main__":
     sim.run_monte_carlo(
         iterations=10,
         increments=100,
+        start_time=TimeStamp(
+            year=2019,
+            month=1,
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+        ),
         time_step=Time(1, TimeUnit.HOUR),
         time_unit=TimeUnit.HOUR,
         load_dict=load_dict,
