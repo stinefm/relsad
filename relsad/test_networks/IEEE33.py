@@ -24,6 +24,14 @@ from relsad.Time import (
     TimeUnit,
 )
 
+from relsad.StatDist import (
+    StatDist,
+    StatDistType,
+    NormalParameters,
+    CustomDiscreteParameters,
+)
+
+
 
 def initialize_network():
 
@@ -31,6 +39,50 @@ def initialize_network():
     include_production = False
     include_ICT = False
     include_ev = True
+    v2g_falg = True
+
+    # StatDist: 
+
+    line_stat_dist = StatDist(
+        stat_dist_type=StatDistType.TRUNCNORMAL,
+        parameters=NormalParameters(
+            loc=1.25, 
+            scale=1,
+            min_val=0.5,
+            max_val=2,
+        ),
+        draw_flag=True,
+        get_flag=False,
+    )
+
+    def num_ev_stat_dist_func(
+        n_customers,
+        ev_percentage=0.47,
+        daily_charge_frac=0.61,
+    ):
+        return StatDist(
+            stat_dist_type=StatDistType.CUSTOM_DISCRETE,
+            parameters=CustomDiscreteParameters(
+                xk=np.array(
+                    [
+                        0.52, 0.52, 0.52, 0.52, 0.52,
+                        0.52, 0.52, 0.08, 0.08, 0.18,
+                        0.18, 0.18, 0.18, 0.18, 0.18, 
+                        0.18, 0.28, 0.28, 0.28, 0.28,
+                        0.42, 0.42, 0.42, 0.42,
+                    ]
+                )*n_customers*ev_percentage*daily_charge_frac,
+                pk=[
+                    0, 1, 2, 3, 4,
+                    5, 6, 7, 8, 9,
+                    10, 11, 12, 13, 14,
+                    15, 16, 17, 18, 19,
+                    20, 21, 22, 23,
+                ],
+            ),
+            draw_flag=False,
+            get_flag=True,
+        )
 
     if include_ICT:
         C1 = MainController(
@@ -45,7 +97,7 @@ def initialize_network():
     ps = PowerSystem(C1)
 
     fail_rate_trafo = 0.0  # fails per year
-    fail_rate_line = 0.5  # fails per year
+    fail_rate_line = 0.013  # fails per year
     outage_time_trafo = Time(8, TimeUnit.HOUR)  # hours
     min_outage_time_line = Time(2, TimeUnit.HOUR)
     max_outage_time_line = Time(2, TimeUnit.HOUR)
@@ -283,9 +335,8 @@ def initialize_network():
         B2,
         r=0.0922,
         x=0.0470,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L2 = Line(
         "L2",
@@ -294,8 +345,6 @@ def initialize_network():
         r=0.4930,
         x=0.2511,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L3 = Line(
         "L3",
@@ -303,9 +352,8 @@ def initialize_network():
         B4,
         r=0.3660,
         x=0.1864,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L4 = Line(
         "L4",
@@ -313,9 +361,8 @@ def initialize_network():
         B5,
         r=0.3811,
         x=0.1941,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L5 = Line(
         "L5",
@@ -323,9 +370,8 @@ def initialize_network():
         B6,
         r=0.8190,
         x=0.7070,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L6 = Line(
         "L6",
@@ -333,9 +379,8 @@ def initialize_network():
         B7,
         r=0.1872,
         x=0.6188,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L7 = Line(
         "L7",
@@ -343,9 +388,8 @@ def initialize_network():
         B8,
         r=0.7114,
         x=0.2351,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L8 = Line(
         "L8",
@@ -353,9 +397,8 @@ def initialize_network():
         B9,
         r=1.0300,
         x=0.7400,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L9 = Line(
         "L9",
@@ -363,9 +406,8 @@ def initialize_network():
         B10,
         r=1.0440,
         x=0.7400,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L10 = Line(
         "L10",
@@ -373,9 +415,8 @@ def initialize_network():
         B11,
         r=0.1966,
         x=0.0650,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L11 = Line(
         "L11",
@@ -383,9 +424,8 @@ def initialize_network():
         B12,
         r=0.3744,
         x=0.1238,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L12 = Line(
         "L12",
@@ -393,9 +433,8 @@ def initialize_network():
         B13,
         r=1.4680,
         x=1.1550,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L13 = Line(
         "L13",
@@ -403,9 +442,8 @@ def initialize_network():
         B14,
         r=0.5416,
         x=0.7129,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L14 = Line(
         "L14",
@@ -413,9 +451,8 @@ def initialize_network():
         B15,
         r=0.5910,
         x=0.5260,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L15 = Line(
         "L15",
@@ -423,9 +460,8 @@ def initialize_network():
         B16,
         r=0.7463,
         x=0.5450,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L16 = Line(
         "L16",
@@ -433,9 +469,8 @@ def initialize_network():
         B17,
         r=1.2890,
         x=1.72010,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L17 = Line(
         "L17",
@@ -443,9 +478,8 @@ def initialize_network():
         B18,
         r=0.7320,
         x=0.5740,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L18 = Line(
         "L18",
@@ -453,9 +487,8 @@ def initialize_network():
         B19,
         r=0.1640,
         x=0.1565,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L19 = Line(
         "L19",
@@ -463,9 +496,8 @@ def initialize_network():
         B20,
         r=1.5042,
         x=1.3554,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L20 = Line(
         "L20",
@@ -473,9 +505,8 @@ def initialize_network():
         B21,
         r=0.4095,
         x=0.4784,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L21 = Line(
         "L21",
@@ -483,9 +514,8 @@ def initialize_network():
         B22,
         r=0.7089,
         x=0.9373,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L22 = Line(
         "L22",
@@ -493,9 +523,8 @@ def initialize_network():
         B23,
         r=0.4512,
         x=0.3083,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L23 = Line(
         "L23",
@@ -503,9 +532,8 @@ def initialize_network():
         B24,
         r=0.8980,
         x=0.7091,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L24 = Line(
         "L24",
@@ -513,9 +541,8 @@ def initialize_network():
         B25,
         r=0.8960,
         x=0.7011,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L25 = Line(
         "L25",
@@ -523,9 +550,8 @@ def initialize_network():
         B26,
         r=0.2030,
         x=0.1034,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L26 = Line(
         "L26",
@@ -533,9 +559,8 @@ def initialize_network():
         B27,
         r=0.2842,
         x=0.1447,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L27 = Line(
         "L27",
@@ -543,9 +568,8 @@ def initialize_network():
         B28,
         r=1.0590,
         x=0.9337,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L28 = Line(
         "L28",
@@ -553,9 +577,8 @@ def initialize_network():
         B29,
         r=0.8042,
         x=0.7006,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L29 = Line(
         "L29",
@@ -563,9 +586,8 @@ def initialize_network():
         B30,
         r=0.5075,
         x=0.2585,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L30 = Line(
         "L30",
@@ -573,9 +595,8 @@ def initialize_network():
         B31,
         r=0.9744,
         x=0.9630,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L31 = Line(
         "L31",
@@ -583,9 +604,8 @@ def initialize_network():
         B32,
         r=0.3105,
         x=0.3619,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
     L32 = Line(
         "L32",
@@ -593,9 +613,8 @@ def initialize_network():
         B33,
         r=0.3410,
         x=0.5320,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=min_outage_time_line,
-        max_outage_time=max_outage_time_line,
     )
 
     E1 = CircuitBreaker("E1", L1)
@@ -786,8 +805,8 @@ def initialize_network():
             BM1,
             r=0.1872,  # 0.7394,
             x=0.0619,  # 0.2444,
+            outage_time_dist=line_stat_dist,
             fail_rate_density_per_year=fail_rate_line,
-            outage_time=outage_time_line,
         )
 
         ML2 = Line(
@@ -796,8 +815,8 @@ def initialize_network():
             BM2,
             r=0.0047,
             x=0.0016,
+            outage_time_dist=line_stat_dist,
             fail_rate_density_per_year=fail_rate_line,
-            outage_time=outage_time_line,
         )
         ML3 = Line(
             "ML3",
@@ -805,8 +824,8 @@ def initialize_network():
             BM3,
             r=0.0047,
             x=0.0016,
+            outage_time_dist=line_stat_dist,
             fail_rate_density_per_year=fail_rate_line,
-            outage_time=outage_time_line,
         )
         ML4 = Line(
             "ML4",
@@ -814,8 +833,8 @@ def initialize_network():
             BM4,
             r=0.0047,
             x=0.0016,
+            outage_time_dist=line_stat_dist,
             fail_rate_density_per_year=fail_rate_line,
-            outage_time=outage_time_line,
         )
 
         E2 = CircuitBreaker("E2", ML1)
@@ -839,128 +858,128 @@ def initialize_network():
         EVPark(
             name="EV1",
             bus=B3,
-            min_num_ev=0,
-            max_num_ev=round(B3.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B3.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV2",
             bus=B5,
-            min_num_ev=0,
-            max_num_ev=round(B5.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B5.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV3",
             bus=B6,
-            min_num_ev=0,
-            max_num_ev=round(B6.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B6.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV4",
             bus=B9,
-            min_num_ev=0,
-            max_num_ev=round(B9.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B9.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV5",
             bus=B10,
-            min_num_ev=0,
-            max_num_ev=round(B10.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B10.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV6",
             bus=B11,
-            min_num_ev=0,
-            max_num_ev=round(B11.n_customers*ev_percentage),
+           num_ev_dist=num_ev_stat_dist_func(B11.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV7",
             bus=B12,
-            min_num_ev=0,
-            max_num_ev=round(B12.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B12.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV8",
             bus=B13,
-            min_num_ev=0,
-            max_num_ev=round(B13.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B13.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV9",
             bus=B15,
-            min_num_ev=0,
-            max_num_ev=round(B15.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B15.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV10",
             bus=B16,
-            min_num_ev=0,
-            max_num_ev=round(B16.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B16.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV11",
             bus=B17,
-            min_num_ev=0,
-            max_num_ev=round(B17.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B17.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV12",
             bus=B18,
-            min_num_ev=0,
-            max_num_ev=round(B18.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B18.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV13",
             bus=B19,
-            min_num_ev=0,
-            max_num_ev=round(B19.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B19.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV14",
             bus=B20,
-            min_num_ev=0,
-            max_num_ev=round(B20.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B20.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV15",
             bus=B21,
-            min_num_ev=0,
-            max_num_ev=round(B21.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B21.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV16",
             bus=B22,
-            min_num_ev=0,
-            max_num_ev=round(B22.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B22.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV17",
             bus=B23,
-            min_num_ev=0,
-            max_num_ev=round(B23.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B23.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV18",
             bus=B26,
-            min_num_ev=0,
-            max_num_ev=round(B26.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B26.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV19",
             bus=B27,
-            min_num_ev=0,
-            max_num_ev=round(B27.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B27.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV20",
             bus=B28,
-            min_num_ev=0,
-            max_num_ev=round(B28.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B28.n_customers),
+            v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV21",
             bus=B33,
-            min_num_ev=0,
-            max_num_ev=round(B33.n_customers*ev_percentage),
+            num_ev_dist=num_ev_stat_dist_func(B33.n_customers),
+            v2g_flag=v2g_flag,
         )
 
 
