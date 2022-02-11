@@ -8,3 +8,4 @@ Theory
 
    theory/bfs
    theory/reliability_indices
+   theory/battery
