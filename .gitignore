@@ -165,3 +165,6 @@ tags
 ## Sphinx
 # sphinx build folder
  _build
+
+# sphinx autosummary folder
+_autosummary
