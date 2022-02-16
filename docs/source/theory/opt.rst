@@ -1,0 +1,7 @@
+==================================
+Load shedding optimization problem
+==================================
+
+Since in most systems, there are lines and generation resources with limited capacity, a simple load shedding optimization problem is implemented. The load shedding optimization problem aims to minimize the total shedded load in a power system based on the price of shedding load for the system operator. 
+
+The load shedding optimization problem minimizes the total load shedded in the network based on *Cost of Energy not Supplied* (CENS) for shedding that specific load type. This is subjected to load flow balance and capacity limitations over the power lines and bus restriction such as load and generation capacity at the bus. Here :math:`C_{n}` represent the cost of shedding load at bus *n* while :math:`P_{n}^{s}` is the amount of shedded power at node *n*. :math:`P_{j}^{g}` is the production from generator *j* where :math:`P_{k}^{d}` is the load demand at bus *k*. :math:`P_{i}^{l}` is the power transferred over line *i*. :math:`\gamma_{i}` = 1 if line *i* is the starting point, -1 if line *i* is the ending point. :math:`\lambda_{j}` = 1 if there is a production unit at node *j*, otherwise :math:`\lambda_{j}` is 0. :math:`\mu_{k}` = 1 if there is a load at node *k*, otherwise :math:`\mu_{k}` is 0. 

@@ -15,17 +15,24 @@ This cookiecutter creates a boilerplate for a Python project.
 To get started, check out the sections below:
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 2
+    :caption: Contents:
 
-   installation
-   usage
-   contributing
-   conduct
-   theory
+    installation
+    usage
+    contributing
+    conduct
+    theory
 
 Indices and tables
 ==================
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+.. autosummary::
+   :toctree: ../_build/_autosummary
+   :template: custom-module-template.rst
+   :recursive:
+
+   relsad

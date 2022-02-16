@@ -7,5 +7,6 @@ Theory
    :caption: Contents:
 
    theory/bfs
+   theory/opt
    theory/reliability_indices
    theory/battery
