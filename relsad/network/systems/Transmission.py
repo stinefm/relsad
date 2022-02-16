@@ -27,6 +27,8 @@ class Transmission(Network):
         self.buses = [bus]
         self.sections = list()
 
+        self.ev_parks = list()
+
         bus.handle.color = self.color
         bus.color = self.color
         self.parent_network.add_bus(bus)

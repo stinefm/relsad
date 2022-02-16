@@ -32,6 +32,9 @@ from relsad.reliability.indices import (
     SAIDI,
     CAIDI,
     EENS,
+    EV_Index,
+    EV_Interruption,
+    EV_Duration,
 )
 
 
@@ -46,6 +49,9 @@ def plot_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
         "SAIDI",
         "CAIDI",
         "EENS",
+        "EV_Index",
+        "EV_Interruption",
+        "EV_Duration",
     ]
     power_system_save_dir = os.path.join(save_dir, power_system.name)
     for state_var in network_state_list:
@@ -85,6 +91,9 @@ def save_network_monte_carlo_history(
         "SAIDI",
         "CAIDI",
         "EENS",
+        "EV_Index",
+        "EV_Interruption",
+        "EV_Duration",
     ]
     power_system_save_dir = os.path.join(save_dir, power_system.name)
     for state_var in network_state_list:
@@ -138,6 +147,9 @@ def initialize_monte_carlo_history(power_system: PowerSystem):
         "SAIDI",
         "CAIDI",
         "EENS",
+        "EV_Index",
+        "EV_Interruption",
+        "EV_Duration",
     ]
     save_dict = {}
     save_dict[power_system.name] = {}
@@ -238,6 +250,9 @@ def update_monte_carlo_power_system_history(
         "SAIDI": SAIDI(power_system, time_unit),
         "CAIDI": CAIDI(power_system, time_unit),
         "EENS": EENS(power_system),
+        "EV_Index": EV_Index(power_system),
+        "EV_Interruption": EV_Interruption(power_system),
+        "EV_Duration": EV_Duration(power_system, time_unit),
     }
     for state_var, value in network_state_dict.items():
         save_dict[power_system.name][state_var][it] = value
@@ -259,6 +274,9 @@ def update_monte_carlo_child_network_history(
             "SAIDI": SAIDI(network, time_unit),
             "CAIDI": CAIDI(network, time_unit),
             "EENS": EENS(network),
+            "EV_Index": EV_Index(network),
+            "EV_Interruption": EV_Interruption(network),
+            "EV_Duration": EV_Duration(network, time_unit),
         }
         for state_var, value in network_state_dict.items():
             save_dict[network.name][state_var][it] = value
@@ -293,6 +311,9 @@ def merge_monte_carlo_history(
         "SAIDI": SAIDI(power_system, time_unit),
         "CAIDI": CAIDI(power_system, time_unit),
         "EENS": EENS(power_system),
+        "EV_Index": EV_Index(power_system),
+        "EV_Interruption": EV_Interruption(power_system),
+        "EV_Duration": EV_Duration(power_system, time_unit),
     }
     for it_dict in iteration_dicts:
         it = list(
@@ -328,6 +349,9 @@ def merge_monte_carlo_child_network_history(
             "SAIDI": SAIDI(network, time_unit),
             "CAIDI": CAIDI(network, time_unit),
             "EENS": EENS(network),
+            "EV_Index": EV_Index(network),
+            "EV_Interruption": EV_Interruption(network),
+            "EV_Duration": EV_Duration(network, time_unit),
         }
         for state_var in network_state_dict.keys():
             save_dict[network.name][state_var][it] = it_dict[network.name][

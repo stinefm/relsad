@@ -70,13 +70,23 @@ class EVPark(Component):
         self.SOC_max = SOC_max
         self.n_battery = n_battery
 
-        self.curr_demand = None
-        self.curr_charge = None
+        self.curr_demand = 0
+        # curr_charge < 0 => discharge
+        # curr_charge > 0 => charge
+        self.curr_charge = 0
 
         self.v2g_flag = v2g_flag
 
         self.cars = list()
-        self.num_cars = None
+        self.num_cars = 0
+
+        ## Reliability attributes
+        self.num_consecutive_interruptions = 0
+        self.interruption_fraction = 0
+        self.curr_interruptions = 0
+        self.acc_interruptions = 0
+        self.curr_interruption_duration = Time(0)
+        self.acc_interruption_duration = Time(0)
 
         ## History
         self.history = {}
@@ -169,6 +179,9 @@ class EVPark(Component):
         self.history["demand"] = {}
         self.history["charge"] = {}
         self.history["num_cars"] = {}
+        self.history["interruption_fraction"] = {}
+        self.history["acc_interruptions"] = {}
+        self.history["acc_interruption_duration"] = {}
         
     def update_history(
         self, prev_time: Time, curr_time: Time, save_flag: bool
@@ -185,6 +198,29 @@ class EVPark(Component):
         ----------
         None
         """
+        dt = curr_time - prev_time if prev_time is not None else curr_time
+        # Accumulate fraction of interupted customers
+        self.interruption_fraction = (
+            abs(self.curr_charge / (self.inj_p_max * self.num_cars * dt.get_hours()))
+            if self.curr_charge < 0
+            else 0
+        )
+
+        if self.interruption_fraction > 0:
+            self.curr_interruptions += self.interruption_fraction
+            self.num_consecutive_interruptions += 1
+            self.curr_interruption_duration += dt
+        else:
+            if self.num_consecutive_interruptions >= 1:
+                self.acc_interruptions += (
+                    self.curr_interruptions
+                    / self.num_consecutive_interruptions
+                )
+                self.acc_interruption_duration += \
+                    self.curr_interruption_duration
+            self.curr_interruptions = 0
+            self.curr_interruption_duration = Time(0)
+            self.num_consecutive_interruptions = 0
         if save_flag:
             self.history["SOC"][curr_time] = self.get_SOC()
             self.history["ev_index"][
@@ -197,6 +233,15 @@ class EVPark(Component):
                 curr_time
             ] = self.curr_charge
             self.history["num_cars"][curr_time] = self.num_cars
+            self.history["interruption_fraction"][
+                curr_time
+            ] = self.interruption_fraction
+            self.history["acc_interruptions"][
+                curr_time
+            ] = self.acc_interruptions
+            self.history["acc_interruption_duration"][
+                curr_time
+            ] = self.acc_interruption_duration
 
     def get_history(self, attribute: str):
         """
@@ -282,9 +327,16 @@ class EVPark(Component):
         None
 
         """
-        self.curr_demand = None
-        self.curr_charge = None
+        self.curr_demand = 0
+        self.curr_charge = 0
         self.cars.clear()
-        self.num_cars = None
+        self.num_cars = 0
+        ## Reliability attributes
+        self.num_consecutive_interruptions = 0
+        self.interruption_fraction = 0
+        self.curr_interruptions = 0
+        self.acc_interruptions = 0
+        self.acc_interruption_duration = Time(0)
+        self.curr_interruption_duration = Time(0)
         if save_flag:
             self.initialize_history()
