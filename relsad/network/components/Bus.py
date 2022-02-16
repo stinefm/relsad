@@ -385,6 +385,7 @@ class Bus(Component):
         # Accumulated load shed for bus
         self.acc_p_load_shed = 0
         self.acc_q_load_shed = 0
+        self.num_consecutive_interruptions = 0
         self.interruption_fraction = 0
         self.curr_interruptions = 0
         self.acc_interruptions = 0
