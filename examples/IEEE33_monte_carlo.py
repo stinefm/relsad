@@ -228,9 +228,17 @@ if __name__ == "__main__":
     sim = Simulation(ps, random_seed=0)
 
     sim.run_monte_carlo(
-        iterations=5,
-        increments=100,
-        time_step=Time(1, TimeUnit.HOUR),
+        iterations=5000,
+        increments=365,
+        start_time=TimeStamp(
+            year=2019, 
+            month=1, 
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+        ),
+        time_step=Time(30, TimeUnit.MINUTE),
         time_unit=TimeUnit.HOUR,
         load_dict=load_dict,
         prod_dict=prod_dict,

@@ -1,3 +1,4 @@
+import numpy as np
 from relsad.network.components import (
     Bus,
     CircuitBreaker,
@@ -39,7 +40,7 @@ def initialize_network():
     include_production = False
     include_ICT = False
     include_ev = True
-    v2g_falg = True
+    v2g_flag = True
 
     # StatDist: 
 
@@ -99,9 +100,6 @@ def initialize_network():
     fail_rate_trafo = 0.0  # fails per year
     fail_rate_line = 0.013  # fails per year
     outage_time_trafo = Time(8, TimeUnit.HOUR)  # hours
-    min_outage_time_line = Time(2, TimeUnit.HOUR)
-    max_outage_time_line = Time(2, TimeUnit.HOUR)
-    ev_percentage = 0.47
 
     B1 = Bus("B1", n_customers=0, coordinate=[-1, 0], fail_rate_per_year=0)
     B2 = Bus(
@@ -344,6 +342,7 @@ def initialize_network():
         B3,
         r=0.4930,
         x=0.2511,
+        outage_time_dist=line_stat_dist,
         fail_rate_density_per_year=fail_rate_line,
     )
     L3 = Line(
