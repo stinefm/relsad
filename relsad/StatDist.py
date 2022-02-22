@@ -1,6 +1,9 @@
 from enum import Enum
 from collections import namedtuple
 from scipy import stats
+import numpy as np
+import matplotlib.pyplot as plt
+from relsad.utils import random_instance
 
 
 class StatDistType(Enum):
@@ -68,4 +71,31 @@ class StatDist:
             return None
         if self.stat_dist_type == StatDistType.CUSTOM_DISCRETE:
             return self.parameters.xk[value]
- 
+
+    def plot(self, path: str):
+        n_points = 5000
+        n_bins = 50
+        rand_instance = random_instance()
+        dist = self.draw(
+            rand_instance,
+            size=n_points,
+        )
+        fig, ax = plt.subplots()
+        ax.hist(dist, bins=n_bins)
+        fig.savefig(path)
+
+
+if __name__=="__main__":
+    stat_dist = StatDist(
+        stat_dist_type=StatDistType.TRUNCNORMAL,
+        parameters=NormalParameters(
+            loc=1.25,
+            scale=0.1,
+            min_val=0.5,
+            max_val=2,
+
+        ),
+        draw_flag=True,
+        get_flag=False,
+    )
+    stat_dist.plot(path="stat_dist_plot.pdf")
