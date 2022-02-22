@@ -69,7 +69,7 @@ def EV_Index(network: Network):
 
 def EV_Interruption(network: Network):
     """
-    Returns the current EV Interruption
+    Returns the current EV Interruption. Tells how many EVs that get interrupted/used for support
     """
     interrupted_cars = sum(
         [ev_park.acc_interruptions * ev_park.num_cars for ev_park in network.ev_parks]
@@ -81,7 +81,7 @@ def EV_Interruption(network: Network):
 
 def EV_Duration(network: Network, time_unit: TimeUnit):
     """
-    Returns the current EV Duration
+    Returns the current EV Duration. Tells the average duration of the interrupted/used EVs
     """
     sum_interruption_duration_x_num_cars = sum(
         [
