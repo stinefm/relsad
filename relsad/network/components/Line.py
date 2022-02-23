@@ -118,7 +118,7 @@ class Line(Component):
         v_ref: float = 12.66,  # kV
         rho: float = 1.72e-8,  # resistivity [Ohm*m]
         area: float = 64.52e-6,  # cross-sectional area [m**2]
-        fail_rate_density_per_year: float = 0.07,
+        fail_rate_density_per_year: float = 0.07, # fails/(km*year)
         capacity: float = 100,  # MW
         connected=True,
     ):

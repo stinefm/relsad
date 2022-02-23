@@ -227,7 +227,7 @@ class PowerSystem(Network):
 
     def get_system_load_balance(self):
         """
-        Returns the load balance of the system
+        Returns the load balance of the system in MW and MVar
         """
         system_load_balance_p, system_load_balance_q = 0, 0
         for bus in self.buses:

@@ -63,17 +63,17 @@ class EVPark(Component):
         bus.ev_park = self
 
         self.num_ev_dist = num_ev_dist
-        self.inj_p_max = inj_p_max
-        self.inj_q_max = inj_q_max
-        self.E_max = E_max
+        self.inj_p_max = inj_p_max # MW
+        self.inj_q_max = inj_q_max # MVar
+        self.E_max = E_max # MWh
         self.SOC_min = SOC_min
         self.SOC_max = SOC_max
         self.n_battery = n_battery
 
-        self.curr_demand = 0
+        self.curr_demand = 0 # MW
         # curr_charge < 0 => discharge
         # curr_charge > 0 => charge
-        self.curr_charge = 0
+        self.curr_charge = 0 # MW
 
         self.v2g_flag = v2g_flag
 
@@ -160,8 +160,8 @@ class EVPark(Component):
         curr_demand = 0
         for car in self.cars:
             curr_demand += min(
-                car.inj_p_max*dt.get_hours(),
-                car.E_max*car.SOC_max - car.E_battery,
+                car.inj_p_max,
+                (car.E_max*car.SOC_max - car.E_battery)/dt.get_hours(),
             )
         return curr_demand
 
@@ -201,7 +201,7 @@ class EVPark(Component):
         dt = curr_time - prev_time if prev_time is not None else curr_time
         # Accumulate fraction of interupted customers
         self.interruption_fraction = (
-            abs(self.curr_charge / (self.inj_p_max * self.num_cars * dt.get_hours()))
+            abs(self.curr_charge / (self.inj_p_max * self.num_cars))
             if self.curr_charge < 0
             else 0
         )

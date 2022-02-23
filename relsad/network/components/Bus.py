@@ -171,6 +171,9 @@ class Bus(Component):
         self.load_dict = load_dict
 
     def set_load(self, inc_idx: int):
+        """
+        Sets the bus load in MW
+        """
         self.reset_load()
         if self.load_dict:
             for load_type in self.load_dict["load"]:
@@ -393,9 +396,9 @@ class Bus(Component):
             self.initialize_history()
 
     def add_to_load_shed_stack(self, p_load: float, q_load: float, dt: Time):
-        if self.battery is None:
-            self.p_load_shed_stack += p_load * dt.get_hours()  # MWh
-            self.q_load_shed_stack += q_load * dt.get_hours()  # MWh
+        #if self.battery is None:
+        self.p_load_shed_stack += p_load * dt.get_hours()  # MWh
+        self.q_load_shed_stack += q_load * dt.get_hours()  # MWh
 
     def reset_load_flow_data(self):
         """

@@ -127,8 +127,8 @@ class Production(Component):
 
         Parameters
         ----------
-        curr_time : Time
-            Current time
+        inc_idx : int
+            Index of current increment
 
         Returns
         ----------

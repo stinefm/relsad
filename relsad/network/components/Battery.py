@@ -243,13 +243,13 @@ class Battery(Component):
         """
 
         p_ch_remaining = 0
-        if p_ch > self.inj_p_max * dt.get_hours():
-            p_ch_remaining += p_ch - self.inj_p_max * dt.get_hours()
+        if p_ch > self.inj_p_max:
+            p_ch_remaining += p_ch - self.inj_p_max
             if p_ch >= INF:
-                p_ch = self.inj_p_max * dt.get_hours()
+                p_ch = self.inj_p_max
             else:
                 p_ch -= p_ch_remaining
-        dE = self.n_battery * p_ch
+        dE = self.n_battery * p_ch * dt.get_hours() # MWh
         E_tr = self.E_battery + dE
         SOC_tr = E_tr / self.E_max
         dSOC = dE / self.E_max
@@ -305,22 +305,22 @@ class Battery(Component):
 
         p_dis_remaining = 0
         q_dis_remaining = 0
-        if p_dis > self.inj_p_max * dt.get_hours():
-            p_dis_remaining += p_dis - self.inj_p_max * dt.get_hours()
+        if p_dis > self.inj_p_max:
+            p_dis_remaining += p_dis - self.inj_p_max
             p_dis -= p_dis_remaining
-        if q_dis > self.inj_q_max * dt.get_hours():
-            q_dis_remaining += q_dis - self.inj_q_max * dt.get_hours()
+        if q_dis > self.inj_q_max:
+            q_dis_remaining += q_dis - self.inj_q_max
             q_dis -= q_dis_remaining
-        if p_dis + q_dis > self.inj_max * dt.get_hours():
+        if p_dis + q_dis > self.inj_max:
             f_p = p_dis / (p_dis + q_dis)  # active fraction
             f_q = 1 - f_p  # reactive fraction
-            diff = p_dis + q_dis - self.inj_max * dt.get_hours()
+            diff = p_dis + q_dis - self.inj_max
             p_dis_remaining += diff * (1 - f_p)
             q_dis_remaining += diff * (1 - f_q)
             p_dis -= diff * (1 - f_p)
             q_dis -= diff * (1 - f_q)
 
-        dE = 1 / self.n_battery * (p_dis + q_dis)
+        dE = 1 / self.n_battery * (p_dis + q_dis) * dt.get_hours() # MWh/MVarh
         E_tr = self.E_battery - dE
         SOC_tr = E_tr / self.E_max
         dSOC = dE / self.E_max
@@ -374,9 +374,9 @@ class Battery(Component):
         Parameters
         ----------
         system_load_balance_p : float
-            Active system load balance
+            Active system load balance in MW
         system_load_balance_q : float
-            Reactive system load balance
+            Reactive system load balance in MW
 
         Returns
         ----------
