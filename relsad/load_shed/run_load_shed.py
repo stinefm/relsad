@@ -237,8 +237,8 @@ def _shed_reactive_loads(
     if q_res.fun > 0:
         for i, bus in enumerate(buses):
             bus.add_to_load_shed_stack(
-                q_res.x[i] if q_res.x[i] > alpha else 0,
                 0,
+                q_res.x[i] if q_res.x[i] > alpha else 0,
                 dt,
             )
         _add_to_shed_configs()
