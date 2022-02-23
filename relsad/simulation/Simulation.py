@@ -64,12 +64,13 @@ class Simulation:
         """
         Runs power system at current state for one time increment
         """
+        ## Time step
+        dt = curr_time - prev_time if prev_time is not None else curr_time
         ## Set loads
         self.power_system.set_load(inc_idx)
         ## Set productions
         self.power_system.set_prod(inc_idx)
         ## Set fail status
-        dt = curr_time - prev_time if prev_time is not None else curr_time
         self.power_system.update_fail_status(dt)
         ## Run control loop
         self.power_system.controller.run_control_loop(curr_time, dt)
@@ -159,8 +160,8 @@ class Simulation:
     def run_monte_carlo(
         self,
         iterations: int,
-        increments: int,
         start_time: TimeStamp,
+        stop_time: TimeStamp,
         time_step: Time,
         time_unit: TimeUnit,
         load_dict: dict,
@@ -173,6 +174,7 @@ class Simulation:
         ss = SeedSequence(self.random_seed)
         child_seeds = ss.spawn(iterations)
         self.power_system.create_sections()
+        increments = int((stop_time - start_time)/time_step)
         time_increments = np.arange(
             stop=increments * time_step.get_unit_quantity(time_unit),
             step=time_step.get_unit_quantity(time_unit),
