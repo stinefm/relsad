@@ -158,25 +158,7 @@ class Time:
     def __truediv__(self, other):
         if not isinstance(other, self.__class__):
             raise Exception("Wrong type")
-        return Time(self.get_hours() / other.get_hours(), self.unit)
-
-    def __mul__(self, other):
-        if not isinstance(other, self.__class__):
-            raise Exception("Wrong type")
-        if self.unit == TimeUnit.SECOND:
-            return Time(self.get_seconds() * other.quantity, self.unit)
-        elif self.unit == TimeUnit.MINUTE:
-            return Time(self.get_minutes() * other.quantity, self.unit)
-        elif self.unit == TimeUnit.HOUR:
-            return Time(self.get_hours() * other.quantity, self.unit)
-        elif self.unit == TimeUnit.DAY:
-            return Time(self.get_days() * other.quantity, self.unit)
-        elif self.unit == TimeUnit.WEEK:
-            return Time(self.get_weeks() * other.quantity, self.unit)
-        elif self.unit == TimeUnit.MONTH:
-            return Time(self.get_months() * other.quantity, self.unit)
-        elif self.unit == TimeUnit.YEAR:
-            return Time(self.get_years() * other.quantity, self.unit)
+        return self.get_hours() / other.get_hours()
 
     def get_seconds(self):
         if self.unit == TimeUnit.SECOND:
@@ -347,3 +329,23 @@ class TimeStamp:
             dup -= Time(d, TimeUnit.DAY)
         dup -= Time(self.hour, TimeUnit.HOUR)
         return int(dup.get_hours())
+
+    def __sub__(self, other):
+        if not isinstance(other, self.__class__):
+            raise Exception("Wrong type")
+        return (
+            Time(self.year - other.year, TimeUnit.YEAR) +
+            Time(self.month - other.month, TimeUnit.MONTH) +
+            Time(self.day - other.day, TimeUnit.DAY) +
+            Time(self.hour - other.hour, TimeUnit.HOUR) +
+            Time(self.minute - other.minute, TimeUnit.MINUTE) +
+            Time(self.second - other.second, TimeUnit.SECOND)
+        )
+
+if __name__=="__main__":
+    t1 = Time(5, TimeUnit.MINUTE)
+    print(t1.get_years())
+    print(t1.get_hours())
+    t2 = Time(1, TimeUnit.HOUR)
+    print(t2.get_years())
+    print(t2.get_hours())
