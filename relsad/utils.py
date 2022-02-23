@@ -56,7 +56,7 @@ def interpolate(array: np.ndarray, time_indices: np.ndarray):
 
 
 def convert_yearly_fail_rate(fail_rate_per_year: float, dt: Time):
-    return fail_rate_per_year * dt.get_hours() / (365 * 24)
+    return min(fail_rate_per_year * dt.get_years(), 1)
 
 
 if __name__ == "__main__":
