@@ -280,7 +280,7 @@ class Bus(Component):
         self.acc_q_load_shed += self.q_load_shed_stack
         dt = curr_time - prev_time if prev_time is not None else curr_time
         self.acc_outage_time += dt if self.p_load_shed_stack > 0 else Time(0)
-        self.avg_outage_time = self.acc_outage_time / curr_time
+        self.avg_outage_time = Time(self.acc_outage_time / curr_time, curr_time.unit)
         self.avg_fail_rate = self.get_avg_fail_rate()
         # Accumulate fraction of interupted customers
         self.interruption_fraction = (
