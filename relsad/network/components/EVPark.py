@@ -37,8 +37,82 @@ from relsad.StatDist import StatDist
 
 
 """
-
 class EVPark(Component):
+    
+    """
+    Common class for batteries
+    ...
+
+    Attributes
+    ----------
+    name : string
+        Name of the EV park
+    bus : Bus
+        The bus the EV park is connected to
+    num_ev_dist : StatDist
+        Statistical distribution that gives the amount of EVs available at a given time in the network
+    inj_p_max : float
+        The active power charging/discharging capacity of the EV battery [MW]
+    inj_q_max : float
+        The reactive power discharging capacity of the EV battery [MVar]
+    E_max : float
+        The maximum energy capacity of an EV [Mwh]
+    SOC_min : float
+        The minimal state of charge level in the EV battery
+    SOC_max : float
+        The maximum state of charge level in the EV battery
+    n_battery : float
+        The EV battery efficiency
+    v2g_flag : bool
+        A flag telling if the EV park contributes with V2G services or not
+    curr_demand : float
+        Current demand of power [MW]
+    curr_charge : float
+        Current power that are being charged/dischared [MW]
+    cars : list
+        List of cars in the EV park
+    num_cars : int
+        Number of cars in the EV park
+    num_consecutive_interruptions : int
+        Number of consecutive interruptions an EV experiences
+    interruption_fraction : float
+        Fraction of interruptions on an EV
+    acc_interruptions : float
+        Accumulated interruptions an EV experiences
+    curr_interruption_duration : Time
+        Current interruption duration an EV experiences
+    acc_interruption_duration : Time 
+        Accumulated interruption duration an EV experiences
+    history : dict
+        Dictonary attribute that stores the historic variables
+
+    Methods
+    ----------
+    draw_current_state(hour_of_day)
+        Draws the number of EVs in the park at that time and the SOC level of each EV which will make the SOC level of the EV park
+    update(p, q, fail_duration, dt, hour_of_day)
+    get_curr_demand(dt)
+        Gives the current power demand of an EV
+    get_SOC()
+        Gives the SOC level of the EV park
+    get_ev_index()
+        Gives the power demand of av EV that is not met by the system 
+    initialize_history()
+        Initializes the history variables
+    update_history(prev_time, curr_time, save_flag)
+        Updates the history variables
+    get_history(attribute)
+        Returns the history variables of an attribute
+    update_fail_status(dt)
+        Locks og unlocks the battery functionality based on failure states of the basestation
+    add_random_instance(random_gen)
+        Adds global random seed
+    print_status()
+        Prints the status of the EV park
+    reset_status(save_flag)
+        Resets and sets the status of the class parameters
+           
+    """
 
     ## Random instance
     ps_random: np.random.Generator = None
@@ -108,8 +182,17 @@ class EVPark(Component):
 
     def draw_current_state(self, hour_of_day: int):
         """
-        Draw the number of EVs in the park at that time and
-        the SOC level of each car which will make the SOC level of the park 
+        Draws the number of EVs in the park at that time 
+        and the SOC level of each EV which will make the SOC level of the EV park
+
+        Paramters
+        ----------
+        hour_of_day : int
+            The hour of the day
+        Returns
+        ----------
+        None
+
         """
         self.num_cars = round(self.num_ev_dist.get(hour_of_day))
         soc_states = self.ps_random.uniform(
@@ -136,6 +219,23 @@ class EVPark(Component):
             car.update_SOC()
 
     def update(self, p, q, fail_duration: Time, dt: Time, hour_of_day: int):
+        """
+        
+
+        Paramters
+        ----------
+        p : float
+        q : float
+        fail_duration : Time
+        dt : Time
+        hour_of_day : int
+            The hour of the day
+        Returns
+        ----------
+        p : float
+        q : float
+
+        """
         if fail_duration == dt:
             self.draw_current_state(hour_of_day)
         self.curr_demand = self.get_curr_demand(dt)
@@ -157,6 +257,20 @@ class EVPark(Component):
         return p, q
 
     def get_curr_demand(self, dt: Time):
+        """
+        Gives the current power demand of an EV
+
+        Paramters
+        ----------
+        dt : Time
+            The current time step
+        
+        Returns
+        ----------
+        curr_demand : float
+            The current power demand of the EV
+
+        """
         curr_demand = 0
         for car in self.cars:
             curr_demand += min(
@@ -166,14 +280,50 @@ class EVPark(Component):
         return curr_demand
 
     def get_SOC(self):
+        """
+        Gives the SOC level of the EV park
+
+        Paramters
+        ----------
+        None
+        
+        Returns
+        ----------
+        
+
+        """
+
         if self.num_cars <= 0:
             return 0
         return np.mean([car.SOC for car in self.cars])
 
     def get_ev_index(self):
+        """
+        Gives the power demand of av EV that is not met by the system 
+
+        Paramters
+        ----------
+        NOne
+        
+        Returns
+        ----------
+
+        """
         return self.curr_demand - self.curr_charge
 
     def initialize_history(self):
+        """
+        Initializes the history variables
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+        """
+        
         self.history["SOC"] = {}
         self.history["ev_index"] = {}
         self.history["demand"] = {}
@@ -191,8 +341,12 @@ class EVPark(Component):
 
         Parameters
         ----------
+        prev_time : Time
+            The previous time
         curr_time : Time
             Current time
+        save_flag : bool
+            Indicates if saving is on or off
 
         Returns
         ----------
@@ -256,6 +410,7 @@ class EVPark(Component):
         ----------
         history[attribute] : dict
             Returns the history variables of an attribute
+
         """
         return self.history[attribute]
 
@@ -265,7 +420,8 @@ class EVPark(Component):
 
         Parameters
         ----------
-        None
+        dt : Time
+            The current time step
 
         Returns
         ----------
@@ -320,7 +476,8 @@ class EVPark(Component):
 
         Parameters
         ----------
-        None
+        save_flag : bool
+            Indicates if saving is on or off
 
         Returns
         ----------

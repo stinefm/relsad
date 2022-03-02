@@ -36,7 +36,9 @@ class Battery(Component):
     inj_max : float
         The maximum apperent power that the battery can inject [MVa]
     f_inj_p : float
+        Active power capacity fraction
     f_inj_q : float
+        Reactive power capacity fraction
     E_max : float
         The maximum capacity of the battery [MWh]
     SOC_min : float
@@ -53,6 +55,8 @@ class Battery(Component):
         The state of charge of the battery
     E_battery : float
         The amount of energy stored in the battery [MWh]
+    ev_flag : bool
+        Boolean variable telling if the battery is an electric vehicle battery
     lock : bool
         Boolean variable that locks the battery if a basestation is failed, locks the functionality of the battery
     history : dict
@@ -70,6 +74,8 @@ class Battery(Component):
         Prints the status of the battery
     update_bus_load_and_prod(system_load_balance_p, system_load_balance_q)
         Updates the load and production on the bus based on the system load balance
+    initialize_history()
+        Initializes the history variables
     update_history(curr_time, dt, save_flag)
         Updates the history variables
     get_history(attribute)
@@ -84,6 +90,11 @@ class Battery(Component):
         Sets the microgrid mode
     start_survival_time()
         Starts the timer for how long the battery should focus on supporting own load
+    draw_SOC_state()
+        Draws the SOC state based on a uniform distribution
+    update(p, q, fail_duration, dt)
+        SOMETHING
+
     """
 
     ## Random instance
@@ -126,7 +137,9 @@ class Battery(Component):
         inj_max : float
             The maximum apperent power that the battery can inject [MVa]
         f_inj_p : float
+            Active power capacity fraction
         f_inj_q : float
+            Reactivw power capacity fraction
         E_max : float
             The maximum capacity of the battery [MWh]
         SOC_min : float
@@ -143,6 +156,8 @@ class Battery(Component):
             The state of charge of the battery
         E_battery : float
             The amount of energy stored in the battery [MWh]
+        ev_flag : bool
+            Boolean variable telling if the battery is an electric vehicle battery
         lock : bool
             Boolean variable that locks the battery if a basestation is failed, locks the functionality of the battery
         history : dict
@@ -222,22 +237,24 @@ class Battery(Component):
         """
         Charge the battery
 
-        Decides how much the battery can charge based on the available energy that can be stored, the maximum power that can be injected, and the maximum state of charge of the battery
+        Decides how much the battery can charge based on the available power in the system that can be stored, the maximum power that can be injected, and the maximum state of charge of the battery
 
         Updates the state of charge of the battery
 
-        Returns a float telling how much energy the battery is not able to charge
+        Returns a float telling how much power the battery is not able to charge
 
 
         Parameters
         ----------
         p_ch : float
-            Amount of available energy in the network for the battery to charge [MW]
+            Amount of available power in the network for the battery to charge from [MW]
+        dt : Time
+            The current time step
 
         Returns
         ----------
         P_ch_remaining : float
-            Amount of wanted active energy from the network exceeding battery capacity [MW]
+            Amount of active power from the network exceeding charging capacity, power not used by the battery [MW]
 
 
         """
@@ -268,26 +285,28 @@ class Battery(Component):
         """
         Discharge the battery
 
-        Decides how much the battery can discharge based on the available energy in the battery limited by the state of charge, the maximum power that can be injected, and the wanted amount of energy from the battery
+        Decides how much the battery can discharge based on the available energy in the battery limited by the state of charge, the maximum power that can be injected, and the wanted amount of power from the battery
 
         Updates the state of charge of the battery
 
-        Returns a float telling how much energy the battery is not able to discharge
+        Returns a float telling how much power the battery is not able to discharge
 
 
         Parameters
         ----------
         p_dis : float
-            Amount of wanted active energy from the network [MW]
+            Amount of wanted active power from the network [MW]
         q_dis : float
-            Amount of wanted reactive energy from the network [MW]
+            Amount of wanted reactive power from the network [MVar]
+        dt : Time
+            The current time step
 
         Returns
         ----------
-        p_ch_remaining : float
-            Amount of wanted active energy from the network exceeding battery capacity [MW]
-        q_ch_remaining : float
-            Amount of wanted reactive energy from the network exceeding battery capacity [MW]
+        p_dis_remaining : float
+            Amount of wanted active power from the network exceeding battery discharging capacity [MW]
+        q_dis_remaining : float
+            Amount of wanted reactive power from the network exceeding battery discharging capacity [MVar]
 
         """
 
@@ -377,6 +396,8 @@ class Battery(Component):
             Active system load balance in MW
         system_load_balance_q : float
             Reactive system load balance in MW
+        dt : Time
+            The current time step
 
         Returns
         ----------
@@ -403,11 +424,13 @@ class Battery(Component):
             pprod = p - self.discharge(p, 0, dt)[0]
         if p < 0 and q < 0:
             pload = -p - self.charge(-p, dt)
+        
         # if self.SOC >= self.SOC_min:
         self.bus.pprod += pprod  # MW
         self.bus.qprod += qprod  # MVar
         self.bus.pprod_pu += pprod / self.bus.s_ref  # PU
         self.bus.qprod_pu += qprod / self.bus.s_ref  # PU
+        
         # if self.SOC <= self.SOC_max:
         self.bus.pload += pload  # MW
         self.bus.qload += qload  # MVar
@@ -420,6 +443,17 @@ class Battery(Component):
         return p_rem, q_rem
 
     def initialize_history(self):
+        """
+        Initializes the history variables
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+        """
         self.history["SOC"] = {}
         self.history["SOC_min"] = {}
         self.history["remaining_survival_time"] = {}
@@ -432,8 +466,12 @@ class Battery(Component):
 
         Parameters
         ----------
+        prev_time : Time
+            The previous time
         curr_time : Time
             Current time
+        save_flag : bool
+            Indicates if saving is on or off
 
         Returns
         ----------
@@ -468,7 +506,8 @@ class Battery(Component):
 
         Parameters
         ----------
-        None
+        dt : Time
+            The current time step
 
         Returns
         ----------
@@ -502,7 +541,8 @@ class Battery(Component):
 
         Parameters
         ----------
-        None
+        save_flag : bool
+            Indicates if saving is on or off
 
         Returns
         ----------
@@ -534,6 +574,7 @@ class Battery(Component):
     def start_survival_time(self):
         """
         Starts the timer for how long the battery should focus on supporting own load
+        Only for when a microgrid is added and follows a survival mode
 
         Parameters
         ----------
@@ -549,6 +590,15 @@ class Battery(Component):
     def draw_SOC_state(self):
         """
         Draws the SOC state based on a uniform distribution
+       
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
         """
         self.E_battery = self.ps_random.uniform(
             low=self.E_min,
@@ -556,7 +606,27 @@ class Battery(Component):
         )
         self.update_SOC()
 
-    def update(self, p, q, fail_duration: Time, dt: Time):
+    def update(self, p : float, q : float, fail_duration: Time, dt: Time):
+        """
+        Updates the active and reactive power at a bus ... microgrid
+       
+        Parameters
+        ----------
+        p : float
+            Active power 
+        q : float
+            Reactive power 
+        fail_duration : Time
+            The duration of the failure
+        dt : Time
+            The current time step
+
+        Returns
+        ----------
+        p : float
+        q : float
+        
+        """
         if (
             self.mode in [MicrogridMode.SURVIVAL, MicrogridMode.FULL_SUPPORT]
             and fail_duration == dt
