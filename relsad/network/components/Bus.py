@@ -18,39 +18,98 @@ class Bus(Component):
 
     ...
 
-        Attributes
-        ----------
-        name : string
-            Name of the bus
-        coordinate : list
-            Coordinate of the bus
-        pload : float
-            The active load at the bus [MW]
-        qload : float
-            The reactive load at the bus [MVar]
-        ZIP : list
-        vset : float
-        iloss : float
-        pqcostRatio :
-        comp :
-        p_load_downstream : float
-        q_load_downstream : float
-        p_loss_downstream : float
-        q_loss_downstream : float
-        dPdV : float
-        dQdV : float
-        dVdP : float
-        dVdQ : float
-        dPlossdP : float
-        dPlossdQ : float
-        dQlossdP : float
-        dQlossdQ : float
-        dP2lossdP2 : float
-        dP2lossdQ2 : float
-        lossRatioP :
-        lossRatioQ :
-        voang : float
-        vomag : float
+    Attributes
+    ----------
+    name : string
+        Name of the bus
+    n_customers : int
+        Number of customers connected to that bus
+    coordinate : list
+        Coordinate of the bus
+    ZIP : list
+        Type of load model
+    s_ref : float
+        Apperent power reference [MVa]
+    vset : float
+    iloss : float
+    pqcostRatio : float
+    is_slack : bool
+        Tells if the given bus is a slack bus or not
+    fail_rate_per_year : float
+        The failure rate of the transformer on the bus per year
+    outage_time : Time
+        The outage time of the transformer on the bus
+    calc_sensitivities : bool
+        Sets the calculation of sensitivities in the load flow on/off
+    load_dict : dict
+        Dictionary with the load at the bus
+    comp : int
+    num : 
+    toline : Line 
+        Tells which line/lines that are going into the bus
+    fromline : Line
+        Tells which line/lines that are going out of the bus
+    toline_list : list
+        List of lines going into the bus
+    
+    pload : float
+        The active load at the bus [MW]
+    qload : float
+        The reactive load at the bus [MVar]
+    ZIP : list
+    vset : float
+    iloss : float
+    pqcostRatio :
+    comp :
+    p_load_downstream : float
+    q_load_downstream : float
+    p_loss_downstream : float
+    q_loss_downstream : float
+    dPdV : float
+    dQdV : float
+    dVdP : float
+    dVdQ : float
+    dPlossdP : float
+    dPlossdQ : float
+    dQlossdP : float
+    dQlossdQ : float
+    dP2lossdP2 : float
+    dP2lossdQ2 : float
+    lossRatioP :
+    lossRatioQ :
+    voang : float
+    vomag : float
+
+    Methods
+    ----------
+    fail()
+        Sets the sensor state to FAILED
+    not_fail()
+        Sets the sensor state to OK
+    draw_fail_status(dt)
+        Draws the state of the sensor for a given time step
+    draw_status(prob)
+        Sets the state of the sensor based on the probability of the state being FAILED
+    repair(dt)
+    get_line_fail_status(dt)
+    get_section()
+        Returns the line section
+    update_fail_status(dt)
+        Updates the fail status of the sensor
+        If the state of the sensor is REPAIR, the remaining repair time is set
+        If the state of the sensor is OK, the state of the sensor is drawn
+    update_history(prev_time, curr_time, save_flag)
+        Updates the history variables
+    get_history(attribute)
+        Returns the history variables of an attribute
+    add_random_instance(random_gen)
+        Adds global random instance
+    print_status()
+        Prints the status
+    reset_status(save_flag)
+        Resets the status of the sensor
+    initialize_history()
+        Initializes the history variables
 
     """
 
