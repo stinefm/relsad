@@ -111,7 +111,7 @@ class EVPark(Component):
         Prints the status of the EV park
     reset_status(save_flag)
         Resets and sets the status of the class parameters
-           
+
     """
 
     ## Random instance
@@ -124,8 +124,8 @@ class EVPark(Component):
         num_ev_dist: StatDist,
         inj_p_max: float = 0.072,
         inj_q_max: float = 0.072,
-        E_max: float = 0.75,
-        SOC_min: float = 0.1, 
+        E_max: float = 0.70,
+        SOC_min: float = 0.2, 
         SOC_max: float = 0.9, 
         n_battery: float = 0.95,
         v2g_flag: bool = True,
