@@ -72,30 +72,80 @@ class StatDist:
         if self.stat_dist_type == StatDistType.CUSTOM_DISCRETE:
             return self.parameters.xk[value]
 
-    def plot(self, path: str):
-        n_points = 5000
-        n_bins = 50
+    def get_pdf(
+        self,
+        x,
+    ):
+        if self.stat_dist_type == StatDistType.UNIFORM_FLOAT:
+            pass
+        elif self.stat_dist_type == StatDistType.UNIFORM_INT:
+            pass
+        elif self.stat_dist_type == StatDistType.TRUNCNORMAL:
+            return stats.truncnorm.pdf(
+                    x,
+                    (self.parameters.min_val - self.parameters.loc) / self.parameters.scale,
+                    (self.parameters.max_val - self.parameters.loc) / self.parameters.scale,
+                    loc=self.parameters.loc,
+                    scale=self.parameters.scale,
+            )
+        elif self.stat_dist_type == StatDistType.CUSTOM_DISCRETE:
+            pass
+
+    def histplot(
+        self,
+        ax,
+        n_points: int=5000,
+        n_bins: int=50,
+    ):
         rand_instance = random_instance()
         dist = self.draw(
             rand_instance,
             size=n_points,
         )
-        fig, ax = plt.subplots()
         ax.hist(dist, bins=n_bins)
         fig.savefig(path)
 
+    def plot(
+        self,
+        ax,
+        x,
+    ):
+        if self.stat_dist_type == StatDistType.UNIFORM_FLOAT:
+            pass
+        elif self.stat_dist_type == StatDistType.UNIFORM_INT:
+            pass
+        elif self.stat_dist_type == StatDistType.TRUNCNORMAL:
+            ax.plot(
+                x, 
+                stats.truncnorm.pdf(
+                    x,
+                    (self.parameters.min_val - self.parameters.loc) / self.parameters.scale,
+                    (self.parameters.max_val - self.parameters.loc) / self.parameters.scale,
+                    loc=self.parameters.loc,
+                    scale=self.parameters.scale,
+                ),
+            )
+        elif self.stat_dist_type == StatDistType.CUSTOM_DISCRETE:
+            pass
+
 
 if __name__=="__main__":
+    loc = 1.25
+    scale = 0.1
+    min_val, max_val = 0.5, 2
     stat_dist = StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
         parameters=NormalParameters(
-            loc=1.25,
-            scale=0.1,
-            min_val=0.5,
-            max_val=2,
+            loc=loc,
+            scale=scale,
+            min_val=min_val,
+            max_val=max_val,
 
         ),
         draw_flag=True,
         get_flag=False,
     )
-    stat_dist.plot(path="stat_dist_plot.pdf")
+    fig, ax = plt.subplots()
+    x = np.linspace(min_val, max_val, 1000)
+    stat_dist.plot(ax=ax, x=x)
+    fig.savefig(fname="stat_dist_plot.pdf")
