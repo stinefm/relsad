@@ -109,6 +109,7 @@ class StatDist:
         self,
         ax,
         x,
+        color: str="b",
     ):
         if self.stat_dist_type == StatDistType.UNIFORM_FLOAT:
             pass
@@ -124,6 +125,7 @@ class StatDist:
                     loc=self.parameters.loc,
                     scale=self.parameters.scale,
                 ),
+                color=color,
             )
         elif self.stat_dist_type == StatDistType.CUSTOM_DISCRETE:
             pass
