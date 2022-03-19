@@ -34,13 +34,13 @@ from relsad.StatDist import (
 
 
 
-def initialize_network():
-
-    include_microgrid = False
-    include_production = False
-    include_ICT = False
-    include_ev = True
-    v2g_flag = True
+def initialize_network(
+    include_microgrid: bool=True,
+    include_production: bool=True,
+    include_ICT: bool=True,
+    include_ev: bool=True,
+    v2g_flag: bool=True,
+):
 
     # StatDist: 
 
@@ -756,102 +756,6 @@ def initialize_network():
         Battery("Battery", B30, E_max=battery_capacity)
         Production("Wind_Plant", B15)
 
-    if include_microgrid:
-
-        # Micorgrid:
-
-        microgrid_mode = MicrogridMode.LIMITED_SUPPORT
-        battery_capacity = 1  # MWh
-
-        BM1 = Bus(
-            "BM1",
-            n_customers=0,
-            coordinate=[14, 2],
-            fail_rate_per_year=fail_rate_trafo,
-            outage_time=outage_time_trafo,
-        )
-        BM2 = Bus(
-            "BM2",
-            n_customers=40,
-            coordinate=[15, 2],
-            fail_rate_per_year=fail_rate_trafo,
-            outage_time=outage_time_trafo,
-        )
-        BM3 = Bus(
-            "BM3",
-            n_customers=0,
-            coordinate=[15, 2.5],
-            fail_rate_per_year=fail_rate_trafo,
-            outage_time=outage_time_trafo,
-        )
-        BM4 = Bus(
-            "BM4",
-            n_customers=0,
-            coordinate=[15, 1.5],
-            fail_rate_per_year=fail_rate_trafo,
-            outage_time=outage_time_trafo,
-        )
-
-        Battery("Bat1", BM1, E_max=battery_capacity)
-        Production("P1", BM3)
-        Production("P2", BM4)
-
-        # Microgrid
-
-        ML1 = Line(
-            "ML1",
-            B33,
-            BM1,
-            r=0.1872,  # 0.7394,
-            x=0.0619,  # 0.2444,
-            outage_time_dist=line_stat_dist,
-            fail_rate_density_per_year=fail_rate_line,
-        )
-
-        ML2 = Line(
-            "ML2",
-            BM1,
-            BM2,
-            r=0.0047,
-            x=0.0016,
-            outage_time_dist=line_stat_dist,
-            fail_rate_density_per_year=fail_rate_line,
-        )
-        ML3 = Line(
-            "ML3",
-            BM1,
-            BM3,
-            r=0.0047,
-            x=0.0016,
-            outage_time_dist=line_stat_dist,
-            fail_rate_density_per_year=fail_rate_line,
-        )
-        ML4 = Line(
-            "ML4",
-            BM1,
-            BM4,
-            r=0.0047,
-            x=0.0016,
-            outage_time_dist=line_stat_dist,
-            fail_rate_density_per_year=fail_rate_line,
-        )
-
-        E2 = CircuitBreaker("E2", ML1)
-
-        DML1a = Disconnector("ML1a", ML1, B33, E2)
-        DML1b = Disconnector("ML1b", ML1, BM1, E2)
-        DML1c = Disconnector("ML1c", ML1, BM1)
-        DML2a = Disconnector("ML2a", ML2, BM1)
-        DML2b = Disconnector("ML2b", ML2, BM2)
-        DML3a = Disconnector("ML3a", ML3, BM1)
-        DML3b = Disconnector("ML3b", ML3, BM3)
-        DML4a = Disconnector("ML4a", ML4, BM1)
-        DML4b = Disconnector("ML4b", ML4, BM4)
-
-        m = Microgrid(dn, ML1, mode=microgrid_mode)
-        m.add_buses([BM1, BM2, BM3, BM4])
-        m.add_lines([ML2, ML3, ML4])
-
     if include_ev: 
 
         EVPark(
@@ -983,6 +887,185 @@ def initialize_network():
 
 
         
+
+    
+    
+    tn = Transmission(ps, B1)
+
+    dn = Distribution(tn, L1)
+
+    dn.add_buses(
+        [
+            B2,
+            B3,
+            B4,
+            B5,
+            B6,
+            B7,
+            B8,
+            B9,
+            B10,
+            B11,
+            B12,
+            B13,
+            B14,
+            B15,
+            B16,
+            B17,
+            B18,
+            B19,
+            B20,
+            B21,
+            B22,
+            B23,
+            B24,
+            B25,
+            B26,
+            B27,
+            B28,
+            B29,
+            B30,
+            B31,
+            B32,
+            B33,
+        ]
+    )
+
+    dn.add_lines(
+        [
+            L2,
+            L3,
+            L4,
+            L5,
+            L6,
+            L7,
+            L8,
+            L9,
+            L10,
+            L11,
+            L12,
+            L13,
+            L14,
+            L15,
+            L16,
+            L17,
+            L18,
+            L19,
+            L20,
+            L21,
+            L22,
+            L23,
+            L24,
+            L25,
+            L26,
+            L27,
+            L28,
+            L29,
+            L30,
+            L31,
+            L32,
+            # L33,
+            # L34,
+            # L35,
+            # L36,
+            # L37,
+        ]
+    )
+    if include_microgrid:
+
+        # Micorgrid:
+
+        microgrid_mode = MicrogridMode.LIMITED_SUPPORT
+        battery_capacity = 1  # MWh
+
+        BM1 = Bus(
+            "BM1",
+            n_customers=0,
+            coordinate=[14, 2],
+            fail_rate_per_year=fail_rate_trafo,
+            outage_time=outage_time_trafo,
+        )
+        BM2 = Bus(
+            "BM2",
+            n_customers=40,
+            coordinate=[15, 2],
+            fail_rate_per_year=fail_rate_trafo,
+            outage_time=outage_time_trafo,
+        )
+        BM3 = Bus(
+            "BM3",
+            n_customers=0,
+            coordinate=[15, 2.5],
+            fail_rate_per_year=fail_rate_trafo,
+            outage_time=outage_time_trafo,
+        )
+        BM4 = Bus(
+            "BM4",
+            n_customers=0,
+            coordinate=[15, 1.5],
+            fail_rate_per_year=fail_rate_trafo,
+            outage_time=outage_time_trafo,
+        )
+
+        Battery("Bat1", BM1, E_max=battery_capacity)
+        Production("P1", BM3)
+        Production("P2", BM4)
+
+        # Microgrid
+
+        ML1 = Line(
+            "ML1",
+            B33,
+            BM1,
+            r=0.1872,  # 0.7394,
+            x=0.0619,  # 0.2444,
+            outage_time_dist=line_stat_dist,
+            fail_rate_density_per_year=fail_rate_line,
+        )
+
+        ML2 = Line(
+            "ML2",
+            BM1,
+            BM2,
+            r=0.0047,
+            x=0.0016,
+            outage_time_dist=line_stat_dist,
+            fail_rate_density_per_year=fail_rate_line,
+        )
+        ML3 = Line(
+            "ML3",
+            BM1,
+            BM3,
+            r=0.0047,
+            x=0.0016,
+            outage_time_dist=line_stat_dist,
+            fail_rate_density_per_year=fail_rate_line,
+        )
+        ML4 = Line(
+            "ML4",
+            BM1,
+            BM4,
+            r=0.0047,
+            x=0.0016,
+            outage_time_dist=line_stat_dist,
+            fail_rate_density_per_year=fail_rate_line,
+        )
+
+        E2 = CircuitBreaker("E2", ML1)
+
+        DML1a = Disconnector("ML1a", ML1, B33, E2)
+        DML1b = Disconnector("ML1b", ML1, BM1, E2)
+        DML1c = Disconnector("ML1c", ML1, BM1)
+        DML2a = Disconnector("ML2a", ML2, BM1)
+        DML2b = Disconnector("ML2b", ML2, BM2)
+        DML3a = Disconnector("ML3a", ML3, BM1)
+        DML3b = Disconnector("ML3b", ML3, BM3)
+        DML4a = Disconnector("ML4a", ML4, BM1)
+        DML4b = Disconnector("ML4b", ML4, BM4)
+
+        m = Microgrid(dn, ML1, mode=microgrid_mode)
+        m.add_buses([BM1, BM2, BM3, BM4])
+        m.add_lines([ML2, ML3, ML4])
 
     if include_ICT:
 
@@ -1119,90 +1202,8 @@ def initialize_network():
             IntelligentSwitch("ISwML3b", DML3b)
             IntelligentSwitch("ISwML4a", DML4a)
             IntelligentSwitch("ISwML4b", DML4b)
-    
-    tn = Transmission(ps, B1)
 
-    dn = Distribution(tn, L1)
-
-    dn.add_buses(
-        [
-            B2,
-            B3,
-            B4,
-            B5,
-            B6,
-            B7,
-            B8,
-            B9,
-            B10,
-            B11,
-            B12,
-            B13,
-            B14,
-            B15,
-            B16,
-            B17,
-            B18,
-            B19,
-            B20,
-            B21,
-            B22,
-            B23,
-            B24,
-            B25,
-            B26,
-            B27,
-            B28,
-            B29,
-            B30,
-            B31,
-            B32,
-            B33,
-        ]
-    )
-
-    dn.add_lines(
-        [
-            L2,
-            L3,
-            L4,
-            L5,
-            L6,
-            L7,
-            L8,
-            L9,
-            L10,
-            L11,
-            L12,
-            L13,
-            L14,
-            L15,
-            L16,
-            L17,
-            L18,
-            L19,
-            L20,
-            L21,
-            L22,
-            L23,
-            L24,
-            L25,
-            L26,
-            L27,
-            L28,
-            L29,
-            L30,
-            L31,
-            L32,
-            # L33,
-            # L34,
-            # L35,
-            # L36,
-            # L37,
-        ]
-    )
-
-    return ps, include_microgrid, include_production
+    return ps
 
 
 if __name__ == "__main__":

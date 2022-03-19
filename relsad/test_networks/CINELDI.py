@@ -1,4 +1,5 @@
 import os
+import numpy as np
 from relsad.visualization.plotting import plot_topology
 from relsad.network.components import (
     Bus,
@@ -25,22 +26,74 @@ from relsad.Time import (
     TimeUnit,
 )
 
+from relsad.StatDist import (
+    StatDist,
+    StatDistType,
+    NormalParameters,
+    CustomDiscreteParameters,
+)
 
-def initialize_network():
-    fail_rate_trafo = 0.007
-    fail_rate_line = 0.7
-    fail_rate_intelligent_switch = 1000
-    fail_rate_hardware = 0.2
-    fail_rate_software = 12
-    fail_rate_sensor = 0.023
-    p_fail_repair_new_signal = 1 - 0.95
-    p_fail_repair_reboot = 1 - 0.9
 
-    include_microgrid = False
-    include_production = False
-    include_ICT = False
-    include_ev = True
-    include_backup = False
+def initialize_network(
+    fail_rate_trafo: float=0.007,
+    fail_rate_line: float=0.7,
+    fail_rate_intelligent_switch: float=1000,
+    fail_rate_hardware: float=0.2,
+    fail_rate_software: float=12,
+    fail_rate_sensor: float=0.023,
+    p_fail_repair_new_signal: float=1 - 0.95,
+    p_fail_repair_reboot: float=1 - 0.9,
+    outage_time_trafo: Time=Time(8, TimeUnit.HOUR),
+    include_microgrid: bool=True,
+    include_production: bool=True,
+    include_ICT: bool=True,
+    include_ev: bool=True,
+    v2g_flag: bool=True,
+    include_backup: bool=True,
+):
+
+        # StatDist: 
+
+    line_stat_dist = StatDist(
+        stat_dist_type=StatDistType.TRUNCNORMAL,
+        parameters=NormalParameters(
+            loc=1.25, 
+            scale=1,
+            min_val=0.5,
+            max_val=2,
+        ),
+        draw_flag=True,
+        get_flag=False,
+    )
+
+    def num_ev_stat_dist_func(
+        n_customers,
+        ev_percentage=0.47,
+        daily_charge_frac=0.61,
+    ):
+        return StatDist(
+            stat_dist_type=StatDistType.CUSTOM_DISCRETE,
+            parameters=CustomDiscreteParameters(
+                xk=np.array(
+                    [
+                        0.52, 0.52, 0.52, 0.52, 0.52,
+                        0.52, 0.52, 0.08, 0.08, 0.18,
+                        0.18, 0.18, 0.18, 0.18, 0.18, 
+                        0.18, 0.28, 0.28, 0.28, 0.28,
+                        0.42, 0.42, 0.42, 0.42,
+                    ]
+                )*n_customers*ev_percentage*daily_charge_frac,
+                pk=[
+                    0, 1, 2, 3, 4,
+                    5, 6, 7, 8, 9,
+                    10, 11, 12, 13, 14,
+                    15, 16, 17, 18, 19,
+                    20, 21, 22, 23,
+                ],
+            ),
+            draw_flag=False,
+            get_flag=True,
+        )
 
 
     if include_ICT:
@@ -70,30 +123,35 @@ def initialize_network():
         n_customers=1,
         coordinate=[0, -1],
         fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
     )
     B2 = Bus(
         "B2",
         n_customers=100,
         coordinate=[1, -2],
         fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
     )
     B3 = Bus(
         "B3",
         n_customers=50,
         coordinate=[0, -2],
         fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
     )
     B4 = Bus(
         "B4",
         n_customers=90,
         coordinate=[0, -3],
         fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
     )
     B5 = Bus(
         "B5",
         n_customers=3,
         coordinate=[1, -3],
         fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
     )
 
     
@@ -104,8 +162,7 @@ def initialize_network():
         r=0.057526629463617,
         x=0.029324854498807,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=Time(30,TimeUnit.MINUTE),
-        max_outage_time=Time(2,TimeUnit.HOUR),
+        outage_time_dist=line_stat_dist,
     )
     L2 = Line(
         "L2",
@@ -114,8 +171,7 @@ def initialize_network():
         r=0.057526629463617,
         x=0.029324854498807,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=Time(30,TimeUnit.MINUTE),
-        max_outage_time=Time(2,TimeUnit.HOUR),
+        outage_time_dist=line_stat_dist,
     )
     L3 = Line(
         "L3",
@@ -124,8 +180,7 @@ def initialize_network():
         r=0.7114,
         x=0.2351,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=Time(30,TimeUnit.MINUTE),
-        max_outage_time=Time(2,TimeUnit.HOUR),
+        outage_time_dist=line_stat_dist,
     )
     L4 = Line(
         "L4",
@@ -134,8 +189,7 @@ def initialize_network():
         r=0.7114,
         x=0.2351,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=Time(30,TimeUnit.MINUTE),
-        max_outage_time=Time(2,TimeUnit.HOUR),
+        outage_time_dist=line_stat_dist,
     )
     L5 = Line(
         "L5",
@@ -144,8 +198,7 @@ def initialize_network():
         r=0.7114,
         x=0.2351,
         fail_rate_density_per_year=fail_rate_line,
-        min_outage_time=Time(30,TimeUnit.MINUTE),
-        max_outage_time=Time(2,TimeUnit.HOUR),
+        outage_time_dist=line_stat_dist,
     )
 
     if include_backup: 
@@ -156,8 +209,7 @@ def initialize_network():
             r=0.7114,
             x=0.2351,
             fail_rate_density_per_year=fail_rate_line,
-            min_outage_time=Time(30,TimeUnit.MINUTE),
-            max_outage_time=Time(2,TimeUnit.HOUR),
+            outage_time_dist=line_stat_dist,
             capacity=6,
         )
         
@@ -196,18 +248,21 @@ def initialize_network():
             n_customers=0,
             coordinate=[-1, -2],
             fail_rate_per_year=fail_rate_trafo,
+            outage_time=outage_time_trafo,
         )
         M2 = Bus(
             "M2",
             n_customers=0,
             coordinate=[-2, -3],
             fail_rate_per_year=fail_rate_trafo,
+            outage_time=outage_time_trafo,
         )
         M3 = Bus(
             "M3",
             n_customers=40,
             coordinate=[-1, -3],
             fail_rate_per_year=fail_rate_trafo,
+            outage_time=outage_time_trafo,
         )
 
         Battery("Bat1", M1)
@@ -220,8 +275,7 @@ def initialize_network():
             r=0.057526629463617,
             x=0.029324854498807,
             fail_rate_density_per_year=fail_rate_line,
-            min_outage_time=Time(30,TimeUnit.MINUTE),
-            max_outage_time=Time(2,TimeUnit.HOUR),
+            outage_time_dist=line_stat_dist,
         )
         ML2 = Line(
             "ML2",
@@ -230,8 +284,7 @@ def initialize_network():
             r=0.057526629463617,
             x=0.029324854498807,
             fail_rate_density_per_year=fail_rate_line,
-            min_outage_time=Time(30,TimeUnit.MINUTE),
-            max_outage_time=Time(2,TimeUnit.HOUR),
+            outage_time_dist=line_stat_dist,
         )
 
         L7 = Line(
@@ -241,8 +294,7 @@ def initialize_network():
             r=0.057526629463617,
             x=0.029324854498807,
             fail_rate_density_per_year=fail_rate_line,
-            min_outage_time=Time(30,TimeUnit.MINUTE),
-            max_outage_time=Time(2,TimeUnit.HOUR),
+            outage_time_dist=line_stat_dist,
         )
 
         E2 = CircuitBreaker("E2", L7)
@@ -403,8 +455,8 @@ def initialize_network():
         EVPark(
             name="EV1",
             bus=B5,
-            min_num_ev=0,
-            max_num_ev=5,
+            num_ev_dist=num_ev_stat_dist_func(B3.n_customers),
+            v2g_flag=v2g_flag,
         )
     
     dn.add_buses([B1, B2, B3, B4, B5])
@@ -413,7 +465,7 @@ def initialize_network():
     else: 
         dn.add_lines([L2, L3, L4, L5])
 
-    return ps, include_microgrid, include_production, include_backup
+    return ps
 
 
 if __name__ == "__main__":
