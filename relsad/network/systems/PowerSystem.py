@@ -359,7 +359,7 @@ class PowerSystem(Network):
                         array=prod_dict[prod][prod_type],
                         time_indices=time_indices,
                     )
-                prod.add_prod_dict(prod_dict[prod])
+                prod.add_prod_dict(bus_prod_dict)
 
     def set_load(self, inc_idx: int):
         for bus in self.buses:
