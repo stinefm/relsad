@@ -51,12 +51,12 @@ class Bus(Component):
         Tells which line/lines that are going out of the bus
     toline_list : list
         List of lines going into the bus
-    
     pload : float
         The active load at the bus [MW]
     qload : float
         The reactive load at the bus [MVar]
     ZIP : list
+        List showing the ZIP load model
     vset : float
     iloss : float
     pqcostRatio :
@@ -82,35 +82,58 @@ class Bus(Component):
 
     Methods
     ----------
-    fail()
-        Sets the sensor state to FAILED
-    not_fail()
-        Sets the sensor state to OK
-    draw_fail_status(dt)
-        Draws the state of the sensor for a given time step
-    draw_status(prob)
-        Sets the state of the sensor based on the probability of the state being FAILED
-    repair(dt)
-    get_line_fail_status(dt)
-    get_section()
-        Returns the line section
+    reset_load_and_production_attributes()
+        Resets the load and generation at the bus
+    reset_load()
+        Resets the load at the bus by setting the load to 0
+    reset_prod()
+        Resets the generation at the bus by setting the generation to 0
+    add_load_dict(load_dict)
+        Adds a load dictionary to the bus
+    set_load(inc_idx)
+        Sets the bus load in MW based on load profile
+    get_load()
+        Retuns the current load at the bus in MW
+    trafo_fail(dt)
+        Sets the transformer status to failed, load and generation at the node are set to zero
+    trafo_not_fail()
+        Sets the transformer to not failed
+    get_battery()
+        Returns the battery at the bus
+    get_production()   
+        Returns the generation at the bus
     update_fail_status(dt)
-        Updates the fail status of the sensor
-        If the state of the sensor is REPAIR, the remaining repair time is set
-        If the state of the sensor is OK, the state of the sensor is drawn
+        Updates the fail status of the transformer. Sets the fail status to failed if the transformer is failed or the fail status to not failed if the transformer is not failed
+    set_slack()
+        Sets a bus to slack bus
+    print_status()
+        Prints the status of the bus
+    initialize_history()
+        Initializes the history variables
     update_history(prev_time, curr_time, save_flag)
         Updates the history variables
     get_history(attribute)
-        Returns the history variables of an attribute
+        Returns the history variables of an attribute at the bus
+    set_cost(cost)
+        Sets the Cost of Energy Not Supplied at the bus
+    get_cost()
+        Returns the Cost of Energy Not Supplied at the bus
+    shed_load(dt)
+        Sheds load at the bus and resets the load. The shedded load is added to a stack for the bus
+    clear_load_shed_stack()
+        Resets the load shed stack for the bus
     add_random_instance(random_gen)
-        Adds global random instance
-    print_status()
-        Prints the status
-    reset_status(save_flag)
-        Resets the status of the sensor
-    initialize_history()
-        Initializes the history variables
-
+        Adds global random seed
+    get_avg_fail_rate()
+        Returns the average failure rate of the transformer at the bus
+    reset_status(save_falg)
+        Resets and sets the status of the class parameters
+    add_to_load_shed_stack(p_load, q_load, dt)
+        Adds the shedded load to the load shed stack at the bus
+    reset_load_flow_data()
+        Resets the variables used in the load flow analysis
+    get_monte_carlo_history(attribute)
+        Returns a specified history variable from the Monte Carlo simulation
     """
 
     busCount = 0
@@ -137,8 +160,8 @@ class Bus(Component):
         coordinate: list = [0, 0],
         ZIP=[0.0, 0.0, 1.0],
         s_ref: float = 1,  # MVA
-        vset=0.0,
-        iloss=0,
+        vset : float = 0.0,
+        iloss: float = 0,
         pqcostRatio=100,
         is_slack: bool = False,
         fail_rate_per_year: float = 0.007,
@@ -211,27 +234,86 @@ class Bus(Component):
         return hash(self.name)
 
     def reset_load_and_prod_attributes(self):
+        """
+        Resets the load and generation at the bus
+
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         self.reset_load()
         self.reset_prod()
 
     def reset_load(self):
+        """
+        Resets the load at the bus by setting the load to 0
+
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         self.pload = 0
         self.qload = 0
         self.pload_pu = 0
         self.qload_pu = 0
 
     def reset_prod(self):
+        """
+        Resets the generation at the bus by setting the generation to 0
+
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+        
+        """
         self.pprod = 0
         self.qprod = 0
         self.pprod_pu = 0
         self.qprod_pu = 0
 
     def add_load_dict(self, load_dict: dict):
+        """
+        Adds a load dictionary to the bus
+
+        Paramters
+        ----------
+        load_dict : dict
+            Dictionary with the load at the bus
+
+        Returns
+        ----------
+        None
+        
+        """
         self.load_dict = load_dict
 
     def set_load(self, inc_idx: int):
         """
-        Sets the bus load in MW
+        Sets the bus load in MW based on load profile
+
+        Paramters
+        ----------
+        inc_idx : int
+            Dictionary with the load at the bus
+
+        Returns
+        ----------
+        None
+        
         """
         self.reset_load()
         if self.load_dict:
@@ -262,13 +344,35 @@ class Bus(Component):
 
     def get_load(self):
         """
-        Return the current bus load in MW
+        Returns the current load at the bus in MW
+
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        pload : float
+            The active load at the bus
+        qload : float
+            The reactive load at the bus
+        
         """
         return self.pload, self.qload
 
     def trafo_fail(self, dt: Time):
         """
-        Trafo fails, load and generation is set to zero
+        Sets the transformer status to failed, load and generation at the bus are set to zero
+
+        Paramters
+        ----------
+        dt : Time 
+            The current time step
+
+        Returns
+        ----------
+        None
+        
         """
         self.trafo_failed = True
         self.remaining_outage_time = self.outage_time
@@ -277,15 +381,66 @@ class Bus(Component):
             self.prod.reset_prod()
 
     def trafo_not_fail(self):
+        """
+        Sets the transformer status to not failed
+
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+        
+        """
         self.trafo_failed = False
 
     def get_battery(self):
+        """
+        Returns the battery at the bus
+
+        Paramters
+        ----------
+        None
+        
+        Returns
+        ----------
+        battery : Battery
+            Returns the battery at the bus, none if there is no battery at the bus
+        
+        """
         return self.battery
 
     def get_production(self):
+        """
+        Returns the generation at the bus
+
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        prod : Production
+            Returns the generation at the bus, none if there is no battery at the bus
+        
+        """
         return self.prod
 
     def update_fail_status(self, dt: Time):
+        """
+        Updates the fail status of the transformer. Sets the fail status to failed if the transformer is failed or the fail status to not failed if the transformer is not failed
+
+        Paramters
+        ----------
+        dt : Time
+            The current time step
+
+        Returns
+        ----------
+        None
+        
+        """
         if self.trafo_failed:
             self.remaining_outage_time -= dt
             if self.remaining_outage_time <= Time(0):
@@ -302,9 +457,33 @@ class Bus(Component):
                 self.trafo_not_fail()
 
     def set_slack(self):
+        """
+        Sets a bus to slack bus
+
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+        
+        """
         self.is_slack = True
 
     def print_status(self):
+        """
+        Prints the status of the bus 
+
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+        
+        """
         print(
             "name: {:3s}, trafo_failed={}, pload={:.4f}, "
             "is_slack={}".format(
@@ -313,6 +492,18 @@ class Bus(Component):
         )
 
     def initialize_history(self):
+        """
+        Initializes the history variables 
+
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+        
+        """
         self.history["pload"] = {}
         self.history["qload"] = {}
         self.history["pprod"] = {}
@@ -334,6 +525,23 @@ class Bus(Component):
     def update_history(
         self, prev_time: Time, curr_time: Time, save_flag: bool
     ):
+        """
+        Updates the history variables 
+
+        Paramters
+        ----------
+        prev_time : Time
+            The previous time
+        curr_time : Time
+            Current time
+        save_flag : bool
+            Indicates if saving is on or off
+
+        Returns
+        ----------
+        None
+        
+        """
         # Update accumulated load shed for bus
         self.acc_p_load_shed += self.p_load_shed_stack
         self.acc_q_load_shed += self.q_load_shed_stack
@@ -401,15 +609,67 @@ class Bus(Component):
         self.clear_load_shed_stack()
 
     def get_history(self, attribute: str):
+        """
+        Returns the history variables of an attribute at the bus
+
+        Parameters
+        ----------
+        attribute : str
+            Bus attribute
+
+        Returns
+        ----------
+        history[attribute] : dict
+            Returns the history variables of an attribute
+        """
         return self.history[attribute]
 
     def set_cost(self, cost: float):
+        """
+        Sets the Cost of Energy Not Supplied at the bus
+
+        Paramters
+        ----------
+        cost : float
+            The Cost of Energy Not Supplied
+
+        Returns
+        ----------
+        None
+        
+        """
         self.cost = cost
 
     def get_cost(self):
+        """
+        Returns the Cost of Energy Not Supplied at the bus
+
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        cost : float
+            The Cost of Energy Not Supplied
+        
+        """
         return self.cost
 
     def shed_load(self, dt: Time):
+        """
+        Sheds load at the bus and resets the load. The shedded load is added to a stack for the bus
+
+        Paramters
+        ----------
+        dt : Time
+            The current time step
+
+        Returns
+        ----------
+        None
+        
+        """
         self.add_to_load_shed_stack(
             self.pload,  # MW
             self.qload,  # MW
@@ -418,18 +678,50 @@ class Bus(Component):
         self.reset_load()
 
     def clear_load_shed_stack(self):
+        """
+        Resets the load shed stack for the bus
+
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+        
+        """
         self.p_load_shed_stack = 0
         self.q_load_shed_stack = 0
 
     def add_random_instance(self, random_gen):
         """
         Adds global random seed
+
+        Parameters
+        ----------
+        random_gen : int
+            Random number generator
+
+        Returns
+        ----------
+        None
+
         """
         self.ps_random = random_gen
 
     def get_avg_fail_rate(self):
         """
-        Returns the average failure rate of the bus
+        Returns the average failure rate of the transformer at the bus
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        avg_fail_rate : float
+            The average failure rate of the transformer at the bus
+
         """
         avg_fail_rate = self.fail_rate_per_year
         if self.parent_network is not None:
@@ -438,6 +730,19 @@ class Bus(Component):
         return avg_fail_rate
 
     def reset_status(self, save_flag: bool):
+        """
+        Resets and sets the status of the class parameters
+
+        Parameters
+        ----------
+        save_flag : bool
+            Indicates if saving is on or off
+
+        Returns
+        ----------
+        None
+
+        """
         self.trafo_failed = False
         self.remaining_outage_time = Time(0)
         self.acc_outage_time = Time(0)
@@ -455,6 +760,23 @@ class Bus(Component):
             self.initialize_history()
 
     def add_to_load_shed_stack(self, p_load: float, q_load: float, dt: Time):
+        """
+        Adds the shedded load to the load shed stack at the bus
+
+        Parameters
+        ----------
+        p_load : float
+            The active power at the bus
+        q_load : float
+            The reactive power at the bus
+        dt : Time
+            The current time step
+
+        Returns
+        ----------
+        None
+
+        """
         #if self.battery is None:
         self.p_load_shed_stack += p_load * dt.get_hours()  # MWh
         self.q_load_shed_stack += q_load * dt.get_hours()  # MWh
@@ -462,6 +784,14 @@ class Bus(Component):
     def reset_load_flow_data(self):
         """
         Resets the variables used in the load flow analysis
+
+        Parameters
+        ---------
+        None
+
+        Returns
+        --------
+        None
         """
         self.p_load_downstream = 0.0  # Active accumulated load at node
         self.q_load_downstream = 0.0  # Reactive accumulated load at node
@@ -484,6 +814,16 @@ class Bus(Component):
 
     def get_monte_carlo_history(self, attribute):
         """
-        Returns the specified history variable
+        Returns a specified history variable from the Monte Carlo simulation
+
+        Parameters
+        ---------
+        attribute : str
+            Bus attribute
+
+        Returns
+        --------
+        monte_carlo_history[attribute] : str
+            The specified history variable from the Monte Carlo simulation
         """
         return self.monte_carlo_history[attribute]

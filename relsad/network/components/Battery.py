@@ -491,7 +491,7 @@ class Battery(Component):
         Parameters
         ----------
         attribute : str
-            System attribute
+            Battery attribute
 
         Returns
         ----------

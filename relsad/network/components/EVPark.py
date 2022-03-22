@@ -220,14 +220,13 @@ class EVPark(Component):
 
     def update(self, p, q, fail_duration: Time, dt: Time, hour_of_day: int):
         """
-        
-
         Paramters
         ----------
         p : float
         q : float
         fail_duration : Time
         dt : Time
+            The current time step
         hour_of_day : int
             The hour of the day
         Returns
