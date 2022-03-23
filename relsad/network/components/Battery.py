@@ -453,6 +453,7 @@ class Battery(Component):
         Returns
         ----------
         None
+        
         """
         self.history["SOC"] = {}
         self.history["SOC_min"] = {}
@@ -476,6 +477,7 @@ class Battery(Component):
         Returns
         ----------
         None
+
         """
         if save_flag:
             self.history["SOC"][curr_time] = self.SOC

@@ -22,21 +22,21 @@ class CircuitBreaker(Component):
         ----------
         name : string
             Name of the circuit breaker
+        line : Line
+            The line the circuit breaker is connected to
+        is_open : bool
+            Indicates if the circuit breaker is open or closed
+        fail_rate : float
+            The failure rate of the circuit breaker [no. of fails per year]
+        outage_time : Time
+            The outage time of the circuit breaker
         coordinate : list
             Coordinate of the circuit breaker
         initial_state : bool
             The initial state of the circuit breaker
-        is_open : bool
-            Tells if the switch is open (True) or closed (False)
         failed : bool
-            True if the circuit breaker is in a failed state, False if not
-        fail_rate : float
-            The failure rate of the circuit breaker [no of fails per year]
-        outage_time : Time
-            The outage time of the circuit breaker
-        line : Line
-            The line the circuit breaker is connected to
-        disconnecter : list(Disconnectors)
+            True if the circuit breaker is in a failed state, False if not        
+        disconnectors : list(Disconnectors)
             Which disconnectors that are connected to the circuit breaker
         line.circuitbreaker :
         history : dict
@@ -48,15 +48,18 @@ class CircuitBreaker(Component):
             Closes the circuit breaker and the disconnectors connected to the circuit breaker
         open()
             Opens the circuit breaker and the disconnectors connected to the circuit breaker
-        update_fail_status()
-        update_history()
+        update_fail_status(dt)
+            Updates the failure status of the circuit breaker
+        initialize_history()
+            Initializes the history variables
+        update_history(prev_time, curr_time, save_flag)
             Updates the history variables
         get_history(attribute)
             Returns the history variables of an attribute
         add_random_instance(random_gen)
-            Adds global random
+            Adds global random seed
         print_status()
-        reset_status()
+        reset_status(save_flag)
             Resets and sets the status of the system parameters
 
 
@@ -169,6 +172,23 @@ class CircuitBreaker(Component):
 
     def update_fail_status(self, dt: Time):
         """
+        Updates the failuer status of the circuit breaker
+
+        Parameters
+        ----------
+        dt : Time
+            The current time step
+
+        Returns
+        ----------
+        None
+
+        """
+        pass
+
+    def initialize_history(self):
+        """
+        Initializes the history variables
 
         Parameters
         ----------
@@ -179,8 +199,6 @@ class CircuitBreaker(Component):
         None
 
         """
-
-    def initialize_history(self):
         self.history["is_open"] = {}
 
     def update_history(
@@ -191,8 +209,12 @@ class CircuitBreaker(Component):
 
         Parameters
         ----------
+        prev_time : Time
+            The previous time
         curr_time : Time
             Current time
+        save_flag : bool
+            Indicates if saving is on or off
 
         Returns
         ----------
@@ -247,6 +269,7 @@ class CircuitBreaker(Component):
         None
 
         """
+        pass
 
     def reset_status(self, save_flag: bool):
         """
@@ -254,7 +277,8 @@ class CircuitBreaker(Component):
 
         Parameters
         ----------
-        None
+        save_flag : bool
+            Indicates if saving is on or off
 
         Returns
         ----------

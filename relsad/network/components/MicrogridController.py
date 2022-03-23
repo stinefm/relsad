@@ -22,6 +22,67 @@ class MicrogridMode(Enum):
 
 
 class MicrogridController(Component):
+    """
+    Common class for microgrid controller
+
+    ...
+
+    Attributes
+    ----------
+    name : string
+        Name of the microgird controller
+    fail_rate : float
+        The failure rate of the microgrid controller
+    outage_time : float
+        The outage time of the microgrid controller
+    state : enum
+        The state of the microgrid controller
+    sectioning_time : Time
+        The sectioning time in the microgrid
+    parent_sectioning_time : Time
+        The sectioning time of the parent controller
+    check_components : bool
+    manual_sectioning_time : Time
+        The sectioning time of a passive microgrid without controller (or controller is failed)
+    network : Network
+        The network the controller belongs to
+    sensors : list
+        List of sensors associated with the microgrid
+    failed_sections : list
+        List of failed sections in the microgrid
+    history : dict
+        Dictonary attribute that stores the historic variables
+    monte_carlo_history : dict
+
+
+    Methods
+    ----------
+    check_circuitbreaker(curr_time, dt)
+    disconnect_failed_sections()
+        Disconnects the failed sections in the microgrid
+    check_sensors(curr_time, dt)
+    run_control_loop(curr_time, dt)
+    check_lines_manually(curr_time)
+    run_manual_control_loop(curr_time, dt)
+    set_sectioning_time(sectioning_time)
+        Sets the sectioning time in the microgrid
+    set_parent_sectioning_time(sectioning_time)
+        Sets the sectioning time of the parent network
+    update_fail_status(dt)
+        Updates the fail status
+    update_history(prev_time, curr_time, save_flag)
+        Updates the history variables
+    get_history(attribute)
+        Returns the history variables of an attribute
+    add_random_instance(random_gen)
+        Adds global random seed
+    print_status()
+        Prints the status
+    reset_status(save_flag)
+        Resets and sets the status of the class parameters
+    initialize_history()
+        Initializes the history variables 
+    """
     def __init__(
         self,
         name: str,
@@ -35,11 +96,11 @@ class MicrogridController(Component):
         self.fail_rate = fail_rate
         self.outage_time = outage_time
         self.state = state
-        self.section_time = Time(0)
-        self.parent_section_time = Time(0)
+        self.sectioning_time = Time(0)
+        self.parent_sectioning_time = Time(0)
         self.check_components = False
 
-        self.manual_section_time = None
+        self.manual_sectioning_time = None
 
         self.network = network
 
@@ -69,9 +130,24 @@ class MicrogridController(Component):
         return hash(self.name)
 
     def check_circuitbreaker(self, curr_time: Time, dt: Time):
+        """
+        Sets the controller state to software fail
+
+        Paramters
+        ----------
+        curr_time : Time
+            The current time
+        dt : Time
+            The current time step
+
+        Returns
+        ----------
+        None
+
+        """
         if self.network.connected_line.circuitbreaker.is_open:
             if (
-                self.section_time <= Time(0)
+                self.sectioning_time <= Time(0)
                 and not self.network.connected_line.failed
             ):
                 # If circuitbreaker in Microgrid with survival mode and parent Distribution
@@ -89,10 +165,37 @@ class MicrogridController(Component):
                     self.failed_sections = []
 
     def disconnect_failed_sections(self):
+        """
+        Disconnects the failed sections in the microgrid
+
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         for section in self.failed_sections:
             section.disconnect()
 
     def check_sensors(self, curr_time: Time, dt: Time):
+        """
+        Sets the controller state to software fail
+
+        Paramters
+        ----------
+        curr_time : Time
+            The current time
+        dt : Time
+            The current time step
+
+        Returns
+        ----------
+        None
+
+        """
         connected_sections = [
             x
             for x in self.network.sections
@@ -108,7 +211,7 @@ class MicrogridController(Component):
             num_fails = 0
             for sensor in sensors:
                 repair_time, line_fail_status = sensor.get_line_fail_status(dt)
-                self.section_time += repair_time
+                self.sectioning_time += repair_time
                 num_fails += 1 if line_fail_status else 0
             if num_fails == 0:
                 section.connect(dt)
@@ -117,25 +220,40 @@ class MicrogridController(Component):
             num_fails = 0
             for sensor in sensors:
                 repair_time, line_fail_status = sensor.get_line_fail_status(dt)
-                self.section_time += repair_time
+                self.sectioning_time += repair_time
                 num_fails += 1 if line_fail_status else 0
             if num_fails > 0:
                 section.state = SectionState.FAILED
-                self.section_time += section.get_disconnect_time(dt)
+                self.sectioning_time += section.get_disconnect_time(dt)
                 self.failed_sections.append(section)
                 self.failed_sections = unique(self.failed_sections)
 
     def run_control_loop(self, curr_time: Time, dt: Time):
-        self.section_time = (
-            self.section_time - dt if self.section_time > Time(0) else Time(0)
+        """
+        Sets the controller state to software fail
+
+        Paramters
+        ----------
+        curr_time : Time
+            The current time
+        dt : Time
+            The current time step
+
+        Returns
+        ----------
+        None
+
+        """
+        self.sectioning_time = (
+            self.sectioning_time - dt if self.sectioning_time > Time(0) else Time(0)
         )
-        self.section_time = max(
-            self.section_time,
-            self.parent_section_time,
+        self.sectioning_time = max(
+            self.sectioning_time,
+            self.parent_sectioning_time,
         )
         if (
             self.network.connected_line.circuitbreaker.is_open
-            and self.section_time <= Time(0)
+            and self.sectioning_time <= Time(0)
         ):
             self.check_components = True
         if self.check_components:
@@ -144,6 +262,19 @@ class MicrogridController(Component):
         self.check_circuitbreaker(curr_time, dt)
 
     def check_lines_manually(self, curr_time):
+        """
+        Sets the controller state to software fail
+
+        Paramters
+        ----------
+        curr_time : Time
+            The current time
+
+        Returns
+        ----------
+        None
+
+        """
         connected_sections = [
             x
             for x in self.network.sections
@@ -162,21 +293,36 @@ class MicrogridController(Component):
                 section.state = SectionState.FAILED
                 self.failed_sections.append(section)
                 self.failed_sections = unique(self.failed_sections)
-                self.section_time = self.manual_section_time
+                self.sectioning_time = self.manual_sectioning_time
                 for line in section.lines:
-                    line.remaining_outage_time += self.section_time
+                    line.remaining_outage_time += self.sectioning_time
 
     def run_manual_control_loop(self, curr_time: Time, dt: Time):
-        self.section_time = (
-            self.section_time - dt if self.section_time > Time(0) else Time(0)
+        """
+        Sets the controller state to software fail
+
+        Paramters
+        ----------
+        curr_time : Time
+            The current time
+        dt : Time
+            The current time step
+
+        Returns
+        ----------
+        None
+
+        """
+        self.sectioning_time = (
+            self.sectioning_time - dt if self.sectioning_time > Time(0) else Time(0)
         )
-        self.section_time = max(
-            self.section_time,
-            self.parent_section_time,
+        self.sectioning_time = max(
+            self.sectioning_time,
+            self.parent_sectioning_time,
         )
         if (
             self.network.connected_line.circuitbreaker.is_open
-            and self.section_time <= Time(0)
+            and self.sectioning_time <= Time(0)
         ):
             self.check_components = True
         if self.check_components:
@@ -184,40 +330,160 @@ class MicrogridController(Component):
             self.check_components = False
         self.check_circuitbreaker(curr_time, dt)
 
-    def set_section_time(self, section_time):
-        self.section_time = max(
-            self.section_time,
-            section_time,
+    def set_sectioning_time(self, sectioning_time):
+        """
+        Sets the sectioning time in the microgrid 
+
+        Paramters
+        ----------
+        sectioning_time : Time
+            The sectioning time in the microgrid
+
+        Returns
+        ----------
+        None
+
+        """
+        self.sectioning_time = max(
+            self.sectioning_time,
+            sectioning_time,
         )
 
-    def set_parent_section_time(self, section_time):
-        self.parent_section_time = section_time
+    def set_parent_sectioning_time(self, sectioning_time):
+        """
+        Sets the sectioning time of the parent network
+
+        Paramters
+        ----------
+        sectioning_time : Time
+            The sectioning time in the microgrid
+
+        Returns
+        ----------
+        None
+
+        """
+        self.parent_sectioning_time = sectioning_time
 
     def update_fail_status(self, dt: Time):
+        """
+        Updates the fail status
+
+        Paramters
+        ----------
+        dt : Time
+            The current time step
+
+        Returns
+        ----------
+        None
+
+        """
         pass
 
     def update_history(
         self, prev_time: Time, curr_time: Time, save_flag: bool
     ):
+        """
+        Updates the history variables
+
+        Parameters
+        ----------
+        prev_time : Time
+            The previous time
+        curr_time : Time
+            Current time
+        save_flag : bool
+            Indicates if saving is on or off
+
+        Returns
+        ----------
+        None
+
+        """
         if save_flag:
-            self.history["section_time"][
+            self.history["sectioning_time"][
                 curr_time
-            ] = self.section_time.get_unit_quantity(curr_time.unit)
+            ] = self.sectioning_time.get_unit_quantity(curr_time.unit)
 
     def get_history(self, attribute: str):
+        """
+        Returns the history variables of an attribute
+
+        Parameters
+        ----------
+        attribute : str
+            Battery attribute
+
+        Returns
+        ----------
+        history[attribute] : dict
+            Returns the history variables of an attribute
+
+        """
         return self.history[attribute]
 
     def add_random_instance(self, random_gen):
+        """
+        Adds global random seed
+
+        Parameters
+        ----------
+        random_gen : int
+            Random number generator
+
+        Returns
+        ----------
+        None
+
+        """
         pass
 
     def print_status(self):
+        """
+        Prints the status
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         pass
 
     def reset_status(self, save_flag: bool):
+        """
+        Resets and sets the status of the class parameters
+
+        Parameters
+        ----------
+        save_flag : bool
+            Indicates if saving is on or off
+
+        Returns
+        ----------
+        None
+
+        """
         self.prev_open_time = Time(0)
-        self.section_time = Time(0)
+        self.sectioning_time = Time(0)
         if save_flag:
             self.initialize_history()
 
     def initialize_history(self):
-        self.history["section_time"] = {}
+        """
+        Initializes the history variables
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+        
+        """
+        self.history["sectioning_time"] = {}

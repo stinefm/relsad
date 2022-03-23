@@ -21,22 +21,26 @@ class Disconnector(Component):
         ----------
         name : string
             Name of the disconnector
-        initial_state : book
-            The initial state of the disconnector
+        initial_state : bool
+            The initial state of the disconnector (open or colsed)
         is_open : bool
             Tells if the switch is open (True) or closed (False)
         failed : bool
             True if the disconnector is in a failed state, False if not
         fail_rate : float
-            The failure rate of the disconnector [no of fails per year]
+            The failure rate of the disconnector [no. of fails per year]
         outage_time : Time
             The outage time of the diconnector
         prev_open_time : Time
-            The time for the previous time step
+            The time of the previous time step
         line : Line
             The line the disconnecor is connected to
+        circuitbreaker : Circuitbreaker
+            The circuit breaker the disconnector is connected to if any
         base_bus : Bus
             Wich bus the disconnector is closes to (for setting coordinates)
+        intelligent_switch : IntelligentSwitch
+            Gives the intelligent switch connected to the disconnector if any
         history : dict
             Dictonary attribute that stores the historic variables
 
@@ -47,18 +51,20 @@ class Disconnector(Component):
         open()
             Opens the disconnector
         fail()
-            Sets the diconnecotr to failed
+            Sets the disconnector to failed and opens the disconnector
         not_fail()
-            Sets the doconnector to not failed
-        update_fail_status()
-        update_history(curr_time)
+            Sets the doconnector to not failed and closes the disconnector
+        update_fail_status(dt)
+        initialize_history()
+            Initializes the history variables
+        update_history(prev_time, curr_time, save_flag)
             Updates the history variables
         get_history(attribute)
             Returns the history variables of an attribute
         add_random_instance(random_gen)
-            Adds global random
+            Adds global random seed
         print_status()
-        reset_status()
+        reset_status(save_falg)
             Resets and sets the status of the system parameters
 
     """
@@ -182,7 +188,7 @@ class Disconnector(Component):
 
     def fail(self):
         """
-        Sets the diconnecotr to failed
+        Sets the diconnecotr to failed and opens the disconnector
 
         Parameters
         ----------
@@ -198,7 +204,7 @@ class Disconnector(Component):
 
     def not_fail(self):
         """
-        Sets the doconnector to not failed
+        Sets the doconnector to not failed and closes the disconnecotr 
 
         Parameters
         ----------
@@ -217,7 +223,8 @@ class Disconnector(Component):
 
         Parameters
         ----------
-        None
+        dt : Time
+            The current time step
 
         Returns
         ----------
@@ -226,6 +233,18 @@ class Disconnector(Component):
         """
 
     def initialize_history(self):
+        """
+        Initializes the history variables
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         self.history["is_open"] = {}
 
     def update_history(
@@ -236,13 +255,17 @@ class Disconnector(Component):
 
         Parameters
         ----------
+        prev_time : Time
+            The previous time
         curr_time : Time
             Current time
+        save_flag : bool
+            Indicates if saving is on or off
 
         Returns
         ----------
         None
-
+        
         """
         if save_flag:
             self.history["is_open"][curr_time] = self.is_open
@@ -298,7 +321,8 @@ class Disconnector(Component):
 
         Parameters
         ----------
-        None
+        save_flag : bool 
+            Indicates if saving is on or off
 
         Returns
         ----------

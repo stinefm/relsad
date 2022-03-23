@@ -35,10 +35,26 @@ class Line(Component):
         Circuit breaker connected to the line
     parent_network : Network
         The parent network of the line
+    section : Section
+        The section the line belongs to
+    s_ref : float 
+        Reference apperet power \[MVA\]
+    v_ref : float
+        Reference voltage \[kV\]
+    r_ref : float 
+        Reference resistance \[Ohm\]
     r : float
         Resistance \[Ohm\]
     x : float
         Reactance \[\]
+    r_pu : float
+        The pu value of the resistance
+    x_pu : float
+        The pu value of the reactance
+    area : float
+        The cross-sectional area \[m^2\]
+    rho : float
+        The resistivity of the line \[Ohm*m\]
     length : float
         Length of line \[km\]
     capacity : float
@@ -49,14 +65,16 @@ class Line(Component):
         The reactive power loss over the line \[MW\]
     fail_rate_per_year : float
         Failure rate per year \[fault/year/km\]
-    outage_time : float
+    outage_time_dist : StatDist
         Outage time \[hours/fault\]
-    connected : str
-        Line state
+    connected : bool
+        Indicates if the line is connected or disconnected
     failed : bool
         Failure status of the line
     remaining_outage_time : float
         The remaining outage time of the line
+    sensor : Sensor
+        The sensor(s) connected to the line
     history : dict
         Dictonary attribute that stores the historic variables
 
@@ -66,29 +84,32 @@ class Line(Component):
     set_backup()
         Sets the backup lines and opens the disconnectors connected to the backup line
     disconnect()
-        Disconnects a line and removes the line
+        Disconnects a line and removes the line for the list of lines
     connect()
-        Connects a line and append the line
-    fail()
+        Connects a line and append the line to the list of lines
+    draw_outage_time(dt)
+        Decides and returns the outage time of the line based on a statistical distribution
+    fail(dt)
         Sets the fail status of the line to True and opens the connected disconnectors and the connected circuit breaker
     not_fail()
         Sets the fail status of the line to False and closes the connected disconnectors and connected circuit breaker
     change_direciton()
         Changes the direction of the line
-    update_fail_status()
+    update_fail_status(dt)
         Updates the fail status of the line
     get_line_load()
-        Gets the power flow over the line
-        Returns the flow over the line
+        Returns the flow over the line in PU values
     get_line_loading()
-        Returns the line loading of the line in percentage
+        Returns the loading of the line in percentage
     print_status()
         Prints the line status
     get_disconnetors()
         Returns the connected disconnectors
     add_parent_network(network)
         Adds the parent network to the line
-    update_history(curr_time)
+    initialize_history()
+        Initialize the history variables
+    update_history(prev_time, curr_time, save_flag)
         Updates the history variables
     get_history(attribute)
         Returns the history variables of an attribute
@@ -96,6 +117,8 @@ class Line(Component):
         Adds global random seed
     reset_status()
         Resets and sets the status of the class parameters
+    reset_load_flow_data()
+        Resets the variables used in the load flow analysis
     """
     lineCount = 0
 
@@ -210,7 +233,7 @@ class Line(Component):
 
     def disconnect(self):
         """
-        Disconnects a line and removes the line
+        Disconnects a line and removes the line from the list of lines
 
         Parameters
         ----------
@@ -240,7 +263,7 @@ class Line(Component):
 
     def connect(self):
         """
-        Connects a line and append the line
+        Connects a line and append the line to the list of lines
 
         Parameters
         ----------
@@ -261,6 +284,19 @@ class Line(Component):
             self.fbus.nextbus.append(self.tbus)
 
     def draw_outage_time(self, dt: Time):
+        """
+        Decides and returns the outage time of the line based on a statistical distribution
+
+        Parameters
+        ----------
+        dt : Time
+            The current time step 
+
+        Returns
+        ----------
+        None
+
+        """
         return Time(
             self.outage_time_dist.draw(self.ps_random),
             dt.unit,
@@ -272,7 +308,8 @@ class Line(Component):
 
         Parameters
         ----------
-        None
+        dt : Time
+            The current time step
 
         Returns
         ----------
@@ -355,7 +392,8 @@ class Line(Component):
 
         Parameters
         ----------
-        None
+        dt : Time 
+            The current time step
 
         Returns
         ----------
@@ -380,7 +418,7 @@ class Line(Component):
 
     def get_line_load(self):
         """
-        Returns the flow over the line in PU
+        Returns the flow over the line in PU values
 
         Parameters
         ----------
@@ -389,17 +427,36 @@ class Line(Component):
         Returns
         ----------
         p_from : float
-            The active power sent from the line
+            The active power sent from the line \[MW\]
         q_from : float
-            The reactive power sent from the line
+            The reactive power sent from the line \[MVar\]
         p_to : float
-            The active power sent to the line
+            The active power sent to the line \[MW\]
         q_to : float
-            The reactive power sent to the line
+            The reactive power sent to the line \[MVar\]
 
         """
 
         def uij(gij, bij, tetai, tetaj):
+            """
+            Returns the flow over the line in PU values
+
+            Parameters
+            ----------
+            None
+
+            Returns
+            ----------
+            p_from : float
+                The active power sent from the line \[MW\]
+            q_from : float
+                The reactive power sent from the line \[MVar\]
+            p_to : float
+                The active power sent to the line \[MW\]
+            q_to : float
+                The reactive power sent to the line \[MVar\]
+
+            """
             return gij * np.sin(tetai - tetaj) - bij * np.cos(tetai - tetaj)
 
         def tij(gij, bij, tetai, tetaj):
@@ -433,7 +490,7 @@ class Line(Component):
 
     def get_line_loading(self):
         """
-        Returns the line loading of the line in percentage
+        Returns the loading of the line in percentage
 
         Parameters
         ----------
@@ -442,7 +499,7 @@ class Line(Component):
         Returns
         ----------
         line_loading : float
-            The line loading of the line
+            The line loading 
 
         """
 
@@ -503,6 +560,18 @@ class Line(Component):
         self.parent_network = network
 
     def initialize_history(self):
+        """
+        Initializes the history variables
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+        
+        """
         self.history["p_from"] = {}
         self.history["q_from"] = {}
         self.history["p_to"] = {}
@@ -519,8 +588,12 @@ class Line(Component):
 
         Parameters
         ----------
+        prev_time : Time
+            The previous time 
         curr_time : Time
-            Current time
+            The vurrent time
+        save_flag : bool
+            Indicates if saving is on or off
 
         Returns
         ----------
@@ -594,6 +667,15 @@ class Line(Component):
     def reset_load_flow_data(self):
         """
         Resets the variables used in the load flow analysis
+        
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
         """
         self.ploss = 0
         self.qloss = 0

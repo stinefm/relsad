@@ -18,15 +18,15 @@ class Production(Component):
     bus : Bus
         The bus the production unit is connected to
     prod_dict : dict
-        Dictionary over the production
+        Dictionary over the production units
     pprod : float
-        The active power produced by the production unit [MW]
+        The active power produced by the production unit \[MW\]
     qprod : float
-        The reactive power produced by the production unit [MVar]
+        The reactive power produced by the production unit \[MVar\]
     pmax : float
-        The maximum active power that can be produced by the production unit [MW]
+        The maximum active power that can be produced by the production unit \[MW\]
     qmax : float
-        The maximum reactive power that can be produced by the production unit [MVar]
+        The maximum reactive power that can be produced by the production unit \[MVar\]
     history : dict
         Dictonary attribute that stores the historic variables
 
@@ -40,6 +40,7 @@ class Production(Component):
     update_bus_prod()
         Updates the production on the bus with the amount of generated active and reactive power
     update_fail_status()
+        Updates the fail status
     update_history(curr_time)
         Updates the history variables
     get_history(attribute)
@@ -170,12 +171,21 @@ class Production(Component):
     def reset_prod(self):
         """
         Resets the active and reactive production
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
         """
         self.pprod = 0
         self.qprod = 0
 
     def update_fail_status(self, dt: Time):
         """
+        Updates the fail status 
 
         Parameters
         ----------
