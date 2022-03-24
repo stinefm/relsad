@@ -15,12 +15,30 @@ class Distribution(Network):
     ----------
     name : str
         Name of the distribution network
-    buses : Bus
-        List with the buses connected to the distribution network
-    lines : Lines
-        List with the lines connected to the distribution network
+    buses : list
+        List containing the buses connected to the distribution network
+    ev_parks : list
+        List containing the EV parks in the distribution network 
+    batteries : list
+        List containing the batteries in the distribution network
+    porductions : list
+        List containing the generation units in the distribution network
+    lines : list
+        List containing the lines connected to the distribution network
+    sensors : list
+        List containing the sensors in the distribution network
+    circuitbreaker : list
+        List containing the circuit breakers in the distribution network
+    disconnectors : list
+        List containing the disconnectors in the distribution network
+    intelligent_switches : list
+        List containing the intelligent switches in the distribution network
+    controller : DistributionController 
+        The controller for the distribution system 
+    comp_list : list
+        List containing the components in the distribution network
     comp_dict : dict
-        Dictionary containing the components connected to the distribution network
+        Dictionary containing the components in the distribution network
     parent_network : Network
         The parent network of the distribution network
     power_system : Network
@@ -28,30 +46,52 @@ class Distribution(Network):
     child_network_list : list
         List containing connected child networks to the distribution network
     failed_line : Bool
-        ?
+    p_load_shed : float
+        Shedded active power load in the distribution network
+    acc_p_load_shed : float
+        The accumulated shedded active power load in the distribution network
+    q_load_shed : float
+        Shedded reactive power load in the distribution network
+    acc_q_load_shed : float
+        The accumulated shedded reactive power load in the distribution network
     connected_line : Line
-        Connects the distribution network to the transmission network, chooses line connecting the distribution network to the transmission network
+        Connects the distribution network to the transmission network, the line connecting the distribution network to the transmission network
+    add_connected_line : Line
+        Adds the connected line to the distribution network
+    sections : Section
+        The sections in the distribution system
+    history : dict
+        Dictionary containing the history variables of the network
+    monte_carlo_history : dict
+        Dictionary containing the history variables from the monte carlo simulation
+
 
 
     Methods
     ----------
+    add_connected_line(connected_line)
     add_bus(bus)
-        Adding bus to distribution network
+        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the distribution network
     add_buses(buses)
-        Adding buses to distribution network
+        Adding buses to the distribution network 
     add_line(line)
-        Adding line to distribution network
+        Adding a line including elements on the line (sensor, circuit breaker, disconnector) to the distribution network
     add_lines(lines)
-        Adding lines to distribution network
+        Adding lines to the distribution network 
     get_lines()
         Returns the lines in the distribution network
     reset_slack_bus()
         Resets the slack bus attribute of the buses in the distribution network
     add_child_network(network)
         Adds child network to the distribution network
-
-
-
+    get_monte_carlo_history(attribute)
+        Returns the specified history variable from the Monte Carlo simulation
+    get_history(attribute)
+        Returns the specified history variable
+    get_system_load()
+        Returns the load in the distribution network at the current time in MW and MVar
+    reset_load_shed_variables()
+        Resets the load shed variables
     """
 
     ## Visual attributes
@@ -133,6 +173,19 @@ class Distribution(Network):
         return hash(self.name)
 
     def add_connected_line(self, connected_line):
+        """
+        Sets the line connecting the distribution system to overlying network
+
+        Paramters
+        ----------
+        connected_line : Line 
+            The line connecting the distribution system to overlaying network
+
+        Returns
+        ----------
+        None
+
+        """
         self.connected_line = connected_line
         c_b = connected_line.circuitbreaker
         if self.connected_line.circuitbreaker is None:
@@ -157,7 +210,7 @@ class Distribution(Network):
 
     def add_bus(self, bus: Bus):
         """
-        Adding bus to distribution network
+        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the distribution network
 
         Parameters
         ----------
@@ -194,12 +247,12 @@ class Distribution(Network):
 
     def add_buses(self, buses: set):
         """
-        Adding buses to distribution network
+        Adding buses to the distribution network bus list
 
         Parameters
         ----------
         buses : list
-            A list of buses connected to the distribution network
+            A list of Bus elements in the distribution network
 
         Returns
         ----------
@@ -211,7 +264,7 @@ class Distribution(Network):
 
     def add_line(self, line: Line):
         """
-        Adding line to distribution network
+        Adding a line and the components connected to the line to the distribution network
 
         Parameters
         ----------
@@ -254,12 +307,12 @@ class Distribution(Network):
 
     def add_lines(self, lines: set):
         """
-        Adding lines to distribution network
+        Adding lines to distribution network line list
 
         Parameters
         ----------
         lines : list
-            A list of lines connected to the distribution network
+            A list of Line elements in the distribution network
 
         Returns
         ----------
@@ -280,7 +333,7 @@ class Distribution(Network):
         Returns
         ----------
         lines : list
-            Returns a list with the lines in the distribution network
+            List of Line elements
 
         """
         return self.lines
@@ -320,19 +373,53 @@ class Distribution(Network):
 
     def get_monte_carlo_history(self, attribute):
         """
-        Returns the specified history variable
+        Returns the specified history variable from the Monte Carlo simulation
+
+        Parameters
+        ----------
+        attribute : str
+            Distribution network attribute
+
+        Returns
+        ----------
+        monte_carlo_history[attribute] : dict
+            Returns the history variables of an attribute from the Monte Carlo simulation
+
         """
         return self.monte_carlo_history[attribute]
 
     def get_history(self, attribute):
         """
         Returns the specified history variable
+
+        Parameters
+        ----------
+        attribute : str
+            Distribution network attribute
+
+        Returns
+        ----------
+        history[attribute] : dict
+            Returns the history variables of an attribute
+
         """
         return self.history[attribute]
 
     def get_system_load(self):
         """
-        Returns the system load at curr_time in MW/MVar
+        Returns the system load in the distribution network at the current time in MW and MVar
+        
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        pload : float
+            The active power load in the distribution network
+        qload : float
+            The reactive power load in the distribution network 
+
         """
         pload, qload = 0, 0
         for bus in self.buses:
@@ -344,6 +431,15 @@ class Distribution(Network):
     def reset_load_shed_variables(self):
         """
         Resets the load shed variables
+        
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
         """
         self.p_load_shed = 0
         self.acc_p_load_shed = 0

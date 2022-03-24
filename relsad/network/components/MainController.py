@@ -438,7 +438,7 @@ class MainController(Component):
         Parameters
         ----------
         attribute : str
-            Battery attribute
+            Controller attribute
 
         Returns
         ----------

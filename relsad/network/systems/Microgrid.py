@@ -21,43 +21,85 @@ class Microgrid(Network):
         Name of the microgrid
     mode : str
         Which mode the microgrid follows
-    buses : Bus
+    buses : list
         List with the buses connected to the microgrid
-    lines : Lines
+    ev_parks : list
+        List containing the EV parks in the microgrid 
+    batteries : list
+        List containing the batteries in the microgrid
+    porductions : list
+        List containing the generation units in the microgrid
+    lines : list
         List with the lines connected to the microgrid
+    sensors : list
+        List containing the sensors in the microgrid
+    circuitbreaker : list
+        List containing the circuit breakers in the microgrid
+    disconnectors : list
+        List containing the disconnectors in the microgrid
+    intelligent_switches : list
+        List containing the intelligent switches in the microgrid
+    controller : MicrogridController 
+        The controller for the microgrid 
+    comp_list : list
+        List containing the components in the microgrid
     comp_dict : dict
-        Dictionary containing the components connected to the microgrid
+        Dictionary containing the components in the microgrid
     distribution_network : Network
         The distribution network the microgrid is connected to
     child_network_list : list
-        List containing connected child networks to the microgrid ?
+        List containing connected child networks to the microgrid
     failed_line : Bool
         Boolean value stating whether or not the network includes a failed line
     connected_line : Line
         Line that connects the microgrid to the distribution network
     circuitbreaker : Circuitbreaker
         The circuitbreaker connected to the line
+    p_load_shed : float
+        Shedded active power in the microgrid
+    acc_p_load_shed : float
+        The accumulated shedded active power in the microgrid
+    q_load_shed : float
+        Shedded reactive power in the microgrid
+    acc_q_load_shed : float
+        The accumulated shedded reactive power in the microgrid
+    sections : Section
+        The sections in the microgrid
+    history : dict
+        Dictionary containing the history variables of the network
+    monte_carlo_history : dict
+        Dictionary containing the history variables from the monte carlo simulation
 
     Methods
     ----------
+    add_connected_line(connected_line, mode)
+        Sets the line connecting the microgrid to overlying network
     add_bus(bus)
-        Adding bus to microgrid
+        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the microgrid
     add_buses(buses)
-        Adding buses to microgrid
+        Adding buses to the microgrid
     add_line(line)
-        Adding line to microgrid
+        Adding a line including elements on the line (sensor, circuit breaker, disconnector) to the microgrid
     add_lines(lines)
-        Adding lines to microgrid
+        Adding lines to the microgrid
     get_lines()
         Returns the lines in the microgrid
     connect(self)
-        Connects microgrid to parent distribution network by closing the disconnectors on the microgrid lines
+        Connects the microgrid to the parent distribution network by closing the disconnectors on the microgrid lines
     disconnect()
-         Disconnects microgrid to parent distribution network by opening the disconnectors on the microgrid lines
+         Disconnects the microgrid from the parent distribution network by opening the disconnectors on the microgrid lines
     reset_slack_bus()
         Resets the slack bus attribute of the buses in the microgrid
     get_max_load()
-        Get the max load of the microgrid load and returns the max load
+        Get the maximum load of the microgrid form the entire load history and returns the max load
+    get_monte_carlo_history(attribute)
+        Returns the specified history variable from the Monte Carlo simulation
+    get_history(attribute)
+        Returns the specified history variable
+    get_system_load()
+        Returns the system load in the microgrid at the current time in MW and MVar 
+    reset_load_shed_variables()
+        Resets the load shed variables
 
     """
 
@@ -150,6 +192,21 @@ class Microgrid(Network):
         return hash(self.name)
 
     def add_connected_line(self, connected_line, mode):
+        """
+        Sets the line connecting the microgrid to overlying network
+
+        Paramters
+        ----------
+        connected_line : Line 
+            The line connecting the distribution system to overlaying network
+        mode : str
+            Which mode the microgrid follows
+
+        Returns
+        ----------
+        None
+
+        """
         self.connected_line = connected_line
         self.circuitbreaker = connected_line.circuitbreaker
         self.circuitbreaker.mode = mode
@@ -175,7 +232,7 @@ class Microgrid(Network):
 
     def add_bus(self, bus: Bus):
         """
-        Adding bus to microgrid
+        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the microgrid
 
         Parameters
         ----------
@@ -214,13 +271,12 @@ class Microgrid(Network):
 
     def add_buses(self, buses: list):
         """
-        Adding buses to microgrid
-
+        Adding buses to the microgrid
 
         Parameters
         ----------
         buses : list
-            A list of buses connected to the microgrid
+            A list of Bus elements in the microgrid
 
         Returns
         ----------
@@ -232,8 +288,7 @@ class Microgrid(Network):
 
     def add_line(self, line: Line):
         """
-        Adding line to microgrid
-
+        Adding a line and the components connected to the line to the microgrid
 
         Parameters
         ----------
@@ -273,12 +328,12 @@ class Microgrid(Network):
 
     def add_lines(self, lines: list):
         """
-        Adding lines to microgrid
+        Adding lines to the microgrid
 
         Parameters
         ----------
         lines : list
-            A list of lines connected to the microgrid
+            A list of Line elements in the microgrid
 
         Returns
         ----------
@@ -299,14 +354,14 @@ class Microgrid(Network):
         Returns
         ----------
         lines : list
-            Returns a list with the lines in the microgrid
+            List of Line elements
 
         """
         return self.lines
 
     def connect(self):
         """
-        Connects microgrid to parent distribution network by closing the disconnectors on the microgrid lines
+        Connects the microgrid to the parent distribution network by closing the disconnectors on the microgrid lines
 
 
         Parameters
@@ -324,7 +379,7 @@ class Microgrid(Network):
 
     def disconnect(self):
         """
-        Disconnects microgrid to parent distribution network by opening the disconnectors on the microgrid lines
+        Disconnects the microgrid from the parent distribution network by opening the disconnectors on the microgrid lines
 
         Parameters
         ----------
@@ -357,7 +412,7 @@ class Microgrid(Network):
 
     def get_max_load(self):
         """
-        Get the maximum load of the microgrid for the entire loading history
+        Get the maximum load of the microgrid for the entire load history and returns the max load
 
         Parameters
         ----------
@@ -366,10 +421,10 @@ class Microgrid(Network):
         Returns
         ----------
         p_load_max : float
-            The maximum active load of the microgrid for the entire loading history
+            The maximum active power load of the microgrid for the entire loading history
 
         q_load_max : float
-            The maximum reactive load of the microgrid for the entire loading history
+            The maximum reactive power load of the microgrid for the entire loading history
 
         """
         p_load_max, q_load_max = 0, 0
@@ -405,19 +460,53 @@ class Microgrid(Network):
 
     def get_monte_carlo_history(self, attribute):
         """
-        Returns the specified history variable
+        Returns the specified history variable from the Monte Carlo simulation
+
+        Parameters
+        ----------
+        attribute : str
+            Microgrid attribute
+
+        Returns
+        ----------
+        monte_carlo_history[attribute] : dict
+            Returns the history variables of an attribute from the Monte Carlo simulation
+
         """
         return self.monte_carlo_history[attribute]
 
     def get_history(self, attribute):
         """
         Returns the specified history variable
+
+        Parameters
+        ----------
+        attribute : str
+            Microgrid attribute
+
+        Returns
+        ----------
+        history[attribute] : dict
+            Returns the history variables of an attribute
+
         """
         return self.history[attribute]
 
     def get_system_load(self):
         """
-        Returns the system load at curr_time in MW/MVar
+        Returns the system load in the microgrid at the current time in MW and MVar
+        
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        pload : float
+            The active power load in the microgrid
+        qload : float
+            The reactive power load in the microgrid
+
         """
         pload, qload = 0, 0
         for bus in self.buses:
@@ -429,6 +518,15 @@ class Microgrid(Network):
     def reset_load_shed_variables(self):
         """
         Resets the load shed variables
+        
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
         """
         self.p_load_shed = 0
         self.acc_p_load_shed = 0

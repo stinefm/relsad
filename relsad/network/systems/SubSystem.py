@@ -18,6 +18,63 @@ from relsad.Time import (
 
 
 class SubSystem:
+    """ Class defining a sub system network type 
+    ...
+
+    Attributes
+    ----------
+    name : str
+        Name of the sub system
+    slack
+    buses : list
+        List of all buses in the sub system
+    ev_parks : list
+        List of all EV parks in the sub system
+    batteries : list 
+        List of all batteries in the sub system
+    production : list
+        List of all generation units in the sub system
+    lines : list 
+        List of all lines in the sub system
+    sensors : list 
+        List of all sensors in the sub system 
+    circuitbreaker : list
+        List of all circuit breakers in the sub system
+    disconnectors : list
+        List of all disconnectors in the sub system
+    intelligent_switch : list
+        List of all intelligent switches in the sub system
+    comp_list : list
+        List containing the components in the sub system
+    comp_dict : dict
+        Dictionary containing the components in the sub system
+    child_network_list : list
+        List containing the child networks to the sub system
+
+
+    Methods
+    ----------
+    add_bus(bus)
+        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the sub system
+
+    get()
+        Returns the bus representing the overlying network (transmission network)
+    reset_slack_bus()
+        Resets the slack bus of the transmission network
+    add_chil_network(network)
+        Adds child network
+    get_lines()
+        Returns the lines in the transmission network
+    get_monte_carlo_history(attribute)
+        Returns the specified history variable from the Monte Carlo simulation
+    get_history(attribute)
+        Returns the specified history variable
+    get_system_load()
+        Returns the system load at the current time in MW and MVar
+    reset_load_shed_variables()
+        Resets the load shed variables   
+
+    """
 
     ## Visual attributes
     color = "black"
@@ -43,6 +100,8 @@ class SubSystem:
         self.batteries = list()
         self.productions = list()
         self.lines = list()
+        self.sensors = list()
+        self.intelligent_switch = list()
         self.circuitbreakers = list()
         self.disconnectors = list()
         self.comp_list = list()
@@ -69,8 +128,17 @@ class SubSystem:
 
     def add_bus(self, bus: Bus):
         """
-        Adding bus to sub system
-        Input: bus(Bus)
+        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the sub system
+ 
+        Paramters
+        ----------
+        bus : Bus 
+            A bus element
+
+        Returns
+        ----------
+        None
+
         """
         self.comp_dict[bus.name] = bus
         self.comp_list.append(bus)

@@ -3,7 +3,58 @@ from .Network import Network
 
 
 class Transmission(Network):
-    """ Class defining a transmission network type """
+    """ Class defining a transmission network type
+    
+    ...
+
+    Attributes
+    ----------
+    name : str
+        Name of the transmission system
+    parent_network :  
+    child_network_list : list
+        Lists of child networks
+    bus : Bus
+    buses : list
+    sections : list
+    ev_parks : list
+    slack_bus : Bus
+    p_load_shed : float
+        The active power load shed in the power system
+    acc_p_load_shed : float
+        The accumulated active power load shedding in the power system
+    q_load_shed : float
+        The reactive power load shed in the power system
+    acc_q_load_shed : float
+        The accumulated reactive power load shedding in the power system
+    history : dict
+        Dictionary containing the history variables of the power system 
+    monte_carlo_history : dict
+        Dictionary containing the history variables from the monte carlo simulation
+
+
+
+    Methods
+    ----------
+    get()
+        Returns the bus representing the overlying network (transmission network)
+    reset_slack_bus()
+        Resets the slack bus of the transmission network
+    add_chil_network(network)
+        Adds child network
+    get_lines()
+        Returns the lines in the transmission network
+    get_monte_carlo_history(attribute)
+        Returns the specified history variable from the Monte Carlo simulation
+    get_history(attribute)
+        Returns the specified history variable
+    get_system_load()
+        Returns the system load at the current time in MW and MVar
+    reset_load_shed_variables()
+        Resets the load shed variables   
+
+    """
+
 
     ## Visual attributes
     color = "steelblue"
@@ -63,19 +114,48 @@ class Transmission(Network):
 
     def get(self):
         """
-        Returns the bus of the transmission network
+        Returns the bus representing the overlying networl (transmission network)
+        
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        bus : Bus
+            The bus representing the overlying network
+
         """
         return self.bus
 
     def reset_slack_bus(self):
         """
         Resets the slack bus of the transmission network
+        
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
         """
         self.bus.set_slack()
 
     def add_child_network(self, network):
         """
         Adds child network
+        
+        Paramters
+        ----------
+        network : Network
+            A network
+
+        Returns
+        ----------
+        None
+
         """
         self.child_network_list.append(network)
         self.parent_network.add_child_network(network)
@@ -95,24 +175,68 @@ class Transmission(Network):
     def get_lines(self):
         """
         Returns the lines in the transmission network
+        
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
         """
         return None
 
     def get_monte_carlo_history(self, attribute):
         """
         Returns the specified history variable
+        
+        Parameters
+        ----------
+        attribute : str
+            System attribute
+
+        Returns
+        ----------
+        monte_carlo_history[attribute] : dict
+            Returns the history variables of an attribute from the Monte Carlo simulation
+
         """
         return self.monte_carlo_history[attribute]
 
     def get_history(self, attribute):
         """
+
         Returns the specified history variable
+        
+        Parameters
+        ----------
+        attribute : str
+            System attribute
+
+        Returns
+        ----------
+        history[attribute] : dict
+            Returns the history variables of an attribute
+
         """
         return self.history[attribute]
 
     def get_system_load(self):
         """
-        Returns the system load at curr_time in MW/MVar
+        Returns the system load at the current time in MW and MVar
+        
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        pload : float
+            The active power load in the transmission system
+        qload : float
+            The reactive power load in the tranmission system 
+
         """
         pload, qload = 0, 0
         for bus in self.buses:
@@ -124,6 +248,15 @@ class Transmission(Network):
     def reset_load_shed_variables(self):
         """
         Resets the load shed variables
+        
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
         """
         self.p_load_shed = 0
         self.acc_p_load_shed = 0

@@ -186,7 +186,7 @@ class ManualMainController(Component):
         Parameters
         ----------
         attribute : str
-            Battery attribute
+            Manual controller attribute
 
         Returns
         ----------

@@ -453,7 +453,7 @@ class Battery(Component):
         Returns
         ----------
         None
-        
+
         """
         self.history["SOC"] = {}
         self.history["SOC_min"] = {}
@@ -499,6 +499,7 @@ class Battery(Component):
         ----------
         history[attribute] : dict
             Returns the history variables of an attribute
+            
         """
         return self.history[attribute]
 

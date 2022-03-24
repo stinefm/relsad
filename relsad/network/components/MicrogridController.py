@@ -413,7 +413,7 @@ class MicrogridController(Component):
         Parameters
         ----------
         attribute : str
-            Battery attribute
+            Controller attribute
 
         Returns
         ----------
