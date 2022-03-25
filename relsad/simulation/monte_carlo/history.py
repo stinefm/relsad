@@ -41,6 +41,18 @@ from relsad.reliability.indices import (
 def plot_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
     """
     Plots the history of the load shedding in the power system
+
+    Paramters
+    ----------
+    power_system : PowerSystem
+        A power system element
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     network_state_list = [
         "acc_p_load_shed",
@@ -81,6 +93,19 @@ def save_network_monte_carlo_history(
 ):
     """
     Saves the history of the load shedding in the power system
+
+    Paramters
+    ----------
+    power_system : PowerSystem
+        A power system element
+    save_dir : str
+        The saving path
+    save_dict : dict
+
+    Returns
+    ----------
+    None
+
     """
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
@@ -123,6 +148,19 @@ def save_network_monte_carlo_history(
 
 
 def initialize_history(power_system: PowerSystem):
+    """
+    Initializes the lists used for history variables
+
+    Paramters
+    ----------
+    power_system : PowerSystem
+        A power system element
+
+    Returns
+    ----------
+    None
+
+    """
     network_state_list = [
         "p_load_shed",
         "q_load_shed",
@@ -140,6 +178,19 @@ def initialize_history(power_system: PowerSystem):
 
 
 def initialize_monte_carlo_history(power_system: PowerSystem):
+    """
+    Initializes the lists used for history variables from the Monte Carlo simulation
+
+    Paramters
+    ----------
+    power_system : PowerSystem
+        A power system element
+
+    Returns
+    ----------
+    None
+
+    """
     network_state_list = [
         "acc_p_load_shed",
         "acc_q_load_shed",
@@ -175,6 +226,23 @@ def initialize_monte_carlo_history(power_system: PowerSystem):
 
 
 def save_iteration_history(power_system: PowerSystem, it: int, save_dir: str):
+    """
+    Saves the history from an interation
+
+    Paramters
+    ----------
+    power_system : PowerSystem
+        A power system element
+    it : int
+        The iteration number
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
+    """
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
     if not os.path.isdir(os.path.join(save_dir, str(it))):
@@ -243,6 +311,24 @@ def save_iteration_history(power_system: PowerSystem, it: int, save_dir: str):
 def update_monte_carlo_power_system_history(
     power_system: PowerSystem, it: int, time_unit: TimeUnit, save_dict: dict
 ):
+    """
+    Updates the history dictionary from the Monte Carlo simulation
+
+    Paramters
+    ----------
+    power_system : PowerSystem
+        A power system element
+    it : int
+        The iteration number
+    time_unit : TimeUnit   
+        A time unit (hour, seconds, ect.)
+    save_dict : dict
+        Saving dictionary
+    Returns
+    ----------
+    None
+
+    """
     network_state_dict = {
         "acc_p_load_shed": power_system.acc_p_load_shed,
         "acc_q_load_shed": power_system.acc_q_load_shed,
@@ -266,6 +352,25 @@ def update_monte_carlo_power_system_history(
 def update_monte_carlo_child_network_history(
     power_system: PowerSystem, it: int, time_unit: TimeUnit, save_dict: dict
 ):
+    """
+    Updates the history dictionary for the child networks in the Monte Carlo simulation
+
+    Paramters
+    ----------
+    power_system : PowerSystem
+        A power system element
+    it : int
+        The iteration number
+    time_unit : TimeUnit
+        A time unit (hour, seconds, ect.)
+    save_dict : dict
+        Saving dictionary
+
+    Returns
+    ----------
+    None
+
+    """
     for network in power_system.child_network_list:
         network_state_dict = {
             "acc_p_load_shed": network.acc_p_load_shed,
@@ -286,6 +391,23 @@ def update_monte_carlo_child_network_history(
 def update_monte_carlo_comp_history(
     power_system: PowerSystem, it: int, save_dict: dict
 ):
+    """
+    Updates the component values for the system from the Monte Carlo simulation
+
+    Paramters
+    ----------
+    power_system : PowerSystem
+        A power system element
+    it : int
+        The iteration number
+    save_dict : dict
+        Saving dictionary
+
+    Returns
+    ----------
+    None
+
+    """
     for bus in power_system.buses:
         bus_state_dict = {
             "acc_p_load_shed": bus.acc_p_load_shed,
@@ -303,6 +425,23 @@ def update_monte_carlo_comp_history(
 def merge_monte_carlo_history(
     power_system: PowerSystem, time_unit: TimeUnit, iteration_dicts: list
 ):
+    """
+    Merges the Monte Carlo history from all the iterations in the simulation
+
+    Paramters
+    ----------
+    power_system : PowerSystem
+        A power system element
+    time_unit : TimeUnit
+        A time unit (hour, seconds, ect.)
+    iteration_dicts : list
+        List containing information about all the iterations
+
+    Returns
+    ----------
+    None
+
+    """
     save_dict = copy.deepcopy(iteration_dicts[0])
     network_state_dict = {
         "acc_p_load_shed": power_system.acc_p_load_shed,
@@ -341,6 +480,21 @@ def merge_monte_carlo_child_network_history(
     time_unit: TimeUnit,
     save_dict: dict,
 ):
+    """
+    Initializes the lists used for history variables from the Monte Carlo simulation
+
+    Paramters
+    ----------
+    power_system : PowerSystem
+        A power system element
+    it_dict : dict
+
+
+    Returns
+    ----------
+    None
+
+    """
     for network in power_system.child_network_list:
         network_state_dict = {
             "acc_p_load_shed": network.acc_p_load_shed,
@@ -363,6 +517,19 @@ def merge_monte_carlo_child_network_history(
 def merge_monte_carlo_comp_history(
     power_system: PowerSystem, it_dict: dict, it: int, save_dict: dict
 ):
+    """
+    Initializes the lists used for history variables from the Monte Carlo simulation
+
+    Paramters
+    ----------
+    power_system : PowerSystem
+        A power system element
+
+    Returns
+    ----------
+    None
+
+    """
     for bus in power_system.buses:
         bus_state_dict = {
             "acc_p_load_shed": bus.acc_p_load_shed,

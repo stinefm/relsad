@@ -23,6 +23,22 @@ def update_history(
 ):
     """
     Updates the history variables in the power system
+
+    Paramters
+    ----------
+    power_system : PowerSystem
+        A power system element
+    prev_time : Time 
+        The previous time
+    curr_time : Time
+        The current time
+    save_flag : bool
+        Indicates if saving is on of
+
+    Returns
+    ----------
+    None
+
     """
     for network in power_system.child_network_list:
         for bus in network.buses:
@@ -69,6 +85,18 @@ def update_history(
 def plot_line_history(lines, save_dir: str):
     """
     Plots the history of the line in the power system
+
+    Paramters
+    ----------
+    lines : list
+        List of Line elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "p_from",
@@ -86,6 +114,18 @@ def plot_line_history(lines, save_dir: str):
 def save_line_history(lines, save_dir: str):
     """
     Saves the history of the line in the power system
+
+    Paramters
+    ----------
+    lines : list
+        List of Line elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "p_from",
@@ -103,6 +143,18 @@ def save_line_history(lines, save_dir: str):
 def plot_circuitbreaker_history(circuitbreakers, save_dir: str):
     """
     Plots the history of the circuitbreakers in the power system
+
+    Paramters
+    ----------
+    circuitbreakers : list
+        List of CircuitBreaker elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "is_open",
@@ -114,6 +166,18 @@ def plot_circuitbreaker_history(circuitbreakers, save_dir: str):
 def save_circuitbreaker_history(circuitbreakers, save_dir: str):
     """
     Saves the history of the circuitbreakers in the power system
+
+    Paramters
+    ----------
+    circuitbreakers : list
+        List of CircuitBreaker elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "is_open",
@@ -125,6 +189,18 @@ def save_circuitbreaker_history(circuitbreakers, save_dir: str):
 def plot_disconnector_history(disconnectors, save_dir: str):
     """
     Plots the history of the disconnectors in the power system
+
+    Paramters
+    ----------
+    disconnectors: list
+        List of Disconnector elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "is_open",
@@ -136,6 +212,18 @@ def plot_disconnector_history(disconnectors, save_dir: str):
 def save_disconnector_history(disconnectors, save_dir: str):
     """
     Saves the history of the disconnectors in the power system
+    
+    Paramters
+    ----------
+    disconnectors : list
+        List of Disconnector elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "is_open",
@@ -147,6 +235,18 @@ def save_disconnector_history(disconnectors, save_dir: str):
 def plot_intelligent_switch_history(intelligent_switches, save_dir: str):
     """
     Plots the history of the intelligent switches in the power system
+    
+    Paramters
+    ----------
+    intelligent_switches : list
+        List of IntelligentSwitch elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "remaining_repair_time",
@@ -159,6 +259,18 @@ def plot_intelligent_switch_history(intelligent_switches, save_dir: str):
 def save_intelligent_switch_history(intelligent_switches, save_dir: str):
     """
     Saves the history of the intelligent switches in the power system
+    
+    Paramters
+    ----------
+    intelligent_switches : list
+        List of IntelligentSwitch elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "remaining_repair_time",
@@ -171,6 +283,18 @@ def save_intelligent_switch_history(intelligent_switches, save_dir: str):
 def plot_sensor_history(sensors, save_dir: str):
     """
     Plots the history of the sensors in the power system
+    
+    Paramters
+    ----------
+    sensors : list
+        List of Sensor elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "remaining_repair_time",
@@ -183,6 +307,18 @@ def plot_sensor_history(sensors, save_dir: str):
 def save_sensor_history(sensors, save_dir: str):
     """
     Saves the history of the sensors in the power system
+    
+    Paramters
+    ----------
+    sensors : list
+        List of Sensor elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "remaining_repair_time",
@@ -195,6 +331,18 @@ def save_sensor_history(sensors, save_dir: str):
 def plot_bus_history(buses, save_dir: str):
     """
     Plots the history of the buses in the power system
+    
+    Paramters
+    ----------
+    buses : list
+        List of Bus elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "pload",
@@ -225,6 +373,18 @@ def plot_bus_history(buses, save_dir: str):
 def save_bus_history(buses, save_dir: str):
     """
     Saves the history of the buses in the power system
+    
+    Paramters
+    ----------
+    buses : list
+        List of Bus elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "pload",
@@ -250,6 +410,18 @@ def save_bus_history(buses, save_dir: str):
 def plot_ev_park_history(ev_parks, save_dir: str):
     """
     Plots the history of the ev_park in the power system
+    
+    Paramters
+    ----------
+    ev_parks : list
+        List of EVPark elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "SOC",
@@ -268,6 +440,18 @@ def plot_ev_park_history(ev_parks, save_dir: str):
 def save_ev_park_history(ev_parks, save_dir: str):
     """
     Saves the history of the ev_park in the power system
+    
+    Paramters
+    ----------
+    ev_parks : list
+        List of EVPark elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "SOC",
@@ -285,6 +469,18 @@ def save_ev_park_history(ev_parks, save_dir: str):
 def plot_battery_history(batteries, save_dir: str):
     """
     Plots the history of the battery in the power system
+    
+    Paramters
+    ----------
+    batteries : list
+        List of Battery elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "SOC",
@@ -298,6 +494,18 @@ def plot_battery_history(batteries, save_dir: str):
 def save_battery_history(batteries, save_dir: str):
     """
     Saves the history of the battery in the power system
+    
+    Paramters
+    ----------
+    batteries : list
+        List of Battery elements
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "SOC",
@@ -311,6 +519,18 @@ def save_battery_history(batteries, save_dir: str):
 def plot_power_system_history(power_system: PowerSystem, save_dir: str):
     """
     Plots the history of the power system
+    
+    Paramters
+    ----------
+    power_system : PowerSystem
+        A power system element
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "p_load_shed",
@@ -343,6 +563,18 @@ def plot_power_system_history(power_system: PowerSystem, save_dir: str):
 def save_power_system_history(power_system: PowerSystem, save_dir: str):
     """
     Saves the history of the power system
+    
+    Paramters
+    ----------
+    power_system : PowerSystem
+        A power system element
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "p_load_shed",
@@ -364,6 +596,18 @@ def save_power_system_history(power_system: PowerSystem, save_dir: str):
 def plot_network_controller_history(controllers, save_dir: str):
     """
     Plots the history of the controllers in the power system
+
+    Paramters
+    ----------
+    controllers : list
+        List of 
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "section_time",
@@ -375,6 +619,18 @@ def plot_network_controller_history(controllers, save_dir: str):
 def save_network_controller_history(controllers, save_dir: str):
     """
     Saves the history of the controllers in the power system
+    
+    Paramters
+    ----------
+    controllers : list
+        A power system element
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "section_time",
@@ -386,6 +642,18 @@ def save_network_controller_history(controllers, save_dir: str):
 def plot_system_controller_history(controllers, save_dir: str):
     """
     Plots the history of the controllers in the power system
+    
+    Paramters
+    ----------
+    controllers : list
+        A power system element
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "section_time",
@@ -399,6 +667,18 @@ def plot_system_controller_history(controllers, save_dir: str):
 def save_system_controller_history(controllers, save_dir: str):
     """
     Saves the history of the controllers in the power system
+    
+    Paramters
+    ----------
+    controllers : list
+        A power system element
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
     """
     whole_state_list = [
         "section_time",

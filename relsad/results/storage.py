@@ -3,6 +3,23 @@ import os
 
 
 def save_history(comp_list: list, attribute: str, save_dir: str):
+    """
+    Saves history
+
+    Paramters
+    ----------
+    comp_list : list 
+        A list of system componets
+    attribute : str
+        A system attribute
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
+    """
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
     df = pd.DataFrame()
@@ -14,6 +31,23 @@ def save_history(comp_list: list, attribute: str, save_dir: str):
 
 
 def save_monte_carlo_history(comp_list: list, attribute: str, save_dir: str):
+    """
+    Saves history from the Monte Carlo simulation
+
+    Paramters
+    ----------
+    comp_list : list 
+        A list of system componets
+    attribute : str
+        A system attribute
+    save_dir : str
+        The saving path 
+
+    Returns
+    ----------
+    None
+
+    """
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
     df = pd.DataFrame()
@@ -27,6 +61,23 @@ def save_monte_carlo_history(comp_list: list, attribute: str, save_dir: str):
 def save_monte_carlo_history_from_dict(
     save_dict: dict, comp_list: list, attribute: str, save_dir: str
 ):
+    """
+    Saves history
+
+    Paramters
+    ----------
+    save_dict : dict
+    comp_list : list 
+        A list of system componets
+    attribute : str
+        A system attribute
+
+    Returns
+    ----------
+    None
+
+    """
+
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
     df = pd.DataFrame()

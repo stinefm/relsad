@@ -56,23 +56,22 @@ class SubSystem:
     ----------
     add_bus(bus)
         Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the sub system
-
-    get()
-        Returns the bus representing the overlying network (transmission network)
-    reset_slack_bus()
-        Resets the slack bus of the transmission network
-    add_chil_network(network)
-        Adds child network
-    get_lines()
-        Returns the lines in the transmission network
-    get_monte_carlo_history(attribute)
-        Returns the specified history variable from the Monte Carlo simulation
-    get_history(attribute)
-        Returns the specified history variable
-    get_system_load()
-        Returns the system load at the current time in MW and MVar
-    reset_load_shed_variables()
-        Resets the load shed variables   
+    add_buses(buses)
+        Adding buses to the sub system
+    add_line(Line)
+        Adding a line including elements on the line (sensor, circuit breaker, disconnector) to the sub system
+    add_lines(lines)
+        Adding lines to the sub system
+    add_cild_network(network)
+        Adding child network to the sub system
+    get_system_load_balance()
+        Returns the load balance of the system 
+    update_batteries(fail_duration, dt)
+        Updates the batteries in the sub system
+    update_ev_parks(fail_duration, dt, start_time, curr_time)
+        Updates the EV parks in the sub system
+    reset_load_flow_data()
+        Reset the variables used in the load flow analysis
 
     """
 
@@ -162,15 +161,34 @@ class SubSystem:
         self.comp_list = unique(self.comp_list)
 
     def add_buses(self, buses: list):
-        """Adding buses to sub system
-        Input: buses(list(Bus))"""
+        """Adding buses to the sub system
+        
+        Paramters
+        ----------
+        buses : list 
+            A list of Bus elements in the sub system
+
+        Returns
+        ----------
+        None
+
+        """
         for bus in buses:
             self.add_bus(bus)
 
     def add_line(self, line: Line):
         """
-        Adding line to sub system
-        Input: line(Line)
+        Adding a line including elements on the line (sensor, circuit breaker, disconnector) to the sub system
+        
+        Paramters
+        ----------
+        line : Line 
+            A line element
+
+        Returns
+        ----------
+        None
+
         """
         self.comp_dict[line.name] = line
         self.comp_list.append(line)
@@ -195,20 +213,53 @@ class SubSystem:
         self.comp_list = unique(self.comp_list)
 
     def add_lines(self, lines: list):
-        """Adding lines to power system
-        Input: lines(list(Line))"""
+        """
+        Adding lines to the sub system
+        
+        Paramters
+        ----------
+        lines : list 
+            A list of Line elements in the sub system
+
+        Returns
+        ----------
+        None
+
+        """
         for line in lines:
             self.add_line(line)
 
     def add_child_network(self, network):
         """
-        Adding child network to power system
+        Adding child network to the sub system
+        
+        Paramters
+        ----------
+        network : Network 
+            The child network of the sub system
+
+        Returns
+        ----------
+        None
+
         """
         self.child_network_list.append(network)
 
     def get_system_load_balance(self):
         """
         Returns the load balance of the system
+        
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        system_load_balance_p : flaot
+            The active power load balance in the sub system (load - generation)
+        system_load_balance_q : float 
+            The reactive power load balance in the sub system (load - generation)
+
         """
         system_load_balance_p, system_load_balance_q = 0, 0
         for bus in self.buses:
@@ -224,7 +275,19 @@ class SubSystem:
 
     def update_batteries(self, fail_duration: Time, dt: Time):
         """
-        Updates the batteries in the power system
+        Updates the batteries in the sub system
+        
+        Paramters
+        ----------
+        fail_duration : Time
+            The failure duration
+        dt : Time 
+            The current time step
+
+        Returns
+        ----------
+        None
+
         """
         p, q = self.get_system_load_balance()
         for battery in self.batteries:
@@ -238,7 +301,23 @@ class SubSystem:
         curr_time: Time,
     ):
         """
-        Updates the EV parks in the power system
+        Updates the EV parks in the sub system
+        
+        Paramters
+        ----------
+        fail_duration : Time
+            The failure duration
+        dt : Time 
+            The current time step
+        start_time : TimeStamp
+            Start time
+        curr_time : Time 
+            The current time
+
+        Returns
+        ----------
+        None
+
         """
         hour_of_day = start_time.get_hour_of_day(curr_time)
         p, q = self.get_system_load_balance()
@@ -248,6 +327,15 @@ class SubSystem:
     def reset_load_flow_data(self):
         """
         Reset the variables used in the load flow analysis
+        
+        Paramters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
         """
         for bus in self.buses:
             bus.reset_load_flow_data()

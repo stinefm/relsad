@@ -11,6 +11,16 @@ INF = 1e8
 def unique(sequence):
     """
     Return list of unique elements while preserving the order
+    
+    Parameters
+    ----------
+    dt : Time
+        The current time step
+
+    Returns
+    ----------
+    None
+
     """
     seen = set()
     return [x for x in sequence if not (x in seen or seen.add(x))]

@@ -18,6 +18,18 @@ def find_sub_systems(p_s: PowerSystem, curr_time: Time):
     """
     Function that find the independent sub systems of the given power system
     and adds them to the sub_systems list of the power system
+
+    Parameters
+    ----------
+    p_s : PowerSystem
+        A PowerSystem element
+    curr_time : Time
+        Current time
+
+    Returns
+    ----------
+    None
+
     """
 
     p_s.sub_systems = list()
@@ -28,6 +40,30 @@ def find_sub_systems(p_s: PowerSystem, curr_time: Time):
     sub_system = SubSystem()
 
     def try_to_add_connected_lines(bus, sub_system, used_buses, used_lines):
+        """
+        Add lines to the sub system
+
+        Parameters
+        ----------
+        bus : Bus
+            A Bus element
+        sub_system : SubSystem
+            A SubSystem element
+        used_buses : list
+            List of used Bus elements
+        used_lines : list
+            List of used Line elements
+
+        Returns
+        ----------
+        sub_system : SubSystem
+            A SubSystem element
+        used_buses : list
+            List of used Bus elements
+        used_lines : list
+            List of used Line elements
+
+        """
         for line in subtract(bus.connected_lines, used_lines):
             if line.connected:
                 sub_system.add_line(line)
@@ -58,6 +94,26 @@ def find_sub_systems(p_s: PowerSystem, curr_time: Time):
         return sub_system, used_buses, used_lines
 
     def add_bus(bus, sub_system, used_buses):
+        """
+        Add buses to the sub system
+
+        Parameters
+        ----------
+        bus : Bus
+            A Bus element
+        sub_system : SubSystem
+            A SubSystem element
+        used_buses : list
+            List of used Bus elements
+
+        Returns
+        ----------
+        sub_system : SubSystem
+            A SubSystem element
+        used_buses : list
+            List of used Bus elements
+
+        """
         if bus not in unique(used_buses + sub_system.buses):
             sub_system.add_bus(bus)
             used_buses.append(bus)
@@ -97,8 +153,19 @@ def find_sub_systems(p_s: PowerSystem, curr_time: Time):
 
 def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time: Time):
     """
-    Function that updates the backup lines between the sub systems of the
-    power system if they exist and are not failed
+    Function that updates the backup lines between the sub systems of the power system if they exist and are not failed
+    
+    Parameters
+    ----------
+    p_s : PowerSystem
+        A PowerSystem element
+    curr_time : Time
+        Current time
+
+    Returns
+    ----------
+    None
+
     """
     update = False
     for s_1 in p_s.sub_systems:
@@ -135,8 +202,17 @@ def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time: Time):
 
 def update_sub_system_slack(p_s: PowerSystem):
     """
-    Function that updates the current slack bus of the sub systems of the
-    power system
+    Function that updates the current slack bus of the sub systems of the power system
+    
+    Parameters
+    ----------
+    p_s : PowerSystem
+        A PowerSystem element
+
+    Returns
+    ----------
+    None
+
     """
     possible_sub_systems = list(p_s.sub_systems)
     for sub_system in possible_sub_systems:
@@ -150,6 +226,18 @@ def update_sub_system_slack(p_s: PowerSystem):
 def set_slack(p_s: PowerSystem, sub_system: SubSystem):
     """
     Function that sets the slack bus of the power system
+    
+    Parameters
+    ----------
+    p_s : PowerSystem
+        A PowerSystem element
+    sub_system : SubSystem
+        A SubSystem element
+
+    Returns
+    ----------
+    None
+
     """
     ## Transmission network slack buses in sub_system
     for bus in sub_system.buses:
@@ -200,6 +288,21 @@ def set_slack(p_s: PowerSystem, sub_system: SubSystem):
 
 
 def reset_system(power_system: PowerSystem, save_flag: bool):
+    """
+    Resets the power system
+    
+    Parameters
+    ----------
+    p_s : PowerSystem
+        A PowerSystem element
+    save_flag : bool
+        Indicates if saving is on or off
+
+    Returns
+    ----------
+    None
+
+    """
     power_system.reset_load_shed_variables()
     for network in power_system.child_network_list:
         network.reset_load_shed_variables()

@@ -32,6 +32,35 @@ from relsad.Time import (
 
 
 class Simulation:
+    """ 
+    Common class for simulation
+
+    ...
+
+    Attributes 
+    ----------
+    power_system : PowerSystem
+        A PowerSystem element
+    random_seed : int
+        Random seed number
+    fail_duration : Time
+        The duration of a failure
+
+    Methods
+    ----------
+    distribute_random_instance(random_intance)
+        Adds a global numpy random instance
+    run_load_flow(network)
+        Runs load flow of a network
+    run_increment(inc_idx, start_time, prev_time, curr_time, save_flag)
+        Runs power system at current state for on time increment
+    run_sequence(start_time, time_increments, time_unit, save_flag)
+        Runs power system for a sequence of increments
+    run_iteration(it, start_time, time_increments, time_unit, save_dir, save_iterations, random_seed)
+        Runs power system for an iteration
+    run_monte_carlo(iterations, start_time, stop_time, time_step, time_unit, load_dict, prod_dict, save_iterations, save_dir, n_procs, debug)
+        Runs Monte Carlo simulation of the power system
+    """
     def __init__(self, power_system: PowerSystem, random_seed: int = None):
         self.power_system = power_system
         self.random_seed = random_seed
@@ -40,6 +69,16 @@ class Simulation:
     def distribute_random_instance(self, random_instance):
         """
         Adds a global numpy random instance
+        
+        Paramters
+        ----------
+        random_instance : 
+            A random...
+
+        Returns
+        ----------
+        None
+
         """
         self.power_system.random_instance = random_instance
         for comp in self.power_system.comp_list:
@@ -48,9 +87,18 @@ class Simulation:
 
     def run_load_flow(self, network: Network):
         """
-        Runs load flow in power system
+        Runs load flow of a network
+        
+        Paramters
+        ----------
+        network : Network 
+            A Network element
+
+        Returns
+        ----------
+        None
+
         """
-        ## Run load flow
         run_bfs_load_flow(network)
 
     def run_increment(
@@ -63,6 +111,24 @@ class Simulation:
     ):
         """
         Runs power system at current state for one time increment
+
+        Paramters
+        ----------
+        inc_idx : int 
+            Increment index
+        start_time : TimeStamp
+            The start time of the simulation/iteration
+        prev_time : Time
+            The previous time
+        curr_time : Time
+            Current time
+        save_flag : bool
+            Indicates if saving is on or off
+
+        Returns
+        ----------
+        None
+
         """
         ## Time step
         dt = curr_time - prev_time if prev_time is not None else curr_time
@@ -112,6 +178,24 @@ class Simulation:
     ):
         """
         Runs power system for a sequence of increments
+
+        Paramters
+        ----------
+        inc_inx : int 
+            Increment index
+        start_time : TimeStamp
+            The start time of the simulation/iteration
+        prev_time : Time
+            The previous time
+        curr_time : Time
+            Current time
+        save_flag : bool
+            Indicates if saving is on or off
+
+        Returns
+        ----------
+        None
+
         """
         prev_time = Time(0, unit=time_unit)
         curr_time = Time(0, unit=time_unit)
@@ -136,6 +220,29 @@ class Simulation:
         save_iterations: list,
         random_seed: int,
     ):
+        """
+        Runs power system for an iteration 
+
+        Paramters
+        ----------
+        it : int 
+            Iteration numver
+        start_time : TimeStamp
+            The start time of the simulation/iteration
+        time_increment : array?
+        time_unit : TimeUnit
+            A time unit (hour, seconds, ect.)
+        save_dir: str
+            The saving path
+        save_iteration : list
+        random_seed : int
+            Random seed number
+
+        Returns
+        ----------
+        None
+
+        """
         if random_seed is None:
             random_instance = np.random.default_rng()
         else:
@@ -171,6 +278,38 @@ class Simulation:
         n_procs: int = 1,
         debug: bool = False,
     ):
+        """
+        Runs Monte Carlo simulation of the power system
+
+        Paramters
+        ----------
+        iterations : int 
+            Number of iterations
+        start_time : TimeStamp
+            The start time of the simulation/iteration
+        stop_time : TimeStamp
+            The stop time of the simulation/iteration
+        time_step : Time
+            A time step (1 hour, 2 hours, ect.)
+        time_unit : TimeUnit
+            A time unit (hour, seconds, ect.)
+        load_dict : dict
+            Dictionary containing the loads in the system
+        prod_dict : dict
+            Dictionary containing the generation in the system
+        save_iterations : list
+        save_dir : str
+            The saving path
+        n_procs : int
+            Number of processors
+        debug : bool
+            Indicates if debug mode is on or off
+
+        Returns
+        ----------
+        None
+
+        """
         ss = SeedSequence(self.random_seed)
         child_seeds = ss.spawn(iterations)
         self.power_system.create_sections()

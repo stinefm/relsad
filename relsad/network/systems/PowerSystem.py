@@ -197,7 +197,7 @@ class PowerSystem(Network):
 
     def add_bus(self, bus: Bus):
         """
-        Adding a bus to the power system
+        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the power system
  
         Paramters
         ----------
@@ -232,7 +232,7 @@ class PowerSystem(Network):
 
     def add_buses(self, buses: list):
         """
-        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the power system
+        Adding buses to the power system
         
         Paramters
         ----------
@@ -383,7 +383,7 @@ class PowerSystem(Network):
         Paramters
         ----------
         network : Network 
-            A list of Line elements in the power system 
+            The child network of the power system
 
         Returns
         ----------
