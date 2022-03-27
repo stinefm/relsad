@@ -27,58 +27,40 @@ class Bus(Component):
     coordinate : list
         Coordinate of the bus
     ZIP : list
-        Type of load model
+        List showing the ZIP load model
     s_ref : float
         Apperent power reference [MVa]
-    vset : float
-    iloss : float
-    pqcostRatio : float
     is_slack : bool
         Tells if the given bus is a slack bus or not
     fail_rate_per_year : float
         The failure rate of the transformer on the bus per year
     outage_time : Time
         The outage time of the transformer on the bus
-    calc_sensitivities : bool
-        Sets the calculation of sensitivities in the load flow on/off
     load_dict : dict
         Dictionary with the load at the bus
-    comp : int
-    num : 
     toline : Line 
-        Tells which line/lines that are going into the bus
+        Tells which line that is going into the bus
     fromline : Line
-        Tells which line/lines that are going out of the bus
+        Tells which line that is going out of the bus
     toline_list : list
         List of lines going into the bus
     pload : float
         The active load at the bus [MW]
     qload : float
         The reactive load at the bus [MVar]
-    ZIP : list
-        List showing the ZIP load model
-    vset : float
-    iloss : float
-    pqcostRatio :
-    comp :
     p_load_downstream : float
+        Active accumulated power load at node
     q_load_downstream : float
+        Reactive accumulated power load at node
     p_loss_downstream : float
+        Active accumulated power line loss at node
     q_loss_downstream : float
-    dPdV : float
-    dQdV : float
-    dVdP : float
-    dVdQ : float
-    dPlossdP : float
-    dPlossdQ : float
-    dQlossdP : float
-    dQlossdQ : float
-    dP2lossdP2 : float
-    dP2lossdQ2 : float
-    lossRatioP :
-    lossRatioQ :
+        Reactive accumulated power line loss at node
     voang : float
+        Voltage angle \[rad\]
     vomag : float
+        Voltage magnitude pu
+
 
     Methods
     ----------
@@ -90,7 +72,7 @@ class Bus(Component):
         Resets the generation at the bus by setting the generation to 0
     add_load_dict(load_dict)
         Adds a load dictionary to the bus
-    set_load(inc_idx)
+    set_load_and_cost(inc_idx)
         Sets the bus load in MW based on load profile
     get_load()
         Retuns the current load at the bus in MW
@@ -136,8 +118,6 @@ class Bus(Component):
         Returns a specified history variable from the Monte Carlo simulation
     """
 
-    busCount = 0
-
     ## Visual attributes
     marker = "|"
     size = 4 ** 2
@@ -160,13 +140,9 @@ class Bus(Component):
         coordinate: list = [0, 0],
         ZIP=[0.0, 0.0, 1.0],
         s_ref: float = 1,  # MVA
-        vset : float = 0.0,
-        iloss: float = 0,
-        pqcostRatio=100,
         is_slack: bool = False,
         fail_rate_per_year: float = 0.007,
         outage_time: Time = Time(8, TimeUnit.HOUR),
-        calc_sensitivities: bool = False,
     ):
         ## Informative attributes
         self.name = name
@@ -177,15 +153,14 @@ class Bus(Component):
         self.s_ref = s_ref
         self.load_dict = dict()
         self.ZIP = ZIP
-        self.vset = vset
-        self.iloss = iloss
-        self.pqcostRatio = pqcostRatio
-        self.calc_sensitivities = calc_sensitivities
-        self.comp = 0
-        self.reset_load_flow_data()
+        self.p_load_downstream = 0.0  # Active accumulated load at node
+        self.q_load_downstream = 0.0  # Reactive accumulated load at node
+        self.p_loss_downstream = 0.0  # Active accumulated line loss at node
+        self.q_loss_downstream = 0.0  # Active accumulated line loss at node
+        self.voang = 0.0
+        self.vomag = 1.0
 
         ## Topological attributes
-        self.num = Bus.busCount
         self.is_slack = is_slack
         self.toline = None
         self.fromline = None
@@ -194,7 +169,6 @@ class Bus(Component):
         self.nextbus = list()
         self.connected_lines = list()
         self.parent_network = None
-        Bus.busCount += 1
 
         ## Reliabilility attributes
         self.fail_rate_per_year = fail_rate_per_year  # failures per year
@@ -237,7 +211,7 @@ class Bus(Component):
         """
         Resets the load and generation at the bus
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -253,7 +227,7 @@ class Bus(Component):
         """
         Resets the load at the bus by setting the load to 0
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -271,7 +245,7 @@ class Bus(Component):
         """
         Resets the generation at the bus by setting the generation to 0
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -289,7 +263,7 @@ class Bus(Component):
         """
         Adds a load dictionary to the bus
 
-        Paramters
+        Parameters
         ----------
         load_dict : dict
             Dictionary with the load at the bus
@@ -301,14 +275,15 @@ class Bus(Component):
         """
         self.load_dict = load_dict
 
-    def set_load(self, inc_idx: int):
+    def set_load_and_cost(self, inc_idx: int):
         """
-        Sets the bus load in MW based on load profile
+        Sets the bus load and cost in MW based on load and cost profiles
+        in the current increment
 
-        Paramters
+        Parameters
         ----------
         inc_idx : int
-            Dictionary with the load at the bus
+            Index of the current increment
 
         Returns
         ----------
@@ -346,7 +321,7 @@ class Bus(Component):
         """
         Returns the current load at the bus in MW
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -364,7 +339,7 @@ class Bus(Component):
         """
         Sets the transformer status to failed, load and generation at the bus are set to zero
 
-        Paramters
+        Parameters
         ----------
         dt : Time 
             The current time step
@@ -384,7 +359,7 @@ class Bus(Component):
         """
         Sets the transformer status to not failed
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -399,7 +374,7 @@ class Bus(Component):
         """
         Returns the battery at the bus
 
-        Paramters
+        Parameters
         ----------
         None
         
@@ -415,7 +390,7 @@ class Bus(Component):
         """
         Returns the generation at the bus
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -431,7 +406,7 @@ class Bus(Component):
         """
         Updates the fail status of the transformer. Sets the fail status to failed if the transformer is failed or the fail status to not failed if the transformer is not failed
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
@@ -460,7 +435,7 @@ class Bus(Component):
         """
         Sets a bus to slack bus
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -475,7 +450,7 @@ class Bus(Component):
         """
         Prints the status of the bus 
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -495,7 +470,7 @@ class Bus(Component):
         """
         Initializes the history variables 
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -528,7 +503,7 @@ class Bus(Component):
         """
         Updates the history variables 
 
-        Paramters
+        Parameters
         ----------
         prev_time : Time
             The previous time
@@ -628,7 +603,7 @@ class Bus(Component):
         """
         Sets the Cost of Energy Not Supplied at the bus
 
-        Paramters
+        Parameters
         ----------
         cost : float
             The Cost of Energy Not Supplied
@@ -644,7 +619,7 @@ class Bus(Component):
         """
         Returns the Cost of Energy Not Supplied at the bus
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -660,7 +635,7 @@ class Bus(Component):
         """
         Sheds load at the bus and resets the load. The shedded load is added to a stack for the bus
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
@@ -681,7 +656,7 @@ class Bus(Component):
         """
         Resets the load shed stack for the bus
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -797,18 +772,6 @@ class Bus(Component):
         self.q_load_downstream = 0.0  # Reactive accumulated load at node
         self.p_loss_downstream = 0.0  # Active accumulated line loss at node
         self.q_loss_downstream = 0.0  # Active accumulated line loss at node
-        self.dPdV = 0.0  # Disse trengs ikke. Blir egentlig kun regnet ut i siste iterasjon av en last flyt, kan derfor lage en egen funksjon ut av dette som kun kjører dette når man skal ta siste iterasjona av en last flyt.
-        self.dQdV = 0.0
-        self.dVdP = 0.0
-        self.dVdQ = 0.0
-        self.dPlossdP = 0.0
-        self.dPlossdQ = 0.0
-        self.dQlossdP = 0.0
-        self.dQlossdQ = 0.0
-        self.dP2lossdP2 = 1.0  # To be able to run the voltage optimization also in the first iteration
-        self.dP2lossdQ2 = 1.0  # To be able to run the voltage optimization also in the first iteration
-        self.lossRatioP = 0.0
-        self.lossRatioQ = 0.0
         self.voang = 0.0
         self.vomag = 1.0
 

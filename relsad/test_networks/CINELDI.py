@@ -107,7 +107,7 @@ def initialize_network(
     else:
         C1 = ManualMainController(
             name="C1",
-            section_time=Time(1, TimeUnit.HOUR),
+            sectioning_time=Time(1, TimeUnit.HOUR),
         )
 
     

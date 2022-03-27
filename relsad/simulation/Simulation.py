@@ -70,7 +70,7 @@ class Simulation:
         """
         Adds a global numpy random instance
         
-        Paramters
+        Parameters
         ----------
         random_instance : 
             A random...
@@ -89,7 +89,7 @@ class Simulation:
         """
         Runs load flow of a network
         
-        Paramters
+        Parameters
         ----------
         network : Network 
             A Network element
@@ -112,7 +112,7 @@ class Simulation:
         """
         Runs power system at current state for one time increment
 
-        Paramters
+        Parameters
         ----------
         inc_idx : int 
             Increment index
@@ -133,7 +133,7 @@ class Simulation:
         ## Time step
         dt = curr_time - prev_time if prev_time is not None else curr_time
         ## Set loads
-        self.power_system.set_load(inc_idx)
+        self.power_system.set_load_and_cost(inc_idx)
         ## Set productions
         self.power_system.set_prod(inc_idx)
         ## Set fail status
@@ -179,7 +179,7 @@ class Simulation:
         """
         Runs power system for a sequence of increments
 
-        Paramters
+        Parameters
         ----------
         inc_inx : int 
             Increment index
@@ -223,7 +223,7 @@ class Simulation:
         """
         Runs power system for an iteration 
 
-        Paramters
+        Parameters
         ----------
         it : int 
             Iteration numver
@@ -281,7 +281,7 @@ class Simulation:
         """
         Runs Monte Carlo simulation of the power system
 
-        Paramters
+        Parameters
         ----------
         iterations : int 
             Number of iterations

@@ -66,7 +66,7 @@ class EVPark(Component):
     v2g_flag : bool
         A flag telling if the EV park contributes with V2G services or not
     curr_demand : float
-        Current demand of power [MW]
+        Current demand of power from the EV park [MW]
     curr_charge : float
         Current power that are being charged/dischared [MW]
     cars : list
@@ -185,7 +185,7 @@ class EVPark(Component):
         Draws the number of EVs in the park at that time 
         and the SOC level of each EV which will make the SOC level of the EV park
 
-        Paramters
+        Parameters
         ----------
         hour_of_day : int
             The hour of the day
@@ -220,11 +220,16 @@ class EVPark(Component):
 
     def update(self, p, q, fail_duration: Time, dt: Time, hour_of_day: int):
         """
-        Paramters
+        Updates the EV park status for the current time step
+
+        Parameters
         ----------
         p : float
+            Active power balance of the parent power system
         q : float
+            Reactive power balance of the parent power system
         fail_duration : Time
+            The duration of the current failure
         dt : Time
             The current time step
         hour_of_day : int
@@ -232,7 +237,9 @@ class EVPark(Component):
         Returns
         ----------
         p : float
+            Remaining active power balance of the parent power system
         q : float
+            Remaining reactive power balance of the parent power system
 
         """
         if fail_duration == dt:
@@ -259,7 +266,7 @@ class EVPark(Component):
         """
         Gives the current power demand of an EV
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
@@ -282,33 +289,38 @@ class EVPark(Component):
         """
         Gives the SOC level of the EV park
 
-        Paramters
+        Parameters
         ----------
         None
         
         Returns
         ----------
-        
+        mean_SOC: float
+            The average SOC value of the EV park
 
         """
 
         if self.num_cars <= 0:
             return 0
-        return np.mean([car.SOC for car in self.cars])
+        mean_SOC = np.mean([car.SOC for car in self.cars])
+        return mean_SOC
 
     def get_ev_index(self):
         """
-        Gives the power demand of av EV that is not met by the system 
+        Gives the power demand of an EV that is not met by the system 
 
-        Paramters
+        Parameters
         ----------
-        NOne
+        None
         
         Returns
         ----------
+        ev_index: float
+            The power demand of an EV that is not met by the system
 
         """
-        return self.curr_demand - self.curr_charge
+        ev_index = self.curr_demand - self.curr_charge
+        return ev_index
 
     def initialize_history(self):
         """

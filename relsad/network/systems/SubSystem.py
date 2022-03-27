@@ -129,7 +129,7 @@ class SubSystem:
         """
         Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the sub system
  
-        Paramters
+        Parameters
         ----------
         bus : Bus 
             A bus element
@@ -163,7 +163,7 @@ class SubSystem:
     def add_buses(self, buses: list):
         """Adding buses to the sub system
         
-        Paramters
+        Parameters
         ----------
         buses : list 
             A list of Bus elements in the sub system
@@ -180,7 +180,7 @@ class SubSystem:
         """
         Adding a line including elements on the line (sensor, circuit breaker, disconnector) to the sub system
         
-        Paramters
+        Parameters
         ----------
         line : Line 
             A line element
@@ -216,7 +216,7 @@ class SubSystem:
         """
         Adding lines to the sub system
         
-        Paramters
+        Parameters
         ----------
         lines : list 
             A list of Line elements in the sub system
@@ -233,7 +233,7 @@ class SubSystem:
         """
         Adding child network to the sub system
         
-        Paramters
+        Parameters
         ----------
         network : Network 
             The child network of the sub system
@@ -249,7 +249,7 @@ class SubSystem:
         """
         Returns the load balance of the system
         
-        Paramters
+        Parameters
         ----------
         None
 
@@ -277,7 +277,7 @@ class SubSystem:
         """
         Updates the batteries in the sub system
         
-        Paramters
+        Parameters
         ----------
         fail_duration : Time
             The failure duration
@@ -303,7 +303,7 @@ class SubSystem:
         """
         Updates the EV parks in the sub system
         
-        Paramters
+        Parameters
         ----------
         fail_duration : Time
             The failure duration
@@ -328,7 +328,7 @@ class SubSystem:
         """
         Reset the variables used in the load flow analysis
         
-        Paramters
+        Parameters
         ----------
         None
 

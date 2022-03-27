@@ -116,7 +116,7 @@ class Transmission(Network):
         """
         Returns the bus representing the overlying networl (transmission network)
         
-        Paramters
+        Parameters
         ----------
         None
 
@@ -132,7 +132,7 @@ class Transmission(Network):
         """
         Resets the slack bus of the transmission network
         
-        Paramters
+        Parameters
         ----------
         None
 
@@ -147,7 +147,7 @@ class Transmission(Network):
         """
         Adds child network
         
-        Paramters
+        Parameters
         ----------
         network : Network
             A network
@@ -176,7 +176,7 @@ class Transmission(Network):
         """
         Returns the lines in the transmission network
         
-        Paramters
+        Parameters
         ----------
         None
 
@@ -226,7 +226,7 @@ class Transmission(Network):
         """
         Returns the system load at the current time in MW and MVar
         
-        Paramters
+        Parameters
         ----------
         None
 
@@ -249,7 +249,7 @@ class Transmission(Network):
         """
         Resets the load shed variables
         
-        Paramters
+        Parameters
         ----------
         None
 

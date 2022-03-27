@@ -188,7 +188,7 @@ class Disconnector(Component):
 
     def fail(self):
         """
-        Sets the diconnecotr to failed and opens the disconnector
+        Sets the disconnecotr to failed and opens the disconnector
 
         Parameters
         ----------
@@ -204,7 +204,7 @@ class Disconnector(Component):
 
     def not_fail(self):
         """
-        Sets the doconnector to not failed and closes the disconnecotr 
+        Sets the disconnector to not failed and closes the disconnecotr 
 
         Parameters
         ----------

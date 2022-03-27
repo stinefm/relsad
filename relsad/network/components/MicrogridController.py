@@ -2,7 +2,10 @@ from enum import Enum
 import matplotlib.lines as mlines
 import numpy as np
 from .Component import Component
-from .MainController import ControllerState
+from .Controller import (
+    Controller,
+    ControllerState,
+)
 from relsad.network.containers import SectionState
 from relsad.utils import (
     random_choice,
@@ -21,7 +24,7 @@ class MicrogridMode(Enum):
     LIMITED_SUPPORT = 3
 
 
-class MicrogridController(Component):
+class MicrogridController(Component, Controller):
     """
     Common class for microgrid controller
 
@@ -35,7 +38,7 @@ class MicrogridController(Component):
         The failure rate of the microgrid controller
     outage_time : float
         The outage time of the microgrid controller
-    state : enum
+    state : ControllerState
         The state of the microgrid controller
     sectioning_time : Time
         The sectioning time in the microgrid
@@ -133,7 +136,7 @@ class MicrogridController(Component):
         """
         Sets the controller state to software fail
 
-        Paramters
+        Parameters
         ----------
         curr_time : Time
             The current time
@@ -168,7 +171,7 @@ class MicrogridController(Component):
         """
         Disconnects the failed sections in the microgrid
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -184,7 +187,7 @@ class MicrogridController(Component):
         """
         Sets the controller state to software fail
 
-        Paramters
+        Parameters
         ----------
         curr_time : Time
             The current time
@@ -232,7 +235,7 @@ class MicrogridController(Component):
         """
         Sets the controller state to software fail
 
-        Paramters
+        Parameters
         ----------
         curr_time : Time
             The current time
@@ -265,7 +268,7 @@ class MicrogridController(Component):
         """
         Sets the controller state to software fail
 
-        Paramters
+        Parameters
         ----------
         curr_time : Time
             The current time
@@ -301,7 +304,7 @@ class MicrogridController(Component):
         """
         Sets the controller state to software fail
 
-        Paramters
+        Parameters
         ----------
         curr_time : Time
             The current time
@@ -334,7 +337,7 @@ class MicrogridController(Component):
         """
         Sets the sectioning time in the microgrid 
 
-        Paramters
+        Parameters
         ----------
         sectioning_time : Time
             The sectioning time in the microgrid
@@ -353,7 +356,7 @@ class MicrogridController(Component):
         """
         Sets the sectioning time of the parent network
 
-        Paramters
+        Parameters
         ----------
         sectioning_time : Time
             The sectioning time in the microgrid
@@ -369,7 +372,7 @@ class MicrogridController(Component):
         """
         Updates the fail status
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step

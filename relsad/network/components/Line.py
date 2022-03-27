@@ -379,9 +379,6 @@ class Line(Component):
         self.tbus.fromline = self
         self.fbus.nextbus.remove(self.tbus)
         self.tbus.nextbus.append(self.fbus)
-        i_broken = self.tbus.num
-        self.tbus.num = self.fbus.num
-        self.fbus.num = i_broken
         bus = self.fbus
         self.fbus = self.tbus
         self.tbus = bus
@@ -438,25 +435,6 @@ class Line(Component):
         """
 
         def uij(gij, bij, tetai, tetaj):
-            """
-            Returns the flow over the line in PU values
-
-            Parameters
-            ----------
-            None
-
-            Returns
-            ----------
-            p_from : float
-                The active power sent from the line \[MW\]
-            q_from : float
-                The reactive power sent from the line \[MVar\]
-            p_to : float
-                The active power sent to the line \[MW\]
-            q_to : float
-                The reactive power sent to the line \[MVar\]
-
-            """
             return gij * np.sin(tetai - tetaj) - bij * np.cos(tetai - tetaj)
 
         def tij(gij, bij, tetai, tetaj):

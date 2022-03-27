@@ -6,7 +6,7 @@ def save_history(comp_list: list, attribute: str, save_dir: str):
     """
     Saves history
 
-    Paramters
+    Parameters
     ----------
     comp_list : list 
         A list of system componets
@@ -34,7 +34,7 @@ def save_monte_carlo_history(comp_list: list, attribute: str, save_dir: str):
     """
     Saves history from the Monte Carlo simulation
 
-    Paramters
+    Parameters
     ----------
     comp_list : list 
         A list of system componets
@@ -64,7 +64,7 @@ def save_monte_carlo_history_from_dict(
     """
     Saves history
 
-    Paramters
+    Parameters
     ----------
     save_dict : dict
     comp_list : list 

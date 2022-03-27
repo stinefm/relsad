@@ -152,7 +152,7 @@ class Sensor(Component):
         """
         Sets the sensor state to FAILED
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -167,7 +167,7 @@ class Sensor(Component):
         """
         Sets the sensor state to OK
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -182,7 +182,7 @@ class Sensor(Component):
         """
         Draws the state of the sensor for a given time step
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
@@ -199,7 +199,7 @@ class Sensor(Component):
         """
         Sets the state of the sensor based on the probability of the state being FAILED
 
-        Paramters
+        Parameters
         ----------
         prob : float
             The probability that the sensor state is FAILED
@@ -216,9 +216,9 @@ class Sensor(Component):
 
     def repair(self, dt: Time):
         """
-        Sets the repair time of the sensor 
+        Returns the repair time and fail status of the sensor 
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
@@ -227,28 +227,32 @@ class Sensor(Component):
         ----------
         repair_time : Time
             The repair time of the sensor
-        line.failed? 
-
+        fail_status : bool 
+            The fail status of the sensor
         """
         repair_time = self.new_signal_time
+        fail_status = None
         self.draw_status(self.p_fail_repair_new_signal)
         if self.state == SensorState.OK:
-            return repair_time, self.line.failed
+            fail_status = self.line.failed
+            return repair_time, fail_status
         elif self.state == SensorState.FAILED:
             repair_time += self.reboot_time
             self.draw_status(self.p_fail_repair_reboot)
             if self.state == SensorState.OK:
-                return repair_time, self.line.failed
+                fail_status = self.line.failed
+                return repair_time, fail_status
             elif self.state == SensorState.FAILED:
                 self.remaining_repair_time = self.manual_repair_time
                 self.state = SensorState.REPAIR
-                return repair_time, True
+                fail_status = True
+                return repair_time, fail_status
 
     def get_line_fail_status(self, dt: Time):
         """
-        Gives the  
+        Returns the repair time and fail status of the line  
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
@@ -256,32 +260,42 @@ class Sensor(Component):
         Returns
         ----------
         repair_time : Time
-            The repair time of the sensor
-        line.failed? 
+            The repair time of the line
+        fail_status : bool 
+            The fail status of the line 
 
         """
+        repair_time = None
+        fail_status = None
         if self.state == SensorState.REPAIR:
-            return Time(0), True
+            repair_time = Time(0)
+            fail_status = True
+            return repair_time, fail_status
         else:
             if self.state == SensorState.OK:
-                return Time(0), self.line.failed
+                repair_time = Time(0)
+                fail_status = self.line.failed
+                return repair_time, fail_status
             elif self.state == SensorState.FAILED:
-                return self.repair(dt)
+                repair_time, fail_status = self.repair(dt)
+                return repair_time, fail_status
 
     def get_section(self):
         """
         Returns the line section
 
-        Paramters
+        Parameters
         ----------
         None
 
         Returns
         ----------
-        line.section? 
+        line_section : Section
+            The parent section of the line
 
         """
-        return self.line.section
+        line_section = self.line.section
+        return line_section
 
     def update_fail_status(self, dt: Time):
         """
@@ -289,7 +303,7 @@ class Sensor(Component):
         If the state of the sensor is REPAIR, the remaining repair time is set
         If the state of the sensor is OK, the state of the sensor is drawn
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
@@ -310,7 +324,7 @@ class Sensor(Component):
         """
         Updates the history variables
 
-        Paramters
+        Parameters
         ----------
         prev_time : Time
             The previous time

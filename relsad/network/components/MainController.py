@@ -1,7 +1,10 @@
-from enum import Enum
 import matplotlib.lines as mlines
 import numpy as np
 from .Component import Component
+from .Controller import (
+    Controller,
+    ControllerState,
+)
 from relsad.utils import (
     random_choice,
     convert_yearly_fail_rate,
@@ -12,14 +15,7 @@ from relsad.Time import (
 )
 
 
-class ControllerState(Enum):
-    OK = 1
-    SOFTWARE_FAIL = 2
-    HARDWARE_FAIL = 3
-    REPAIR = 4
-
-
-class MainController(Component):
+class MainController(Component, Controller):
 
     """
     Common class for main controller
@@ -163,7 +159,7 @@ class MainController(Component):
         """
         Sets the controller state to software fail
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -178,7 +174,7 @@ class MainController(Component):
         """
         Sets the controller state to hardware fail
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -193,7 +189,7 @@ class MainController(Component):
         """
         Sets the controller state to ok (not fail)
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -208,7 +204,7 @@ class MainController(Component):
         """
         Draws the failure status of the controller
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
@@ -232,7 +228,7 @@ class MainController(Component):
         """
         Draws if a hardware failure has occured and sets the fail status of the controller 
 
-        Paramters
+        Parameters
         ----------
         prob : float
             The probability of a hardware failure
@@ -251,7 +247,7 @@ class MainController(Component):
         """
         Draws if a software failure has occured and sets the fail status of the controller
 
-        Paramters
+        Parameters
         ----------
         prob : float
             The probability of a software failure
@@ -270,7 +266,7 @@ class MainController(Component):
         """
         Goes through the repair sequence of a software failure, draws the repair mechanism, returns the repair time and updates the state of the controller 
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
@@ -298,7 +294,7 @@ class MainController(Component):
         """
         Updates the failure status of the controller based on the remaining outage time
 
-        Paramters
+        Parameters
         ----------
         dt : Time 
             The current time step 
@@ -325,7 +321,7 @@ class MainController(Component):
         """
         Adds distribution controllers from connected distribution systems to a list and sets the sectioning time for the controller
 
-        Paramters
+        Parameters
         ----------
         controller : Controller 
             Distribution system controller
@@ -342,7 +338,7 @@ class MainController(Component):
         """
         Adds microgird controllers from connected microgrids to a list and sets the sectioning time for the controller
 
-        Paramters
+        Parameters
         ----------
         controller : Controller 
             Microgird controller
@@ -359,7 +355,7 @@ class MainController(Component):
         """
         Runs the control loop for the distribution system controllers and the microgird controllers
 
-        Paramters
+        Parameters
         ----------
         curr_time : Time 
             The current time
@@ -386,7 +382,7 @@ class MainController(Component):
         """
         Sets the sectioning time for the controllers in the connected distribution systems and microgrids
 
-        Paramters
+        Parameters
         ----------
         None
 

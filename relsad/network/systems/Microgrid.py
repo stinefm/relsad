@@ -195,7 +195,7 @@ class Microgrid(Network):
         """
         Sets the line connecting the microgrid to overlying network
 
-        Paramters
+        Parameters
         ----------
         connected_line : Line 
             The line connecting the distribution system to overlaying network

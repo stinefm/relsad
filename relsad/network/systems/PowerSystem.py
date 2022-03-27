@@ -110,7 +110,7 @@ class PowerSystem(Network):
         Get the maximum load of the power system for the entire load history in MW and MVar
     add_load_dict(load_dict, time_indices)
     add_prod_dict(prod_dict, time_indices)
-    set_load(inc_idx)
+    set_load_and_cost(inc_idx)
         Sets the load at the buses in the power system 
     set_prod(inc_idx)
         Sets the generation (generation units, batteries, EV parks) at the buses in the power system
@@ -199,7 +199,7 @@ class PowerSystem(Network):
         """
         Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the power system
  
-        Paramters
+        Parameters
         ----------
         bus : Bus 
             A bus element
@@ -234,7 +234,7 @@ class PowerSystem(Network):
         """
         Adding buses to the power system
         
-        Paramters
+        Parameters
         ----------
         buses : list 
             A list of Bus elements in the power system 
@@ -251,7 +251,7 @@ class PowerSystem(Network):
         """
         Adding a line including elements on the line (sensor, circuit breaker, disconnector) to the power system
  
-        Paramters
+        Parameters
         ----------
         line : Line 
             A line element
@@ -308,7 +308,7 @@ class PowerSystem(Network):
         """
         Adding lines to the power system
        
-        Paramters
+        Parameters
         ----------
         lines : list 
             A list of Line elements in the power system 
@@ -325,7 +325,7 @@ class PowerSystem(Network):
         """
         Returns the lines in the power system
 
-        Paramters
+        Parameters
         ----------
         lines : list 
             A list of Line elements in the power system 
@@ -342,7 +342,7 @@ class PowerSystem(Network):
         """
         Returns component based on given name
         
-        Paramters
+        Parameters
         ----------
         name : str 
            Name of the component 
@@ -364,7 +364,7 @@ class PowerSystem(Network):
         """
         Returns list of the components in the power system
         
-        Paramters
+        Parameters
         ----------
         None
 
@@ -380,7 +380,7 @@ class PowerSystem(Network):
         """
         Adding child network to the power system
         
-        Paramters
+        Parameters
         ----------
         network : Network 
             The child network of the power system
@@ -396,7 +396,7 @@ class PowerSystem(Network):
         """
         Resets the slack bus of the child networks
         
-        Paramters
+        Parameters
         ----------
         None
 
@@ -412,7 +412,7 @@ class PowerSystem(Network):
         """
         Creates sections in the power system 
         
-        Paramters
+        Parameters
         ----------
         None
 
@@ -430,7 +430,7 @@ class PowerSystem(Network):
         """
         Prints the status of the buses and lines in the power system
         
-        Paramters
+        Parameters
         ----------
         None
 
@@ -450,7 +450,7 @@ class PowerSystem(Network):
         """
         Returns the load balance of the system in MW and MVar
         
-        Paramters
+        Parameters
         ----------
         None
 
@@ -478,7 +478,7 @@ class PowerSystem(Network):
         """
         Updates the batteries in the power system
         
-        Paramters
+        Parameters
         ----------
         fail_duration : Time
             The failure duration
@@ -498,7 +498,7 @@ class PowerSystem(Network):
         """
         Updates the EV parks in the power system
         
-        Paramters
+        Parameters
         ----------
         fail_duration : Time
             The failure duration
@@ -519,7 +519,7 @@ class PowerSystem(Network):
         """
         Updates the failure status for each component that can fail in the power system 
         
-        Paramters
+        Parameters
         ----------
         dt : Time 
             The current time step
@@ -547,7 +547,7 @@ class PowerSystem(Network):
         """
         Returns the system load at the current time in MW and MVar
         
-        Paramters
+        Parameters
         ----------
         None
 
@@ -618,7 +618,7 @@ class PowerSystem(Network):
         """
         Returns the system load at the current time in MW and MVar
         
-        Paramters
+        Parameters
         ----------
         load_dict : dict
         time_indices ? 
@@ -649,7 +649,7 @@ class PowerSystem(Network):
         """
         Returns the system load at the current time in MW and MVar
         
-        Paramters
+        Parameters
         ----------
         prod_dict : dict
         time_indices ? 
@@ -669,11 +669,11 @@ class PowerSystem(Network):
                     )
                 prod.add_prod_dict(bus_prod_dict)
 
-    def set_load(self, inc_idx: int):
+    def set_load_and_cost(self, inc_idx: int):
         """
         Sets the load at the buses in the power system 
         
-        Paramters
+        Parameters
         ----------
         inc_idx : int
             Increment index
@@ -684,13 +684,13 @@ class PowerSystem(Network):
 
         """
         for bus in self.buses:
-            bus.set_load(inc_idx)
+            bus.set_load_and_cost(inc_idx)
 
     def set_prod(self, inc_idx: int):
         """
         Sets the generation (generation units, batteries, EV parks) at the buses in the power system 
         
-        Paramters
+        Parameters
         ----------
         inc_idx : int
             Increment index
@@ -712,7 +712,7 @@ class PowerSystem(Network):
         """
         Returns True if the power system contains a failed component, and False otherwise
         
-        Paramters
+        Parameters
         ----------
         None
 
@@ -729,7 +729,7 @@ class PowerSystem(Network):
         """
         Returns True if the batteries in the power system are full, and False otherwise
         
-        Paramters
+        Parameters
         ----------
         None
 
@@ -749,7 +749,7 @@ class PowerSystem(Network):
         """
         Reset the variables used in the load flow analysis
         
-        Paramters
+        Parameters
         ----------
         None
 

@@ -95,7 +95,7 @@ def initialize_network():
     else:
         C1 = ManualMainController(
             name="C1",
-            section_time=Time(0, TimeUnit.HOUR),
+            sectioning_time=Time(0, TimeUnit.HOUR),
         )
 
     fail_rate_trafo = 0

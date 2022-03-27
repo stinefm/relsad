@@ -176,7 +176,7 @@ class Distribution(Network):
         """
         Sets the line connecting the distribution system to overlying network
 
-        Paramters
+        Parameters
         ----------
         connected_line : Line 
             The line connecting the distribution system to overlaying network

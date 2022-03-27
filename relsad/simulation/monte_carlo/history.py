@@ -42,7 +42,7 @@ def plot_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
     """
     Plots the history of the load shedding in the power system
 
-    Paramters
+    Parameters
     ----------
     power_system : PowerSystem
         A power system element
@@ -94,7 +94,7 @@ def save_network_monte_carlo_history(
     """
     Saves the history of the load shedding in the power system
 
-    Paramters
+    Parameters
     ----------
     power_system : PowerSystem
         A power system element
@@ -151,7 +151,7 @@ def initialize_history(power_system: PowerSystem):
     """
     Initializes the lists used for history variables
 
-    Paramters
+    Parameters
     ----------
     power_system : PowerSystem
         A power system element
@@ -181,7 +181,7 @@ def initialize_monte_carlo_history(power_system: PowerSystem):
     """
     Initializes the lists used for history variables from the Monte Carlo simulation
 
-    Paramters
+    Parameters
     ----------
     power_system : PowerSystem
         A power system element
@@ -229,7 +229,7 @@ def save_iteration_history(power_system: PowerSystem, it: int, save_dir: str):
     """
     Saves the history from an interation
 
-    Paramters
+    Parameters
     ----------
     power_system : PowerSystem
         A power system element
@@ -314,7 +314,7 @@ def update_monte_carlo_power_system_history(
     """
     Updates the history dictionary from the Monte Carlo simulation
 
-    Paramters
+    Parameters
     ----------
     power_system : PowerSystem
         A power system element
@@ -355,7 +355,7 @@ def update_monte_carlo_child_network_history(
     """
     Updates the history dictionary for the child networks in the Monte Carlo simulation
 
-    Paramters
+    Parameters
     ----------
     power_system : PowerSystem
         A power system element
@@ -394,7 +394,7 @@ def update_monte_carlo_comp_history(
     """
     Updates the component values for the system from the Monte Carlo simulation
 
-    Paramters
+    Parameters
     ----------
     power_system : PowerSystem
         A power system element
@@ -428,7 +428,7 @@ def merge_monte_carlo_history(
     """
     Merges the Monte Carlo history from all the iterations in the simulation
 
-    Paramters
+    Parameters
     ----------
     power_system : PowerSystem
         A power system element
@@ -483,7 +483,7 @@ def merge_monte_carlo_child_network_history(
     """
     Initializes the lists used for history variables from the Monte Carlo simulation
 
-    Paramters
+    Parameters
     ----------
     power_system : PowerSystem
         A power system element
@@ -520,7 +520,7 @@ def merge_monte_carlo_comp_history(
     """
     Initializes the lists used for history variables from the Monte Carlo simulation
 
-    Paramters
+    Parameters
     ----------
     power_system : PowerSystem
         A power system element

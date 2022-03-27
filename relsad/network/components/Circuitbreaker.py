@@ -38,7 +38,6 @@ class CircuitBreaker(Component):
             True if the circuit breaker is in a failed state, False if not        
         disconnectors : list(Disconnectors)
             Which disconnectors that are connected to the circuit breaker
-        line.circuitbreaker :
         history : dict
             Dictonary attribute that stores the historic variables
 
@@ -107,6 +106,7 @@ class CircuitBreaker(Component):
         self.outage_time = outage_time
         self.line = line
         self.disconnectors = list()
+        # Add this circuitbreaker to parent line
         self.line.circuitbreaker = self
 
         ## History

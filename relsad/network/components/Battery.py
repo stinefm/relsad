@@ -221,7 +221,7 @@ class Battery(Component):
         """
         Updates the SOC in the battery
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -237,7 +237,7 @@ class Battery(Component):
         """
         Charge the battery
 
-        Decides how much the battery can charge based on the available power in the system that can be stored, the maximum power that can be injected, and the maximum state of charge of the battery
+        Decides how much the battery can charge based on the desired charging power. Restricted by the amount of power that can be stored, the maximum power that can be injected, and the maximum state of charge of the battery
 
         Updates the state of charge of the battery
 
@@ -247,14 +247,14 @@ class Battery(Component):
         Parameters
         ----------
         p_ch : float
-            Amount of available power in the network for the battery to charge from [MW]
+            Desired amount of active power to charge the battery  [MW]
         dt : Time
             The current time step
 
         Returns
         ----------
         P_ch_remaining : float
-            Amount of active power from the network exceeding charging capacity, power not used by the battery [MW]
+            Amount of active power exceeding the charging capacity [MW]
 
 
         """
@@ -263,14 +263,20 @@ class Battery(Component):
         if p_ch > self.inj_p_max:
             p_ch_remaining += p_ch - self.inj_p_max
             if p_ch >= INF:
+                # "Infinite" power source available
                 p_ch = self.inj_p_max
             else:
                 p_ch -= p_ch_remaining
+        # Change in energy
         dE = self.n_battery * p_ch * dt.get_hours() # MWh
+        # Energy level, trial step
         E_tr = self.E_battery + dE
         SOC_tr = E_tr / self.E_max
         dSOC = dE / self.E_max
         if SOC_tr > self.SOC_max:
+            # Correcting step
+            #
+            # Factor to scale the energy level
             f = 1 - (SOC_tr - self.SOC_max) / dSOC
             self.E_battery += f * dE
             p_ch_remaining += (1 - f) * p_ch
@@ -285,7 +291,7 @@ class Battery(Component):
         """
         Discharge the battery
 
-        Decides how much the battery can discharge based on the available energy in the battery limited by the state of charge, the maximum power that can be injected, and the wanted amount of power from the battery
+        Decides how much the battery can discharge based on the available energy in the battery. Limited by the state of charge, the maximum power that can be injected, and the wanted amount of power from the battery
 
         Updates the state of charge of the battery
 
@@ -393,9 +399,9 @@ class Battery(Component):
         Parameters
         ----------
         system_load_balance_p : float
-            Active system load balance in MW
+            Active power system load balance in MW
         system_load_balance_q : float
-            Reactive system load balance in MW
+            Reactive power system load balance in MW
         dt : Time
             The current time step
 
@@ -414,37 +420,45 @@ class Battery(Component):
 
         pprod, qprod, pload, qload = 0, 0, 0, 0
         if p >= 0 and q >= 0:
-            p_dis, q_dis = self.discharge(p, q, dt)
-            pprod = p - p_dis
-            qprod = q - q_dis
+            p_rem, q_rem = self.discharge(p, q, dt)
+            pprod = p - p_rem
+            qprod = q - q_rem
         if p < 0 and q >= 0:
-            pload = -p - self.charge(-p, dt)
-            qprod = q - self.discharge(0, q, dt)[1]
+            p_rem = self.charge(-p, dt)
+            q_rem = self.discharge(0, q, dt)[1]
+            pload = -p - p_rem
+            qprod = q - q_rem
         if p >= 0 and q < 0:
-            pprod = p - self.discharge(p, 0, dt)[0]
+            p_rem = self.discharge(p, 0, dt)[0]
+            pprod = p - p_rem
         if p < 0 and q < 0:
-            pload = -p - self.charge(-p, dt)
+            p_rem = self.charge(-p, dt)
+            pload = -p - p_rem
         
-        # if self.SOC >= self.SOC_min:
+        # Add production to bus
         self.bus.pprod += pprod  # MW
         self.bus.qprod += qprod  # MVar
         self.bus.pprod_pu += pprod / self.bus.s_ref  # PU
         self.bus.qprod_pu += qprod / self.bus.s_ref  # PU
         
-        # if self.SOC <= self.SOC_max:
+        # Add load to bus
         self.bus.pload += pload  # MW
         self.bus.qload += qload  # MVar
         self.bus.pload_pu += pload / self.bus.s_ref  # PU
         self.bus.qload_pu += qload / self.bus.s_ref  # PU
-        p_rem = p + pload - pprod
-        q_rem = q + qload - qprod
+
+        # Battery power injection
         self.p_inj = pload - pprod
         self.q_inj = qload - qprod
+
+        # Remaining power
+        p_rem = p + pload - pprod
+        q_rem = q + qload - qprod
         return p_rem, q_rem
 
     def initialize_history(self):
         """
-        Initializes the history variables
+        Initializes the storage of the history variables
 
         Parameters
         ----------
@@ -499,7 +513,7 @@ class Battery(Component):
         ----------
         history[attribute] : dict
             Returns the history variables of an attribute
-            
+
         """
         return self.history[attribute]
 
@@ -611,29 +625,32 @@ class Battery(Component):
 
     def update(self, p : float, q : float, fail_duration: Time, dt: Time):
         """
-        Updates the active and reactive power at a bus ... microgrid
+        Updates the battery status for the current time step
        
         Parameters
         ----------
         p : float
-            Active power 
+            Active power balance of the parent power system
         q : float
-            Reactive power 
+            Reactive power balance of the parent power system
         fail_duration : Time
-            The duration of the failure
+            The duration of the current failure
         dt : Time
             The current time step
 
         Returns
         ----------
         p : float
+            Remaining active power balance of the parent power system
         q : float
-        
+            Remaining reactive power balance of the parent power system
         """
         if (
             self.mode in [MicrogridMode.SURVIVAL, MicrogridMode.FULL_SUPPORT]
             and fail_duration == dt
         ):
+            # Special handling for microgrid modes
+            # Failure occurred in current time step
             self.draw_SOC_state()
         p, q = self.update_bus_load_and_prod(p, q, dt)
         return p, q

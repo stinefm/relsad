@@ -7,7 +7,7 @@ def SAIFI(network: Network):
     """
     Returns the current SAIFI (System average interruption failure index)
 
-    Paramters
+    Parameters
     ----------
     network : Network 
         A Network element
@@ -31,7 +31,7 @@ def SAIDI(network: Network, time_unit: TimeUnit):
     """
     Returns the current SAIDI (System average interruption duration index)
     
-    Paramters
+    Parameters
     ----------
     network : Network 
         A Network element
@@ -63,7 +63,7 @@ def CAIDI(network: Network, time_unit: TimeUnit):
     """
     Returns the current CAIFI (Customer average interruption duration index)
     
-    Paramters
+    Parameters
     ----------
     network : Network 
         A Network element
@@ -87,7 +87,7 @@ def EENS(network):
     """
     Returns the current ENS (Energy not Supplied)
 
-    Paramters
+    Parameters
     ----------
     network : Network 
         A Network element
@@ -112,7 +112,7 @@ def EV_Index(network: Network):
     """
     Returns the current EV Index, which indicates how much power an EV are unable to charge
 
-    Paramters
+    Parameters
     ----------
     network : Network 
         A Network element
@@ -130,7 +130,7 @@ def EV_Interruption(network: Network):
     """
     Returns the current EV Interruption. Tells how many EVs that get interrupted/used for grid support
     
-    Paramters
+    Parameters
     ----------
     network : Network 
         A Network element
@@ -153,7 +153,7 @@ def EV_Duration(network: Network, time_unit: TimeUnit):
     """
     Returns the current EV Duration. Tells the average duration of the interrupted/used EVs for grid support
     
-    Paramters
+    Parameters
     ----------
     network : Network 
         A Network element

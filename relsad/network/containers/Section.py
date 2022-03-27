@@ -65,12 +65,12 @@ class Section:
             discon.close()
 
     def get_disconnect_time(self, dt: Time):
-        section_time = Time(0)
+        sectioning_time = Time(0)
         for discon in self.disconnectors:
-            section_time += discon.intelligent_switch.get_open_time(dt)
+            sectioning_time += discon.intelligent_switch.get_open_time(dt)
         for line in self.lines:
-            line.remaining_outage_time += section_time
-        return section_time
+            line.remaining_outage_time += sectioning_time
+        return sectioning_time
 
     def disconnect(self):
         self.state = SectionState.DISCONNECTED

@@ -2,6 +2,7 @@ from enum import Enum
 import matplotlib.lines as mlines
 import numpy as np
 from .Component import Component
+from .Controller import Controller
 from relsad.utils import (
     random_choice,
     convert_yearly_fail_rate,
@@ -90,7 +91,7 @@ class ManualMainController(Component):
         """
         Adds distribution controllers from connected distribution systems to a list and sets the manual sectioning time for the controller
 
-        Paramters
+        Parameters
         ----------
         controller : Controller 
             Distribution system controller
@@ -107,7 +108,7 @@ class ManualMainController(Component):
         """
         Adds microgird controllers from connected microgrids to a list and sets the manual sectioning time for the controller
 
-        Paramters
+        Parameters
         ----------
         controller : Controller 
             Microgrid controller
@@ -124,7 +125,7 @@ class ManualMainController(Component):
         """
         Runs the manual control loop for the distribution system controllers and the microgird controllers
 
-        Paramters
+        Parameters
         ----------
         curr_time : Time 
             The current time
@@ -145,7 +146,7 @@ class ManualMainController(Component):
         """
         Updates the failure status
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step

@@ -180,7 +180,7 @@ def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time: Time):
                         and not line.failed
                         and all(
                             [
-                                x.parent_network.controller.section_time
+                                x.parent_network.controller.sectioning_time
                                 <= Time(0)
                                 for x in line.tbus.connected_lines
                                 + line.fbus.connected_lines

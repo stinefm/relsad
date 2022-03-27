@@ -35,7 +35,7 @@ class IntelligentSwitch(Component):
         The failure rate per year for the intelligent switch
     manual_repair_time : Time
         The time it takes to manually repair the intelligent switch
-    state : IntelligentSwithcState
+    state : IntelligentSwitchState
         Which state the intelligent switch is in
     remaining_repair_time : Time
         The remaining repair time of the intelligent switch 
@@ -140,7 +140,7 @@ class IntelligentSwitch(Component):
         """
         Sets the intelligent switch state to FAILED
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -155,7 +155,7 @@ class IntelligentSwitch(Component):
         """
         Sets the intelligent switch state to OK
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -170,7 +170,7 @@ class IntelligentSwitch(Component):
         """
         Draws the state of the intelligent switch for a given time step
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
@@ -187,7 +187,7 @@ class IntelligentSwitch(Component):
         """
         Sets the state of the intelligent switch based on the probability of the state being FAILED
 
-        Paramters
+        Parameters
         ----------
         prob : float
             The probability that the intelligent switch state is FAILED
@@ -204,51 +204,60 @@ class IntelligentSwitch(Component):
 
     def get_open_repair_time(self, dt: Time):
         """
-        
+        Returns the time it takes to open the intelligent switch
+        when it must be repaired
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
 
         Returns
         ----------
-        None
+        open_repair_time: Time
+            The time it takes to open the intelligent switch
+            when it must be repaired
 
         """
         self.remaining_repair_time = self.manual_repair_time
         self.state = IntelligentSwitchState.REPAIR
-        return (
+        open_repair_time = (
             self.disconnector.line.parent_network.controller.manual_section_time
         )
+        return open_repair_time
 
     def get_open_time(self, dt: Time):
         """
-        Gives the time o.. 
+        Returns the time it takes to open the intelligent switch
+        based on the status
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
 
         Returns
         ----------
-        None
+        open_time: Time
+            The time it takes to open the intelligent switch
+        based on the status
 
         """
+        open_time = None
         if self.state == IntelligentSwitchState.REPAIR:
-            return Time(0)
+            open_time = Time(0)
         else:
             if self.state == IntelligentSwitchState.OK:
-                return Time(0)
+                open_time = Time(0)
             elif self.state == IntelligentSwitchState.FAILED:
-                return self.get_open_repair_time(dt)
+                open_time = self.get_open_repair_time(dt)
+        return open_time
 
     def open(self):
         """
         Opens the disconnector
 
-        Paramters
+        Parameters
         ----------
         None
 
@@ -265,7 +274,7 @@ class IntelligentSwitch(Component):
         Closes the disconnector
         Sets the state of the intelligent switch to repair
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
@@ -284,7 +293,7 @@ class IntelligentSwitch(Component):
         Closes the disconnector if the state of the intelligent switch is OK
 
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
@@ -306,7 +315,7 @@ class IntelligentSwitch(Component):
         If the state of the intelligent switch is REPAIR, the remaining repair time is calculated
         If the state of the intelligent switch is OK, the state of the intelligent switch is drawn 
 
-        Paramters
+        Parameters
         ----------
         dt : Time
             The current time step
@@ -327,7 +336,7 @@ class IntelligentSwitch(Component):
         """
         Updates the history variables
 
-        Paramters
+        Parameters
         ----------
         prev_time : Time
             The previous time
