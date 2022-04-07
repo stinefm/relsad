@@ -29,7 +29,7 @@ class Bus(Component):
     ZIP : list
         List showing the ZIP load model
     s_ref : float
-        Apperent power reference [MVa]
+        Apperent power reference \[MVa\]
     is_slack : bool
         Tells if the given bus is a slack bus or not
     fail_rate_per_year : float
@@ -45,9 +45,9 @@ class Bus(Component):
     toline_list : list
         List of lines going into the bus
     pload : float
-        The active load at the bus [MW]
+        The active load at the bus \[MW\]
     qload : float
-        The reactive load at the bus [MVar]
+        The reactive load at the bus \[MVar\]
     p_load_downstream : float
         Active accumulated power load at node
     q_load_downstream : float

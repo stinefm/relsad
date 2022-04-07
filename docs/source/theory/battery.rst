@@ -1,5 +1,5 @@
 ======================
-Battery implementation
+Battery behavior
 ======================
 
 
@@ -14,15 +14,18 @@ The SOC of a battery can be calculated
 
 where, :math:`\text{E}_{bat}` is the energy in the battery while :math:`\text{E}_{cap}` is the battery capacity. 
 
-The energy in the battery is decided based on the amount of charging or discharging of the battery
+The energy in the battery is decided based on the amount of power charged or discharged to or from the battery
 
 .. math::
     :label: eq:E_bat_charge
 
-    \text{E}_{bat, charge} = E_{bat}+\eta P_{charge}
+    \text{E}_{bat, charge} = E_{bat}+\eta_{charge} P_{charge}
 
 
 .. math::
     :label: eq:E_bat_discharge
 
-    \text{E}_{bat, discharge} = E_{bat}+\frac{P_{discharge}}{\eta} 
+    \text{E}_{bat, discharge} = E_{bat}+\frac{P_{discharge}}{\eta_{discharge}} 
+
+here, :math:`\eta_{charge}` and :math:`\eta_{discharge}` are the charging and discharging efficiency, respectively, and :math:`\text{P}_{charge}` and :math:`\text{P}_{discharge}` are the amount of power charged and discharged, respectively. 
+

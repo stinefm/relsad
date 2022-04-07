@@ -67,13 +67,18 @@ class Battery(Component):
     update_SOC()
         Updates the SOC in the battery
     charge(P_ch)
-        Charge the battery
+        Charge the battery. Decides how much the battery can charge based on the desired charging power. Restricted by the amount of power that can be stored, the maximum power that can be injected, and the maximum state of charge of the battery. Updates the state of charge of the battery.
+        Returns a float telling how much power the battery is not able to charge
     discharge(P_dis)
-        Discharge the battery
+        Discharge the battery. Decides how much the battery can discharge based on the available energy in the battery. Limited by the state of charge, the maximum power that can be injected, and the wanted amount of power from the battery. Updates the state of charge of the battery.
+        Returns a float telling how much power the battery is not able to discharge
     print_status()
         Prints the status of the battery
     update_bus_load_and_prod(system_load_balance_p, system_load_balance_q)
-        Updates the load and production on the bus based on the system load balance
+        Updates the load and production on the bus based on the system load balance.
+        If the balance is negative, there is a surplus of production, and the battery will charge.
+        If the balance is positive, there is a shortage of production, and the battery will discharge.
+        Returns the remaining surplus/shortage of power
     initialize_history()
         Initializes the history variables
     update_history(curr_time, dt, save_flag)
@@ -90,10 +95,11 @@ class Battery(Component):
         Sets the microgrid mode
     start_survival_time()
         Starts the timer for how long the battery should focus on supporting own load
+        Only for when a microgrid is added and follows a survival mode
     draw_SOC_state()
         Draws the SOC state based on a uniform distribution
     update(p, q, fail_duration, dt)
-        SOMETHING
+        Updates the battery status for the current time step
 
     """
 

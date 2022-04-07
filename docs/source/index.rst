@@ -23,6 +23,7 @@ To get started, check out the sections below:
     contributing
     conduct
     theory
+    data
 
 Indices and tables
 ==================
