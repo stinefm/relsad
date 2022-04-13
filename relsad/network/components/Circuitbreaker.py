@@ -36,8 +36,8 @@ class CircuitBreaker(Component):
             The initial state of the circuit breaker
         failed : bool
             True if the circuit breaker is in a failed state, False if not        
-        disconnectors : list(Disconnectors)
-            Which disconnectors that are connected to the circuit breaker
+        disconnectors : list
+            List over which disconnectors that are connected to the circuit breaker
         history : dict
             Dictonary attribute that stores the historic variables
 
@@ -58,6 +58,7 @@ class CircuitBreaker(Component):
         add_random_instance(random_gen)
             Adds global random seed
         print_status()
+            Prints the status 
         reset_status(save_flag)
             Resets and sets the status of the system parameters
 
@@ -259,7 +260,7 @@ class CircuitBreaker(Component):
 
     def print_status(self):
         """
-
+        Prints the status 
         Parameters
         ----------
         None

@@ -22,6 +22,32 @@ def plot_topology(
     intelligent_switch_text: bool=False,
     sensor_text: bool=False,
     **kwargs):
+
+    """
+    Plots the system topology
+
+    Parameters
+    ----------
+    buses : list 
+        List with Bus elements in the system
+    lines : list 
+        List with Line elements in the system
+    bus_text : bool
+    line_text : bool
+    circuitbreaker_text : bool
+    disconnector_text : bool
+    intelligent_swithc_text : bool
+    sensor_text : bool
+    kwargs?
+
+    Returns
+    ----------
+    fig : figure
+        Figure of the system topology 
+    None
+
+    """
+
     fig, ax = plt.subplots(**kwargs)
     left = 0.02
     right = 0.98
@@ -74,6 +100,23 @@ def plot_topology(
     return fig
 
 def _plot_line(ax: plt.axis, line: Line, text: bool=False, text_size: int=8):
+    """
+    Plot lines 
+
+    Parameters
+    ----------
+    ax : plt.axis
+    line : Line
+        A Line element
+    text : bool
+    text_size : int 
+        The size of the text in the plot 
+
+    Returns
+    ----------
+    None
+
+    """
     ax.plot(
         [line.fbus.coordinate[0], line.tbus.coordinate[0]],
         [line.fbus.coordinate[1], line.tbus.coordinate[1]],
@@ -92,6 +135,23 @@ def _plot_line(ax: plt.axis, line: Line, text: bool=False, text_size: int=8):
         )
 
 def _plot_circuitbreaker(ax: plt.axis, line: Line, text: bool=False, text_size: int=8):
+    """
+    Plot circuitbreakers
+
+    Parameters
+    ----------
+    ax : plt.axis
+    line : Line
+        A Line element
+    text : bool
+    text_size : int 
+        The size of the text in the plot 
+
+    Returns
+    ----------
+    None
+
+    """
     cb = line.circuitbreaker
     ax.plot(
         cb.coordinate[0],
@@ -115,6 +175,23 @@ def _plot_circuitbreaker(ax: plt.axis, line: Line, text: bool=False, text_size: 
         )
 
 def _plot_disconnector(ax: plt.axis, discon: Disconnector, text: bool=False, text_size: int=8):
+    """
+    Plot disconnectors
+
+    Parameters
+    ----------
+    ax : plt.axis
+    discon : Disconnecotr
+        A Disconnector elements
+    text : bool
+    text_size : int 
+        The size of the text in the plot 
+
+    Returns
+    ----------
+    None
+
+    """
     ax.plot(
         discon.coordinate[0],
         discon.coordinate[1],
@@ -137,6 +214,23 @@ def _plot_disconnector(ax: plt.axis, discon: Disconnector, text: bool=False, tex
         )
 
 def _plot_intelligent_switch(ax: plt.axis, discon: Disconnector, text: bool=False, text_size: int=8):
+    """
+    Plot intelligent switches 
+
+    Parameters
+    ----------
+    ax : plt.axis
+    discon : Disconnecotr
+        A Disconnector elements
+    text : bool
+    text_size : int 
+        The size of the text on the plot 
+
+    Returns
+    ----------
+    None
+
+    """
     ax.plot(
         discon.coordinate[0],
         discon.coordinate[1],
@@ -158,6 +252,23 @@ def _plot_intelligent_switch(ax: plt.axis, discon: Disconnector, text: bool=Fals
         )
 
 def _plot_sensor(ax: plt.axis, line: Line, text: bool=False, text_size: int=8):
+    """
+    Plot sensors
+
+    Parameters
+    ----------
+    ax : plt.axis
+    line : Line
+        A Line element
+    text : bool
+    text_size : int 
+        The size of the text in the plot 
+
+    Returns
+    ----------
+    None
+
+    """
     ax.plot(
         (line.fbus.coordinate[0] + line.tbus.coordinate[0]) / 2,
         (line.fbus.coordinate[1] + line.tbus.coordinate[1]) / 2,
@@ -179,6 +290,23 @@ def _plot_sensor(ax: plt.axis, line: Line, text: bool=False, text_size: int=8):
         )
 
 def _plot_bus(ax: plt.axis, bus: list, text: bool=False, text_size: int=8):
+    """
+    Plot circuitbreakers
+
+    Parameters
+    ----------
+    ax : plt.axis
+    bus : list
+        List of Bus elements
+    text : bool
+    text_size : int 
+        The size of the text in the plot 
+
+    Returns
+    ----------
+    None
+
+    """
     ax.plot(
         bus.coordinate[0],
         bus.coordinate[1],
@@ -203,14 +331,31 @@ def _plot_bus(ax: plt.axis, bus: list, text: bool=False, text_size: int=8):
 
 def tableplot(table_data, title, columns, rows, columncol=[], rowcol=[]):
     """
-    Desc:   Make a table of the provided data. There must be a row and a column
-            data correpsonding to the table
+    Desc:   
     Input:  table_data  - np.array
             title - string
             columns - string vector
             rows    - string vector
             columncol - colors of each column label (default [])
             rowcol - colors of each row lable
+    """
+    """
+    Make a table of the provided data. There must be a row and a column
+    data correpsonding to the table
+
+    Parameters
+    ----------
+    table_data : array
+    title : str
+    columns : str
+    rows : str
+    columncol : list
+    rowcol : list 
+
+    Returns
+    ----------
+    None
+
     """
 
     fig = plt.figure(dpi=150)
@@ -244,6 +389,23 @@ def tableplot(table_data, title, columns, rows, columncol=[], rowcol=[]):
 
 
 def plot_history(comp_list: list, attribute: str, save_dir: str):
+    """
+    Plots the history 
+
+    Parameters
+    ----------
+    comp_list : list 
+        List of components
+    attribute : str
+        An attribute 
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
+    """
     if not os.path.isdir(save_dir):
         os.mkdir(save_dir)
     fig = plt.figure(dpi=150)
@@ -258,6 +420,24 @@ def plot_history(comp_list: list, attribute: str, save_dir: str):
 
 
 def plot_monte_carlo_history(comp_list: list, attribute: str, save_dir: str):
+    """
+    Plots the history from the Monte Carlo simulation
+
+    Parameters
+    ----------
+    comp_list : list 
+        List of components
+    attribute : str
+        An attribute 
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
+
+    """
     if not os.path.isdir(save_dir):
         os.mkdir(save_dir)
     fig = plt.figure(dpi=150)
@@ -272,6 +452,24 @@ def plot_monte_carlo_history(comp_list: list, attribute: str, save_dir: str):
 
 
 def plot_history_last_state(comp_list: list, attribute: str, save_dir: str):
+    """
+    Plots the last state from the history 
+
+    Parameters
+    ----------
+    comp_list : list 
+        List of components
+    attribute : str
+        An attribute 
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
+
+    """
     if not os.path.isdir(save_dir):
         os.mkdir(save_dir)
     fig = plt.figure(dpi=150)

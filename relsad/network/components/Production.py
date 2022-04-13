@@ -39,6 +39,10 @@ class Production(Component):
         Decides how much active and reactive power that will be produced
     update_bus_prod()
         Updates the production on the bus with the amount of generated active and reactive power
+        Sets the active production at the bus equal the active production at the bus minus the generated active power
+        Sets the reactive production at the bus equal the reactive production at the bus minus the generated reactive power
+    reset_prod()
+        Resets the active and reactive production
     update_fail_status()
         Updates the fail status
     update_history(curr_time)
@@ -171,6 +175,7 @@ class Production(Component):
     def reset_prod(self):
         """
         Resets the active and reactive production
+
         Parameters
         ----------
         None

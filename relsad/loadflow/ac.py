@@ -8,10 +8,18 @@ def run_bfs_load_flow(network: Network, maxit: int = 5):
     Solves the load flow with a specified number of iterations
     The two first septs are to set up additions topology information and to build the main structure
     Next, it is switched between forward sweeps (Voltage updates) and backward sweeps(load update and loss calcuation)
-    Input:
-        network      - Network
-    Returns:
-        network.buses - List of network buses
+    
+    Parameters
+    ----------
+    network : Network
+        The analyzed network
+    maxit : int
+        The number of iterations
+    
+    Returns
+    -------
+    network.buses : list
+        List of network buses
     """
     topology_list, network.buses, network.lines = configure(
         network.buses, network.lines
@@ -23,8 +31,26 @@ def run_bfs_load_flow(network: Network, maxit: int = 5):
 
 
 def accumulate_load(topology_list):
-    """Calculates the accumulated downstream active and reactive load at all buses
+    """
+    Calculates the accumulated downstream active and reactive load at all buses
     and calculates the active and reactive losses of lines and make an accumulated equivalent load at the buses
+    The function returns the accumulated loads and the accumulated power losses from a branch in the system 
+
+    Parameters
+    ----------
+    topology_list : list
+        List containing the system topology 
+    
+    Returns
+    -------
+    p_load : float
+        Active accumulated power load of a branch
+    q_load : float
+        Reactive accumulated power load of a branch
+    p_loss : float
+        Active accumulated power loss of a branch
+    q_loss : float
+        Reactive accumulated power loss of a branch
     """
     p_load = 0.0
     q_load = 0.0
@@ -90,11 +116,21 @@ def accumulate_load(topology_list):
 def calc_bus_voltage_sensitivity_single_phase(fbus, tbus, tline, branch: list):
     """
     Calculate the node voltages and sensitivities in the single phase case
-    :param fbus:
-    :param tbus:
-    :param tline:
-    :param branch:
-    :return:
+    
+    Parameters
+    ----------
+    fbus : Bus
+        The sending Bus element
+    tbus : list
+        The recieving Bus element
+    tline : Line 
+    branch : list 
+        List of branches in the system
+    
+    Returns
+    -------
+    None
+
     """
 
     vk2 = fbus.vomag ** 2
@@ -125,7 +161,18 @@ def calc_bus_voltage_sensitivity_single_phase(fbus, tbus, tline, branch: list):
 # Update the voltage profile starting on the top node
 #
 def update_voltage(topology_list):
-    """Update the voltage profile based on the accumulated load on each bus"""
+    """
+    Update the voltage profile based on the accumulated load on each bus
+    
+    Parameters
+    ----------
+    topology_list : list
+        List containing the system topology 
+    
+    Returns
+    -------
+    None
+    """
     for branch in topology_list:
         if branch[0].toline:
             tline = branch[0].toline
@@ -144,9 +191,19 @@ def update_voltage(topology_list):
 # Calculates the load for the actual volage at the bus
 #
 def get_load(bus):
-    """Calculates the net voltage corrected load at the bus - currently a simple ZIP model is applied.
-    Input: The busect
-    Returns: p_load_act, q_load_act
+    """
+    Calculates the net voltage corrected load at the bus - currently a simple ZIP model is applied.
+    
+    Parameters
+    ----------
+    bus : Bus 
+        A Bus element
+    
+    Returns
+    -------
+    p_load_act : float
+    q_load_act : float
+
     """
     # load - production [PU]
     relative_pload = bus.pload_pu - bus.pprod_pu

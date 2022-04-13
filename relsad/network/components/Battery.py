@@ -66,10 +66,10 @@ class Battery(Component):
     ----------
     update_SOC()
         Updates the SOC in the battery
-    charge(P_ch)
+    charge(P_ch, dt)
         Charge the battery. Decides how much the battery can charge based on the desired charging power. Restricted by the amount of power that can be stored, the maximum power that can be injected, and the maximum state of charge of the battery. Updates the state of charge of the battery.
         Returns a float telling how much power the battery is not able to charge
-    discharge(P_dis)
+    discharge(P_dis, q_dis, dt)
         Discharge the battery. Decides how much the battery can discharge based on the available energy in the battery. Limited by the state of charge, the maximum power that can be injected, and the wanted amount of power from the battery. Updates the state of charge of the battery.
         Returns a float telling how much power the battery is not able to discharge
     print_status()
@@ -81,11 +81,11 @@ class Battery(Component):
         Returns the remaining surplus/shortage of power
     initialize_history()
         Initializes the history variables
-    update_history(curr_time, dt, save_flag)
+    update_history(prev_time, curr_time, dt, save_flag)
         Updates the history variables
     get_history(attribute)
         Returns the history variables of an attribute
-    update_fail_status(curr_time)
+    update_fail_status(dt)
         Locks and unlocks the battery functionality based on failure states of the basestation
     add_random_instance(random_gen)
         Adds global random seed

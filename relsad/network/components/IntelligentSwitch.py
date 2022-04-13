@@ -42,6 +42,7 @@ class IntelligentSwitch(Component):
     history : dict
         Dictonary attribute that stores the historic variables
     monte_carlo_history : dict
+        Dictonary attribute that stores the historic variables from the Monte Carlo simulation
 
     Methods
     ----------
@@ -54,7 +55,9 @@ class IntelligentSwitch(Component):
     draw_status(prob)
         Sets the state of the intelligent switch based on the probability of the state being FAILED
     get_open_repair_time(dt)
+        Returns the time it takes to open the intelligent switch when it must be repaired
     get_open_time(dt)
+        Returns the time it takes to open the intelligent switch based on the status
     open()
         Opens the disconnector
     repair_close(dt)
@@ -240,7 +243,7 @@ class IntelligentSwitch(Component):
         ----------
         open_time: Time
             The time it takes to open the intelligent switch
-        based on the status
+            based on the status
 
         """
         open_time = None

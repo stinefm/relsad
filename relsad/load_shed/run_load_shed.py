@@ -17,9 +17,17 @@ def shed_loads(power_system: PowerSystem, dt: Time, alpha: float = 1e-4):
     Sheds the unsupplied loads of the power system using a linear minimization
     problem solved with linear programming
 
-    alpha: Slack variable to cope with numerical noise
+    Parameters
+    ----------
+    power_system : PowerSystem
+        The power system that is under consideration
+    dt : Time
+        The current time step
+    alpha : float 
+        Slack variable to cope with numerical noise
 
-    Problem formulation:
+    Problem formulation
+    --------------------
 
     minimize sum(P_shed_n)
 
@@ -39,6 +47,11 @@ def shed_loads(power_system: PowerSystem, dt: Time, alpha: float = 1e-4):
         -P_line_nl_max <= P_line_nl <= P_line_nl_max
            P_gen_n_min <= P_gen_n   <= P_gen_n_max
              alpha_min <= alpha     <= alpha_max
+    
+    Returns
+    -------
+    None
+
     """
     buses = list(power_system.buses)
     lines = [x for x in power_system.lines if x.connected]
@@ -79,7 +92,23 @@ def shed_loads(power_system: PowerSystem, dt: Time, alpha: float = 1e-4):
         )
 
 
-def _build_A_matrix(power_system):
+def _build_A_matrix(power_system: PowerSystem):
+
+    """
+    Builds a matrix
+
+    Parameters
+    ----------
+    power_system : PowerSystem
+        The power system that is under consideration
+    
+    Returns
+    -------
+    A : array
+        Matrix containing 
+
+    """
+
     buses = list(power_system.buses)
     lines = [x for x in power_system.lines if x.connected]
     N_D = len(buses)
@@ -104,6 +133,22 @@ def _build_A_matrix(power_system):
 
 
 def _get_generation_boundaries(power_system: PowerSystem):
+    """
+    Returns the generation units boundaries 
+
+    Parameters
+    ----------
+    power_system : PowerSystem
+        The power system that is under consideration
+    
+    Returns
+    -------
+    p_gen : list
+        List of the active power boundary for the generation units
+    q_gen : list 
+        List of the reactive power boundary for the generation units
+
+    """
     p_gen = list()  # Active bus generation
     q_gen = list()  # Reactive bus generation
     for j, bus in enumerate(power_system.buses):
@@ -122,6 +167,25 @@ def _get_generation_boundaries(power_system: PowerSystem):
 
 
 def _gather_boundaries(power_system, alpha):
+    """
+    Returns the boundaries in the power system. 
+
+    Parameters
+    ----------
+    power_system : PowerSystem
+        The power system that is under consideration
+    alpha : float
+        Slack variable to cope with numerical noise
+    
+    Returns
+    -------
+    p_bounds : list
+        The active power boundary for a generation unit
+    q_bounds : list 
+        The reaactive power boundary for a generation unit
+
+    """
+
     # Gather bounderies
     buses = list(power_system.buses)
     lines = [x for x in power_system.lines if x.connected]
@@ -166,6 +230,27 @@ def _shed_active_loads(
     alpha,
     dt: Time,
 ):
+    """
+    Sheds active power load
+
+    Parameters
+    ----------
+    c : 
+    A : 
+    p_b : list
+    p_bounds : list
+    buses : list
+    lines : list
+    alpha : float
+        Slack variable to cope with numerical noise
+    dt : Time
+        The current time step
+    
+    Returns
+    -------
+    None
+
+    """
     p_res = linprog(
         c,
         A_eq=A,
@@ -210,6 +295,27 @@ def _shed_reactive_loads(
     alpha,
     dt: Time,
 ):
+    """
+    Sheds reactive power load
+
+    Parameters
+    ----------
+    c : 
+    A : 
+    p_b : list
+    p_bounds : list
+    buses : list
+    lines : list
+    alpha : float
+        Slack variable to cope with numerical noise
+    dt : Time
+        The current time step
+    
+    Returns
+    -------
+    None
+
+    """
     q_res = linprog(
         c,
         A_eq=A,

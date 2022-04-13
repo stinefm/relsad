@@ -32,10 +32,6 @@ class Bus(Component):
         Apperent power reference \[MVa\]
     is_slack : bool
         Tells if the given bus is a slack bus or not
-    fail_rate_per_year : float
-        The failure rate of the transformer on the bus per year
-    outage_time : Time
-        The outage time of the transformer on the bus
     load_dict : dict
         Dictionary with the load at the bus
     toline : Line 
@@ -44,10 +40,14 @@ class Bus(Component):
         Tells which line that is going out of the bus
     toline_list : list
         List of lines going into the bus
-    pload : float
-        The active load at the bus \[MW\]
-    qload : float
-        The reactive load at the bus \[MVar\]
+    fromline_list : list
+        List of lines going from the bus
+    nextbus : List
+        List of neighbor buses
+    connected_lines : List 
+        List of connected lines
+    parent_network : Network
+        Parent network of the bus 
     p_load_downstream : float
         Active accumulated power load at node
     q_load_downstream : float
@@ -60,7 +60,51 @@ class Bus(Component):
         Voltage angle \[rad\]
     vomag : float
         Voltage magnitude pu
-
+    pload : float 
+        The active power load at the bus \[MW\]
+    qload : float 
+        The reactive power load at the bus \[MVar\]
+    pload_pu : float
+        The active power load at the bus in pu 
+    qload_pu : float
+        The reactive power load at the bus in pu
+    pprod : float
+        The active generated power at the bus \[MW\]
+    qprod : float
+        The reactive generated power at the bus \[MVar\]
+    pprod_pu : float
+        The active generated power at the bus in pu
+    qprod_pu : float
+        The reactive generated power at the bus in pu
+    fail_rate_per_year : float 
+        The failure rate per year for the transformer at the bus 
+    outage_time : Time
+        The outage time of the transformer at the bus 
+    acc_outage_time : Time
+        The accumulated outage time of the transformer at the bus  
+    avg_outage_time : Time
+        The average outage time of the transformer at the bus 
+    avg_fail_rate : float
+        The average failure rate of the transformer at the bus 
+    num_consecutive_interruptions : float 
+        Number of consecutive interruptions a bus experiences
+    interruption_fraction : float 
+        The interruption fraction of the bus 
+    curr_interruptions : float 
+        Current interruption duration a bus experiences
+    acc_interruptions : float 
+        Accumulated interruption duration a bus experiences 
+    prod : Production
+        Production class element at the bus 
+    ev_park : EVPark
+        EVPark class element at the bus
+    battery : Battery
+        Battery class element at the bus 
+    history : dict
+        Dictonary attribute that stores the historic variables
+    monte_carlo_history : dict
+        Dictonary attribute that stores the historic variables from the Monte Carlo simulation
+         
 
     Methods
     ----------
@@ -73,7 +117,7 @@ class Bus(Component):
     add_load_dict(load_dict)
         Adds a load dictionary to the bus
     set_load_and_cost(inc_idx)
-        Sets the bus load in MW based on load profile
+        Sets the bus load and cost in MW based on load and cost profiles in the current increment
     get_load()
         Retuns the current load at the bus in MW
     trafo_fail(dt)
@@ -83,7 +127,7 @@ class Bus(Component):
     get_battery()
         Returns the battery at the bus
     get_production()   
-        Returns the generation at the bus
+        Returns the generation unit at the bus
     update_fail_status(dt)
         Updates the fail status of the transformer. Sets the fail status to failed if the transformer is failed or the fail status to not failed if the transformer is not failed
     set_slack()
@@ -97,9 +141,9 @@ class Bus(Component):
     get_history(attribute)
         Returns the history variables of an attribute at the bus
     set_cost(cost)
-        Sets the Cost of Energy Not Supplied at the bus
+        Sets the specificed interruption cost related to Cost of Energy Not Supplied at the bus
     get_cost()
-        Returns the Cost of Energy Not Supplied at the bus
+        Returns the specificed interruption cost related to Cost of Energy Not Supplied at the bus
     shed_load(dt)
         Sheds load at the bus and resets the load. The shedded load is added to a stack for the bus
     clear_load_shed_stack()
@@ -159,6 +203,14 @@ class Bus(Component):
         self.q_loss_downstream = 0.0  # Active accumulated line loss at node
         self.voang = 0.0
         self.vomag = 1.0
+        self.pload = 0 
+        self.qload = 0
+        self.pload_pu = 0
+        self.qload_pu = 0
+        self.pprod = 0
+        self.qprod = 0
+        self.pprod_pu = 0
+        self.qprod_pu = 0
 
         ## Topological attributes
         self.is_slack = is_slack
@@ -388,7 +440,7 @@ class Bus(Component):
 
     def get_production(self):
         """
-        Returns the generation at the bus
+        Returns the generation unit at the bus
 
         Parameters
         ----------
@@ -601,12 +653,12 @@ class Bus(Component):
 
     def set_cost(self, cost: float):
         """
-        Sets the Cost of Energy Not Supplied at the bus
+        Sets the specificed interruption cost related to Cost of Energy Not Supplied at the bus
 
         Parameters
         ----------
         cost : float
-            The Cost of Energy Not Supplied
+            The specificed interruption cost 
 
         Returns
         ----------
@@ -617,7 +669,7 @@ class Bus(Component):
 
     def get_cost(self):
         """
-        Returns the Cost of Energy Not Supplied at the bus
+        Returns the specificed interruption cost related to Cost of Energy Not Supplied at the bus
 
         Parameters
         ----------
@@ -626,7 +678,7 @@ class Bus(Component):
         Returns
         ----------
         cost : float
-            The Cost of Energy Not Supplied
+            The specificed interruption cost 
         
         """
         return self.cost

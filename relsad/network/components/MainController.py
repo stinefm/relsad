@@ -57,6 +57,7 @@ class MainController(Component, Controller):
     history : dict
         Dictonary attribute that stores the historic variables
     monte_carlo_history : dict
+        Dictonary attribute that stores the historic variables from the Monte Carlo simulation
 
 
     Methods

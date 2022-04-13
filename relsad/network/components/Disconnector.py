@@ -54,7 +54,6 @@ class Disconnector(Component):
             Sets the disconnector to failed and opens the disconnector
         not_fail()
             Sets the doconnector to not failed and closes the disconnector
-        update_fail_status(dt)
         initialize_history()
             Initializes the history variables
         update_history(prev_time, curr_time, save_flag)
@@ -63,7 +62,6 @@ class Disconnector(Component):
             Returns the history variables of an attribute
         add_random_instance(random_gen)
             Adds global random seed
-        print_status()
         reset_status(save_falg)
             Resets and sets the status of the system parameters
 

@@ -5,13 +5,18 @@ from relsad.utils import unique, intersection
 
 
 def get_paths(parent_bus):
-    """Function that finds all downstream paths in a radial tree
+    """
+    Function that finds all downstream paths in a radial tree
 
-    Input:
-    parent_bus(Bus): Parent bus of radial tree
+    Parameters
+    ----------
+    parent_bus : Bus
+        Parent bus of radial tree
 
-    Output:
-    paths(list): List of all downstream paths from parent_bus
+    Returns
+    ----------
+    paths : list 
+        List of all downstream paths from parent_bus
 
     """
     if len(parent_bus.nextbus) == 0:
@@ -24,13 +29,18 @@ def get_paths(parent_bus):
 
 
 def get_line_paths(parent_line):
-    """Function that finds all downstream paths in a radial tree
+    """
+    Function that finds all downstream paths in a radial tree
 
-    Input:
-    parent_line(Line): Parent line of radial tree
+    Parameters
+    ----------
+    parent_line : Line
+        Parent line of radial tree
 
-    Output:
-    paths(list): List of all downstream paths from parent_bus
+    Returns
+    ----------
+    paths : list 
+        List of all downstream paths from parent_bus
 
     """
     lines = [
@@ -50,6 +60,22 @@ def get_line_paths(parent_line):
 def create_downstream_sections(
     curr_line: Line, parent_section: Section = None
 ):
+    """
+    
+
+    Parameters
+    ----------
+    curr_line : Line
+        The current line
+    parent_section : Section
+        The parent section
+
+    Returns
+    ----------
+    parent_section : Section 
+        The parent section 
+
+    """
     if not parent_section:
         lines = unique(
             itertools.chain.from_iterable(get_line_paths(curr_line))
@@ -95,6 +121,20 @@ def create_downstream_sections(
 
 
 def create_internal_sections(parent_section):
+    """
+    
+
+    Parameters
+    ----------
+    parent_section : Section
+        The parent section
+
+    Returns
+    ----------
+    parent_section : Section
+        The parent section
+
+    """
     child_lines = set(
         itertools.chain.from_iterable(
             [x.lines for x in parent_section.child_sections]
@@ -141,6 +181,22 @@ def create_internal_sections(parent_section):
 
 
 def get_section_list(parent_section, section_list=[]):
+    """
+    Appends and returns a list containing the sections in the path 
+
+    Parameters
+    ----------
+    parent_section : Section
+        The parent section
+    section_list : list
+        List containing the sections 
+
+    Returns
+    ----------
+    section_list : list
+        List containing the sections
+
+    """
     if section_list == []:
         section_list.append(parent_section)
     section_list += parent_section.child_sections
@@ -150,6 +206,20 @@ def get_section_list(parent_section, section_list=[]):
 
 
 def create_sections(connected_line):
+    """
+    
+
+    Parameters
+    ----------
+    connected_line : Line
+        The parent section
+
+    Returns
+    ----------
+    parent_section : Section
+        The parent section
+
+    """
     parent_section = create_downstream_sections(connected_line, [])
     parent_section = create_internal_sections(parent_section)
     parent_section.attach_to_lines()
@@ -158,9 +228,45 @@ def create_sections(connected_line):
 
 # flake8: noqa: C901
 def configure(bus_list, line_list):
-    """Function that sets up the nested topology array and configures the radial tree according to the slack bus"""
+    """
+    Function that sets up the nested topology array and configures the radial tree according to the slack bus
+    
+    Parameters
+    ----------
+    bus_list : list
+        List containing the bus elements 
+    line_list : list 
+        List containing the line elements 
+
+    Returns
+    ----------
+    topology : list 
+        Nested topology list
+    bus_list : list
+    line_list : list
+
+
+    """
 
     def line_between_buses(bus1, bus2, line_list):
+        """
+        Returns the line between two buses (bus1 and bus2)
+
+        Parameters
+        ----------
+        bus1 : Bus 
+            A Bus element
+        bus2 : Bus
+            A Bus elememt 
+        line_list : list 
+            List containing all the lines 
+
+        Returns
+        ----------
+        line : Line
+            A Line element
+
+        """
         for line in line_list:
             if (line.tbus == bus1 and line.fbus == bus2) or (
                 line.tbus == bus2 and line.fbus == bus1
@@ -168,6 +274,25 @@ def configure(bus_list, line_list):
                 return line
 
     def change_dir(target_buses, bus_list, checked_buses, line_list):
+        """
+
+
+        Parameters
+        ----------
+        target_buses : list
+            List containing
+        bus_list list 
+            List containing 
+        checked_buses : list
+        line_list 
+            List containing all the lines
+
+        Returns
+        ----------
+        new_target_buses : list 
+        checked_buses : list 
+
+        """
         new_target_buses = list()
         for target_bus in target_buses:
             if target_bus not in checked_buses:
@@ -184,13 +309,19 @@ def configure(bus_list, line_list):
         return new_target_buses, checked_buses
 
     def get_topology(paths):
-        """Function that constructs a nested topology array
+        """
+        Function that constructs a nested topology array
+      
+        Parameters
+        ----------
+        paths : list
+            List of all downstream paths from parent_bus in radial tree
 
-        Input:
-        paths(list): List of all downstream paths from parent_bus in radial tree
+        Returns
+        ----------
+        topology : list 
+            Nested topology list
 
-        Output:
-        topology(list): Nested topology list
         """
         used_buses = list()
         main_path = paths[0]
@@ -248,6 +379,15 @@ def configure(bus_list, line_list):
 def flatten(toflatten):
     """
     Function that flattens nested list, handy for printing
+    
+    Parameters
+    ----------
+    toflatten : 
+
+    Returns
+    ----------
+   None
+
     """
     for element in toflatten:
         try:
@@ -258,12 +398,35 @@ def flatten(toflatten):
 
 def find_backup_lines_between_sub_systems(sub_system1, sub_system2):
     """
-    Finds connections between sub systems
+    Finds connections between sub systems (sub_system1 and sub_system2)
+    
+    Parameters
+    ----------
+    sub_system1 : SubSystem 
+        A SubSystem element
+    sub_system2 : SubSystem
+        A SubSystem element
+
+    Returns
+    ----------
+    intersection
+
     """
 
     def find_external_backup_lines(sub_system):
         """
-        Finds lines connected to sub system buses that are connecte to external sub systems
+        Finds lines connected to sub system buses that are connected to external sub systems and returns a list of external backup lines
+        
+        Parameters
+        ----------
+        sub_system : SubSystem
+            A SubSystem element
+
+        Returns
+        ----------
+        external_backup_lines : list 
+            List containing external backup lines 
+
         """
         external_backup_lines = list()
         for bus in sub_system.buses:

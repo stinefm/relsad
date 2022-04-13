@@ -7,7 +7,7 @@ from relsad.utils import random_instance
 
 
 class StatDistType(Enum):
-    UNIFORM_FLOAT = 1
+    UNIFORM_FLOAT = 1 
     UNIFORM_INT = 2
     TRUNCNORMAL = 3
     CUSTOM_DISCRETE = 4
@@ -18,6 +18,28 @@ CustomDiscreteParameters = namedtuple("CustomDiscreteParameters", ["xk", "pk"])
 
 
 class StatDist:
+
+    """
+    Common class for statistical distributions
+
+    ...
+
+    Attributes
+    ----------
+    stat_dist_type : StatDistType
+    parameters : namedtuple
+    draw_flag : bool
+    get_flag : bool
+
+    Methods
+    ----------
+    draw(random_instance, size)
+    get(value)
+    get_pdf(x)
+    histplot(ax, n_points, n_bins)
+    plot(ax, x, color)
+
+    """
 
 
     def __init__(
@@ -33,6 +55,19 @@ class StatDist:
         self.get_flag = get_flag
 
     def draw(self, random_instance, size: int=1):
+        """
+        Returns the hour of day 
+
+        Parameters
+        ----------
+        random_instance : np.random.Generator
+        size : int
+
+        Returns
+        ----------
+        None
+
+        """
         if self.draw_flag is False:
             return None
         if self.stat_dist_type == StatDistType.UNIFORM_FLOAT:
@@ -67,6 +102,18 @@ class StatDist:
             )
 
     def get(self, value):
+        """
+        Returns the hour of day 
+
+        Parameters
+        ----------
+        value : 
+
+        Returns
+        ----------
+        None
+
+        """
         if self.get_flag is False:
             return None
         if self.stat_dist_type == StatDistType.CUSTOM_DISCRETE:
@@ -76,6 +123,18 @@ class StatDist:
         self,
         x,
     ):
+        """
+        Returns the hour of day 
+
+        Parameters
+        ----------
+        x
+
+        Returns
+        ----------
+        None
+
+        """
         if self.stat_dist_type == StatDistType.UNIFORM_FLOAT:
             pass
         elif self.stat_dist_type == StatDistType.UNIFORM_INT:
@@ -97,6 +156,20 @@ class StatDist:
         n_points: int=5000,
         n_bins: int=50,
     ):
+        """
+        Returns the hour of day 
+
+        Parameters
+        ----------
+        ax
+        n_points : int
+        n_bins : int
+
+        Returns
+        ----------
+        None
+
+        """
         rand_instance = random_instance()
         dist = self.draw(
             rand_instance,
@@ -111,6 +184,20 @@ class StatDist:
         x,
         color: str="b",
     ):
+        """
+        Returns the hour of day 
+
+        Parameters
+        ----------
+        ax
+        x
+        color : str
+
+        Returns
+        ----------
+        None
+
+        """
         if self.stat_dist_type == StatDistType.UNIFORM_FLOAT:
             pass
         elif self.stat_dist_type == StatDistType.UNIFORM_INT:

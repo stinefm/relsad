@@ -46,7 +46,7 @@ class Line(Component):
     r : float
         Resistance \[Ohm\]
     x : float
-        Reactance \[\]
+        Reactance \[Ohm\]
     r_pu : float
         The pu value of the resistance
     x_pu : float
@@ -62,7 +62,7 @@ class Line(Component):
     ploss : float
         The active power loss over the line \[MW\]
     qloss : float
-        The reactive power loss over the line \[MW\]
+        The reactive power loss over the line \[MVar\]
     fail_rate_per_year : float
         Failure rate per year \[fault/year/km\]
     outage_time_dist : StatDist
@@ -71,7 +71,7 @@ class Line(Component):
         Indicates if the line is connected or disconnected
     failed : bool
         Failure status of the line
-    remaining_outage_time : float
+    remaining_outage_time : Time
         The remaining outage time of the line
     sensor : Sensor
         The sensor(s) connected to the line

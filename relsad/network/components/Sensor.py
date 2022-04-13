@@ -50,6 +50,7 @@ class Sensor(Component):
     history : dict
         Dictonary attribute that stores the historic variables
     monte_carlo_history : dict
+        Dictonary attribute that stores the historic variables from the Monte Carlo simulation
 
     Methods
     ----------
@@ -62,7 +63,9 @@ class Sensor(Component):
     draw_status(prob)
         Sets the state of the sensor based on the probability of the state being FAILED
     repair(dt)
+        Returns the repair time and fail status of the sensor 
     get_line_fail_status(dt)
+        Returns the repair time and fail status of the line  
     get_section()
         Returns the line section
     update_fail_status(dt)

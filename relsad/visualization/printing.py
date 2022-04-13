@@ -6,7 +6,21 @@ from relsad.visualization.plotting import tableplot
 # Display transmission line flows
 #
 def dispFlow(line_list, fromLine=0, toLine=0, tpres=False):
-    """Display the flow on the requested distribution lines"""
+    """
+    Display the flow on the requested distribution lines
+    
+    Parameters
+    ----------
+    line_list : list
+        List containing Line elements
+    fromLine : 
+    toLine : 
+    tpres : bool
+
+    Returns
+    ----------
+    None
+    """
 
     mainlist = []
     rowno = []
@@ -90,10 +104,19 @@ def dispFlow(line_list, fromLine=0, toLine=0, tpres=False):
 #
 def dispVolt(bus_list, fromBus=0, toBus=0, tpres=False):
     """
-    Desc:    Display voltages at all buses
-    Input:   tpres= False (Display in tableformat if True)
-                fromBus and toBus defines the block, If tpres=True, it will display 13 lines from fromBus
-    Returns: None
+    Display voltages at all buses
+
+    Parameters
+    ----------
+    bus_list : list
+        List containing Bus elements
+    fromBus : 
+    toBus : 
+    tpres : Bool
+
+    Returns
+    ----------
+    None
     """
     mainlist = []
     rowno = []
@@ -135,6 +158,18 @@ def dispVolt(bus_list, fromBus=0, toBus=0, tpres=False):
 # Display total load (no voltage correction)
 #
 def dispTotalLoad(bus_list):
+    """
+    Displays the total load and power losess in the system 
+
+    Parameters
+    ----------
+    bus_list : list
+        List containing Bus elements
+
+    Returns
+    ----------
+    None
+    """
     aload = 0.0
     rload = 0.0
     for bus in bus_list:
@@ -165,6 +200,18 @@ def dispTotalLoad(bus_list):
 # Display bus loads for subsystem
 #
 def dispLoads(bus_list):
+    """
+    Displays the load at the bus 
+
+    Parameters
+    ----------
+    bus_list : list
+        List containing Bus elements
+
+    Returns
+    ----------
+    None
+    """
     for bus in bus_list:
         print(
             "Name: {}, P: {:.4f}, Q: {:.4f}".format(
@@ -177,7 +224,18 @@ def dispLoads(bus_list):
 # Visit all nodes in the reverse list.
 #
 def BackwardSearch(topology_list):
-    """Visit all the nodes in a backward approach and prints the Bus name"""
+    """
+    Visit all the nodes in a backward approach and prints the Bus name
+    
+    Parameters
+    ----------
+    topology_list : list
+        List containing the system topology
+
+    Returns
+    ----------
+    None
+    """
     for x in reversed(topology_list):
         if len(x) > 1:
             print(x[0].name)
@@ -193,7 +251,17 @@ def BackwardSearch(topology_list):
 # Visit all nodes in the forward list.
 #
 def ForwardSearch(topology_list):
-    """Visit all nodes in a forward approach and prints the us name"""
+    """Visit all nodes in a forward approach and prints the us name
+   
+    Parameters
+    ----------
+    topology_list : list
+        List containing the system topology
+
+    Returns
+    ----------
+    None
+    """
     for x in topology_list:
         if len(x) > 1:
             print(x[0].name)

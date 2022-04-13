@@ -66,9 +66,9 @@ class EVPark(Component):
     v2g_flag : bool
         A flag telling if the EV park contributes with V2G services or not
     curr_demand : float
-        Current demand of power from the EV park [MW]
+        Current demand of power from the EV park \[MW\]
     curr_charge : float
-        Current power that are being charged/dischared [MW]
+        Current power that are being charged/dischared \[MW\]
     cars : list
         List of cars in the EV park
     num_cars : int
@@ -91,6 +91,7 @@ class EVPark(Component):
     draw_current_state(hour_of_day)
         Draws the number of EVs in the park at that time and the SOC level of each EV which will make the SOC level of the EV park
     update(p, q, fail_duration, dt, hour_of_day)
+        Updates the EV park status for the current time step
     get_curr_demand(dt)
         Gives the current power demand of an EV
     get_SOC()

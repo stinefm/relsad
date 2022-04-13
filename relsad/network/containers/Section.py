@@ -9,6 +9,43 @@ class SectionState(Enum):
 
 
 class Section:
+
+    """
+    Common class for sections
+
+    ...
+
+    Attributes
+    ----------
+    lines : list
+        List of lines in the section
+    disconnectors : list 
+        List of disconnectors in the section
+    parent : Network 
+        The parent network for the section
+    child_sections : list
+        List of child sections
+    state : SectionState
+        The state of the section 
+
+    Methods
+    ----------
+    add_child_section(section)
+        Adds child section to section 
+    attach_to_lines
+        Adds lines to section and child section
+    connect(dt)
+        Connects the sections, connects the lines in the section and closes the disconnectors in the section
+    connect_manually()
+        Connects the sections, connects the lines in the section and closes the disconnectors in the section. Used when no ICT
+    get_disconnect_time(dt)
+        Returns the total outage time (the time the section is disconnected) of the section  
+    disconnect()
+        Disconnects the section, the lines in the section, and opens the disconnectors in the section
+
+    
+
+    """
     __slots__ = (
         "rank",
         "lines",
@@ -41,16 +78,54 @@ class Section:
         return hash(str(self.lines))
 
     def add_child_section(self, section):
+        """
+        Adds child section to section 
+
+        Parameters
+        ----------
+        section : Section
+            A Section element
+
+        Returns
+        ----------
+        None
+
+        """
         if section not in self.child_sections:
             self.child_sections.append(section)
 
     def attach_to_lines(self):
+        """
+        Adds lines to section and child section
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         for line in self.lines:
             line.section = self
         for child_section in self.child_sections:
             child_section.attach_to_lines()
 
     def connect(self, dt: Time):
+        """
+        Connects the sections, connects the lines in the section and closes the disconnectors in the section
+
+        Parameters
+        ----------
+        dt : Time 
+            The current time step
+
+        Returns
+        ----------
+        None
+
+        """
         self.state = SectionState.CONNECTED
         for line in self.lines:
             line.connect()
@@ -58,6 +133,18 @@ class Section:
             discon.intelligent_switch.close(dt)
 
     def connect_manually(self):
+        """
+        Connects the sections, connects the lines in the section and closes the disconnectors in the section. Used when no ICT
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         self.state = SectionState.CONNECTED
         for line in self.lines:
             line.connect()
@@ -65,6 +152,20 @@ class Section:
             discon.close()
 
     def get_disconnect_time(self, dt: Time):
+        """
+        Returns the total outage time (the time the section is disconnected) of the section 
+
+        Parameters
+        ----------
+        dt : Time
+            The current time step
+
+        Returns
+        ----------
+        sectioning_time : Time
+            The sectioning time of the section
+
+        """
         sectioning_time = Time(0)
         for discon in self.disconnectors:
             sectioning_time += discon.intelligent_switch.get_open_time(dt)
@@ -73,6 +174,18 @@ class Section:
         return sectioning_time
 
     def disconnect(self):
+        """
+        Disconnects the section, the lines in the section, and opens the disconnectors in the section
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
         self.state = SectionState.DISCONNECTED
         for line in self.lines:
             line.disconnect()

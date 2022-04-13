@@ -28,7 +28,8 @@ class PowerSystem(Network):
     ----------
     name : str
         Name of the power system
-    slack : Bus ? 
+    slack : Bus     
+        Slack bus of the power system 
     p_load_shed : float
         The active power load shed in the power system
     acc_p_load_shed : float
@@ -77,7 +78,7 @@ class PowerSystem(Network):
     add_bus(bus)
         Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the power system 
     add_buses(buses)
-        Adding buses to the power system bus list
+        Adding buses to the power system
     add_line(line)
         Adding a line including elements on the line (sensor, circuit breaker, disconnector) to the power system
     add_lines(lines)
@@ -109,9 +110,11 @@ class PowerSystem(Network):
     get_max_load()
         Get the maximum load of the power system for the entire load history in MW and MVar
     add_load_dict(load_dict, time_indices)
+        Adds load dictionary to the power system containing the load, load type and cost 
     add_prod_dict(prod_dict, time_indices)
+        Adds production dictionary to the power system containing the generation and generation type
     set_load_and_cost(inc_idx)
-        Sets the load at the buses in the power system 
+        Sets the bus load and cost in MW based on load and cost profiles in the current increment for the power system  
     set_prod(inc_idx)
         Sets the generation (generation units, batteries, EV parks) at the buses in the power system
     failes_comp()
@@ -616,11 +619,12 @@ class PowerSystem(Network):
 
     def add_load_dict(self, load_dict: dict, time_indices: np.ndarray):
         """
-        Returns the system load at the current time in MW and MVar
+        Adds load dictionary to the power system containing the load, load type and cost 
         
         Parameters
         ----------
         load_dict : dict
+            Dictionary with the loads
         time_indices ? 
 
         Returns
@@ -647,11 +651,12 @@ class PowerSystem(Network):
 
     def add_prod_dict(self, prod_dict: dict, time_indices: np.ndarray):
         """
-        Returns the system load at the current time in MW and MVar
+        Adds production dictionary to the power system containing the generation and generation type
         
         Parameters
         ----------
         prod_dict : dict
+            Dictionary with the prodcution 
         time_indices ? 
 
         Returns
@@ -671,7 +676,7 @@ class PowerSystem(Network):
 
     def set_load_and_cost(self, inc_idx: int):
         """
-        Sets the load at the buses in the power system 
+        Sets the bus load and cost in MW based on load and cost profiles in the current increment for the power system 
         
         Parameters
         ----------
