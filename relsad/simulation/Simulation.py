@@ -14,7 +14,7 @@ from relsad.simulation.system_config import (
     update_sub_system_slack,
     reset_system,
 )
-from relsad.load_shed.run_load_shed import shed_loads
+from relsad.load.shedding import shed_loads
 from relsad.simulation.sequence.history import update_history
 from relsad.simulation.monte_carlo.history import (
     initialize_history,
@@ -54,11 +54,11 @@ class Simulation:
         Runs load flow of a network
     run_increment(inc_idx, start_time, prev_time, curr_time, save_flag)
         Runs power system at current state for on time increment
-    run_sequence(start_time, time_increments, time_unit, save_flag)
+    run_sequence(start_time, time_array, time_unit, save_flag)
         Runs power system for a sequence of increments
-    run_iteration(it, start_time, time_increments, time_unit, save_dir, save_iterations, random_seed)
+    run_iteration(it, start_time, time_array, time_unit, save_dir, save_iterations, random_seed)
         Runs power system for an iteration
-    run_monte_carlo(iterations, start_time, stop_time, time_step, time_unit, load_dict, prod_dict, save_iterations, save_dir, n_procs, debug)
+    run_monte_carlo(iterations, start_time, stop_time, time_step, time_unit, save_iterations, save_dir, n_procs, debug)
         Runs Monte Carlo simulation of the power system
     """
     def __init__(self, power_system: PowerSystem, random_seed: int = None):
@@ -72,8 +72,8 @@ class Simulation:
         
         Parameters
         ----------
-        random_instance : 
-            A random...
+        random_instance : np.random.Generator
+            A random generator
 
         Returns
         ----------
@@ -172,7 +172,7 @@ class Simulation:
     def run_sequence(
         self,
         start_time: TimeStamp,
-        time_increments: np.ndarray,
+        time_array: np.ndarray,
         time_unit: TimeUnit,
         save_flag: bool,
     ):
@@ -185,10 +185,10 @@ class Simulation:
             Increment index
         start_time : TimeStamp
             The start time of the simulation/iteration
-        prev_time : Time
-            The previous time
-        curr_time : Time
-            Current time
+        time_array : np.ndarray
+            Time array
+        time_unit : TimeUnit
+            Time unit
         save_flag : bool
             Indicates if saving is on or off
 
@@ -199,7 +199,7 @@ class Simulation:
         """
         prev_time = Time(0, unit=time_unit)
         curr_time = Time(0, unit=time_unit)
-        for inc_idx, time_quantity in enumerate(time_increments):
+        for inc_idx, time_quantity in enumerate(time_array):
             curr_time = Time(time_quantity, unit=time_unit)
             self.run_increment(
                 inc_idx, 
@@ -214,7 +214,7 @@ class Simulation:
         self,
         it: int,
         start_time: TimeStamp,
-        time_increments: np.ndarray,
+        time_array: np.ndarray,
         time_unit: TimeUnit,
         save_dir: str,
         save_iterations: list,
@@ -229,18 +229,21 @@ class Simulation:
             Iteration numver
         start_time : TimeStamp
             The start time of the simulation/iteration
-        time_increment : array?
+        time_array : np.ndarray
+            Time array
         time_unit : TimeUnit
             A time unit (hour, seconds, ect.)
         save_dir: str
-            The saving path
-        save_iteration : list
+            The saving directory
+        save_iterations : list
+            List of iterations where the sequence results will be saved
         random_seed : int
             Random seed number
 
         Returns
         ----------
-        None
+        save_dict : dict
+            Dictionary with simulation results
 
         """
         if random_seed is None:
@@ -254,7 +257,7 @@ class Simulation:
         reset_system(self.power_system, save_flag)
         self.run_sequence(
             start_time,
-            time_increments,
+            time_array,
             time_unit,
             save_flag)
         save_dict = update_monte_carlo_power_system_history(
@@ -271,8 +274,6 @@ class Simulation:
         stop_time: TimeStamp,
         time_step: Time,
         time_unit: TimeUnit,
-        load_dict: dict,
-        prod_dict: dict,
         save_iterations: list = [],
         save_dir: str = "results",
         n_procs: int = 1,
@@ -293,13 +294,10 @@ class Simulation:
             A time step (1 hour, 2 hours, ect.)
         time_unit : TimeUnit
             A time unit (hour, seconds, ect.)
-        load_dict : dict
-            Dictionary containing the loads in the system
-        prod_dict : dict
-            Dictionary containing the generation in the system
         save_iterations : list
+            List of iterations where the sequence results will be saved
         save_dir : str
-            The saving path
+            The saving directory
         n_procs : int
             Number of processors
         debug : bool
@@ -314,13 +312,13 @@ class Simulation:
         child_seeds = ss.spawn(iterations)
         self.power_system.create_sections()
         increments = int((stop_time - start_time)/time_step)
-        time_increments = np.arange(
+        time_array = np.arange(
             stop=increments * time_step.get_unit_quantity(time_unit),
             step=time_step.get_unit_quantity(time_unit),
         )
-        time_increment_indices = np.arange(increments)
-        self.power_system.add_load_dict(load_dict, time_increment_indices)
-        self.power_system.add_prod_dict(prod_dict, time_increment_indices)
+        time_array_indices = np.arange(increments)
+        self.power_system.prepare_load_data(time_array_indices)
+        self.power_system.prepare_prod_data(time_array_indices)
         initialize_history(self.power_system)
         if debug:
             it_dicts = []
@@ -329,7 +327,7 @@ class Simulation:
                     self.run_iteration(
                         it,
                         start_time,
-                        time_increments,
+                        time_array,
                         time_unit,
                         save_dir,
                         save_iterations,
@@ -344,7 +342,7 @@ class Simulation:
                         [
                             it,
                             start_time,
-                            time_increments,
+                            time_array,
                             time_unit,
                             save_dir,
                             save_iterations,

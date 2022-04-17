@@ -236,14 +236,15 @@ def set_slack(p_s: PowerSystem, sub_system: SubSystem):
 
     Returns
     ----------
-    None
+    bool 
+        Success/Failure of operation 
 
     """
     ## Transmission network slack buses in sub_system
     for bus in sub_system.buses:
         for child_network in p_s.child_network_list:
             if type(child_network) == Transmission:
-                if bus == child_network.get():
+                if bus == child_network.get_trafo_bus():
                     bus.set_slack()
                     sub_system.slack = bus
                     return True

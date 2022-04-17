@@ -17,6 +17,8 @@ def shed_loads(power_system: PowerSystem, dt: Time, alpha: float = 1e-4):
     Sheds the unsupplied loads of the power system using a linear minimization
     problem solved with linear programming
 
+    See :doc:`/theory/opt` for more details.
+
     Parameters
     ----------
     power_system : PowerSystem
@@ -62,10 +64,10 @@ def shed_loads(power_system: PowerSystem, dt: Time, alpha: float = 1e-4):
     # Get loads
     p_b = [max(0, bus.pload) for bus in buses]  # Active bus load
     q_b = [max(0, bus.qload) for bus in buses]  # Reactive bus load
-    # Building A-matrix
+    # Building lhs contraint matrix
     A = _build_A_matrix(power_system)
-    # Gather boundaries
-    p_bounds, q_bounds = _gather_boundaries(power_system, alpha)
+    # Gather bounds
+    p_bounds, q_bounds = _gather_bounds(power_system, alpha)
     if sum(p_b) > alpha:
         # Shed active loads
         _shed_active_loads(
@@ -95,7 +97,7 @@ def shed_loads(power_system: PowerSystem, dt: Time, alpha: float = 1e-4):
 def _build_A_matrix(power_system: PowerSystem):
 
     """
-    Builds a matrix
+    Builds the LHS constraint matrix 
 
     Parameters
     ----------
@@ -105,7 +107,7 @@ def _build_A_matrix(power_system: PowerSystem):
     Returns
     -------
     A : array
-        Matrix containing 
+        LHS Constraint matrix
 
     """
 
@@ -132,9 +134,9 @@ def _build_A_matrix(power_system: PowerSystem):
     return A
 
 
-def _get_generation_boundaries(power_system: PowerSystem):
+def _get_generation_bounds(power_system: PowerSystem):
     """
-    Returns the generation units boundaries 
+    Returns the generation units bounds 
 
     Parameters
     ----------
@@ -144,19 +146,19 @@ def _get_generation_boundaries(power_system: PowerSystem):
     Returns
     -------
     p_gen : list
-        List of the active power boundary for the generation units
+        List of the active power bounds for the generation units
     q_gen : list 
-        List of the reactive power boundary for the generation units
+        List of the reactive power bounds for the generation units
 
     """
     p_gen = list()  # Active bus generation
     q_gen = list()  # Reactive bus generation
     for j, bus in enumerate(power_system.buses):
-        # Generation boundaries
+        # Generation bounds
         flag = False
         for child_network in power_system.child_network_list:
             if isinstance(child_network, Transmission):
-                if bus == child_network.get():
+                if bus == child_network.get_trafo_bus():
                     p_gen.append(INF)
                     q_gen.append(INF)
                     flag = True
@@ -166,9 +168,9 @@ def _get_generation_boundaries(power_system: PowerSystem):
     return p_gen, q_gen
 
 
-def _gather_boundaries(power_system, alpha):
+def _gather_bounds(power_system, alpha):
     """
-    Returns the boundaries in the power system. 
+    Returns the flow bounds between the components in the power system. 
 
     Parameters
     ----------
@@ -180,13 +182,12 @@ def _gather_boundaries(power_system, alpha):
     Returns
     -------
     p_bounds : list
-        The active power boundary for a generation unit
+        The active power bounds for a component
     q_bounds : list 
-        The reaactive power boundary for a generation unit
-
+        The reactive power bounds for a component
     """
 
-    # Gather bounderies
+    # Gather bounds
     buses = list(power_system.buses)
     lines = [x for x in power_system.lines if x.connected]
     N_D = len(buses)
@@ -196,15 +197,17 @@ def _gather_boundaries(power_system, alpha):
     q_b = [max(0, bus.qload) for bus in buses]  # Reactive bus load
     p_bounds = list()
     q_bounds = list()
-    # Get generation boundaries
-    p_gen, q_gen = _get_generation_boundaries(power_system)
+    # Get generation bounds
+    p_gen, q_gen = _get_generation_bounds(power_system)
     for n in range(N_D + N_L + N_D):
         if n < N_D:
+            # Bus load
             p_bounds.append((0, p_b[n]))
             q_bounds.append((0, q_b[n]))
         elif N_D <= n < N_D + N_L:
+            # Line flow
             line = lines[n - N_D]
-            # Line load in MW
+            # Line flow in MW
             max_available_p_flow = line.get_line_load()[0] * line.s_ref
             max_available_q_flow = line.get_line_load()[1] * line.s_ref
             PL_p_max = min(line.capacity, abs(max_available_p_flow))
@@ -212,6 +215,7 @@ def _gather_boundaries(power_system, alpha):
             p_bounds.append((-PL_p_max, PL_p_max))
             q_bounds.append((-PL_q_max, PL_q_max))
         else:
+            # Bus generation
             p_bounds.append((0, p_gen[n - (N_D + N_L)]))
             q_bounds.append((0, q_gen[n - (N_D + N_L)]))
     # alpha bounds
@@ -235,12 +239,18 @@ def _shed_active_loads(
 
     Parameters
     ----------
-    c : 
-    A : 
+    c : list
+        Coefficients of the objective function
+    A : list
+        LHS constraint matrix
     p_b : list
+        RHS constraint vector
     p_bounds : list
+        Variable boundaries
     buses : list
+        List containing buses
     lines : list
+        List containing lines
     alpha : float
         Slack variable to cope with numerical noise
     dt : Time
@@ -282,7 +292,6 @@ def _shed_active_loads(
                 0,
                 dt,
             )
-        _add_to_shed_configs()
 
 
 def _shed_reactive_loads(
@@ -300,12 +309,18 @@ def _shed_reactive_loads(
 
     Parameters
     ----------
-    c : 
-    A : 
-    p_b : list
-    p_bounds : list
+    c : list
+        Coefficients of the objective function
+    A : list
+        LHS constraint matrix
+    q_b : list
+        RHS constraint vector
+    q_bounds : list
+        Variable boundaries
     buses : list
+        List containing buses
     lines : list
+        List containing lines
     alpha : float
         Slack variable to cope with numerical noise
     dt : Time
@@ -347,17 +362,5 @@ def _shed_reactive_loads(
                 q_res.x[i] if q_res.x[i] > alpha else 0,
                 dt,
             )
-        _add_to_shed_configs()
 
 
-def _add_to_shed_configs():
-    # if len(PowerSystem.shed_configs) == 0:
-    #    PowerSystem.shed_configs.append(power_system)
-    # add = True
-    # for shed_config in PowerSystem.shed_configs:
-    #    if power_system == shed_config:
-    #        add = False
-    #        break
-    # if add:
-    #    PowerSystem.shed_configs.append(power_system)
-    pass

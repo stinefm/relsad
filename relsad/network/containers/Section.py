@@ -87,7 +87,7 @@ class Section:
             A Section element
 
         Returns
-        ----------
+        -------
         None
 
         """
@@ -103,7 +103,7 @@ class Section:
         None
 
         Returns
-        ----------
+        -------
         None
 
         """

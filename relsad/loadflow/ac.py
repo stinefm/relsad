@@ -8,6 +8,8 @@ def run_bfs_load_flow(network: Network, maxit: int = 5):
     Solves the load flow with a specified number of iterations
     The two first septs are to set up additions topology information and to build the main structure
     Next, it is switched between forward sweeps (Voltage updates) and backward sweeps(load update and loss calcuation)
+
+    See :doc:`/theory/bfs` for more details.
     
     Parameters
     ----------
@@ -121,9 +123,10 @@ def calc_bus_voltage_sensitivity_single_phase(fbus, tbus, tline, branch: list):
     ----------
     fbus : Bus
         The sending Bus element
-    tbus : list
+    tbus : Bus
         The recieving Bus element
     tline : Line 
+        The recieving Line element
     branch : list 
         List of branches in the system
     
@@ -201,18 +204,20 @@ def get_load(bus):
     
     Returns
     -------
-    p_load_act : float
-    q_load_act : float
+    p_load_corr : float
+        Corrected active power load
+    q_load_corr : float
+        Corrected reactive power load
 
     """
     # load - production [PU]
     relative_pload = bus.pload_pu - bus.pprod_pu
     relative_qload = bus.qload_pu - bus.qprod_pu
 
-    p_load_act = relative_pload * (
+    p_load_corr = relative_pload * (
         bus.ZIP[0] * bus.vomag ** 2 + bus.ZIP[1] * bus.vomag + bus.ZIP[2]
     )
-    q_load_act = relative_qload * (
+    q_load_corr = relative_qload * (
         bus.ZIP[0] * bus.vomag ** 2 + bus.ZIP[1] * bus.vomag + bus.ZIP[2]
     )
-    return p_load_act, q_load_act
+    return p_load_corr, q_load_corr

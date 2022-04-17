@@ -11,24 +11,28 @@ class Transmission(Network):
     ----------
     name : str
         Name of the transmission system
-    parent_network :  
+    parent_network : PowerSystem
+        The parent network of the transmission network
     child_network_list : list
         Lists of child networks
-    bus : Bus
+    trafo_bus : Bus
+        Bus with tranformer connected to distribution network
     buses : list
+        List with the buses in the transmission network
     sections : list
+        List with the sections in the transmission network
     ev_parks : list
-    slack_bus : Bus
+        List with the EV parks in the transmission network
     p_load_shed : float
-        The active power load shed in the power system
+        The active power load shed in the transmission network
     acc_p_load_shed : float
-        The accumulated active power load shedding in the power system
+        The accumulated active power load shedding in the transmission network
     q_load_shed : float
-        The reactive power load shed in the power system
+        The reactive power load shed in the transmission network
     acc_q_load_shed : float
-        The accumulated reactive power load shedding in the power system
+        The accumulated reactive power load shedding in the transmission network
     history : dict
-        Dictionary containing the history variables of the power system 
+        Dictionary containing the history variables of the transmission network 
     monte_carlo_history : dict
         Dictionary containing the history variables from the monte carlo simulation
 
@@ -36,8 +40,8 @@ class Transmission(Network):
 
     Methods
     ----------
-    get()
-        Returns the bus representing the overlying network (transmission network)
+    get_trafo_bus()
+        Returns the bus connecting to the overlying network (transmission network)
     reset_slack_bus()
         Resets the slack bus of the transmission network
     add_chil_network(network)
@@ -62,11 +66,7 @@ class Transmission(Network):
     ## Counter
     counter = 0
 
-    def __init__(self, power_system, bus: Bus):
-        """Initializing transmission network type content
-        Content:
-            bus(Bus): Bus
-        """
+    def __init__(self, power_system, trafo_bus: Bus):
         Transmission.counter += 1
         self.name = "trans_network{:d}".format(Transmission.counter)
 
@@ -74,19 +74,18 @@ class Transmission(Network):
         power_system.add_child_network(self)
         self.child_network_list = list()
 
-        self.bus = bus
-        self.buses = [bus]
+        self.trafo_bus = trafo_bus
+        self.buses = [trafo_bus]
         self.sections = list()
 
         self.ev_parks = list()
 
         bus.handle.color = self.color
         bus.color = self.color
-        self.parent_network.add_bus(bus)
+        self.parent_network.add_bus(trafo_bus)
 
         bus.set_slack()
-        self.slack_bus = bus
-        power_system.slack = bus
+        power_system.slack = trafo_bus
         # Load shedding
         self.p_load_shed = 0
         self.acc_p_load_shed = 0
@@ -112,9 +111,9 @@ class Transmission(Network):
     def __hash__(self):
         return hash(self.name)
 
-    def get(self):
+    def get_trafo_bus(self):
         """
-        Returns the bus representing the overlying networl (transmission network)
+        Returns the bus connecting to the overlying network (transmission network)
         
         Parameters
         ----------
@@ -123,10 +122,10 @@ class Transmission(Network):
         Returns
         ----------
         bus : Bus
-            The bus representing the overlying network
+            The bus connecting the overlying network
 
         """
-        return self.bus
+        return self.trafo_bus
 
     def reset_slack_bus(self):
         """
@@ -141,7 +140,7 @@ class Transmission(Network):
         None
 
         """
-        self.bus.set_slack()
+        self.trafo_bus.set_slack()
 
     def add_child_network(self, network):
         """

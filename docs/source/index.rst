@@ -20,10 +20,11 @@ To get started, check out the sections below:
 
     installation
     usage
-    contributing
-    conduct
+    ../../CONTRIBUTING
+    ../../CONDUCT
     theory
     data
+    API
 
 Indices and tables
 ==================
@@ -31,9 +32,3 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. autosummary::
-   :toctree: _autosummary
-   :template: custom-module-template.rst
-   :recursive:
-
-   relsad

@@ -8,7 +8,6 @@ from .Transmission import Transmission
 from relsad.utils import (
     eq,
     unique,
-    interpolate,
     INF,
 )
 from relsad.Time import Time
@@ -109,10 +108,10 @@ class PowerSystem(Network):
         Returns the system load at the current time in MW and MVar
     get_max_load()
         Get the maximum load of the power system for the entire load history in MW and MVar
-    add_load_dict(load_dict, time_indices)
-        Adds load dictionary to the power system containing the load, load type and cost 
-    add_prod_dict(prod_dict, time_indices)
-        Adds production dictionary to the power system containing the generation and generation type
+    prepare_load_data(time_indices)
+        Prepares the load data for the buses in the power system 
+    prepare_prod_data(time_indices)
+        Prepares the production data for the production components in the power system
     set_load_and_cost(inc_idx)
         Sets the bus load and cost in MW based on load and cost profiles in the current increment for the power system  
     set_prod(inc_idx)
@@ -469,7 +468,7 @@ class PowerSystem(Network):
         for bus in self.buses:
             for child_network in self.child_network_list:
                 if isinstance(child_network, Transmission):
-                    if bus == child_network.get():
+                    if bus == child_network.get_trafo_bus():
                         system_load_balance_p = -INF
                         system_load_balance_q = 0
                         return system_load_balance_p, system_load_balance_q
@@ -588,44 +587,36 @@ class PowerSystem(Network):
         """
         p_load_max, q_load_max = 0, 0
         for bus in self.buses:
-            if bus.load_dict != dict():
+            if bus.pload_data != list():
                 d_bus = bus  # Dummy bus used to find number of increments
                 n_increments = len(
-                    d_bus.load_dict["load"][
-                        list(d_bus.load_dict["load"].keys())[0]
-                    ]["pload"].flatten()
+                    d_bus.pload_data[0]
                 )  # Number of increments
                 break
         for increment in range(n_increments):
             p_load, q_load = 0, 0
             for bus in self.buses:
-                if bus.load_dict != dict():
-                    for load_type in bus.load_dict["load"]:
-                        p_load += (
-                            bus.load_dict["load"][load_type][
-                                "pload"
-                            ].flatten()[increment]
-                            * bus.n_customers
-                        )
-                        q_load += (
-                            bus.load_dict["load"][load_type][
-                                "qload"
-                            ].flatten()[increment]
-                            * bus.n_customers
-                        )
+                for i in range(len(bus.pload_data)):
+                    p_load += (
+                        bus.pload_data[i][increment]
+                        * bus.n_customers
+                    )
+                    q_load += (
+                        bus.qload_data[i][increment]
+                        * bus.n_customers
+                    )
             p_load_max = max(p_load_max, p_load)
             q_load_max = max(q_load_max, q_load)
         return p_load_max, q_load_max
 
-    def add_load_dict(self, load_dict: dict, time_indices: np.ndarray):
+    def prepare_load_data(self, time_indices: np.ndarray):
         """
-        Adds load dictionary to the power system containing the load, load type and cost 
+        Prepares the load data for the buses in the power system
         
         Parameters
         ----------
-        load_dict : dict
-            Dictionary with the loads
-        time_indices ? 
+        time_indices : np.ndarray
+            Time indices used to discretize the load data
 
         Returns
         ----------
@@ -633,31 +624,16 @@ class PowerSystem(Network):
 
         """
         for bus in self.buses:
-            if bus in load_dict["load"]:
-                bus_load_dict = {}
-                bus_load_dict["load"] = {}
-                bus_load_dict["cost"] = load_dict["cost"]
-                for load_type in load_dict["load"][bus]:
-                    bus_load_dict["load"][load_type] = {}
-                    bus_load_dict["load"][load_type]["pload"] = interpolate(
-                        array=load_dict["load"][bus][load_type]["pload"],
-                        time_indices=time_indices,
-                    )
-                    bus_load_dict["load"][load_type]["qload"] = interpolate(
-                        array=load_dict["load"][bus][load_type]["qload"],
-                        time_indices=time_indices,
-                    )
-                bus.add_load_dict(bus_load_dict)
+            bus.prepare_load_data(time_indices)
 
-    def add_prod_dict(self, prod_dict: dict, time_indices: np.ndarray):
+    def prepare_prod_data(self, time_indices: np.ndarray):
         """
-        Adds production dictionary to the power system containing the generation and generation type
+        Prepares the production data for the production components in the power system
         
         Parameters
         ----------
-        prod_dict : dict
-            Dictionary with the prodcution 
-        time_indices ? 
+        time_indices : np.ndarray
+            Time indices used to discretize the load data
 
         Returns
         ----------
@@ -665,14 +641,7 @@ class PowerSystem(Network):
 
         """
         for prod in self.productions:
-            if prod in prod_dict:
-                bus_prod_dict = {}
-                for prod_type in prod_dict[prod]:
-                    bus_prod_dict[prod_type] = interpolate(
-                        array=prod_dict[prod][prod_type],
-                        time_indices=time_indices,
-                    )
-                prod.add_prod_dict(bus_prod_dict)
+            prod.prepare_prod_data(time_indices)
 
     def set_load_and_cost(self, inc_idx: int):
         """

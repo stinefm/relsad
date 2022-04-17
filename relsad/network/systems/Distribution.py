@@ -46,6 +46,7 @@ class Distribution(Network):
     child_network_list : list
         List containing connected child networks to the distribution network
     failed_line : Bool
+        Flag stating if the distribution network contains a failed line
     p_load_shed : float
         Shedded active power load in the distribution network
     acc_p_load_shed : float
@@ -70,6 +71,7 @@ class Distribution(Network):
     Methods
     ----------
     add_connected_line(connected_line)
+        Sets the line connecting the distribution system to overlying network
     add_bus(bus)
         Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the distribution network
     add_buses(buses)
@@ -186,7 +188,13 @@ class Distribution(Network):
         None
 
         """
+        # Sets the connected line for the distribution system
         self.connected_line = connected_line
+
+        # Add the components attached to the line
+        # to the distribution system:
+
+        # Circuitbreaker
         c_b = connected_line.circuitbreaker
         if self.connected_line.circuitbreaker is None:
             raise Exception(
@@ -197,15 +205,19 @@ class Distribution(Network):
             )
         self.comp_dict[c_b.name] = c_b
         self.comp_list.append(c_b)
+
+        # Disconnectors
         for discon in c_b.disconnectors:
             self.comp_dict[discon.name] = discon
-            if discon.intelligent_switch:
+            if discon.intelligent_switch is not None:
                 self.comp_dict[
                     discon.intelligent_switch.name
                 ] = discon.intelligent_switch
                 self.comp_list.append(discon.intelligent_switch)
                 self.intelligent_switches.append(discon.intelligent_switch)
                 self.intelligent_switches = unique(self.intelligent_switches)
+
+        # Line
         self.add_line(connected_line)
 
     def add_bus(self, bus: Bus):
@@ -222,27 +234,38 @@ class Distribution(Network):
         None
 
         """
+        # Add bus to distribution network
         self.comp_dict[bus.name] = bus
         bus.handle.color = self.color
         bus.color = self.color
         bus.parent_network = self
         self.buses.append(bus)
         self.buses = unique(self.buses)
+
+        # Add components attached to bus to distribution network:
+
+        # EV-Park
         if bus.ev_park is not None:
             self.comp_dict[bus.ev_park.name] = bus.ev_park
             self.comp_list.append(bus.ev_park)
             self.ev_parks.append(bus.ev_park)
             self.ev_parks = unique(self.ev_parks)
+        
+        # Battery
         if bus.battery is not None:
             self.comp_dict[bus.battery.name] = bus.battery
             self.comp_list.append(bus.battery)
             self.batteries.append(bus.battery)
             self.batteries = unique(self.batteries)
+        
+        # Production
         if bus.prod is not None:
             self.comp_dict[bus.prod.name] = bus.prod
             self.comp_list.append(bus.prod)
             self.productions.append(bus.prod)
             self.productions = unique(self.productions)
+
+        # Add bus to the power system
         self.power_system.add_bus(bus)
 
     def add_buses(self, buses: set):
@@ -276,13 +299,17 @@ class Distribution(Network):
         None
 
         """
+
+        # Add line to distribution network
         line.handle.color = self.color
         line.color = self.color
         self.comp_dict[line.name] = line
-        for discon in line.disconnectors:
-            self.comp_dict[discon.name] = discon
         self.lines.append(line)
         self.lines = unique(self.lines)
+
+        # Add components attached to bus to distribution network:
+
+        # Sensor
         if line.sensor:
             self.comp_dict[line.sensor.name] = line.sensor
             self.comp_list.append(line.sensor)
@@ -290,11 +317,15 @@ class Distribution(Network):
             self.sensors = unique(self.sensors)
             self.controller.sensors.append(line.sensor)
             self.controller.sensors = unique(self.controller.sensors)
+        
+        # Disconnector
         for discon in line.disconnectors:
             self.comp_dict[discon.name] = discon
             self.comp_list.append(discon)
             self.disconnectors.append(discon)
             self.disconnectors = unique(self.disconnectors)
+
+            # Intelligent switch
             if discon.intelligent_switch:
                 self.comp_dict[
                     discon.intelligent_switch.name
@@ -302,7 +333,11 @@ class Distribution(Network):
                 self.comp_list.append(discon.intelligent_switch)
                 self.intelligent_switches.append(discon.intelligent_switch)
                 self.intelligent_switches = unique(self.intelligent_switches)
+        
+        # Set distribution network as parent network
         line.add_parent_network(self)
+
+        # Add line to power system
         self.power_system.add_line(line)
 
     def add_lines(self, lines: set):

@@ -225,7 +225,7 @@ class IntelligentSwitch(Component):
         self.remaining_repair_time = self.manual_repair_time
         self.state = IntelligentSwitchState.REPAIR
         open_repair_time = (
-            self.disconnector.line.parent_network.controller.manual_section_time
+            self.disconnector.line.parent_network.controller.manual_sectioning_time
         )
         return open_repair_time
 

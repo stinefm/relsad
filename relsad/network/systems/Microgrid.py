@@ -22,7 +22,7 @@ class Microgrid(Network):
     mode : str
         Which mode the microgrid follows
     buses : list
-        List with the buses connected to the microgrid
+        List with the buses in the microgrid
     ev_parks : list
         List containing the EV parks in the microgrid 
     batteries : list
@@ -30,7 +30,7 @@ class Microgrid(Network):
     porductions : list
         List containing the generation units in the microgrid
     lines : list
-        List with the lines connected to the microgrid
+        List with the lines in the microgrid
     sensors : list
         List containing the sensors in the microgrid
     circuitbreaker : list
@@ -47,8 +47,6 @@ class Microgrid(Network):
         Dictionary containing the components in the microgrid
     distribution_network : Network
         The distribution network the microgrid is connected to
-    child_network_list : list
-        List containing connected child networks to the microgrid
     failed_line : Bool
         Boolean value stating whether or not the network includes a failed line
     connected_line : Line
@@ -151,7 +149,6 @@ class Microgrid(Network):
         self.distribution_network.power_system.controller.add_microgrid_controller(
             self.controller
         )
-        self.child_network_list = None
         self.distribution_network.power_system.comp_dict[
             self.controller.name
         ] = self.controller
@@ -207,7 +204,13 @@ class Microgrid(Network):
         None
 
         """
+        # Sets the connected line for the microgrid 
         self.connected_line = connected_line
+
+        # Add the components attached to the line 
+        # to the microgrid:
+
+        # Circuitbreaker
         self.circuitbreaker = connected_line.circuitbreaker
         self.circuitbreaker.mode = mode
         if self.circuitbreaker is None:
@@ -219,8 +222,12 @@ class Microgrid(Network):
             )
         self.comp_dict[self.circuitbreaker.name] = self.circuitbreaker
         self.comp_list.append(self.circuitbreaker)
+
+        # Disconnector
         for discon in self.circuitbreaker.disconnectors:
             self.comp_dict[discon.name] = discon
+
+            # Intelligent switch
             if discon.intelligent_switch:
                 self.comp_dict[
                     discon.intelligent_switch.name
@@ -228,6 +235,8 @@ class Microgrid(Network):
                 self.comp_list.append(discon.intelligent_switch)
                 self.intelligent_switches.append(discon.intelligent_switch)
                 self.intelligent_switches = unique(self.intelligent_switches)
+        
+        # Line
         self.add_line(connected_line)
 
     def add_bus(self, bus: Bus):
@@ -244,29 +253,41 @@ class Microgrid(Network):
         None
 
         """
-        if bus.get_battery() is not None:
-            bus.get_battery().set_mode(self.mode)
+
+        # Add bus to microgrid
         self.comp_dict[bus.name] = bus
         bus.handle.color = self.color
         bus.color = self.color
         bus.parent_network = self
         self.buses.append(bus)
         self.buses = unique(self.buses)
+
+        # Add components attached to bus to microgrid:
+
+        # EV-Park
         if bus.ev_park is not None:
             self.comp_dict[bus.ev_park.name] = bus.ev_park
             self.comp_list.append(bus.ev_park)
             self.ev_parks.append(bus.ev_park)
             self.ev_parks = unique(self.ev_parks)
+
+        # Battery
         if bus.battery is not None:
+            # Set microgrid mode
+            bus.battery.set_mode(self.mode)
             self.comp_dict[bus.battery.name] = bus.battery
             self.comp_list.append(bus.battery)
             self.batteries.append(bus.battery)
             self.batteries = unique(self.batteries)
+
+        # Production
         if bus.prod is not None:
             self.comp_dict[bus.prod.name] = bus.prod
             self.comp_list.append(bus.prod)
             self.productions.append(bus.prod)
             self.productions = unique(self.productions)
+
+        # Add bus to the power system
         self.distribution_network.power_system.add_bus(bus)
 
     def add_buses(self, buses: list):
@@ -300,10 +321,16 @@ class Microgrid(Network):
         None
 
         """
+
+        # Add line to microgrid
         line.handle.color = self.color
         line.color = self.color
         self.lines.append(line)
         self.lines = unique(self.lines)
+
+        # Add components attached to bus to microgrid:
+
+        # Sensor
         if line.sensor:
             self.comp_dict[line.sensor.name] = line.sensor
             self.comp_list.append(line.sensor)
@@ -311,11 +338,15 @@ class Microgrid(Network):
             self.sensors = unique(self.sensors)
             self.controller.sensors.append(line.sensor)
             self.controller.sensors = unique(self.controller.sensors)
+
+        # Disconnector
         for discon in line.disconnectors:
             self.comp_dict[discon.name] = discon
             self.comp_list.append(discon)
             self.disconnectors.append(discon)
             self.disconnectors = unique(self.disconnectors)
+
+            # Intelligent switch
             if discon.intelligent_switch:
                 self.comp_dict[
                     discon.intelligent_switch.name
@@ -323,7 +354,11 @@ class Microgrid(Network):
                 self.comp_list.append(discon.intelligent_switch)
                 self.intelligent_switches.append(discon.intelligent_switch)
                 self.intelligent_switches = unique(self.intelligent_switches)
+
+        # Set microgrid as parent network
         line.add_parent_network(self)
+
+        # Add line to power system
         self.distribution_network.power_system.add_line(line)
 
     def add_lines(self, lines: list):
@@ -429,31 +464,24 @@ class Microgrid(Network):
         """
         p_load_max, q_load_max = 0, 0
         for bus in self.buses:
-            if bus.load_dict != dict():
+            if bus.pload_data != list():
                 d_bus = bus  # Dummy bus used to find number of increments
                 n_increments = len(
-                    d_bus.load_dict["load"][
-                        list(d_bus.load_dict["load"].keys())[0]
-                    ]["pload"].flatten()
+                    d_bus.pload_data[0]
                 )  # Number of increments
                 break
         for increment in range(n_increments):
             p_load, q_load = 0, 0
             for bus in self.buses:
-                if bus.load_dict != dict():
-                    for load_type in bus.load_dict["load"]:
-                        p_load += (
-                            bus.load_dict["load"][load_type][
-                                "pload"
-                            ].flatten()[increment]
-                            * bus.n_customers
-                        )
-                        q_load += (
-                            bus.load_dict["load"][load_type][
-                                "qload"
-                            ].flatten()[increment]
-                            * bus.n_customers
-                        )
+                for i in range(len(bus.pload_data)):
+                    p_load += (
+                        bus.pload_data[i][increment]
+                        * bus.n_customers
+                    )
+                    q_load += (
+                        bus.qload_data[i][increment]
+                        * bus.n_customers
+                    )
             p_load_max = max(p_load_max, p_load)
             q_load_max = max(q_load_max, q_load)
         return p_load_max, q_load_max

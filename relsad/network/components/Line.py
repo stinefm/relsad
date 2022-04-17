@@ -321,10 +321,15 @@ class Line(Component):
         self.remaining_outage_time = self.draw_outage_time(dt)
         if self.connected:
             # Relay
+
+            # Disconnects parent network from its parent network
             self.parent_network.connected_line.circuitbreaker.open()
-            if self.parent_network.child_network_list is not None:
-                for child_network in self.parent_network.child_network_list:
-                    child_network.connected_line.circuitbreaker.open()
+
+            # All child networks are disconnected from the parent network
+            if hasattr(self.parent_network, "child_network_list"):
+                if self.parent_network.child_network_list is not None:
+                    for child_network in self.parent_network.child_network_list:
+                        child_network.connected_line.circuitbreaker.open()
 
     def not_fail(self):
         """

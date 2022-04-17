@@ -33,7 +33,7 @@ def update_history(
     curr_time : Time
         The current time
     save_flag : bool
-        Indicates if saving is on of
+        Indicates if saving is on/off
 
     Returns
     ----------
@@ -91,7 +91,7 @@ def plot_line_history(lines, save_dir: str):
     lines : list
         List of Line elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -120,7 +120,7 @@ def save_line_history(lines, save_dir: str):
     lines : list
         List of Line elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -149,7 +149,7 @@ def plot_circuitbreaker_history(circuitbreakers, save_dir: str):
     circuitbreakers : list
         List of CircuitBreaker elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -172,7 +172,7 @@ def save_circuitbreaker_history(circuitbreakers, save_dir: str):
     circuitbreakers : list
         List of CircuitBreaker elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -195,7 +195,7 @@ def plot_disconnector_history(disconnectors, save_dir: str):
     disconnectors: list
         List of Disconnector elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -218,7 +218,7 @@ def save_disconnector_history(disconnectors, save_dir: str):
     disconnectors : list
         List of Disconnector elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -241,7 +241,7 @@ def plot_intelligent_switch_history(intelligent_switches, save_dir: str):
     intelligent_switches : list
         List of IntelligentSwitch elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -265,7 +265,7 @@ def save_intelligent_switch_history(intelligent_switches, save_dir: str):
     intelligent_switches : list
         List of IntelligentSwitch elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -289,7 +289,7 @@ def plot_sensor_history(sensors, save_dir: str):
     sensors : list
         List of Sensor elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -313,7 +313,7 @@ def save_sensor_history(sensors, save_dir: str):
     sensors : list
         List of Sensor elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -337,7 +337,7 @@ def plot_bus_history(buses, save_dir: str):
     buses : list
         List of Bus elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -379,7 +379,7 @@ def save_bus_history(buses, save_dir: str):
     buses : list
         List of Bus elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -416,7 +416,7 @@ def plot_ev_park_history(ev_parks, save_dir: str):
     ev_parks : list
         List of EVPark elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -446,7 +446,7 @@ def save_ev_park_history(ev_parks, save_dir: str):
     ev_parks : list
         List of EVPark elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -475,7 +475,7 @@ def plot_battery_history(batteries, save_dir: str):
     batteries : list
         List of Battery elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -500,7 +500,7 @@ def save_battery_history(batteries, save_dir: str):
     batteries : list
         List of Battery elements
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -525,7 +525,7 @@ def plot_power_system_history(power_system: PowerSystem, save_dir: str):
     power_system : PowerSystem
         A power system element
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -569,7 +569,7 @@ def save_power_system_history(power_system: PowerSystem, save_dir: str):
     power_system : PowerSystem
         A power system element
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -602,7 +602,7 @@ def plot_network_controller_history(controllers, save_dir: str):
     controllers : list
         List of 
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -625,7 +625,7 @@ def save_network_controller_history(controllers, save_dir: str):
     controllers : list
         A power system element
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -648,7 +648,7 @@ def plot_system_controller_history(controllers, save_dir: str):
     controllers : list
         A power system element
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -673,7 +673,7 @@ def save_system_controller_history(controllers, save_dir: str):
     controllers : list
         A power system element
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------

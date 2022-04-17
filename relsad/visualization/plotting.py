@@ -24,7 +24,7 @@ def plot_topology(
     **kwargs):
 
     """
-    Plots the system topology
+    Plots the system topology 
 
     Parameters
     ----------
@@ -33,12 +33,19 @@ def plot_topology(
     lines : list 
         List with Line elements in the system
     bus_text : bool
+        Flag determining if bus name will be plotted
     line_text : bool
+        Flag determining if line name will be plotted
     circuitbreaker_text : bool
+        Flag determining if circuitbreaker name will be plotted
     disconnector_text : bool
-    intelligent_swithc_text : bool
+        Flag determining if disconnector name will be plotted
+    intelligent_switch_text : bool
+        Flag determining if intelligent switch name will be plotted
     sensor_text : bool
-    kwargs?
+        Flag determining if sensor name will be plotted
+    **kwargs : dict
+        Plotting keyword arguments.
 
     Returns
     ----------
@@ -105,10 +112,12 @@ def _plot_line(ax: plt.axis, line: Line, text: bool=False, text_size: int=8):
 
     Parameters
     ----------
-    ax : plt.axis
+    ax : matplotlib.axes.Axes
+        Plot axis
     line : Line
         A Line element
     text : bool
+        Flag determining if line name will be plotted
     text_size : int 
         The size of the text in the plot 
 
@@ -140,10 +149,12 @@ def _plot_circuitbreaker(ax: plt.axis, line: Line, text: bool=False, text_size: 
 
     Parameters
     ----------
-    ax : plt.axis
+    ax : matplotlib.axes.Axes
+        Plot axis
     line : Line
         A Line element
     text : bool
+        Flag determining if circuitbreaker name will be plotted
     text_size : int 
         The size of the text in the plot 
 
@@ -180,10 +191,12 @@ def _plot_disconnector(ax: plt.axis, discon: Disconnector, text: bool=False, tex
 
     Parameters
     ----------
-    ax : plt.axis
+    ax : matplotlib.axes.Axes
+        Plot axis
     discon : Disconnecotr
         A Disconnector elements
     text : bool
+        Flag determining if disconnector name will be plotted
     text_size : int 
         The size of the text in the plot 
 
@@ -219,10 +232,12 @@ def _plot_intelligent_switch(ax: plt.axis, discon: Disconnector, text: bool=Fals
 
     Parameters
     ----------
-    ax : plt.axis
-    discon : Disconnecotr
+    ax : matplotlib.axes.Axes
+        Plot axis
+    discon : Disconnector
         A Disconnector elements
     text : bool
+        Flag determining if intelligent switch name will be plotted
     text_size : int 
         The size of the text on the plot 
 
@@ -257,10 +272,12 @@ def _plot_sensor(ax: plt.axis, line: Line, text: bool=False, text_size: int=8):
 
     Parameters
     ----------
-    ax : plt.axis
+    ax : matplotlib.axes.Axes
+        Plot axis
     line : Line
         A Line element
     text : bool
+        Flag determining if sensor name will be plotted
     text_size : int 
         The size of the text in the plot 
 
@@ -295,10 +312,12 @@ def _plot_bus(ax: plt.axis, bus: list, text: bool=False, text_size: int=8):
 
     Parameters
     ----------
-    ax : plt.axis
+    ax : matplotlib.axes.Axes
+        Plot axis
     bus : list
         List of Bus elements
     text : bool
+        Flag determining if bus name will be plotted
     text_size : int 
         The size of the text in the plot 
 
@@ -329,65 +348,6 @@ def _plot_bus(ax: plt.axis, bus: list, text: bool=False, text_size: int=8):
         )
 
 
-def tableplot(table_data, title, columns, rows, columncol=[], rowcol=[]):
-    """
-    Desc:   
-    Input:  table_data  - np.array
-            title - string
-            columns - string vector
-            rows    - string vector
-            columncol - colors of each column label (default [])
-            rowcol - colors of each row lable
-    """
-    """
-    Make a table of the provided data. There must be a row and a column
-    data correpsonding to the table
-
-    Parameters
-    ----------
-    table_data : array
-    title : str
-    columns : str
-    rows : str
-    columncol : list
-    rowcol : list 
-
-    Returns
-    ----------
-    None
-
-    """
-
-    fig = plt.figure(dpi=150)
-    ax = fig.add_subplot(1, 1, 1)
-
-    tdim = np.shape(table_data)
-    iloop = 0
-    if rowcol == []:
-        while iloop < tdim[0]:
-            rowcol.append("cyan")
-            iloop += 1
-    iloop = 0
-    if columncol == []:
-        while iloop < tdim[1]:
-            columncol.append("cyan")
-            iloop += 1
-
-    table = ax.table(
-        cellText=table_data,
-        rowLabels=rows,
-        colColours=columncol,
-        rowColours=rowcol,
-        colLabels=columns,
-        loc="center",
-    )
-    table.set_fontsize(11)
-    table.scale(1, 1.5)
-    ax.set_title(title, fontsize=14)
-    ax.axis("off")
-    plt.show()
-
-
 def plot_history(comp_list: list, attribute: str, save_dir: str):
     """
     Plots the history 
@@ -399,7 +359,7 @@ def plot_history(comp_list: list, attribute: str, save_dir: str):
     attribute : str
         An attribute 
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -430,7 +390,7 @@ def plot_monte_carlo_history(comp_list: list, attribute: str, save_dir: str):
     attribute : str
         An attribute 
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------
@@ -462,7 +422,7 @@ def plot_history_last_state(comp_list: list, attribute: str, save_dir: str):
     attribute : str
         An attribute 
     save_dir : str
-        The saving path
+        The saving directory
 
     Returns
     ----------

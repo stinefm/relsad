@@ -101,6 +101,7 @@ def save_network_monte_carlo_history(
     save_dir : str
         The saving path
     save_dict : dict
+        Dictionary with simulation results
 
     Returns
     ----------
@@ -188,7 +189,8 @@ def initialize_monte_carlo_history(power_system: PowerSystem):
 
     Returns
     ----------
-    None
+    save_dict : dict
+        Dictionary with simulation results
 
     """
     network_state_list = [
@@ -323,10 +325,12 @@ def update_monte_carlo_power_system_history(
     time_unit : TimeUnit   
         A time unit (hour, seconds, ect.)
     save_dict : dict
-        Saving dictionary
+        Dictionary with simulation results
+
     Returns
     ----------
-    None
+    save_dict : dict
+        Dictionary with simulation results
 
     """
     network_state_dict = {
@@ -364,11 +368,12 @@ def update_monte_carlo_child_network_history(
     time_unit : TimeUnit
         A time unit (hour, seconds, ect.)
     save_dict : dict
-        Saving dictionary
+        Dictionary with simulation results
 
     Returns
     ----------
-    None
+    save_dict : dict
+        Dictionary with simulation results
 
     """
     for network in power_system.child_network_list:
@@ -401,11 +406,12 @@ def update_monte_carlo_comp_history(
     it : int
         The iteration number
     save_dict : dict
-        Saving dictionary
+        Dictionary with simulation results
 
     Returns
     ----------
-    None
+    save_dict : dict
+        Dictionary with simulation results
 
     """
     for bus in power_system.buses:
@@ -439,7 +445,8 @@ def merge_monte_carlo_history(
 
     Returns
     ----------
-    None
+    save_dict : dict
+        Dictionary with simulation results
 
     """
     save_dict = copy.deepcopy(iteration_dicts[0])
@@ -488,11 +495,18 @@ def merge_monte_carlo_child_network_history(
     power_system : PowerSystem
         A power system element
     it_dict : dict
-
+        Dictionary with iteration results
+    it : int
+        Iteration number
+    time_unit : TimeUnit
+        Time unit
+    save_dict : dict
+        Dictionary with simulation results
 
     Returns
     ----------
-    None
+    save_dict : dict
+        Dictionary with simulation results
 
     """
     for network in power_system.child_network_list:
@@ -524,10 +538,17 @@ def merge_monte_carlo_comp_history(
     ----------
     power_system : PowerSystem
         A power system element
+    it_dict : dict
+        Dictionary with iteration results
+    it : int
+        The iteration number
+    save_dict : dict
+        Dictionary with simulation results
 
     Returns
     ----------
-    None
+    save_dict : dict
+        Dictionary with simulation results
 
     """
     for bus in power_system.buses:

@@ -1,5 +1,6 @@
 from relsad.test_networks.CINELDI import initialize_network
 from relsad.simulation import Simulation
+from relsad.load.bus import CostFunction
 from relsad.Time import (
     Time,
     TimeUnit,
@@ -88,57 +89,75 @@ PV = PVgeneration(temp_profiles, solar_profiles)
     load_office,
 ) = LoadGen(temp_profiles)
 
-cost_functions = {
-    "Jordbruk": {"A": 21.4 - 17.5, "B": 17.5},
-    "Microgrid": {"A": (21.4 - 17.5) * 1000, "B": 17.5 * 1000},
-    "Industri": {"A": 132.6 - 92.5, "B": 92.5},
-    "Handel og tjenester": {"A": 220.3 - 102.4, "B": 102.4},
-    "Offentlig virksomhet": {"A": 194.5 - 31.4, "B": 31.4},
-    "Husholdning": {"A": 8.8, "B": 14.7},
-}
+farm = CostFunction(
+    A=21.4 - 17.5,
+    B=17.5,
+)
 
-load_dict = dict()
-load_dict["load"] = {}
+microgrid = CostFunction(
+    A=(21.4 - 17.5) * 1000,
+    B=17.5 * 1000,
+)
 
-load_dict["cost"] = cost_functions
+industry = CostFunction(
+    A=132.6 - 92.5,
+    B=92.5,
+)
 
-load_dict["load"][B1] = {
-    "Industri": {"pload": load_industry2, "qload": load_industry2 * 0},
-}
-load_dict["load"][B2] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B3] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B4] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B5] = {
-    "Husholdning": {"pload": load_office, "qload": load_house * 0}
-}
+trade = CostFunction(
+    A=220.3 - 102.4,
+    B=102.4,
+)
+
+public = CostFunction(
+    A=194.5 - 31.4,
+    B=31.4,
+)
+
+household = CostFunction(
+    A=8.8,
+    B=14.7,
+)
+
+B1.add_load_data(
+    cost_function=industry,
+    pload_data=load_industry2,
+)
+
+for bus in [B2, B3, B4]:
+    bus.add_load_data(
+        cost_function=household,
+        pload_data=load_house,
+    )
+
+B5.add_load_data(
+    cost_function=household,
+    pload_data=load_office,
+)
 
 prod_dict = dict()
 
 if include_microgrid:
-    load_dict["load"][M1] = {
-        "Husholdning": {"pload": load_house, "qload": load_house * 0}
-    }
-    load_dict["load"][M2] = {
-        "Husholdning": {"pload": load_house, "qload": load_house * 0}
-    }
-    load_dict["load"][M3] = {
-        "Microgrid": {"pload": load_microgrid, "qload": load_microgrid * 0}
-    }
+    for bus in [M1, M2]:
+        bus.add_load_data(
+            cost_function=household,
+            pload_data=load_house,
+        )
+    M3.add_load_data(
+        cost_function=microgrid,
+        pload_data=load_microgrid,
+    )
     
     if include_production:
-        prod_dict[P1] = {"pprod": (PV + wind), "qprod": PV * 0}
+        P1.add_prod_data(
+            pprod_data=PV + wind,
+        )
 
 save_dir = r"test_CINELDI"
 
 sim = Simulation(ps, random_seed=3)
 sim.run_monte_carlo(
-    iterations=1,
+    iterations=5,
     start_time=TimeStamp(
             year=2019, 
             month=1, 
@@ -157,8 +176,6 @@ sim.run_monte_carlo(
     ),
     time_step=Time(1, TimeUnit.HOUR),
     time_unit=TimeUnit.HOUR,
-    load_dict=load_dict,
-    prod_dict=prod_dict,
     save_iterations=[1],
     save_dir=save_dir,
     n_procs=1,

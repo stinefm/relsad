@@ -25,7 +25,8 @@ class SubSystem:
     ----------
     name : str
         Name of the sub system
-    slack
+    slack : Bus
+        The system slack bus, used for power flow calculations
     buses : list
         List of all buses in the sub system
     ev_parks : list
@@ -55,7 +56,7 @@ class SubSystem:
     Methods
     ----------
     add_bus(bus)
-        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the sub system
+        Adding a bus including elements on the bus (battery, generation unit, EV park) to the sub system
     add_buses(buses)
         Adding buses to the sub system
     add_line(Line)
@@ -265,7 +266,7 @@ class SubSystem:
         for bus in self.buses:
             for child_network in self.child_network_list:
                 if isinstance(child_network, Transmission):
-                    if bus == child_network.get():
+                    if bus == child_network.get_trafo_bus():
                         system_load_balance_p = -INF
                         system_load_balance_q = 0
                         return system_load_balance_p, system_load_balance_q

@@ -4,8 +4,12 @@ from .Component import Component
 from relsad.utils import (
     random_choice,
     convert_yearly_fail_rate,
+    interpolate,
 )
 
+from relsad.load.bus import (
+    CostFunction
+)
 from relsad.Time import (
     Time,
     TimeUnit,
@@ -32,8 +36,12 @@ class Bus(Component):
         Apperent power reference \[MVa\]
     is_slack : bool
         Tells if the given bus is a slack bus or not
-    load_dict : dict
-        Dictionary with the load at the bus
+    cost_functions : list
+        List of power load cost functions
+    pload_data : list
+        List of active power load data
+    qload_data : list
+        List of reactive power load data
     toline : Line 
         Tells which line that is going into the bus
     fromline : Line
@@ -114,8 +122,8 @@ class Bus(Component):
         Resets the load at the bus by setting the load to 0
     reset_prod()
         Resets the generation at the bus by setting the generation to 0
-    add_load_dict(load_dict)
-        Adds a load dictionary to the bus
+    add_load_data(cost_function, pload_data, qload_data)
+        Adds load data to the bus
     set_load_and_cost(inc_idx)
         Sets the bus load and cost in MW based on load and cost profiles in the current increment
     get_load()
@@ -195,7 +203,9 @@ class Bus(Component):
 
         ## Power flow attributes
         self.s_ref = s_ref
-        self.load_dict = dict()
+        self.cost_functions = []
+        self.pload_data = []
+        self.qload_data = []
         self.ZIP = ZIP
         self.p_load_downstream = 0.0  # Active accumulated load at node
         self.q_load_downstream = 0.0  # Reactive accumulated load at node
@@ -311,21 +321,63 @@ class Bus(Component):
         self.pprod_pu = 0
         self.qprod_pu = 0
 
-    def add_load_dict(self, load_dict: dict):
+    def add_load_data(
+        self,
+        cost_function: CostFunction,
+        pload_data: np.ndarray,
+        qload_data: np.ndarray = None,
+    ):
         """
-        Adds a load dictionary to the bus
+        Adds load data to the bus
 
         Parameters
         ----------
-        load_dict : dict
-            Dictionary with the load at the bus
+        cost_function : CostFunction
+            Load cost function
+        pload_data : np.ndarray
+            Active power load array
+        qload_data : np.ndarray
+            Reactive power load array
 
         Returns
         ----------
         None
         
         """
-        self.load_dict = load_dict
+        self.cost_functions.append(cost_function)
+        self.pload_data.append(pload_data)
+        if qload_data is None:
+            self.qload_data.append(np.zeros_like(pload_data))
+        else:
+            self.qload_data.append(qload_data)
+
+    def prepare_load_data(
+        self,
+        time_indices: np.ndarray,
+    ):
+        """
+        Prepares the load data for the current time step configuration
+
+        Parameters
+        ----------
+        time_indices : np.ndarray
+            Time indices used to discretize the load data
+
+        Returns
+        ----------
+        None
+        
+        """
+        for i, pload_array in enumerate(self.pload_data):
+            self.pload_data[i] = interpolate(
+                array=pload_array,
+                time_indices=time_indices,
+            )
+        for i, qload_array in enumerate(self.qload_data):
+            self.qload_data[i] = interpolate(
+                array=qload_array,
+                time_indices=time_indices,
+            )
 
     def set_load_and_cost(self, inc_idx: int):
         """
@@ -343,29 +395,27 @@ class Bus(Component):
         
         """
         self.reset_load()
-        if self.load_dict:
-            for load_type in self.load_dict["load"]:
-                try:
-                    type_cost = self.load_dict["cost"][load_type]
-                    A = type_cost["A"]
-                    B = type_cost["B"]
-                    self.set_cost(A + B * 1)
-                    self.pload += (
-                        self.load_dict["load"][load_type]["pload"][inc_idx]
-                        * self.n_customers
-                    )
-                    self.qload += (
-                        self.load_dict["load"][load_type]["qload"][inc_idx]
-                        * self.n_customers
-                    )
-                except KeyError:
-                    print(
-                        "Load type {} is not in cost_functions".format(
-                            load_type
-                        )
-                    )
+        default_cost = 1e8
+        type_cost = 0
+        for i, cost_function in enumerate(self.cost_functions):
+            if (not self.pload_data[i] is None and
+            not self.qload_data[i] is None):
+                type_cost = max(
+                    type_cost,
+                    cost_function.A + cost_function.B*1,
+                )
+                self.pload += (
+                    self.pload_data[i][inc_idx]
+                    * self.n_customers
+                )
+                self.qload += (
+                    self.qload_data[i][inc_idx]
+                    * self.n_customers
+                )
+        if type_cost > 0:
+            self.set_cost(type_cost)
         else:
-            self.set_cost(1e8)
+            self.set_cost(default_cost)
         self.pload_pu = self.pload / self.s_ref
         self.qload_pu = self.qload / self.s_ref
 

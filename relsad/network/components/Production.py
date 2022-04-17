@@ -2,6 +2,7 @@ import numpy as np
 from .Component import Component
 from .Bus import Bus
 from relsad.Time import Time
+from relsad.utils import interpolate
 
 
 class Production(Component):
@@ -17,8 +18,10 @@ class Production(Component):
         Name of the production unit
     bus : Bus
         The bus the production unit is connected to
-    prod_dict : dict
-        Dictionary over the production units
+    pprod_data : np.ndarray
+        Array of active production data
+    qprod_data : np.ndarray
+        Array of reactive production data
     pprod : float
         The active power produced by the production unit \[MW\]
     qprod : float
@@ -33,8 +36,8 @@ class Production(Component):
 
     Methods
     ----------
-    add_prod_dict(prod_dict)
-        Adds a production dictionary to the class
+    add_prod_data(pprod_data, qprod_data)
+        Adds production data to the production component
     set_prod(curr_time)
         Decides how much active and reactive power that will be produced
     update_bus_prod()
@@ -86,7 +89,8 @@ class Production(Component):
         self.name = name
         self.bus = bus
         bus.prod = self
-        self.prod_dict = dict()
+        self.pprod_data = None
+        self.qprod_data = None
         self.pprod = 0
         self.qprod = 0
         self.pmax = pmax
@@ -110,21 +114,57 @@ class Production(Component):
     def __hash__(self):
         return hash(self.name)
 
-    def add_prod_dict(self, prod_dict: dict):
+    def add_prod_data(
+        self,
+        pprod_data: np.ndarray,
+        qprod_data: np.ndarray = None,
+    ):
         """
-        Adds a production dictionary to the class
+        Adds production data to the production component
 
         Parameters
         ----------
-        prod_dict : dict
-            Dictionary over the production
+        pprod_data : np.ndarray
+            Active power production array
+        qprod_data : np.ndarray
+            Reactive power production array
 
         Returns
         ----------
         None
-
+        
         """
-        self.prod_dict = prod_dict
+        self.pprod_data = pprod_data
+        if qprod_data is None:
+            self.qprod_data = np.zeros_like(pprod_data)
+        else:
+            self.qprod_data = qprod_data
+
+    def prepare_prod_data(
+        self,
+        time_indices: np.ndarray,
+    ):
+        """
+        Prepares the production data for the current time step configuration
+
+        Parameters
+        ----------
+        time_indices : np.ndarray
+            Time indices used to discretize the production data
+
+        Returns
+        ----------
+        None
+        
+        """
+        self.pprod_data = interpolate(
+            array=self.pprod_data,
+            time_indices=time_indices,
+        )
+        self.qprod_data = interpolate(
+            array=self.qprod_data,
+            time_indices=time_indices,
+        )
 
     def set_prod(self, inc_idx: int):
         """
@@ -140,8 +180,8 @@ class Production(Component):
         None
 
         """
-        pprod = self.prod_dict["pprod"][inc_idx]
-        qprod = self.prod_dict["qprod"][inc_idx]
+        pprod = self.pprod_data[inc_idx]
+        qprod = self.qprod_data[inc_idx]
         if pprod > self.pmax:
             self.pprod = self.pmax
         else:

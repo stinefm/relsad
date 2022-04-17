@@ -21,7 +21,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../.."))
+sys.path.insert(0, os.path.abspath(os.path.join('..', '..')))
 
 
 # -- Project information -----------------------------------------------------
@@ -43,8 +43,15 @@ extensions = [
     'sphinx.ext.autosummary',  # Create neat summary tables
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
+    "sphinxcontrib.bibtex",
 ]
+
+napoleon_numpy_docstring = True
+
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
+
+# Citation
+bibtex_bibfiles = ["references.bib"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -77,7 +84,12 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    "_templates",
+]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
@@ -90,14 +102,16 @@ todo_include_todos = False
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = "alabaster"
+#html_theme = "alabaster"sphinx_rtd_theme
+html_theme = "sphinx_book_theme"
+
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+#html_static_path = ["_static"]
 
-html_sidebars = {"**": ["about.html", "navigation.html", "searchbox.html"]}
+#html_sidebars = {"**": ["about.html", "navigation.html", "searchbox.html"]}
 
 # -- Options for HTMLHelp output ---------------------------------------
 

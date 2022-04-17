@@ -161,7 +161,8 @@ class StatDist:
 
         Parameters
         ----------
-        ax
+        ax : matplotlib.axes.Axes
+            Plot axis
         n_points : int
         n_bins : int
 
@@ -189,7 +190,8 @@ class StatDist:
 
         Parameters
         ----------
-        ax
+        ax : matplotlib.axes.Axes
+            Plot axis
         x
         color : str
 
