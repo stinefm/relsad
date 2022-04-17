@@ -38,7 +38,7 @@ class IntelligentSwitch(Component):
     state : IntelligentSwitchState
         Which state the intelligent switch is in
     remaining_repair_time : Time
-        The remaining repair time of the intelligent switch 
+        The remaining repair time of the intelligent switch
     history : dict
         Dictonary attribute that stores the historic variables
     monte_carlo_history : dict
@@ -81,7 +81,7 @@ class IntelligentSwitch(Component):
     reset_status(save_flag)
         Resets the status of the intelligent switch
     initialize_history()
-        Initializes the history variables           
+        Initializes the history variables
     """
 
     ## Visual attributes
@@ -316,7 +316,7 @@ class IntelligentSwitch(Component):
         """
         Updates the fail status of the intelligent switch
         If the state of the intelligent switch is REPAIR, the remaining repair time is calculated
-        If the state of the intelligent switch is OK, the state of the intelligent switch is drawn 
+        If the state of the intelligent switch is OK, the state of the intelligent switch is drawn
 
         Parameters
         ----------
@@ -335,7 +335,9 @@ class IntelligentSwitch(Component):
         elif self.state == IntelligentSwitchState.OK:
             self.draw_fail_status(dt)
 
-    def update_history(self, prev_time : Time, curr_time : Time, save_flag: bool):
+    def update_history(
+        self, prev_time: Time, curr_time: Time, save_flag: bool
+    ):
         """
         Updates the history variables
 

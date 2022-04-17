@@ -9,7 +9,7 @@ def SAIFI(network: Network):
 
     Parameters
     ----------
-    network : Network 
+    network : Network
         A Network element
 
     Returns
@@ -30,10 +30,10 @@ def SAIFI(network: Network):
 def SAIDI(network: Network, time_unit: TimeUnit):
     """
     Returns the current SAIDI (System average interruption duration index)
-    
+
     Parameters
     ----------
-    network : Network 
+    network : Network
         A Network element
     time_unit : TimeUnit
         A time unit (hour, seconds, ect)
@@ -62,10 +62,10 @@ def SAIDI(network: Network, time_unit: TimeUnit):
 def CAIDI(network: Network, time_unit: TimeUnit):
     """
     Returns the current CAIFI (Customer average interruption duration index)
-    
+
     Parameters
     ----------
-    network : Network 
+    network : Network
         A Network element
     time_unit : TimeUnit
         A time unit (hour, seconds, ect)
@@ -89,7 +89,7 @@ def EENS(network):
 
     Parameters
     ----------
-    network : Network 
+    network : Network
         A Network element
 
     Returns
@@ -114,7 +114,7 @@ def EV_Index(network: Network):
 
     Parameters
     ----------
-    network : Network 
+    network : Network
         A Network element
 
     Returns
@@ -124,15 +124,15 @@ def EV_Index(network: Network):
 
     """
     return sum([ev_park.get_ev_index() for ev_park in network.ev_parks])
-    
+
 
 def EV_Interruption(network: Network):
     """
     Returns the current EV Interruption. Tells how many EVs that get interrupted/used for grid support
-    
+
     Parameters
     ----------
-    network : Network 
+    network : Network
         A Network element
 
     Returns
@@ -142,20 +142,24 @@ def EV_Interruption(network: Network):
 
     """
     interrupted_cars = sum(
-        [ev_park.acc_interruptions * ev_park.num_cars for ev_park in network.ev_parks]
+        [
+            ev_park.acc_interruptions * ev_park.num_cars
+            for ev_park in network.ev_parks
+        ]
     )
     total_cars = sum([ev_park.num_cars for ev_park in network.ev_parks])
     if total_cars == 0:
         return 0
     return interrupted_cars / total_cars
 
+
 def EV_Duration(network: Network, time_unit: TimeUnit):
     """
     Returns the current EV Duration. Tells the average duration of the interrupted/used EVs for grid support
-    
+
     Parameters
     ----------
-    network : Network 
+    network : Network
         A Network element
     time_unit : TimeUnit
         A time unit (hour, seconds, ect.)
@@ -168,13 +172,18 @@ def EV_Duration(network: Network, time_unit: TimeUnit):
     """
     sum_interruption_duration_x_num_cars = sum(
         [
-            ev_park.acc_interruption_duration.get_unit_quantity(time_unit) * ev_park.num_cars
+            ev_park.acc_interruption_duration.get_unit_quantity(time_unit)
+            * ev_park.num_cars
             for ev_park in network.ev_parks
             if ev_park.acc_interruptions > 0
         ]
     )
     total_cars = sum(
-        [ev_park.num_cars for ev_park in network.ev_parks if ev_park.acc_interruptions > 0]
+        [
+            ev_park.num_cars
+            for ev_park in network.ev_parks
+            if ev_park.acc_interruptions > 0
+        ]
     )
     if total_cars == 0:
         return 0

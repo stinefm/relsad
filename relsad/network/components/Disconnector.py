@@ -202,7 +202,7 @@ class Disconnector(Component):
 
     def not_fail(self):
         """
-        Sets the disconnector to not failed and closes the disconnecotr 
+        Sets the disconnector to not failed and closes the disconnecotr
 
         Parameters
         ----------
@@ -263,7 +263,7 @@ class Disconnector(Component):
         Returns
         ----------
         None
-        
+
         """
         if save_flag:
             self.history["is_open"][curr_time] = self.is_open
@@ -319,7 +319,7 @@ class Disconnector(Component):
 
         Parameters
         ----------
-        save_flag : bool 
+        save_flag : bool
             Indicates if saving is on or off
 
         Returns

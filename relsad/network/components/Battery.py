@@ -274,7 +274,7 @@ class Battery(Component):
             else:
                 p_ch -= p_ch_remaining
         # Change in energy
-        dE = self.n_battery * p_ch * dt.get_hours() # MWh
+        dE = self.n_battery * p_ch * dt.get_hours()  # MWh
         # Energy level, trial step
         E_tr = self.E_battery + dE
         SOC_tr = E_tr / self.E_max
@@ -351,7 +351,7 @@ class Battery(Component):
             p_dis -= diff * (1 - f_p)
             q_dis -= diff * (1 - f_q)
 
-        dE = 1 / self.n_battery * (p_dis + q_dis) * dt.get_hours() # MWh/MVarh
+        dE = 1 / self.n_battery * (p_dis + q_dis) * dt.get_hours()  # MWh/MVarh
         E_tr = self.E_battery - dE
         SOC_tr = E_tr / self.E_max
         dSOC = dE / self.E_max
@@ -440,13 +440,13 @@ class Battery(Component):
         if p < 0 and q < 0:
             p_rem = self.charge(-p, dt)
             pload = -p - p_rem
-        
+
         # Add production to bus
         self.bus.pprod += pprod  # MW
         self.bus.qprod += qprod  # MVar
         self.bus.pprod_pu += pprod / self.bus.s_ref  # PU
         self.bus.qprod_pu += qprod / self.bus.s_ref  # PU
-        
+
         # Add load to bus
         self.bus.pload += pload  # MW
         self.bus.qload += qload  # MVar
@@ -613,7 +613,7 @@ class Battery(Component):
     def draw_SOC_state(self):
         """
         Draws the SOC state based on a uniform distribution
-       
+
         Parameters
         ----------
         None
@@ -629,10 +629,10 @@ class Battery(Component):
         )
         self.update_SOC()
 
-    def update(self, p : float, q : float, fail_duration: Time, dt: Time):
+    def update(self, p: float, q: float, fail_duration: Time, dt: Time):
         """
         Updates the battery status for the current time step
-       
+
         Parameters
         ----------
         p : float

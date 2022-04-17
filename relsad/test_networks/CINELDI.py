@@ -35,29 +35,29 @@ from relsad.StatDist import (
 
 
 def initialize_network(
-    fail_rate_trafo: float=0.007,
-    fail_rate_line: float=0.7,
-    fail_rate_intelligent_switch: float=1000,
-    fail_rate_hardware: float=0.2,
-    fail_rate_software: float=12,
-    fail_rate_sensor: float=0.023,
-    p_fail_repair_new_signal: float=1 - 0.95,
-    p_fail_repair_reboot: float=1 - 0.9,
-    outage_time_trafo: Time=Time(8, TimeUnit.HOUR),
-    include_microgrid: bool=True,
-    include_production: bool=True,
-    include_ICT: bool=True,
-    include_ev: bool=True,
-    v2g_flag: bool=True,
-    include_backup: bool=True,
+    fail_rate_trafo: float = 0.007,
+    fail_rate_line: float = 0.7,
+    fail_rate_intelligent_switch: float = 1000,
+    fail_rate_hardware: float = 0.2,
+    fail_rate_software: float = 12,
+    fail_rate_sensor: float = 0.023,
+    p_fail_repair_new_signal: float = 1 - 0.95,
+    p_fail_repair_reboot: float = 1 - 0.9,
+    outage_time_trafo: Time = Time(8, TimeUnit.HOUR),
+    include_microgrid: bool = True,
+    include_production: bool = True,
+    include_ICT: bool = True,
+    include_ev: bool = True,
+    v2g_flag: bool = True,
+    include_backup: bool = True,
 ):
 
-        # StatDist: 
+    # StatDist:
 
     line_stat_dist = StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
         parameters=NormalParameters(
-            loc=1.25, 
+            loc=1.25,
             scale=1,
             min_val=0.5,
             max_val=2,
@@ -76,25 +76,65 @@ def initialize_network(
             parameters=CustomDiscreteParameters(
                 xk=np.array(
                     [
-                        0.52, 0.52, 0.52, 0.52, 0.52,
-                        0.52, 0.52, 0.08, 0.08, 0.18,
-                        0.18, 0.18, 0.18, 0.18, 0.18, 
-                        0.18, 0.28, 0.28, 0.28, 0.28,
-                        0.42, 0.42, 0.42, 0.42,
+                        0.52,
+                        0.52,
+                        0.52,
+                        0.52,
+                        0.52,
+                        0.52,
+                        0.52,
+                        0.08,
+                        0.08,
+                        0.18,
+                        0.18,
+                        0.18,
+                        0.18,
+                        0.18,
+                        0.18,
+                        0.18,
+                        0.28,
+                        0.28,
+                        0.28,
+                        0.28,
+                        0.42,
+                        0.42,
+                        0.42,
+                        0.42,
                     ]
-                )*n_customers*ev_percentage*daily_charge_frac,
+                )
+                * n_customers
+                * ev_percentage
+                * daily_charge_frac,
                 pk=[
-                    0, 1, 2, 3, 4,
-                    5, 6, 7, 8, 9,
-                    10, 11, 12, 13, 14,
-                    15, 16, 17, 18, 19,
-                    20, 21, 22, 23,
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
                 ],
             ),
             draw_flag=False,
             get_flag=True,
         )
-
 
     if include_ICT:
         C1 = MainController(
@@ -109,8 +149,6 @@ def initialize_network(
             name="C1",
             sectioning_time=Time(1, TimeUnit.HOUR),
         )
-
-    
 
     ps = PowerSystem(C1)
 
@@ -154,7 +192,6 @@ def initialize_network(
         outage_time=outage_time_trafo,
     )
 
-    
     L1 = Line(
         "L1",
         T,
@@ -201,7 +238,7 @@ def initialize_network(
         outage_time_dist=line_stat_dist,
     )
 
-    if include_backup: 
+    if include_backup:
         L6 = Line(
             "L6",
             B3,
@@ -212,11 +249,8 @@ def initialize_network(
             outage_time_dist=line_stat_dist,
             capacity=6,
         )
-        
-    
 
     E1 = CircuitBreaker("E1", L1)
-    
 
     DL1a = Disconnector("L1a", L1, T, E1)
     DL1b = Disconnector("L1b", L1, B1, E1)
@@ -240,8 +274,6 @@ def initialize_network(
 
     dn = Distribution(tn, L1)
 
-    
-    
     if include_microgrid:
         M1 = Bus(
             "M1",
@@ -350,7 +382,7 @@ def initialize_network(
             p_fail_repair_reboot=p_fail_repair_reboot,
         )
 
-        if include_backup: 
+        if include_backup:
             Sensor(
                 "SL6",
                 L6,
@@ -358,7 +390,6 @@ def initialize_network(
                 p_fail_repair_new_signal=p_fail_repair_new_signal,
                 p_fail_repair_reboot=p_fail_repair_reboot,
             )
-        
 
         IntelligentSwitch(
             "RL1a", DL1a, fail_rate_per_year=fail_rate_intelligent_switch
@@ -394,7 +425,7 @@ def initialize_network(
             "RL5b", DL5b, fail_rate_per_year=fail_rate_intelligent_switch
         )
 
-        if include_backup: 
+        if include_backup:
             IntelligentSwitch(
                 "RL6a", DL6a, fail_rate_per_year=fail_rate_intelligent_switch
             )
@@ -427,7 +458,6 @@ def initialize_network(
                 p_fail_repair_reboot=p_fail_repair_reboot,
             )
 
-        
             IntelligentSwitch(
                 "RL7a", DL7a, fail_rate_per_year=fail_rate_intelligent_switch
             )
@@ -458,11 +488,11 @@ def initialize_network(
             num_ev_dist=num_ev_stat_dist_func(B3.n_customers),
             v2g_flag=v2g_flag,
         )
-    
+
     dn.add_buses([B1, B2, B3, B4, B5])
     if include_backup:
         dn.add_lines([L2, L3, L4, L5, L6])
-    else: 
+    else:
         dn.add_lines([L2, L3, L4, L5])
 
     return ps

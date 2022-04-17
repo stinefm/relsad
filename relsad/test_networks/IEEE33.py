@@ -33,21 +33,20 @@ from relsad.StatDist import (
 )
 
 
-
 def initialize_network(
-    include_microgrid: bool=True,
-    include_production: bool=True,
-    include_ICT: bool=True,
-    include_ev: bool=True,
-    v2g_flag: bool=True,
+    include_microgrid: bool = True,
+    include_production: bool = True,
+    include_ICT: bool = True,
+    include_ev: bool = True,
+    v2g_flag: bool = True,
 ):
 
-    # StatDist: 
+    # StatDist:
 
     line_stat_dist = StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
         parameters=NormalParameters(
-            loc=1.25, 
+            loc=1.25,
             scale=1,
             min_val=0.5,
             max_val=2,
@@ -66,19 +65,60 @@ def initialize_network(
             parameters=CustomDiscreteParameters(
                 xk=np.array(
                     [
-                        0.52, 0.52, 0.52, 0.52, 0.52,
-                        0.52, 0.52, 0.08, 0.08, 0.18,
-                        0.18, 0.18, 0.18, 0.18, 0.18, 
-                        0.18, 0.28, 0.28, 0.28, 0.28,
-                        0.42, 0.42, 0.42, 0.42,
+                        0.52,
+                        0.52,
+                        0.52,
+                        0.52,
+                        0.52,
+                        0.52,
+                        0.52,
+                        0.08,
+                        0.08,
+                        0.18,
+                        0.18,
+                        0.18,
+                        0.18,
+                        0.18,
+                        0.18,
+                        0.18,
+                        0.28,
+                        0.28,
+                        0.28,
+                        0.28,
+                        0.42,
+                        0.42,
+                        0.42,
+                        0.42,
                     ]
-                )*n_customers*ev_percentage*daily_charge_frac,
+                )
+                * n_customers
+                * ev_percentage
+                * daily_charge_frac,
                 pk=[
-                    0, 1, 2, 3, 4,
-                    5, 6, 7, 8, 9,
-                    10, 11, 12, 13, 14,
-                    15, 16, 17, 18, 19,
-                    20, 21, 22, 23,
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
                 ],
             ),
             draw_flag=False,
@@ -748,7 +788,6 @@ def initialize_network(
     # L36.set_backup()
     # L37.set_backup()
 
-
     if include_production:
 
         battery_capacity = 1  # MWh
@@ -756,7 +795,7 @@ def initialize_network(
         Battery("Battery", B30, E_max=battery_capacity)
         Production("Wind_Plant", B15)
 
-    if include_ev: 
+    if include_ev:
 
         EVPark(
             name="EV1",
@@ -791,7 +830,7 @@ def initialize_network(
         EVPark(
             name="EV6",
             bus=B11,
-           num_ev_dist=num_ev_stat_dist_func(B11.n_customers),
+            num_ev_dist=num_ev_stat_dist_func(B11.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
@@ -885,11 +924,6 @@ def initialize_network(
             v2g_flag=v2g_flag,
         )
 
-
-        
-
-    
-    
     tn = Transmission(ps, B1)
 
     dn = Distribution(tn, L1)
@@ -1211,9 +1245,9 @@ if __name__ == "__main__":
 
     ps, _, _ = initialize_network()
     fig = plot_topology(
-        buses=ps.buses, 
+        buses=ps.buses,
         lines=ps.lines,
-        figsize=(8,2),
+        figsize=(8, 2),
     )
 
     fig.savefig(

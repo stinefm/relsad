@@ -37,4 +37,3 @@ from .Sensor import (
     Sensor,
     SensorState,
 )
-

@@ -27,17 +27,17 @@ class MainController(Component, Controller):
     name : string
         Name of the main controller
     harware_fail_rate_per_year : float
-        The failure rate per year for hardware failuers of the controller 
-    software_fail_rate_per_year : float 
+        The failure rate per year for hardware failuers of the controller
+    software_fail_rate_per_year : float
         The failure rate per year for software failures of the controller
     p_fail_repair_new_signal : float
-        The probability tuat a new signal cannot be sent 
+        The probability tuat a new signal cannot be sent
     p_fail_reboot : float
         The probability that a reboot of the controller will fail to fix the failure
     new_signal_time : Time
         The time it takes to send a new signal
     reboot_time : Time
-        The time it takes to reboot the controller 
+        The time it takes to reboot the controller
     remaining_repair_time : Time
         The remaining time of the repair
     manual_software_repair_time : Time
@@ -75,7 +75,7 @@ class MainController(Component, Controller):
     draw_software_status(prob)
         Draws if a software failure has occured and sets the fail status of the controller
     repair_software_fail(dt)
-        Goes through the repair sequence of a software failure, draws the repair mechanism, returns the repair time and updates the state of the controller 
+        Goes through the repair sequence of a software failure, draws the repair mechanism, returns the repair time and updates the state of the controller
     update_fail_status(dt)
         Updates the failure status of the controller based on the remaining outage time
     add_distribution_controller(controller)
@@ -97,7 +97,7 @@ class MainController(Component, Controller):
     reset_status(save_flag)
         Resets and sets the status of the class parameters
     initialize_history()
-        Initializes the history variables 
+        Initializes the history variables
     """
 
     ## Random instance
@@ -227,7 +227,7 @@ class MainController(Component, Controller):
 
     def draw_hardware_status(self, prob):
         """
-        Draws if a hardware failure has occured and sets the fail status of the controller 
+        Draws if a hardware failure has occured and sets the fail status of the controller
 
         Parameters
         ----------
@@ -265,7 +265,7 @@ class MainController(Component, Controller):
 
     def repair_software_fail(self, dt: Time):
         """
-        Goes through the repair sequence of a software failure, draws the repair mechanism, returns the repair time and updates the state of the controller 
+        Goes through the repair sequence of a software failure, draws the repair mechanism, returns the repair time and updates the state of the controller
 
         Parameters
         ----------
@@ -275,7 +275,7 @@ class MainController(Component, Controller):
         Returns
         ----------
         repair_time : Time
-            The repair time of the software failure 
+            The repair time of the software failure
 
         """
 
@@ -297,8 +297,8 @@ class MainController(Component, Controller):
 
         Parameters
         ----------
-        dt : Time 
-            The current time step 
+        dt : Time
+            The current time step
 
         Returns
         ----------
@@ -324,7 +324,7 @@ class MainController(Component, Controller):
 
         Parameters
         ----------
-        controller : Controller 
+        controller : Controller
             Distribution system controller
 
         Returns
@@ -341,7 +341,7 @@ class MainController(Component, Controller):
 
         Parameters
         ----------
-        controller : Controller 
+        controller : Controller
             Microgird controller
 
         Returns
@@ -358,7 +358,7 @@ class MainController(Component, Controller):
 
         Parameters
         ----------
-        curr_time : Time 
+        curr_time : Time
             The current time
         dt : Time
             The current time step
@@ -507,7 +507,7 @@ class MainController(Component, Controller):
         Returns
         ----------
         None
-        
+
         """
         self.history["sectioning_time"] = {}
         self.history["remaining_repair_time"] = {}

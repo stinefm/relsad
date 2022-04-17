@@ -19,19 +19,19 @@ class Section:
     ----------
     lines : list
         List of lines in the section
-    disconnectors : list 
+    disconnectors : list
         List of disconnectors in the section
-    parent : Network 
+    parent : Network
         The parent network for the section
     child_sections : list
         List of child sections
     state : SectionState
-        The state of the section 
+        The state of the section
 
     Methods
     ----------
     add_child_section(section)
-        Adds child section to section 
+        Adds child section to section
     attach_to_lines
         Adds lines to section and child section
     connect(dt)
@@ -39,13 +39,14 @@ class Section:
     connect_manually()
         Connects the sections, connects the lines in the section and closes the disconnectors in the section. Used when no ICT
     get_disconnect_time(dt)
-        Returns the total outage time (the time the section is disconnected) of the section  
+        Returns the total outage time (the time the section is disconnected) of the section
     disconnect()
         Disconnects the section, the lines in the section, and opens the disconnectors in the section
 
-    
+
 
     """
+
     __slots__ = (
         "rank",
         "lines",
@@ -79,7 +80,7 @@ class Section:
 
     def add_child_section(self, section):
         """
-        Adds child section to section 
+        Adds child section to section
 
         Parameters
         ----------
@@ -118,7 +119,7 @@ class Section:
 
         Parameters
         ----------
-        dt : Time 
+        dt : Time
             The current time step
 
         Returns
@@ -153,7 +154,7 @@ class Section:
 
     def get_disconnect_time(self, dt: Time):
         """
-        Returns the total outage time (the time the section is disconnected) of the section 
+        Returns the total outage time (the time the section is disconnected) of the section
 
         Parameters
         ----------

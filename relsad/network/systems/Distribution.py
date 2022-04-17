@@ -18,7 +18,7 @@ class Distribution(Network):
     buses : list
         List containing the buses connected to the distribution network
     ev_parks : list
-        List containing the EV parks in the distribution network 
+        List containing the EV parks in the distribution network
     batteries : list
         List containing the batteries in the distribution network
     porductions : list
@@ -33,8 +33,8 @@ class Distribution(Network):
         List containing the disconnectors in the distribution network
     intelligent_switches : list
         List containing the intelligent switches in the distribution network
-    controller : DistributionController 
-        The controller for the distribution system 
+    controller : DistributionController
+        The controller for the distribution system
     comp_list : list
         List containing the components in the distribution network
     comp_dict : dict
@@ -75,11 +75,11 @@ class Distribution(Network):
     add_bus(bus)
         Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the distribution network
     add_buses(buses)
-        Adding buses to the distribution network 
+        Adding buses to the distribution network
     add_line(line)
         Adding a line including elements on the line (sensor, circuit breaker, disconnector) to the distribution network
     add_lines(lines)
-        Adding lines to the distribution network 
+        Adding lines to the distribution network
     get_lines()
         Returns the lines in the distribution network
     reset_slack_bus()
@@ -180,7 +180,7 @@ class Distribution(Network):
 
         Parameters
         ----------
-        connected_line : Line 
+        connected_line : Line
             The line connecting the distribution system to overlaying network
 
         Returns
@@ -250,14 +250,14 @@ class Distribution(Network):
             self.comp_list.append(bus.ev_park)
             self.ev_parks.append(bus.ev_park)
             self.ev_parks = unique(self.ev_parks)
-        
+
         # Battery
         if bus.battery is not None:
             self.comp_dict[bus.battery.name] = bus.battery
             self.comp_list.append(bus.battery)
             self.batteries.append(bus.battery)
             self.batteries = unique(self.batteries)
-        
+
         # Production
         if bus.prod is not None:
             self.comp_dict[bus.prod.name] = bus.prod
@@ -317,7 +317,7 @@ class Distribution(Network):
             self.sensors = unique(self.sensors)
             self.controller.sensors.append(line.sensor)
             self.controller.sensors = unique(self.controller.sensors)
-        
+
         # Disconnector
         for discon in line.disconnectors:
             self.comp_dict[discon.name] = discon
@@ -333,7 +333,7 @@ class Distribution(Network):
                 self.comp_list.append(discon.intelligent_switch)
                 self.intelligent_switches.append(discon.intelligent_switch)
                 self.intelligent_switches = unique(self.intelligent_switches)
-        
+
         # Set distribution network as parent network
         line.add_parent_network(self)
 
@@ -443,7 +443,7 @@ class Distribution(Network):
     def get_system_load(self):
         """
         Returns the system load in the distribution network at the current time in MW and MVar
-        
+
         Parameters
         ----------
         None
@@ -453,7 +453,7 @@ class Distribution(Network):
         pload : float
             The active power load in the distribution network
         qload : float
-            The reactive power load in the distribution network 
+            The reactive power load in the distribution network
 
         """
         pload, qload = 0, 0
@@ -466,7 +466,7 @@ class Distribution(Network):
     def reset_load_shed_variables(self):
         """
         Resets the load shed variables
-        
+
         Parameters
         ----------
         None

@@ -27,8 +27,8 @@ class PowerSystem(Network):
     ----------
     name : str
         Name of the power system
-    slack : Bus     
-        Slack bus of the power system 
+    slack : Bus
+        Slack bus of the power system
     p_load_shed : float
         The active power load shed in the power system
     acc_p_load_shed : float
@@ -43,21 +43,21 @@ class PowerSystem(Network):
         List of all buses in the power system
     ev_parks : list
         List of all EV parks in the power system
-    batteries : list 
+    batteries : list
         List of all batteries in the power system
     production : list
         List of all generation units in the power system
-    lines : list 
+    lines : list
         List of all lines in the power system
-    sensors : list 
-        List of all sensors in the power system 
+    sensors : list
+        List of all sensors in the power system
     circuitbreaker : list
         List of all circuit breakers in the power system
     disconnectors : list
         List of all disconnectors in the power system
     intelligent_switch : list
-        List of all intelligent switches in the power system 
-    controller : MainController 
+        List of all intelligent switches in the power system
+    controller : MainController
         The controller for the power system, either MainController or ManualMainController
     comp_list : list
         List containing the components in the power system
@@ -66,7 +66,7 @@ class PowerSystem(Network):
     child_network_list : list
         List containing all the networks in the power system
     history : dict
-        Dictionary containing the history variables of the power system 
+        Dictionary containing the history variables of the power system
     monte_carlo_history : dict
         Dictionary containing the history variables from the monte carlo simulation
 
@@ -75,45 +75,45 @@ class PowerSystem(Network):
     Methods
     ----------
     add_bus(bus)
-        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the power system 
+        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the power system
     add_buses(buses)
         Adding buses to the power system
     add_line(line)
         Adding a line including elements on the line (sensor, circuit breaker, disconnector) to the power system
     add_lines(lines)
-        Adding lines to the power system 
+        Adding lines to the power system
     get_lines()
-        Returns the lines in the power system 
+        Returns the lines in the power system
     get_comp(name)
         Returns component based on given name
     get_comp_list()
-        Returns list of the components in the power system 
+        Returns list of the components in the power system
     add_child_network(network)
-        Adding child network to the power system 
+        Adding child network to the power system
     reset_slack_bus()
         Resets the slack bus of the child networks
     create_sections()
-        Creates sections in the power system 
+        Creates sections in the power system
     print_status()
-        Prints the status of the buses and lines in the power system 
+        Prints the status of the buses and lines in the power system
     get_system_load_balance()
         Returns the load balance of the system in MW and MVar
     update_batteries(fail_duration, dt)
-        Updates the batteries in the power system 
+        Updates the batteries in the power system
     update_ev_parks(fail_duration, dt)
-        Updates the EV parks in the power system     
+        Updates the EV parks in the power system
     update_fail_status(dt)
-        Updates the failure status for each component that can fail in the power system 
+        Updates the failure status for each component that can fail in the power system
     get_system_load()
         Returns the system load at the current time in MW and MVar
     get_max_load()
         Get the maximum load of the power system for the entire load history in MW and MVar
     prepare_load_data(time_indices)
-        Prepares the load data for the buses in the power system 
+        Prepares the load data for the buses in the power system
     prepare_prod_data(time_indices)
         Prepares the production data for the production components in the power system
     set_load_and_cost(inc_idx)
-        Sets the bus load and cost in MW based on load and cost profiles in the current increment for the power system  
+        Sets the bus load and cost in MW based on load and cost profiles in the current increment for the power system
     set_prod(inc_idx)
         Sets the generation (generation units, batteries, EV parks) at the buses in the power system
     failes_comp()
@@ -200,10 +200,10 @@ class PowerSystem(Network):
     def add_bus(self, bus: Bus):
         """
         Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the power system
- 
+
         Parameters
         ----------
-        bus : Bus 
+        bus : Bus
             A bus element
 
         Returns
@@ -235,11 +235,11 @@ class PowerSystem(Network):
     def add_buses(self, buses: list):
         """
         Adding buses to the power system
-        
+
         Parameters
         ----------
-        buses : list 
-            A list of Bus elements in the power system 
+        buses : list
+            A list of Bus elements in the power system
 
         Returns
         ----------
@@ -252,10 +252,10 @@ class PowerSystem(Network):
     def add_line(self, line: Line):
         """
         Adding a line including elements on the line (sensor, circuit breaker, disconnector) to the power system
- 
+
         Parameters
         ----------
-        line : Line 
+        line : Line
             A line element
 
         Returns
@@ -309,11 +309,11 @@ class PowerSystem(Network):
     def add_lines(self, lines: list):
         """
         Adding lines to the power system
-       
+
         Parameters
         ----------
-        lines : list 
-            A list of Line elements in the power system 
+        lines : list
+            A list of Line elements in the power system
 
         Returns
         ----------
@@ -329,8 +329,8 @@ class PowerSystem(Network):
 
         Parameters
         ----------
-        lines : list 
-            A list of Line elements in the power system 
+        lines : list
+            A list of Line elements in the power system
 
         Returns
         ----------
@@ -343,16 +343,16 @@ class PowerSystem(Network):
     def get_comp(self, name: str):
         """
         Returns component based on given name
-        
+
         Parameters
         ----------
-        name : str 
-           Name of the component 
+        name : str
+           Name of the component
 
         Returns
         ----------
         comp_dict[name] : dict
-            Dictionary containing information about the component 
+            Dictionary containing information about the component
 
         """
         try:
@@ -365,7 +365,7 @@ class PowerSystem(Network):
     def get_comp_list(self):
         """
         Returns list of the components in the power system
-        
+
         Parameters
         ----------
         None
@@ -373,7 +373,7 @@ class PowerSystem(Network):
         Returns
         ----------
         comp_list : list
-            List of the components in the power system 
+            List of the components in the power system
 
         """
         return self.comp_list
@@ -381,10 +381,10 @@ class PowerSystem(Network):
     def add_child_network(self, network):
         """
         Adding child network to the power system
-        
+
         Parameters
         ----------
-        network : Network 
+        network : Network
             The child network of the power system
 
         Returns
@@ -397,7 +397,7 @@ class PowerSystem(Network):
     def reset_slack_bus(self):
         """
         Resets the slack bus of the child networks
-        
+
         Parameters
         ----------
         None
@@ -412,8 +412,8 @@ class PowerSystem(Network):
 
     def create_sections(self):
         """
-        Creates sections in the power system 
-        
+        Creates sections in the power system
+
         Parameters
         ----------
         None
@@ -431,7 +431,7 @@ class PowerSystem(Network):
     def print_status(self):
         """
         Prints the status of the buses and lines in the power system
-        
+
         Parameters
         ----------
         None
@@ -451,7 +451,7 @@ class PowerSystem(Network):
     def get_system_load_balance(self):
         """
         Returns the load balance of the system in MW and MVar
-        
+
         Parameters
         ----------
         None
@@ -460,7 +460,7 @@ class PowerSystem(Network):
         ----------
         system_load_balance_p : float
             The active power load balance in the power system (load - generation)
-        system_load_balance_q : float 
+        system_load_balance_q : float
             The reactive power load balance in the power system (load - generation)
 
         """
@@ -479,12 +479,12 @@ class PowerSystem(Network):
     def update_batteries(self, fail_duration: Time, dt: Time):
         """
         Updates the batteries in the power system
-        
+
         Parameters
         ----------
         fail_duration : Time
             The failure duration
-        dt : Time 
+        dt : Time
             The current time step
 
         Returns
@@ -499,12 +499,12 @@ class PowerSystem(Network):
     def update_ev_parks(self, fail_duration: Time, dt: Time):
         """
         Updates the EV parks in the power system
-        
+
         Parameters
         ----------
         fail_duration : Time
             The failure duration
-        dt : Time 
+        dt : Time
             The current time step
 
         Returns
@@ -516,14 +516,13 @@ class PowerSystem(Network):
         for ev_park in self.ev_parks:
             p, q = ev_park.update(p, q, fail_duration, dt)
 
-
     def update_fail_status(self, dt: Time):
         """
-        Updates the failure status for each component that can fail in the power system 
-        
+        Updates the failure status for each component that can fail in the power system
+
         Parameters
         ----------
-        dt : Time 
+        dt : Time
             The current time step
 
         Returns
@@ -548,7 +547,7 @@ class PowerSystem(Network):
     def get_system_load(self):
         """
         Returns the system load at the current time in MW and MVar
-        
+
         Parameters
         ----------
         None
@@ -558,7 +557,7 @@ class PowerSystem(Network):
         pload : float
             The active power load in the power system
         qload : float
-            The reactive power load in the power system 
+            The reactive power load in the power system
 
         """
         pload, qload = 0, 0
@@ -589,22 +588,14 @@ class PowerSystem(Network):
         for bus in self.buses:
             if bus.pload_data != list():
                 d_bus = bus  # Dummy bus used to find number of increments
-                n_increments = len(
-                    d_bus.pload_data[0]
-                )  # Number of increments
+                n_increments = len(d_bus.pload_data[0])  # Number of increments
                 break
         for increment in range(n_increments):
             p_load, q_load = 0, 0
             for bus in self.buses:
                 for i in range(len(bus.pload_data)):
-                    p_load += (
-                        bus.pload_data[i][increment]
-                        * bus.n_customers
-                    )
-                    q_load += (
-                        bus.qload_data[i][increment]
-                        * bus.n_customers
-                    )
+                    p_load += bus.pload_data[i][increment] * bus.n_customers
+                    q_load += bus.qload_data[i][increment] * bus.n_customers
             p_load_max = max(p_load_max, p_load)
             q_load_max = max(q_load_max, q_load)
         return p_load_max, q_load_max
@@ -612,7 +603,7 @@ class PowerSystem(Network):
     def prepare_load_data(self, time_indices: np.ndarray):
         """
         Prepares the load data for the buses in the power system
-        
+
         Parameters
         ----------
         time_indices : np.ndarray
@@ -629,7 +620,7 @@ class PowerSystem(Network):
     def prepare_prod_data(self, time_indices: np.ndarray):
         """
         Prepares the production data for the production components in the power system
-        
+
         Parameters
         ----------
         time_indices : np.ndarray
@@ -645,8 +636,8 @@ class PowerSystem(Network):
 
     def set_load_and_cost(self, inc_idx: int):
         """
-        Sets the bus load and cost in MW based on load and cost profiles in the current increment for the power system 
-        
+        Sets the bus load and cost in MW based on load and cost profiles in the current increment for the power system
+
         Parameters
         ----------
         inc_idx : int
@@ -662,8 +653,8 @@ class PowerSystem(Network):
 
     def set_prod(self, inc_idx: int):
         """
-        Sets the generation (generation units, batteries, EV parks) at the buses in the power system 
-        
+        Sets the generation (generation units, batteries, EV parks) at the buses in the power system
+
         Parameters
         ----------
         inc_idx : int
@@ -685,7 +676,7 @@ class PowerSystem(Network):
     def failed_comp(self):
         """
         Returns True if the power system contains a failed component, and False otherwise
-        
+
         Parameters
         ----------
         None
@@ -702,7 +693,7 @@ class PowerSystem(Network):
     def full_batteries(self):
         """
         Returns True if the batteries in the power system are full, and False otherwise
-        
+
         Parameters
         ----------
         None
@@ -722,7 +713,7 @@ class PowerSystem(Network):
     def reset_load_flow_data(self):
         """
         Reset the variables used in the load flow analysis
-        
+
         Parameters
         ----------
         None
@@ -740,7 +731,7 @@ class PowerSystem(Network):
     def get_monte_carlo_history(self, attribute):
         """
         Returns the specified history variable
-        
+
         Parameters
         ----------
         attribute : str
@@ -757,7 +748,7 @@ class PowerSystem(Network):
     def get_history(self, attribute):
         """
         Returns the specified history variable
-        
+
         Parameters
         ----------
         attribute : str
@@ -774,7 +765,7 @@ class PowerSystem(Network):
     def reset_load_shed_variables(self):
         """
         Resets the load shed variables
-        
+
         Parameters
         ----------
         None

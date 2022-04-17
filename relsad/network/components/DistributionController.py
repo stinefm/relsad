@@ -45,34 +45,34 @@ class DistributionController(Component, Controller):
         parent_controller : Controller
             The parent controller of the distribution system controller
         network : Network
-            Which network the distribution system controller is connected to 
+            Which network the distribution system controller is connected to
         sensors : list
             List of sensors included in the distribution system
         failed_sections : list
             List of failed sections in the distribution system
-        history : dict 
+        history : dict
             Dictonary attribute that stores the historic variables
-        monte_carlo_history : dict 
+        monte_carlo_history : dict
             Dictonary containing the history variables from the Monte Carlo simulation
 
         Methods
         ----------
         check_circuitbreaker(curr_time, dt)
-            Checks if the circuitbreakers in the distribution system are open. 
-            If sectioning time is finished, disconnect failed sections and close the 
+            Checks if the circuitbreakers in the distribution system are open.
+            If sectioning time is finished, disconnect failed sections and close the
             circuitbreaker.
         disconnect_failed_sections()
             Disconnects the failed sections in the distribution system
         check_sensors(curr_time, dt)
-            Loops through the sections connected to the controller determining which sensors have failed. Performs actions according to the sensor status in the respective section. 
+            Loops through the sections connected to the controller determining which sensors have failed. Performs actions according to the sensor status in the respective section.
             If a section was disconnected and no longer includes any failed sensor, it is connected.
             If a section was connected and now includes a failed sensor, it is disconnected.
             The total sectioning time is summed from each section.
         run_control_loop(curr_time, dt)
             System control check, determines if components have failed and performes the required action
         check_lines_manually(curr_time)
-        Loops through the sections connected to the controller determining 
-        which lines have failed manually. Performs actions according 
+        Loops through the sections connected to the controller determining
+        which lines have failed manually. Performs actions according
         to the line status in the respective section.
         If a section was disconnected and no longer includes any failed lines, it is connected.
         If a section was connected and now includes a failed line, it is disconnected.
@@ -102,6 +102,7 @@ class DistributionController(Component, Controller):
 
 
     """
+
     def __init__(
         self,
         name: str,
@@ -151,8 +152,8 @@ class DistributionController(Component, Controller):
 
     def check_circuitbreaker(self, curr_time: Time, dt: Time):
         """
-        Checks if the circuitbreakers in the distribution system are open. 
-        If sectioning time is finished, disconnect failed sections and close the 
+        Checks if the circuitbreakers in the distribution system are open.
+        If sectioning time is finished, disconnect failed sections and close the
         circuitbreaker.
 
         Parameters
@@ -160,7 +161,7 @@ class DistributionController(Component, Controller):
         curr_time : Time
             The current time
         dt : Time
-            The current time step 
+            The current time step
 
         Returns
         ----------
@@ -196,18 +197,18 @@ class DistributionController(Component, Controller):
 
     def check_sensors(self, curr_time: Time, dt: Time):
         """
-        Loops through the sections connected to the controller determining 
-        which sensors have failed. Performs actions according 
+        Loops through the sections connected to the controller determining
+        which sensors have failed. Performs actions according
         to the sensor status in the respective section.
 
         If a section was disconnected and no longer includes any failed
         sensor, it is connected.
 
-        If a section was connected and now includes a failed sensor, 
+        If a section was connected and now includes a failed sensor,
         it is disconnected.
 
         The total sectioning time is summed from each section.
-        
+
 
         Parameters
         ----------
@@ -259,7 +260,7 @@ class DistributionController(Component, Controller):
 
     def run_control_loop(self, curr_time: Time, dt: Time):
         """
-        System control check, determines if components have failed and 
+        System control check, determines if components have failed and
         performes the required action.
 
         Parameters
@@ -276,7 +277,9 @@ class DistributionController(Component, Controller):
         """
         # Update current sectioning time
         self.sectioning_time = (
-            self.sectioning_time - dt if self.sectioning_time > Time(0) else Time(0)
+            self.sectioning_time - dt
+            if self.sectioning_time > Time(0)
+            else Time(0)
         )
         if (
             self.network.connected_line.circuitbreaker.is_open
@@ -294,14 +297,14 @@ class DistributionController(Component, Controller):
 
     def check_lines_manually(self, curr_time):
         """
-        Loops through the sections connected to the controller determining 
-        which lines have failed manually. Performs actions according 
+        Loops through the sections connected to the controller determining
+        which lines have failed manually. Performs actions according
         to the line status in the respective section.
 
         If a section was disconnected and no longer includes any failed
         lines, it is connected.
 
-        If a section was connected and now includes a failed line, 
+        If a section was connected and now includes a failed line,
         it is disconnected.
 
         The total sectioning time is summed from each section.
@@ -342,7 +345,7 @@ class DistributionController(Component, Controller):
 
     def run_manual_control_loop(self, curr_time: Time, dt: Time):
         """
-        Manual system control check, determines if components have failed and 
+        Manual system control check, determines if components have failed and
         performes the required action.
 
         Parameters
@@ -359,7 +362,9 @@ class DistributionController(Component, Controller):
         """
         # Update current sectioning time
         self.sectioning_time = (
-            self.sectioning_time - dt if self.sectioning_time > Time(0) else Time(0)
+            self.sectioning_time - dt
+            if self.sectioning_time > Time(0)
+            else Time(0)
         )
         if (
             self.network.connected_line.circuitbreaker.is_open
@@ -396,7 +401,7 @@ class DistributionController(Component, Controller):
 
     def spread_sectioning_time_to_children(self):
         """
-        Gives the children network of the distribution system the same sectioning time 
+        Gives the children network of the distribution system the same sectioning time
 
         Parameters
         ----------
@@ -449,7 +454,7 @@ class DistributionController(Component, Controller):
         Returns
         ----------
         None
-        
+
         """
         if save_flag:
             self.history["sectioning_time"][
@@ -500,7 +505,7 @@ class DistributionController(Component, Controller):
         Returns
         ----------
         None
-        
+
         """
         pass
 
@@ -533,6 +538,6 @@ class DistributionController(Component, Controller):
         Returns
         ----------
         None
-        
+
         """
         self.history["sectioning_time"] = {}

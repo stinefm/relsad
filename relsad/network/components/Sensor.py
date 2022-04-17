@@ -34,7 +34,7 @@ class Sensor(Component):
     fail_rate_per_year : float
         The failure rate per year for the sensor
     p_fail_repair_new_signal : float
-        The probability of a new signal can be sent 
+        The probability of a new signal can be sent
     p_fail_repair_reboot : float
         The probability that a reboot of the sensor works
     new_signal_time : Time
@@ -46,7 +46,7 @@ class Sensor(Component):
     state : SensorState
         Which state the sensor is in
     remaining_repair_time : Time
-        The remaining repair time of the intelligent switch 
+        The remaining repair time of the intelligent switch
     history : dict
         Dictonary attribute that stores the historic variables
     monte_carlo_history : dict
@@ -63,9 +63,9 @@ class Sensor(Component):
     draw_status(prob)
         Sets the state of the sensor based on the probability of the state being FAILED
     repair(dt)
-        Returns the repair time and fail status of the sensor 
+        Returns the repair time and fail status of the sensor
     get_line_fail_status(dt)
-        Returns the repair time and fail status of the line  
+        Returns the repair time and fail status of the line
     get_section()
         Returns the line section
     update_fail_status(dt)
@@ -86,8 +86,8 @@ class Sensor(Component):
         Initializes the history variables
 
 
-    
-           
+
+
     """
 
     ## Visual attributes
@@ -219,7 +219,7 @@ class Sensor(Component):
 
     def repair(self, dt: Time):
         """
-        Returns the repair time and fail status of the sensor 
+        Returns the repair time and fail status of the sensor
 
         Parameters
         ----------
@@ -230,7 +230,7 @@ class Sensor(Component):
         ----------
         repair_time : Time
             The repair time of the sensor
-        fail_status : bool 
+        fail_status : bool
             The fail status of the sensor
         """
         repair_time = self.new_signal_time
@@ -253,7 +253,7 @@ class Sensor(Component):
 
     def get_line_fail_status(self, dt: Time):
         """
-        Returns the repair time and fail status of the line  
+        Returns the repair time and fail status of the line
 
         Parameters
         ----------
@@ -264,8 +264,8 @@ class Sensor(Component):
         ----------
         repair_time : Time
             The repair time of the line
-        fail_status : bool 
-            The fail status of the line 
+        fail_status : bool
+            The fail status of the line
 
         """
         repair_time = None

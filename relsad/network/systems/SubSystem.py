@@ -18,7 +18,7 @@ from relsad.Time import (
 
 
 class SubSystem:
-    """ Class defining a sub system network type 
+    """Class defining a sub system network type
     ...
 
     Attributes
@@ -31,14 +31,14 @@ class SubSystem:
         List of all buses in the sub system
     ev_parks : list
         List of all EV parks in the sub system
-    batteries : list 
+    batteries : list
         List of all batteries in the sub system
     production : list
         List of all generation units in the sub system
-    lines : list 
+    lines : list
         List of all lines in the sub system
-    sensors : list 
-        List of all sensors in the sub system 
+    sensors : list
+        List of all sensors in the sub system
     circuitbreaker : list
         List of all circuit breakers in the sub system
     disconnectors : list
@@ -66,7 +66,7 @@ class SubSystem:
     add_cild_network(network)
         Adding child network to the sub system
     get_system_load_balance()
-        Returns the load balance of the system 
+        Returns the load balance of the system
     update_batteries(fail_duration, dt)
         Updates the batteries in the sub system
     update_ev_parks(fail_duration, dt, start_time, curr_time)
@@ -129,10 +129,10 @@ class SubSystem:
     def add_bus(self, bus: Bus):
         """
         Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the sub system
- 
+
         Parameters
         ----------
-        bus : Bus 
+        bus : Bus
             A bus element
 
         Returns
@@ -163,10 +163,10 @@ class SubSystem:
 
     def add_buses(self, buses: list):
         """Adding buses to the sub system
-        
+
         Parameters
         ----------
-        buses : list 
+        buses : list
             A list of Bus elements in the sub system
 
         Returns
@@ -180,10 +180,10 @@ class SubSystem:
     def add_line(self, line: Line):
         """
         Adding a line including elements on the line (sensor, circuit breaker, disconnector) to the sub system
-        
+
         Parameters
         ----------
-        line : Line 
+        line : Line
             A line element
 
         Returns
@@ -216,10 +216,10 @@ class SubSystem:
     def add_lines(self, lines: list):
         """
         Adding lines to the sub system
-        
+
         Parameters
         ----------
-        lines : list 
+        lines : list
             A list of Line elements in the sub system
 
         Returns
@@ -233,10 +233,10 @@ class SubSystem:
     def add_child_network(self, network):
         """
         Adding child network to the sub system
-        
+
         Parameters
         ----------
-        network : Network 
+        network : Network
             The child network of the sub system
 
         Returns
@@ -249,7 +249,7 @@ class SubSystem:
     def get_system_load_balance(self):
         """
         Returns the load balance of the system
-        
+
         Parameters
         ----------
         None
@@ -258,7 +258,7 @@ class SubSystem:
         ----------
         system_load_balance_p : flaot
             The active power load balance in the sub system (load - generation)
-        system_load_balance_q : float 
+        system_load_balance_q : float
             The reactive power load balance in the sub system (load - generation)
 
         """
@@ -277,12 +277,12 @@ class SubSystem:
     def update_batteries(self, fail_duration: Time, dt: Time):
         """
         Updates the batteries in the sub system
-        
+
         Parameters
         ----------
         fail_duration : Time
             The failure duration
-        dt : Time 
+        dt : Time
             The current time step
 
         Returns
@@ -303,16 +303,16 @@ class SubSystem:
     ):
         """
         Updates the EV parks in the sub system
-        
+
         Parameters
         ----------
         fail_duration : Time
             The failure duration
-        dt : Time 
+        dt : Time
             The current time step
         start_time : TimeStamp
             Start time
-        curr_time : Time 
+        curr_time : Time
             The current time
 
         Returns
@@ -328,7 +328,7 @@ class SubSystem:
     def reset_load_flow_data(self):
         """
         Reset the variables used in the load flow analysis
-        
+
         Parameters
         ----------
         None

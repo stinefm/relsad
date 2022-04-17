@@ -23,13 +23,13 @@ class Production(Component):
     qprod_data : np.ndarray
         Array of reactive production data
     pprod : float
-        The active power produced by the production unit \[MW\]
+        The active power produced by the production unit [MW]
     qprod : float
-        The reactive power produced by the production unit \[MVar\]
+        The reactive power produced by the production unit [MVar]
     pmax : float
-        The maximum active power that can be produced by the production unit \[MW\]
+        The maximum active power that can be produced by the production unit [MW]
     qmax : float
-        The maximum reactive power that can be produced by the production unit \[MVar\]
+        The maximum reactive power that can be produced by the production unit [MVar]
     history : dict
         Dictonary attribute that stores the historic variables
 
@@ -132,7 +132,7 @@ class Production(Component):
         Returns
         ----------
         None
-        
+
         """
         self.pprod_data = pprod_data
         if qprod_data is None:
@@ -155,7 +155,7 @@ class Production(Component):
         Returns
         ----------
         None
-        
+
         """
         self.pprod_data = interpolate(
             array=self.pprod_data,
@@ -230,7 +230,7 @@ class Production(Component):
 
     def update_fail_status(self, dt: Time):
         """
-        Updates the fail status 
+        Updates the fail status
 
         Parameters
         ----------

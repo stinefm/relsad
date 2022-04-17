@@ -32,12 +32,12 @@ from relsad.Time import (
 
 
 class Simulation:
-    """ 
+    """
     Common class for simulation
 
     ...
 
-    Attributes 
+    Attributes
     ----------
     power_system : PowerSystem
         A PowerSystem element
@@ -61,6 +61,7 @@ class Simulation:
     run_monte_carlo(iterations, start_time, stop_time, time_step, time_unit, save_iterations, save_dir, n_procs, debug)
         Runs Monte Carlo simulation of the power system
     """
+
     def __init__(self, power_system: PowerSystem, random_seed: int = None):
         self.power_system = power_system
         self.random_seed = random_seed
@@ -69,7 +70,7 @@ class Simulation:
     def distribute_random_instance(self, random_instance):
         """
         Adds a global numpy random instance
-        
+
         Parameters
         ----------
         random_instance : np.random.Generator
@@ -88,10 +89,10 @@ class Simulation:
     def run_load_flow(self, network: Network):
         """
         Runs load flow of a network
-        
+
         Parameters
         ----------
-        network : Network 
+        network : Network
             A Network element
 
         Returns
@@ -114,7 +115,7 @@ class Simulation:
 
         Parameters
         ----------
-        inc_idx : int 
+        inc_idx : int
             Increment index
         start_time : TimeStamp
             The start time of the simulation/iteration
@@ -151,7 +152,9 @@ class Simulation:
             ## Load flow
             for sub_system in self.power_system.sub_systems:
                 ## Update EV parks
-                sub_system.update_ev_parks(self.fail_duration, dt, start_time, curr_time)
+                sub_system.update_ev_parks(
+                    self.fail_duration, dt, start_time, curr_time
+                )
                 ## Update batteries and history
                 sub_system.update_batteries(self.fail_duration, dt)
                 ## Run load flow
@@ -181,7 +184,7 @@ class Simulation:
 
         Parameters
         ----------
-        inc_inx : int 
+        inc_inx : int
             Increment index
         start_time : TimeStamp
             The start time of the simulation/iteration
@@ -202,7 +205,7 @@ class Simulation:
         for inc_idx, time_quantity in enumerate(time_array):
             curr_time = Time(time_quantity, unit=time_unit)
             self.run_increment(
-                inc_idx, 
+                inc_idx,
                 start_time,
                 prev_time,
                 curr_time,
@@ -221,11 +224,11 @@ class Simulation:
         random_seed: int,
     ):
         """
-        Runs power system for an iteration 
+        Runs power system for an iteration
 
         Parameters
         ----------
-        it : int 
+        it : int
             Iteration numver
         start_time : TimeStamp
             The start time of the simulation/iteration
@@ -255,11 +258,7 @@ class Simulation:
         print("it: {}".format(it), flush=True)
         save_flag = it in save_iterations
         reset_system(self.power_system, save_flag)
-        self.run_sequence(
-            start_time,
-            time_array,
-            time_unit,
-            save_flag)
+        self.run_sequence(start_time, time_array, time_unit, save_flag)
         save_dict = update_monte_carlo_power_system_history(
             self.power_system, it, time_unit, save_dict
         )
@@ -284,7 +283,7 @@ class Simulation:
 
         Parameters
         ----------
-        iterations : int 
+        iterations : int
             Number of iterations
         start_time : TimeStamp
             The start time of the simulation/iteration
@@ -311,7 +310,7 @@ class Simulation:
         ss = SeedSequence(self.random_seed)
         child_seeds = ss.spawn(iterations)
         self.power_system.create_sections()
-        increments = int((stop_time - start_time)/time_step)
+        increments = int((stop_time - start_time) / time_step)
         time_array = np.arange(
             stop=increments * time_step.get_unit_quantity(time_unit),
             step=time_step.get_unit_quantity(time_unit),

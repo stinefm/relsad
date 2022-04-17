@@ -27,7 +27,7 @@ start = time.time()
 ps = initialize_network(
     include_microgrid=include_microgrid,
     include_production=include_production,
-    include_backup=include_backup
+    include_backup=include_backup,
 )
 
 # Fetching bus-objects
@@ -48,7 +48,7 @@ L2 = ps.get_comp("L2")
 L3 = ps.get_comp("L3")
 L4 = ps.get_comp("L4")
 L5 = ps.get_comp("L5")
-if include_backup: 
+if include_backup:
     L6 = ps.get_comp("L6")
 if include_microgrid:
     L7 = ps.get_comp("L7")
@@ -64,7 +64,7 @@ L3a = ps.get_comp("L3a")
 L3b = ps.get_comp("L3b")
 L4a = ps.get_comp("L4a")
 L5a = ps.get_comp("L5a")
-if include_backup: 
+if include_backup:
     L6a = ps.get_comp("L6a")
 if include_microgrid:
     L7a = ps.get_comp("L7a")
@@ -147,7 +147,7 @@ if include_microgrid:
         cost_function=microgrid,
         pload_data=load_microgrid,
     )
-    
+
     if include_production:
         P1.add_prod_data(
             pprod_data=PV + wind,
@@ -159,16 +159,16 @@ sim = Simulation(ps, random_seed=3)
 sim.run_monte_carlo(
     iterations=5,
     start_time=TimeStamp(
-            year=2019, 
-            month=1, 
-            day=1,
-            hour=0,
-            minute=0,
-            second=0,
+        year=2019,
+        month=1,
+        day=1,
+        hour=0,
+        minute=0,
+        second=0,
     ),
     stop_time=TimeStamp(
-        year=2020, 
-        month=1, 
+        year=2020,
+        month=1,
         day=1,
         hour=0,
         minute=0,

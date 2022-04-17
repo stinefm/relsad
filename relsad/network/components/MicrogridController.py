@@ -84,8 +84,9 @@ class MicrogridController(Component, Controller):
     reset_status(save_flag)
         Resets and sets the status of the class parameters
     initialize_history()
-        Initializes the history variables 
+        Initializes the history variables
     """
+
     def __init__(
         self,
         name: str,
@@ -248,7 +249,9 @@ class MicrogridController(Component, Controller):
 
         """
         self.sectioning_time = (
-            self.sectioning_time - dt if self.sectioning_time > Time(0) else Time(0)
+            self.sectioning_time - dt
+            if self.sectioning_time > Time(0)
+            else Time(0)
         )
         self.sectioning_time = max(
             self.sectioning_time,
@@ -317,7 +320,9 @@ class MicrogridController(Component, Controller):
 
         """
         self.sectioning_time = (
-            self.sectioning_time - dt if self.sectioning_time > Time(0) else Time(0)
+            self.sectioning_time - dt
+            if self.sectioning_time > Time(0)
+            else Time(0)
         )
         self.sectioning_time = max(
             self.sectioning_time,
@@ -335,7 +340,7 @@ class MicrogridController(Component, Controller):
 
     def set_sectioning_time(self, sectioning_time):
         """
-        Sets the sectioning time in the microgrid 
+        Sets the sectioning time in the microgrid
 
         Parameters
         ----------
@@ -487,6 +492,6 @@ class MicrogridController(Component, Controller):
         Returns
         ----------
         None
-        
+
         """
         self.history["sectioning_time"] = {}

@@ -7,13 +7,16 @@ from relsad.utils import random_instance
 
 
 class StatDistType(Enum):
-    UNIFORM_FLOAT = 1 
+    UNIFORM_FLOAT = 1
     UNIFORM_INT = 2
     TRUNCNORMAL = 3
     CUSTOM_DISCRETE = 4
 
+
 UniformParameters = namedtuple("UniformParameters", ["min_val", "max_val"])
-NormalParameters = namedtuple("NormalParameters", ["loc", "scale", "min_val", "max_val"])
+NormalParameters = namedtuple(
+    "NormalParameters", ["loc", "scale", "min_val", "max_val"]
+)
 CustomDiscreteParameters = namedtuple("CustomDiscreteParameters", ["xk", "pk"])
 
 
@@ -41,22 +44,21 @@ class StatDist:
 
     """
 
-
     def __init__(
         self,
         stat_dist_type: StatDistType,
         parameters: namedtuple,
-        draw_flag: bool=True,
-        get_flag: bool=True,
+        draw_flag: bool = True,
+        get_flag: bool = True,
     ):
         self.stat_dist_type = stat_dist_type
         self.parameters = parameters
         self.draw_flag = draw_flag
         self.get_flag = get_flag
 
-    def draw(self, random_instance, size: int=1):
+    def draw(self, random_instance, size: int = 1):
         """
-        Returns the hour of day 
+        Returns the hour of day
 
         Parameters
         ----------
@@ -84,8 +86,10 @@ class StatDist:
             )
         elif self.stat_dist_type == StatDistType.TRUNCNORMAL:
             return stats.truncnorm.rvs(
-                (self.parameters.min_val - self.parameters.loc) / self.parameters.scale,
-                (self.parameters.max_val - self.parameters.loc) / self.parameters.scale,
+                (self.parameters.min_val - self.parameters.loc)
+                / self.parameters.scale,
+                (self.parameters.max_val - self.parameters.loc)
+                / self.parameters.scale,
                 loc=self.parameters.loc,
                 scale=self.parameters.scale,
                 size=size,
@@ -103,11 +107,11 @@ class StatDist:
 
     def get(self, value):
         """
-        Returns the hour of day 
+        Returns the hour of day
 
         Parameters
         ----------
-        value : 
+        value :
 
         Returns
         ----------
@@ -124,7 +128,7 @@ class StatDist:
         x,
     ):
         """
-        Returns the hour of day 
+        Returns the hour of day
 
         Parameters
         ----------
@@ -141,11 +145,13 @@ class StatDist:
             pass
         elif self.stat_dist_type == StatDistType.TRUNCNORMAL:
             return stats.truncnorm.pdf(
-                    x,
-                    (self.parameters.min_val - self.parameters.loc) / self.parameters.scale,
-                    (self.parameters.max_val - self.parameters.loc) / self.parameters.scale,
-                    loc=self.parameters.loc,
-                    scale=self.parameters.scale,
+                x,
+                (self.parameters.min_val - self.parameters.loc)
+                / self.parameters.scale,
+                (self.parameters.max_val - self.parameters.loc)
+                / self.parameters.scale,
+                loc=self.parameters.loc,
+                scale=self.parameters.scale,
             )
         elif self.stat_dist_type == StatDistType.CUSTOM_DISCRETE:
             pass
@@ -153,16 +159,19 @@ class StatDist:
     def histplot(
         self,
         ax,
-        n_points: int=5000,
-        n_bins: int=50,
+        path: str,
+        n_points: int = 5000,
+        n_bins: int = 50,
     ):
         """
-        Returns the hour of day 
+        Returns the hour of day
 
         Parameters
         ----------
         ax : matplotlib.axes.Axes
             Plot axis
+        path : str
+            Save path
         n_points : int
         n_bins : int
 
@@ -183,10 +192,10 @@ class StatDist:
         self,
         ax,
         x,
-        color: str="b",
+        color: str = "b",
     ):
         """
-        Returns the hour of day 
+        Returns the hour of day
 
         Parameters
         ----------
@@ -206,11 +215,13 @@ class StatDist:
             pass
         elif self.stat_dist_type == StatDistType.TRUNCNORMAL:
             ax.plot(
-                x, 
+                x,
                 stats.truncnorm.pdf(
                     x,
-                    (self.parameters.min_val - self.parameters.loc) / self.parameters.scale,
-                    (self.parameters.max_val - self.parameters.loc) / self.parameters.scale,
+                    (self.parameters.min_val - self.parameters.loc)
+                    / self.parameters.scale,
+                    (self.parameters.max_val - self.parameters.loc)
+                    / self.parameters.scale,
                     loc=self.parameters.loc,
                     scale=self.parameters.scale,
                 ),
@@ -220,7 +231,7 @@ class StatDist:
             pass
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     loc = 1.25
     scale = 0.1
     min_val, max_val = 0.5, 2
@@ -231,7 +242,6 @@ if __name__=="__main__":
             scale=scale,
             min_val=min_val,
             max_val=max_val,
-
         ),
         draw_flag=True,
         get_flag=False,

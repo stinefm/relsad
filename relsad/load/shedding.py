@@ -25,7 +25,7 @@ def shed_loads(power_system: PowerSystem, dt: Time, alpha: float = 1e-4):
         The power system that is under consideration
     dt : Time
         The current time step
-    alpha : float 
+    alpha : float
         Slack variable to cope with numerical noise
 
     Problem formulation
@@ -49,7 +49,7 @@ def shed_loads(power_system: PowerSystem, dt: Time, alpha: float = 1e-4):
         -P_line_nl_max <= P_line_nl <= P_line_nl_max
            P_gen_n_min <= P_gen_n   <= P_gen_n_max
              alpha_min <= alpha     <= alpha_max
-    
+
     Returns
     -------
     None
@@ -97,13 +97,13 @@ def shed_loads(power_system: PowerSystem, dt: Time, alpha: float = 1e-4):
 def _build_A_matrix(power_system: PowerSystem):
 
     """
-    Builds the LHS constraint matrix 
+    Builds the LHS constraint matrix
 
     Parameters
     ----------
     power_system : PowerSystem
         The power system that is under consideration
-    
+
     Returns
     -------
     A : array
@@ -136,18 +136,18 @@ def _build_A_matrix(power_system: PowerSystem):
 
 def _get_generation_bounds(power_system: PowerSystem):
     """
-    Returns the generation units bounds 
+    Returns the generation units bounds
 
     Parameters
     ----------
     power_system : PowerSystem
         The power system that is under consideration
-    
+
     Returns
     -------
     p_gen : list
         List of the active power bounds for the generation units
-    q_gen : list 
+    q_gen : list
         List of the reactive power bounds for the generation units
 
     """
@@ -170,7 +170,7 @@ def _get_generation_bounds(power_system: PowerSystem):
 
 def _gather_bounds(power_system, alpha):
     """
-    Returns the flow bounds between the components in the power system. 
+    Returns the flow bounds between the components in the power system.
 
     Parameters
     ----------
@@ -178,12 +178,12 @@ def _gather_bounds(power_system, alpha):
         The power system that is under consideration
     alpha : float
         Slack variable to cope with numerical noise
-    
+
     Returns
     -------
     p_bounds : list
         The active power bounds for a component
-    q_bounds : list 
+    q_bounds : list
         The reactive power bounds for a component
     """
 
@@ -255,7 +255,7 @@ def _shed_active_loads(
         Slack variable to cope with numerical noise
     dt : Time
         The current time step
-    
+
     Returns
     -------
     None
@@ -325,7 +325,7 @@ def _shed_reactive_loads(
         Slack variable to cope with numerical noise
     dt : Time
         The current time step
-    
+
     Returns
     -------
     None
@@ -362,5 +362,3 @@ def _shed_reactive_loads(
                 q_res.x[i] if q_res.x[i] > alpha else 0,
                 dt,
             )
-
-

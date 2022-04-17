@@ -8,7 +8,7 @@ def save_history(comp_list: list, attribute: str, save_dir: str):
 
     Parameters
     ----------
-    comp_list : list 
+    comp_list : list
         A list of system componets
     attribute : str
         A system attribute
@@ -40,7 +40,7 @@ def save_monte_carlo_history_from_dict(
     ----------
     save_dict : dict
         Dictionary with simulation results
-    comp_list : list 
+    comp_list : list
         A list of system componets
     attribute : str
         A system attribute

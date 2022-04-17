@@ -7,9 +7,7 @@ from relsad.utils import (
     interpolate,
 )
 
-from relsad.load.bus import (
-    CostFunction
-)
+from relsad.load.bus import CostFunction
 from relsad.Time import (
     Time,
     TimeUnit,
@@ -33,7 +31,7 @@ class Bus(Component):
     ZIP : list
         List showing the ZIP load model
     s_ref : float
-        Apperent power reference \[MVa\]
+        Apperent power reference [MVa]
     is_slack : bool
         Tells if the given bus is a slack bus or not
     cost_functions : list
@@ -42,7 +40,7 @@ class Bus(Component):
         List of active power load data
     qload_data : list
         List of reactive power load data
-    toline : Line 
+    toline : Line
         Tells which line that is going into the bus
     fromline : Line
         Tells which line that is going out of the bus
@@ -52,10 +50,10 @@ class Bus(Component):
         List of lines going from the bus
     nextbus : List
         List of neighbor buses
-    connected_lines : List 
+    connected_lines : List
         List of connected lines
     parent_network : Network
-        Parent network of the bus 
+        Parent network of the bus
     p_load_downstream : float
         Active accumulated power load at node
     q_load_downstream : float
@@ -65,54 +63,54 @@ class Bus(Component):
     q_loss_downstream : float
         Reactive accumulated power line loss at node
     voang : float
-        Voltage angle \[rad\]
+        Voltage angle [rad]
     vomag : float
         Voltage magnitude pu
-    pload : float 
-        The active power load at the bus \[MW\]
-    qload : float 
-        The reactive power load at the bus \[MVar\]
+    pload : float
+        The active power load at the bus [MW]
+    qload : float
+        The reactive power load at the bus [MVar]
     pload_pu : float
-        The active power load at the bus in pu 
+        The active power load at the bus in pu
     qload_pu : float
         The reactive power load at the bus in pu
     pprod : float
-        The active generated power at the bus \[MW\]
+        The active generated power at the bus [MW]
     qprod : float
-        The reactive generated power at the bus \[MVar\]
+        The reactive generated power at the bus [MVar]
     pprod_pu : float
         The active generated power at the bus in pu
     qprod_pu : float
         The reactive generated power at the bus in pu
-    fail_rate_per_year : float 
-        The failure rate per year for the transformer at the bus 
+    fail_rate_per_year : float
+        The failure rate per year for the transformer at the bus
     outage_time : Time
-        The outage time of the transformer at the bus 
+        The outage time of the transformer at the bus
     acc_outage_time : Time
-        The accumulated outage time of the transformer at the bus  
+        The accumulated outage time of the transformer at the bus
     avg_outage_time : Time
-        The average outage time of the transformer at the bus 
+        The average outage time of the transformer at the bus
     avg_fail_rate : float
-        The average failure rate of the transformer at the bus 
-    num_consecutive_interruptions : float 
+        The average failure rate of the transformer at the bus
+    num_consecutive_interruptions : float
         Number of consecutive interruptions a bus experiences
-    interruption_fraction : float 
-        The interruption fraction of the bus 
-    curr_interruptions : float 
+    interruption_fraction : float
+        The interruption fraction of the bus
+    curr_interruptions : float
         Current interruption duration a bus experiences
-    acc_interruptions : float 
-        Accumulated interruption duration a bus experiences 
+    acc_interruptions : float
+        Accumulated interruption duration a bus experiences
     prod : Production
-        Production class element at the bus 
+        Production class element at the bus
     ev_park : EVPark
         EVPark class element at the bus
     battery : Battery
-        Battery class element at the bus 
+        Battery class element at the bus
     history : dict
         Dictonary attribute that stores the historic variables
     monte_carlo_history : dict
         Dictonary attribute that stores the historic variables from the Monte Carlo simulation
-         
+
 
     Methods
     ----------
@@ -134,7 +132,7 @@ class Bus(Component):
         Sets the transformer to not failed
     get_battery()
         Returns the battery at the bus
-    get_production()   
+    get_production()
         Returns the generation unit at the bus
     update_fail_status(dt)
         Updates the fail status of the transformer. Sets the fail status to failed if the transformer is failed or the fail status to not failed if the transformer is not failed
@@ -213,7 +211,7 @@ class Bus(Component):
         self.q_loss_downstream = 0.0  # Active accumulated line loss at node
         self.voang = 0.0
         self.vomag = 1.0
-        self.pload = 0 
+        self.pload = 0
         self.qload = 0
         self.pload_pu = 0
         self.qload_pu = 0
@@ -314,7 +312,7 @@ class Bus(Component):
         Returns
         ----------
         None
-        
+
         """
         self.pprod = 0
         self.qprod = 0
@@ -342,7 +340,7 @@ class Bus(Component):
         Returns
         ----------
         None
-        
+
         """
         self.cost_functions.append(cost_function)
         self.pload_data.append(pload_data)
@@ -366,7 +364,7 @@ class Bus(Component):
         Returns
         ----------
         None
-        
+
         """
         for i, pload_array in enumerate(self.pload_data):
             self.pload_data[i] = interpolate(
@@ -392,26 +390,22 @@ class Bus(Component):
         Returns
         ----------
         None
-        
+
         """
         self.reset_load()
         default_cost = 1e8
         type_cost = 0
         for i, cost_function in enumerate(self.cost_functions):
-            if (not self.pload_data[i] is None and
-            not self.qload_data[i] is None):
+            if (
+                not self.pload_data[i] is None
+                and not self.qload_data[i] is None
+            ):
                 type_cost = max(
                     type_cost,
-                    cost_function.A + cost_function.B*1,
+                    cost_function.A + cost_function.B * 1,
                 )
-                self.pload += (
-                    self.pload_data[i][inc_idx]
-                    * self.n_customers
-                )
-                self.qload += (
-                    self.qload_data[i][inc_idx]
-                    * self.n_customers
-                )
+                self.pload += self.pload_data[i][inc_idx] * self.n_customers
+                self.qload += self.qload_data[i][inc_idx] * self.n_customers
         if type_cost > 0:
             self.set_cost(type_cost)
         else:
@@ -433,7 +427,7 @@ class Bus(Component):
             The active load at the bus
         qload : float
             The reactive load at the bus
-        
+
         """
         return self.pload, self.qload
 
@@ -443,13 +437,13 @@ class Bus(Component):
 
         Parameters
         ----------
-        dt : Time 
+        dt : Time
             The current time step
 
         Returns
         ----------
         None
-        
+
         """
         self.trafo_failed = True
         self.remaining_outage_time = self.outage_time
@@ -468,7 +462,7 @@ class Bus(Component):
         Returns
         ----------
         None
-        
+
         """
         self.trafo_failed = False
 
@@ -479,12 +473,12 @@ class Bus(Component):
         Parameters
         ----------
         None
-        
+
         Returns
         ----------
         battery : Battery
             Returns the battery at the bus, none if there is no battery at the bus
-        
+
         """
         return self.battery
 
@@ -500,7 +494,7 @@ class Bus(Component):
         ----------
         prod : Production
             Returns the generation at the bus, none if there is no battery at the bus
-        
+
         """
         return self.prod
 
@@ -516,7 +510,7 @@ class Bus(Component):
         Returns
         ----------
         None
-        
+
         """
         if self.trafo_failed:
             self.remaining_outage_time -= dt
@@ -544,13 +538,13 @@ class Bus(Component):
         Returns
         ----------
         None
-        
+
         """
         self.is_slack = True
 
     def print_status(self):
         """
-        Prints the status of the bus 
+        Prints the status of the bus
 
         Parameters
         ----------
@@ -559,7 +553,7 @@ class Bus(Component):
         Returns
         ----------
         None
-        
+
         """
         print(
             "name: {:3s}, trafo_failed={}, pload={:.4f}, "
@@ -570,7 +564,7 @@ class Bus(Component):
 
     def initialize_history(self):
         """
-        Initializes the history variables 
+        Initializes the history variables
 
         Parameters
         ----------
@@ -579,7 +573,7 @@ class Bus(Component):
         Returns
         ----------
         None
-        
+
         """
         self.history["pload"] = {}
         self.history["qload"] = {}
@@ -603,7 +597,7 @@ class Bus(Component):
         self, prev_time: Time, curr_time: Time, save_flag: bool
     ):
         """
-        Updates the history variables 
+        Updates the history variables
 
         Parameters
         ----------
@@ -617,14 +611,16 @@ class Bus(Component):
         Returns
         ----------
         None
-        
+
         """
         # Update accumulated load shed for bus
         self.acc_p_load_shed += self.p_load_shed_stack
         self.acc_q_load_shed += self.q_load_shed_stack
         dt = curr_time - prev_time if prev_time is not None else curr_time
         self.acc_outage_time += dt if self.p_load_shed_stack > 0 else Time(0)
-        self.avg_outage_time = Time(self.acc_outage_time / curr_time, curr_time.unit)
+        self.avg_outage_time = Time(
+            self.acc_outage_time / curr_time, curr_time.unit
+        )
         self.avg_fail_rate = self.get_avg_fail_rate()
         # Accumulate fraction of interupted customers
         self.interruption_fraction = (
@@ -708,12 +704,12 @@ class Bus(Component):
         Parameters
         ----------
         cost : float
-            The specificed interruption cost 
+            The specificed interruption cost
 
         Returns
         ----------
         None
-        
+
         """
         self.cost = cost
 
@@ -728,8 +724,8 @@ class Bus(Component):
         Returns
         ----------
         cost : float
-            The specificed interruption cost 
-        
+            The specificed interruption cost
+
         """
         return self.cost
 
@@ -745,7 +741,7 @@ class Bus(Component):
         Returns
         ----------
         None
-        
+
         """
         self.add_to_load_shed_stack(
             self.pload,  # MW
@@ -765,7 +761,7 @@ class Bus(Component):
         Returns
         ----------
         None
-        
+
         """
         self.p_load_shed_stack = 0
         self.q_load_shed_stack = 0
@@ -854,7 +850,7 @@ class Bus(Component):
         None
 
         """
-        #if self.battery is None:
+        # if self.battery is None:
         self.p_load_shed_stack += p_load * dt.get_hours()  # MWh
         self.q_load_shed_stack += q_load * dt.get_hours()  # MWh
 

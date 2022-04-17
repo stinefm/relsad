@@ -15,22 +15,23 @@ import os
 def plot_topology(
     buses: list,
     lines: list,
-    bus_text: bool=True,
-    line_text: bool=False,
-    circuitbreaker_text: bool=False,
-    disconnector_text: bool=False,
-    intelligent_switch_text: bool=False,
-    sensor_text: bool=False,
-    **kwargs):
+    bus_text: bool = True,
+    line_text: bool = False,
+    circuitbreaker_text: bool = False,
+    disconnector_text: bool = False,
+    intelligent_switch_text: bool = False,
+    sensor_text: bool = False,
+    **kwargs
+):
 
     """
-    Plots the system topology 
+    Plots the system topology
 
     Parameters
     ----------
-    buses : list 
+    buses : list
         List with Bus elements in the system
-    lines : list 
+    lines : list
         List with Line elements in the system
     bus_text : bool
         Flag determining if bus name will be plotted
@@ -50,7 +51,7 @@ def plot_topology(
     Returns
     ----------
     fig : figure
-        Figure of the system topology 
+        Figure of the system topology
     None
 
     """
@@ -64,7 +65,12 @@ def plot_topology(
     text_size = 6
 
     fig.subplots_adjust(
-        left=left, bottom=bottom, right=right, top=top, wspace=None, hspace=None
+        left=left,
+        bottom=bottom,
+        right=right,
+        top=top,
+        wspace=None,
+        hspace=None,
     )
     legends = {}
     for bus in buses:
@@ -74,19 +80,35 @@ def plot_topology(
         _plot_line(ax, line, text=line_text, text_size=text_size)
         legends["Line"] = Line.handle
         if line.circuitbreaker is not None:
-            _plot_circuitbreaker(ax, line, text=circuitbreaker_text, text_size=text_size)
+            _plot_circuitbreaker(
+                ax, line, text=circuitbreaker_text, text_size=text_size
+            )
             legends["Circuit breaker"] = CircuitBreaker.handle
             for discon in line.circuitbreaker.disconnectors:
-                _plot_disconnector(ax, discon, text=disconnector_text, text_size=text_size)
+                _plot_disconnector(
+                    ax, discon, text=disconnector_text, text_size=text_size
+                )
                 legends["Disconnector"] = Disconnector.handle
                 if discon.intelligent_switch:
-                    _plot_intelligent_switch(ax, discon, text=intelligent_switch_text, text_size=text_size)
+                    _plot_intelligent_switch(
+                        ax,
+                        discon,
+                        text=intelligent_switch_text,
+                        text_size=text_size,
+                    )
                 legends["Intelligent switch"] = IntelligentSwitch.handle
         for discon in line.disconnectors:
-            _plot_disconnector(ax, discon, text=disconnector_text, text_size=text_size)
+            _plot_disconnector(
+                ax, discon, text=disconnector_text, text_size=text_size
+            )
             legends["Disconnector"] = Disconnector.handle
             if discon.intelligent_switch:
-                _plot_intelligent_switch(ax, discon, text=intelligent_switch_text, text_size=text_size)
+                _plot_intelligent_switch(
+                    ax,
+                    discon,
+                    text=intelligent_switch_text,
+                    text_size=text_size,
+                )
                 legends["Intelligent switch"] = IntelligentSwitch.handle
         if line.sensor:
             _plot_sensor(ax, line, text=sensor_text, text_size=text_size)
@@ -99,16 +121,19 @@ def plot_topology(
         loc="upper center",
         bbox_to_anchor=(left + (right - left) / 2, 0.978),
         frameon=False,
-        prop={'size': 8},
+        prop={"size": 8},
     )
 
     plt.axis("off")
 
     return fig
 
-def _plot_line(ax: plt.axis, line: Line, text: bool=False, text_size: int=8):
+
+def _plot_line(
+    ax: plt.axis, line: Line, text: bool = False, text_size: int = 8
+):
     """
-    Plot lines 
+    Plot lines
 
     Parameters
     ----------
@@ -118,8 +143,8 @@ def _plot_line(ax: plt.axis, line: Line, text: bool=False, text_size: int=8):
         A Line element
     text : bool
         Flag determining if line name will be plotted
-    text_size : int 
-        The size of the text in the plot 
+    text_size : int
+        The size of the text in the plot
 
     Returns
     ----------
@@ -143,7 +168,10 @@ def _plot_line(ax: plt.axis, line: Line, text: bool=False, text_size: int=8):
             size=text_size,
         )
 
-def _plot_circuitbreaker(ax: plt.axis, line: Line, text: bool=False, text_size: int=8):
+
+def _plot_circuitbreaker(
+    ax: plt.axis, line: Line, text: bool = False, text_size: int = 8
+):
     """
     Plot circuitbreakers
 
@@ -155,8 +183,8 @@ def _plot_circuitbreaker(ax: plt.axis, line: Line, text: bool=False, text_size: 
         A Line element
     text : bool
         Flag determining if circuitbreaker name will be plotted
-    text_size : int 
-        The size of the text in the plot 
+    text_size : int
+        The size of the text in the plot
 
     Returns
     ----------
@@ -185,7 +213,10 @@ def _plot_circuitbreaker(ax: plt.axis, line: Line, text: bool=False, text_size: 
             size=text_size,
         )
 
-def _plot_disconnector(ax: plt.axis, discon: Disconnector, text: bool=False, text_size: int=8):
+
+def _plot_disconnector(
+    ax: plt.axis, discon: Disconnector, text: bool = False, text_size: int = 8
+):
     """
     Plot disconnectors
 
@@ -197,8 +228,8 @@ def _plot_disconnector(ax: plt.axis, discon: Disconnector, text: bool=False, tex
         A Disconnector elements
     text : bool
         Flag determining if disconnector name will be plotted
-    text_size : int 
-        The size of the text in the plot 
+    text_size : int
+        The size of the text in the plot
 
     Returns
     ----------
@@ -226,9 +257,12 @@ def _plot_disconnector(ax: plt.axis, discon: Disconnector, text: bool=False, tex
             size=text_size,
         )
 
-def _plot_intelligent_switch(ax: plt.axis, discon: Disconnector, text: bool=False, text_size: int=8):
+
+def _plot_intelligent_switch(
+    ax: plt.axis, discon: Disconnector, text: bool = False, text_size: int = 8
+):
     """
-    Plot intelligent switches 
+    Plot intelligent switches
 
     Parameters
     ----------
@@ -238,8 +272,8 @@ def _plot_intelligent_switch(ax: plt.axis, discon: Disconnector, text: bool=Fals
         A Disconnector elements
     text : bool
         Flag determining if intelligent switch name will be plotted
-    text_size : int 
-        The size of the text on the plot 
+    text_size : int
+        The size of the text on the plot
 
     Returns
     ----------
@@ -266,7 +300,10 @@ def _plot_intelligent_switch(ax: plt.axis, discon: Disconnector, text: bool=Fals
             size=text_size,
         )
 
-def _plot_sensor(ax: plt.axis, line: Line, text: bool=False, text_size: int=8):
+
+def _plot_sensor(
+    ax: plt.axis, line: Line, text: bool = False, text_size: int = 8
+):
     """
     Plot sensors
 
@@ -278,8 +315,8 @@ def _plot_sensor(ax: plt.axis, line: Line, text: bool=False, text_size: int=8):
         A Line element
     text : bool
         Flag determining if sensor name will be plotted
-    text_size : int 
-        The size of the text in the plot 
+    text_size : int
+        The size of the text in the plot
 
     Returns
     ----------
@@ -306,7 +343,8 @@ def _plot_sensor(ax: plt.axis, line: Line, text: bool=False, text_size: int=8):
             size=text_size,
         )
 
-def _plot_bus(ax: plt.axis, bus: list, text: bool=False, text_size: int=8):
+
+def _plot_bus(ax: plt.axis, bus: list, text: bool = False, text_size: int = 8):
     """
     Plot circuitbreakers
 
@@ -318,8 +356,8 @@ def _plot_bus(ax: plt.axis, bus: list, text: bool=False, text_size: int=8):
         List of Bus elements
     text : bool
         Flag determining if bus name will be plotted
-    text_size : int 
-        The size of the text in the plot 
+    text_size : int
+        The size of the text in the plot
 
     Returns
     ----------
@@ -350,14 +388,14 @@ def _plot_bus(ax: plt.axis, bus: list, text: bool=False, text_size: int=8):
 
 def plot_history(comp_list: list, attribute: str, save_dir: str):
     """
-    Plots the history 
+    Plots the history
 
     Parameters
     ----------
-    comp_list : list 
+    comp_list : list
         List of components
     attribute : str
-        An attribute 
+        An attribute
     save_dir : str
         The saving directory
 
@@ -385,10 +423,10 @@ def plot_monte_carlo_history(comp_list: list, attribute: str, save_dir: str):
 
     Parameters
     ----------
-    comp_list : list 
+    comp_list : list
         List of components
     attribute : str
-        An attribute 
+        An attribute
     save_dir : str
         The saving directory
 
@@ -413,14 +451,14 @@ def plot_monte_carlo_history(comp_list: list, attribute: str, save_dir: str):
 
 def plot_history_last_state(comp_list: list, attribute: str, save_dir: str):
     """
-    Plots the last state from the history 
+    Plots the last state from the history
 
     Parameters
     ----------
-    comp_list : list 
+    comp_list : list
         List of components
     attribute : str
-        An attribute 
+        An attribute
     save_dir : str
         The saving directory
 

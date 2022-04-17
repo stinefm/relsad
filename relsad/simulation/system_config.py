@@ -154,7 +154,7 @@ def find_sub_systems(p_s: PowerSystem, curr_time: Time):
 def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time: Time):
     """
     Function that updates the backup lines between the sub systems of the power system if they exist and are not failed
-    
+
     Parameters
     ----------
     p_s : PowerSystem
@@ -203,7 +203,7 @@ def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time: Time):
 def update_sub_system_slack(p_s: PowerSystem):
     """
     Function that updates the current slack bus of the sub systems of the power system
-    
+
     Parameters
     ----------
     p_s : PowerSystem
@@ -226,7 +226,7 @@ def update_sub_system_slack(p_s: PowerSystem):
 def set_slack(p_s: PowerSystem, sub_system: SubSystem):
     """
     Function that sets the slack bus of the power system
-    
+
     Parameters
     ----------
     p_s : PowerSystem
@@ -236,8 +236,8 @@ def set_slack(p_s: PowerSystem, sub_system: SubSystem):
 
     Returns
     ----------
-    bool 
-        Success/Failure of operation 
+    bool
+        Success/Failure of operation
 
     """
     ## Transmission network slack buses in sub_system
@@ -291,7 +291,7 @@ def set_slack(p_s: PowerSystem, sub_system: SubSystem):
 def reset_system(power_system: PowerSystem, save_flag: bool):
     """
     Resets the power system
-    
+
     Parameters
     ----------
     p_s : PowerSystem

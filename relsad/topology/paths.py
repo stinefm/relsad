@@ -15,7 +15,7 @@ def get_paths(parent_bus):
 
     Returns
     ----------
-    paths : list 
+    paths : list
         List of all downstream paths from parent_bus
 
     """
@@ -39,7 +39,7 @@ def get_line_paths(parent_line):
 
     Returns
     ----------
-    paths : list 
+    paths : list
         List of all downstream paths from parent_bus
 
     """
@@ -61,7 +61,7 @@ def create_downstream_sections(
     curr_line: Line, parent_section: Section = None
 ):
     """
-    
+
 
     Parameters
     ----------
@@ -72,8 +72,8 @@ def create_downstream_sections(
 
     Returns
     ----------
-    parent_section : Section 
-        The parent section 
+    parent_section : Section
+        The parent section
 
     """
     if not parent_section:
@@ -122,7 +122,7 @@ def create_downstream_sections(
 
 def create_internal_sections(parent_section):
     """
-    
+
 
     Parameters
     ----------
@@ -182,14 +182,14 @@ def create_internal_sections(parent_section):
 
 def get_section_list(parent_section, section_list=[]):
     """
-    Appends and returns a list containing the sections in the path 
+    Appends and returns a list containing the sections in the path
 
     Parameters
     ----------
     parent_section : Section
         The parent section
     section_list : list
-        List containing the sections 
+        List containing the sections
 
     Returns
     ----------
@@ -207,7 +207,7 @@ def get_section_list(parent_section, section_list=[]):
 
 def create_sections(connected_line):
     """
-    
+
 
     Parameters
     ----------
@@ -230,17 +230,17 @@ def create_sections(connected_line):
 def configure(bus_list, line_list):
     """
     Function that sets up the nested topology array and configures the radial tree according to the slack bus
-    
+
     Parameters
     ----------
     bus_list : list
-        List containing the bus elements 
-    line_list : list 
-        List containing the line elements 
+        List containing the bus elements
+    line_list : list
+        List containing the line elements
 
     Returns
     ----------
-    topology : list 
+    topology : list
         Nested topology list
     bus_list : list
     line_list : list
@@ -254,12 +254,12 @@ def configure(bus_list, line_list):
 
         Parameters
         ----------
-        bus1 : Bus 
+        bus1 : Bus
             A Bus element
         bus2 : Bus
-            A Bus elememt 
-        line_list : list 
-            List containing all the lines 
+            A Bus elememt
+        line_list : list
+            List containing all the lines
 
         Returns
         ----------
@@ -281,16 +281,16 @@ def configure(bus_list, line_list):
         ----------
         target_buses : list
             List containing
-        bus_list list 
-            List containing 
+        bus_list list
+            List containing
         checked_buses : list
-        line_list 
+        line_list
             List containing all the lines
 
         Returns
         ----------
-        new_target_buses : list 
-        checked_buses : list 
+        new_target_buses : list
+        checked_buses : list
 
         """
         new_target_buses = list()
@@ -311,7 +311,7 @@ def configure(bus_list, line_list):
     def get_topology(paths):
         """
         Function that constructs a nested topology array
-      
+
         Parameters
         ----------
         paths : list
@@ -319,7 +319,7 @@ def configure(bus_list, line_list):
 
         Returns
         ----------
-        topology : list 
+        topology : list
             Nested topology list
 
         """
@@ -378,15 +378,15 @@ def configure(bus_list, line_list):
 
 def flatten(toflatten):
     """
-    Function that flattens nested list, handy for printing
-    
-    Parameters
-    ----------
-    toflatten : 
+     Function that flattens nested list, handy for printing
 
-    Returns
-    ----------
-   None
+     Parameters
+     ----------
+     toflatten :
+
+     Returns
+     ----------
+    None
 
     """
     for element in toflatten:
@@ -399,10 +399,10 @@ def flatten(toflatten):
 def find_backup_lines_between_sub_systems(sub_system1, sub_system2):
     """
     Finds connections between sub systems (sub_system1 and sub_system2)
-    
+
     Parameters
     ----------
-    sub_system1 : SubSystem 
+    sub_system1 : SubSystem
         A SubSystem element
     sub_system2 : SubSystem
         A SubSystem element
@@ -416,7 +416,7 @@ def find_backup_lines_between_sub_systems(sub_system1, sub_system2):
     def find_external_backup_lines(sub_system):
         """
         Finds lines connected to sub system buses that are connected to external sub systems and returns a list of external backup lines
-        
+
         Parameters
         ----------
         sub_system : SubSystem
@@ -424,8 +424,8 @@ def find_backup_lines_between_sub_systems(sub_system1, sub_system2):
 
         Returns
         ----------
-        external_backup_lines : list 
-            List containing external backup lines 
+        external_backup_lines : list
+            List containing external backup lines
 
         """
         external_backup_lines = list()

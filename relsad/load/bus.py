@@ -1,4 +1,3 @@
-
 class CostFunction:
     """
     Class defining a cost function
@@ -7,7 +6,7 @@ class CostFunction:
 
     Attributes
     ----------
-    A : float 
+    A : float
         Constant cost factor parameter
     B : float
         Variable cost factor parameter
@@ -16,8 +15,8 @@ class CostFunction:
 
     Methods
     ----------
-    """ 
-    
+    """
+
     def __init__(
         self,
         A: float,

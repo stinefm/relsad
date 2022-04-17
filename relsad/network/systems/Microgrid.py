@@ -24,7 +24,7 @@ class Microgrid(Network):
     buses : list
         List with the buses in the microgrid
     ev_parks : list
-        List containing the EV parks in the microgrid 
+        List containing the EV parks in the microgrid
     batteries : list
         List containing the batteries in the microgrid
     porductions : list
@@ -39,8 +39,8 @@ class Microgrid(Network):
         List containing the disconnectors in the microgrid
     intelligent_switches : list
         List containing the intelligent switches in the microgrid
-    controller : MicrogridController 
-        The controller for the microgrid 
+    controller : MicrogridController
+        The controller for the microgrid
     comp_list : list
         List containing the components in the microgrid
     comp_dict : dict
@@ -95,7 +95,7 @@ class Microgrid(Network):
     get_history(attribute)
         Returns the specified history variable
     get_system_load()
-        Returns the system load in the microgrid at the current time in MW and MVar 
+        Returns the system load in the microgrid at the current time in MW and MVar
     reset_load_shed_variables()
         Resets the load shed variables
 
@@ -194,7 +194,7 @@ class Microgrid(Network):
 
         Parameters
         ----------
-        connected_line : Line 
+        connected_line : Line
             The line connecting the distribution system to overlaying network
         mode : str
             Which mode the microgrid follows
@@ -204,10 +204,10 @@ class Microgrid(Network):
         None
 
         """
-        # Sets the connected line for the microgrid 
+        # Sets the connected line for the microgrid
         self.connected_line = connected_line
 
-        # Add the components attached to the line 
+        # Add the components attached to the line
         # to the microgrid:
 
         # Circuitbreaker
@@ -235,7 +235,7 @@ class Microgrid(Network):
                 self.comp_list.append(discon.intelligent_switch)
                 self.intelligent_switches.append(discon.intelligent_switch)
                 self.intelligent_switches = unique(self.intelligent_switches)
-        
+
         # Line
         self.add_line(connected_line)
 
@@ -466,22 +466,14 @@ class Microgrid(Network):
         for bus in self.buses:
             if bus.pload_data != list():
                 d_bus = bus  # Dummy bus used to find number of increments
-                n_increments = len(
-                    d_bus.pload_data[0]
-                )  # Number of increments
+                n_increments = len(d_bus.pload_data[0])  # Number of increments
                 break
         for increment in range(n_increments):
             p_load, q_load = 0, 0
             for bus in self.buses:
                 for i in range(len(bus.pload_data)):
-                    p_load += (
-                        bus.pload_data[i][increment]
-                        * bus.n_customers
-                    )
-                    q_load += (
-                        bus.qload_data[i][increment]
-                        * bus.n_customers
-                    )
+                    p_load += bus.pload_data[i][increment] * bus.n_customers
+                    q_load += bus.qload_data[i][increment] * bus.n_customers
             p_load_max = max(p_load_max, p_load)
             q_load_max = max(q_load_max, q_load)
         return p_load_max, q_load_max
@@ -523,7 +515,7 @@ class Microgrid(Network):
     def get_system_load(self):
         """
         Returns the system load in the microgrid at the current time in MW and MVar
-        
+
         Parameters
         ----------
         None
@@ -546,7 +538,7 @@ class Microgrid(Network):
     def reset_load_shed_variables(self):
         """
         Resets the load shed variables
-        
+
         Parameters
         ----------
         None

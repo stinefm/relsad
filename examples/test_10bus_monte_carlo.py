@@ -19,7 +19,12 @@ if __name__ == "__main__":
 
     start = time.time()
 
-    ps, include_microgrid, include_production, include_backup = initialize_network()
+    (
+        ps,
+        include_microgrid,
+        include_production,
+        include_backup,
+    ) = initialize_network()
 
     # Fetching bus-objects
     B1 = ps.get_comp("B1")
@@ -31,7 +36,7 @@ if __name__ == "__main__":
     B7 = ps.get_comp("B7")
     B8 = ps.get_comp("B8")
     B9 = ps.get_comp("B9")
-    B10 = ps.get_comp("B10")   
+    B10 = ps.get_comp("B10")
 
     # Fetching line-objects
     L1 = ps.get_comp("L1")
@@ -44,7 +49,7 @@ if __name__ == "__main__":
     L8 = ps.get_comp("L8")
     L9 = ps.get_comp("L9")
 
-    if include_backup: 
+    if include_backup:
         L10 = ps.get_comp("L10")
     if include_microgrid:
         M1 = ps.get_comp("M1")
@@ -57,7 +62,6 @@ if __name__ == "__main__":
         L11 = ps.get_comp("L11")
         ML1 = ps.get_comp("ML1")
         ML2 = ps.get_comp("ML2")
-        
 
     temp_profiles, wind_profiles, solar_profiles = WeatherGen()
 
@@ -128,7 +132,7 @@ if __name__ == "__main__":
         load_dict["load"][M3] = {
             "Microgrid": {"pload": load_microgrid, "qload": load_microgrid * 0}
         }
-        
+
         if include_production:
             prod_dict[P1] = {"pprod": (PV + wind), "qprod": PV * 0}
 

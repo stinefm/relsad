@@ -28,7 +28,7 @@ def update_history(
     ----------
     power_system : PowerSystem
         A power system element
-    prev_time : Time 
+    prev_time : Time
         The previous time
     curr_time : Time
         The current time
@@ -212,7 +212,7 @@ def plot_disconnector_history(disconnectors, save_dir: str):
 def save_disconnector_history(disconnectors, save_dir: str):
     """
     Saves the history of the disconnectors in the power system
-    
+
     Parameters
     ----------
     disconnectors : list
@@ -235,7 +235,7 @@ def save_disconnector_history(disconnectors, save_dir: str):
 def plot_intelligent_switch_history(intelligent_switches, save_dir: str):
     """
     Plots the history of the intelligent switches in the power system
-    
+
     Parameters
     ----------
     intelligent_switches : list
@@ -259,7 +259,7 @@ def plot_intelligent_switch_history(intelligent_switches, save_dir: str):
 def save_intelligent_switch_history(intelligent_switches, save_dir: str):
     """
     Saves the history of the intelligent switches in the power system
-    
+
     Parameters
     ----------
     intelligent_switches : list
@@ -283,7 +283,7 @@ def save_intelligent_switch_history(intelligent_switches, save_dir: str):
 def plot_sensor_history(sensors, save_dir: str):
     """
     Plots the history of the sensors in the power system
-    
+
     Parameters
     ----------
     sensors : list
@@ -307,7 +307,7 @@ def plot_sensor_history(sensors, save_dir: str):
 def save_sensor_history(sensors, save_dir: str):
     """
     Saves the history of the sensors in the power system
-    
+
     Parameters
     ----------
     sensors : list
@@ -331,7 +331,7 @@ def save_sensor_history(sensors, save_dir: str):
 def plot_bus_history(buses, save_dir: str):
     """
     Plots the history of the buses in the power system
-    
+
     Parameters
     ----------
     buses : list
@@ -373,7 +373,7 @@ def plot_bus_history(buses, save_dir: str):
 def save_bus_history(buses, save_dir: str):
     """
     Saves the history of the buses in the power system
-    
+
     Parameters
     ----------
     buses : list
@@ -407,10 +407,11 @@ def save_bus_history(buses, save_dir: str):
     for state_var in whole_state_list:
         save_history(buses, state_var, save_dir)
 
+
 def plot_ev_park_history(ev_parks, save_dir: str):
     """
     Plots the history of the ev_park in the power system
-    
+
     Parameters
     ----------
     ev_parks : list
@@ -440,7 +441,7 @@ def plot_ev_park_history(ev_parks, save_dir: str):
 def save_ev_park_history(ev_parks, save_dir: str):
     """
     Saves the history of the ev_park in the power system
-    
+
     Parameters
     ----------
     ev_parks : list
@@ -466,10 +467,11 @@ def save_ev_park_history(ev_parks, save_dir: str):
     for state_var in whole_state_list:
         save_history(ev_parks, state_var, save_dir)
 
+
 def plot_battery_history(batteries, save_dir: str):
     """
     Plots the history of the battery in the power system
-    
+
     Parameters
     ----------
     batteries : list
@@ -494,7 +496,7 @@ def plot_battery_history(batteries, save_dir: str):
 def save_battery_history(batteries, save_dir: str):
     """
     Saves the history of the battery in the power system
-    
+
     Parameters
     ----------
     batteries : list
@@ -519,7 +521,7 @@ def save_battery_history(batteries, save_dir: str):
 def plot_power_system_history(power_system: PowerSystem, save_dir: str):
     """
     Plots the history of the power system
-    
+
     Parameters
     ----------
     power_system : PowerSystem
@@ -563,7 +565,7 @@ def plot_power_system_history(power_system: PowerSystem, save_dir: str):
 def save_power_system_history(power_system: PowerSystem, save_dir: str):
     """
     Saves the history of the power system
-    
+
     Parameters
     ----------
     power_system : PowerSystem
@@ -600,7 +602,7 @@ def plot_network_controller_history(controllers, save_dir: str):
     Parameters
     ----------
     controllers : list
-        List of 
+        List of
     save_dir : str
         The saving directory
 
@@ -619,7 +621,7 @@ def plot_network_controller_history(controllers, save_dir: str):
 def save_network_controller_history(controllers, save_dir: str):
     """
     Saves the history of the controllers in the power system
-    
+
     Parameters
     ----------
     controllers : list
@@ -642,7 +644,7 @@ def save_network_controller_history(controllers, save_dir: str):
 def plot_system_controller_history(controllers, save_dir: str):
     """
     Plots the history of the controllers in the power system
-    
+
     Parameters
     ----------
     controllers : list
@@ -667,7 +669,7 @@ def plot_system_controller_history(controllers, save_dir: str):
 def save_system_controller_history(controllers, save_dir: str):
     """
     Saves the history of the controllers in the power system
-    
+
     Parameters
     ----------
     controllers : list

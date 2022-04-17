@@ -18,7 +18,9 @@ from relsad.Time import (
 
 
 def initialize_network():
-    C1 = ManualMainController(name="C1", sectioning_time=Time(1, TimeUnit.HOUR))
+    C1 = ManualMainController(
+        name="C1", sectioning_time=Time(1, TimeUnit.HOUR)
+    )
 
     ps = PowerSystem(C1)
     fail_rate_trafo = 0.0150  # 0.008

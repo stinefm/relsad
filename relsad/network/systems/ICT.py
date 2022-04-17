@@ -5,23 +5,22 @@ from relsad.utils import unique
 
 
 """
-Need to include: 
+Need to include:
 
 * ICT nodes
 * ICT lines
 * ICT components
-* Informasjon on tilkobled kraftststem? 
+* Informasjon on tilkobled kraftststem?
 
 
 
-Function: 
-* Need to collect all the ICT parameters togheter to a system 
+Function:
+* Need to collect all the ICT parameters togheter to a system
 
 """
 
-class ICT(): 
 
-
+class ICT:
     def __init__(self):
         self.ICT_buses = list()
         self.ICT_lines = list()

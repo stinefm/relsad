@@ -3,8 +3,8 @@ from .Network import Network
 
 
 class Transmission(Network):
-    """ Class defining a transmission network type
-    
+    """Class defining a transmission network type
+
     ...
 
     Attributes
@@ -32,7 +32,7 @@ class Transmission(Network):
     acc_q_load_shed : float
         The accumulated reactive power load shedding in the transmission network
     history : dict
-        Dictionary containing the history variables of the transmission network 
+        Dictionary containing the history variables of the transmission network
     monte_carlo_history : dict
         Dictionary containing the history variables from the monte carlo simulation
 
@@ -55,10 +55,9 @@ class Transmission(Network):
     get_system_load()
         Returns the system load at the current time in MW and MVar
     reset_load_shed_variables()
-        Resets the load shed variables   
+        Resets the load shed variables
 
     """
-
 
     ## Visual attributes
     color = "steelblue"
@@ -80,11 +79,11 @@ class Transmission(Network):
 
         self.ev_parks = list()
 
-        bus.handle.color = self.color
-        bus.color = self.color
+        trafo_bus.handle.color = self.color
+        trafo_bus.color = self.color
         self.parent_network.add_bus(trafo_bus)
 
-        bus.set_slack()
+        trafo_bus.set_slack()
         power_system.slack = trafo_bus
         # Load shedding
         self.p_load_shed = 0
@@ -114,7 +113,7 @@ class Transmission(Network):
     def get_trafo_bus(self):
         """
         Returns the bus connecting to the overlying network (transmission network)
-        
+
         Parameters
         ----------
         None
@@ -130,7 +129,7 @@ class Transmission(Network):
     def reset_slack_bus(self):
         """
         Resets the slack bus of the transmission network
-        
+
         Parameters
         ----------
         None
@@ -145,7 +144,7 @@ class Transmission(Network):
     def add_child_network(self, network):
         """
         Adds child network
-        
+
         Parameters
         ----------
         network : Network
@@ -174,7 +173,7 @@ class Transmission(Network):
     def get_lines(self):
         """
         Returns the lines in the transmission network
-        
+
         Parameters
         ----------
         None
@@ -189,7 +188,7 @@ class Transmission(Network):
     def get_monte_carlo_history(self, attribute):
         """
         Returns the specified history variable
-        
+
         Parameters
         ----------
         attribute : str
@@ -207,7 +206,7 @@ class Transmission(Network):
         """
 
         Returns the specified history variable
-        
+
         Parameters
         ----------
         attribute : str
@@ -224,7 +223,7 @@ class Transmission(Network):
     def get_system_load(self):
         """
         Returns the system load at the current time in MW and MVar
-        
+
         Parameters
         ----------
         None
@@ -234,7 +233,7 @@ class Transmission(Network):
         pload : float
             The active power load in the transmission system
         qload : float
-            The reactive power load in the tranmission system 
+            The reactive power load in the tranmission system
 
         """
         pload, qload = 0, 0
@@ -247,7 +246,7 @@ class Transmission(Network):
     def reset_load_shed_variables(self):
         """
         Resets the load shed variables
-        
+
         Parameters
         ----------
         None

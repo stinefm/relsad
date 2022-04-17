@@ -322,7 +322,7 @@ def update_monte_carlo_power_system_history(
         A power system element
     it : int
         The iteration number
-    time_unit : TimeUnit   
+    time_unit : TimeUnit
         A time unit (hour, seconds, ect.)
     save_dict : dict
         Dictionary with simulation results

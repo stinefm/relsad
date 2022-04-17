@@ -37,36 +37,36 @@ class Line(Component):
         The parent network of the line
     section : Section
         The section the line belongs to
-    s_ref : float 
-        Reference apperet power \[MVA\]
+    s_ref : float
+        Reference apperet power [MVA]
     v_ref : float
-        Reference voltage \[kV\]
-    r_ref : float 
-        Reference resistance \[Ohm\]
+        Reference voltage [kV]
+    r_ref : float
+        Reference resistance [Ohm]
     r : float
-        Resistance \[Ohm\]
+        Resistance [Ohm]
     x : float
-        Reactance \[Ohm\]
+        Reactance [Ohm]
     r_pu : float
         The pu value of the resistance
     x_pu : float
         The pu value of the reactance
     area : float
-        The cross-sectional area \[m^2\]
+        The cross-sectional area [m^2]
     rho : float
-        The resistivity of the line \[Ohm*m\]
+        The resistivity of the line [Ohm*m]
     length : float
-        Length of line \[km\]
+        Length of line [km]
     capacity : float
-        The capacity of the line \[MW\]
+        The capacity of the line [MW]
     ploss : float
-        The active power loss over the line \[MW\]
+        The active power loss over the line [MW]
     qloss : float
-        The reactive power loss over the line \[MVar\]
+        The reactive power loss over the line [MVar]
     fail_rate_per_year : float
-        Failure rate per year \[fault/year/km\]
+        Failure rate per year [fault/year/km]
     outage_time_dist : StatDist
-        Outage time \[hours/fault\]
+        Outage time [hours/fault]
     connected : bool
         Indicates if the line is connected or disconnected
     failed : bool
@@ -141,7 +141,7 @@ class Line(Component):
         v_ref: float = 12.66,  # kV
         rho: float = 1.72e-8,  # resistivity [Ohm*m]
         area: float = 64.52e-6,  # cross-sectional area [m**2]
-        fail_rate_density_per_year: float = 0.07, # fails/(km*year)
+        fail_rate_density_per_year: float = 0.07,  # fails/(km*year)
         capacity: float = 100,  # MW
         connected=True,
     ):
@@ -290,7 +290,7 @@ class Line(Component):
         Parameters
         ----------
         dt : Time
-            The current time step 
+            The current time step
 
         Returns
         ----------
@@ -328,7 +328,9 @@ class Line(Component):
             # All child networks are disconnected from the parent network
             if hasattr(self.parent_network, "child_network_list"):
                 if self.parent_network.child_network_list is not None:
-                    for child_network in self.parent_network.child_network_list:
+                    for (
+                        child_network
+                    ) in self.parent_network.child_network_list:
                         child_network.connected_line.circuitbreaker.open()
 
     def not_fail(self):
@@ -394,7 +396,7 @@ class Line(Component):
 
         Parameters
         ----------
-        dt : Time 
+        dt : Time
             The current time step
 
         Returns
@@ -429,13 +431,13 @@ class Line(Component):
         Returns
         ----------
         p_from : float
-            The active power sent from the line \[MW\]
+            The active power sent from the line [MW]
         q_from : float
-            The reactive power sent from the line \[MVar\]
+            The reactive power sent from the line [MVar]
         p_to : float
-            The active power sent to the line \[MW\]
+            The active power sent to the line [MW]
         q_to : float
-            The reactive power sent to the line \[MVar\]
+            The reactive power sent to the line [MVar]
 
         """
 
@@ -482,7 +484,7 @@ class Line(Component):
         Returns
         ----------
         line_loading : float
-            The line loading 
+            The line loading
 
         """
 
@@ -553,7 +555,7 @@ class Line(Component):
         Returns
         ----------
         None
-        
+
         """
         self.history["p_from"] = {}
         self.history["q_from"] = {}
@@ -572,7 +574,7 @@ class Line(Component):
         Parameters
         ----------
         prev_time : Time
-            The previous time 
+            The previous time
         curr_time : Time
             The vurrent time
         save_flag : bool
@@ -650,7 +652,7 @@ class Line(Component):
     def reset_load_flow_data(self):
         """
         Resets the variables used in the load flow analysis
-        
+
         Parameters
         ----------
         None

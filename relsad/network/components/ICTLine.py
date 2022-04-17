@@ -14,29 +14,29 @@ from relsad.Time import (
 from relsad.StatDist import StatDist
 
 """
-### What it should include: ### 
-    This class will look similar to the Line class. 
+### What it should include: ###
+    This class will look similar to the Line class.
 
-    Attributes: 
+    Attributes:
         1. Name of the ICT line
         2. From ICT node and to ICT node list
-        3. A failure rate 
-        4. An outage time 
-        5. A capacity of the line, max number of signals/packages the line are able to transfer 
+        3. A failure rate
+        4. An outage time
+        5. A capacity of the line, max number of signals/packages the line are able to transfer
         6. Possibility to calaculate how many packages that are transffered over the line
-        7. A probability of this ICT line being used - the probability of all lines going out of an ICT node needs to be 1. The easiest is to either divided it based on the capacity of the lines or just divided it equally on all the line out of a node. 
+        7. A probability of this ICT line being used - the probability of all lines going out of an ICT node needs to be 1. The easiest is to either divided it based on the capacity of the lines or just divided it equally on all the line out of a node.
         9. Counter that can count how many signlas there is on a line
 
-    Methods: 
-        1. A function that distributes the signals packages out on the lines. 
-        2. Need a function for reerouting signlas if 
-        3. The average time it takes for one signal is the average number of cutomers in the system divided by the average arrival intensity: W_avg = N_avg/lambda_avg
-    
-    Assumptions: 
-        During a failure no new cars can come to the park and now cars will leave the park during the outage period. 
+    Methods:
+        1. A function that distributes the signals packages out on the lines.
+        2. Need a function for reerouting signlas if
+        3. The average time it takes for one signal is the average number of customers in the system divided by the average arrival intensity: W_avg = N_avg/lambda_avg
+
+    Assumptions:
+        During a failure no new cars can come to the park and now cars will leave the park during the outage period.
         Do not consider which time of the day the failure occurs
         Assume equal size of all cars
-        
+
 
 
 """
@@ -44,20 +44,19 @@ from relsad.StatDist import StatDist
 
 class ICTLine(Component):
 
-
     ICTlineCount = 0
 
     ## Random instance
     ps_random: np.random.Generator = None
 
     def __init__(
-        self, 
+        self,
         name: str,
         fnode: ICTNode,
-        tnode: ICTNode, 
-        outage_time_dist: StatDist, 
-        fail_rate_density_per_year: float = 0, 
-        capacity: float = 100, 
+        tnode: ICTNode,
+        outage_time_dist: StatDist,
+        fail_rate_density_per_year: float = 0,
+        capacity: float = 100,
     ):
 
         self.name = name
@@ -107,7 +106,7 @@ class ICTLine(Component):
 
     def draw_outage_time(self, dt: Time):
         return Time(
-            self.outage_time_dist.draw(self.ps_random), 
+            self.outage_time_dist.draw(self.ps_random),
             dt.unit,
         )
 
@@ -120,26 +119,3 @@ class ICTLine(Component):
 
     def get_line_load(self):
         pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

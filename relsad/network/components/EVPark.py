@@ -10,7 +10,7 @@ from relsad.Time import (
 from relsad.StatDist import StatDist
 
 """
-### What it should include: ### 
+### What it should include: ###
 
     1. Number of cars - The total amount of cars that can be charging at the same time
     2. Inverter capacity of the charger
@@ -20,25 +20,27 @@ from relsad.StatDist import StatDist
     Each time a failure occurs the model will draw the amount of cars at the EV park and the SOC level of each car
     This will follow a uniform distribution (binomial distribution?)
     If V2G is applied - need a TRUE/FALSE variable that one can turn on and off based on if the system should
-    include V2G or just only EV. 
+    include V2G or just only EV.
 
-    If only EV: 
+    If only EV:
         The EV park will be seen as a load and will charge the cars with power
     If V2G:
         The EV park will be seen as a battery if it is in an island mode with no other production
             if there is other production, this should be used first
-            if there is more production than load, then the EV park can charge the cars instead. 
-    
-    Assumptions: 
-        During a failure no new cars can come to the park and now cars will leave the park during the outage period. 
+            if there is more production than load, then the EV park can charge the cars instead.
+
+    Assumptions:
+        During a failure no new cars can come to the park and now cars will leave the park during the outage period.
         Do not consider which time of the day the failure occurs
         Assume equal size of all cars
-        
+
 
 
 """
+
+
 class EVPark(Component):
-    
+
     """
     Common class for batteries
     ...
@@ -65,10 +67,14 @@ class EVPark(Component):
         The EV battery efficiency
     v2g_flag : bool
         A flag telling if the EV park contributes with V2G services or not
-    curr_demand : float
-        Current demand of power from the EV park \[MW\]
-    curr_charge : float
-        Current power that are being charged/dischared \[MW\]
+    curr_p_demand : float
+        Current demand of active power from the EV park [MW]
+    curr_q_demand : float
+        Current demand of reactive power from the EV park [MVar]
+    curr_p_charge : float
+        Current active power that are being charged/dischared [MW]
+    curr_q_charge : float
+        Current reactive power that are being charged/dischared [MVar]
     cars : list
         List of cars in the EV park
     num_cars : int
@@ -81,7 +87,7 @@ class EVPark(Component):
         Accumulated interruptions an EV experiences
     curr_interruption_duration : Time
         Current interruption duration an EV experiences
-    acc_interruption_duration : Time 
+    acc_interruption_duration : Time
         Accumulated interruption duration an EV experiences
     history : dict
         Dictonary attribute that stores the historic variables
@@ -97,7 +103,7 @@ class EVPark(Component):
     get_SOC()
         Gives the SOC level of the EV park
     get_ev_index()
-        Gives the power demand of av EV that is not met by the system 
+        Gives the power demand of av EV that is not met by the system
     initialize_history()
         Initializes the history variables
     update_history(prev_time, curr_time, save_flag)
@@ -119,18 +125,18 @@ class EVPark(Component):
     ps_random: np.random.Generator = None
 
     def __init__(
-        self, 
-        name: str, 
+        self,
+        name: str,
         bus: Bus,
         num_ev_dist: StatDist,
         inj_p_max: float = 0.072,
         inj_q_max: float = 0.072,
         E_max: float = 0.70,
-        SOC_min: float = 0.2, 
-        SOC_max: float = 0.9, 
+        SOC_min: float = 0.2,
+        SOC_max: float = 0.9,
         n_battery: float = 0.95,
         v2g_flag: bool = True,
-    ): 
+    ):
 
         self.name = name
 
@@ -138,17 +144,19 @@ class EVPark(Component):
         bus.ev_park = self
 
         self.num_ev_dist = num_ev_dist
-        self.inj_p_max = inj_p_max # MW
-        self.inj_q_max = inj_q_max # MVar
-        self.E_max = E_max # MWh
+        self.inj_p_max = inj_p_max  # MW
+        self.inj_q_max = inj_q_max  # MVar
+        self.E_max = E_max  # MWh
         self.SOC_min = SOC_min
         self.SOC_max = SOC_max
         self.n_battery = n_battery
 
-        self.curr_demand = 0 # MW
-        # curr_charge < 0 => discharge
-        # curr_charge > 0 => charge
-        self.curr_charge = 0 # MW
+        self.curr_p_demand = 0  # MW
+        self.curr_q_demand = 0  # MVar
+        # curr_p_charge < 0 => discharge
+        # curr_p_charge > 0 => charge
+        self.curr_p_charge = 0  # MW
+        self.curr_q_charge = 0  # MVar
 
         self.v2g_flag = v2g_flag
 
@@ -183,7 +191,7 @@ class EVPark(Component):
 
     def draw_current_state(self, hour_of_day: int):
         """
-        Draws the number of EVs in the park at that time 
+        Draws the number of EVs in the park at that time
         and the SOC level of each EV which will make the SOC level of the EV park
 
         Parameters
@@ -214,9 +222,9 @@ class EVPark(Component):
                 ev_flag=True,
             )
             for i in range(self.num_cars)
-            ]
+        ]
         for i, car in enumerate(self.cars):
-            car.E_battery = soc_states[i]*self.E_max
+            car.E_battery = soc_states[i] * self.E_max
             car.update_SOC()
 
     def update(self, p, q, fail_duration: Time, dt: Time, hour_of_day: int):
@@ -245,7 +253,10 @@ class EVPark(Component):
         """
         if fail_duration == dt:
             self.draw_current_state(hour_of_day)
-        self.curr_demand = self.get_curr_demand(dt)
+        (
+            self.curr_p_demand,
+            self.curr_q_demand,
+        ) = self.get_curr_demand(dt)
         p_start = p
         q_start = q
         for car in self.cars:
@@ -256,11 +267,12 @@ class EVPark(Component):
                     p, q = car.update_bus_load_and_prod(p, q, dt)
         p_change = p_start - p
         q_change = q_start - q
-        pprod = max(0,p_change)
-        qprod = max(0,q_change)
-        pload = abs(min(0,p_change))
-        qload = abs(min(0,q_change))
-        self.curr_charge = pload - pprod
+        pprod = max(0, p_change)
+        qprod = max(0, q_change)
+        pload = abs(min(0, p_change))
+        qload = abs(min(0, q_change))
+        self.curr_p_charge = pload - pprod
+        self.curr_q_charge = qload - qprod
         return p, q
 
     def get_curr_demand(self, dt: Time):
@@ -271,20 +283,23 @@ class EVPark(Component):
         ----------
         dt : Time
             The current time step
-        
+
         Returns
         ----------
-        curr_demand : float
-            The current power demand of the EV
+        curr_p_demand : float
+            The current active power demand of the EV
+        curr_p_demand : float
+            The current reactive power demand of the EV
 
         """
-        curr_demand = 0
+        curr_p_demand = 0
+        curr_q_demand = 0
         for car in self.cars:
-            curr_demand += min(
+            curr_p_demand += min(
                 car.inj_p_max,
-                (car.E_max*car.SOC_max - car.E_battery)/dt.get_hours(),
+                (car.E_max * car.SOC_max - car.E_battery) / dt.get_hours(),
             )
-        return curr_demand
+        return curr_p_demand, curr_q_demand
 
     def get_SOC(self):
         """
@@ -293,7 +308,7 @@ class EVPark(Component):
         Parameters
         ----------
         None
-        
+
         Returns
         ----------
         mean_SOC: float
@@ -308,19 +323,19 @@ class EVPark(Component):
 
     def get_ev_index(self):
         """
-        Gives the power demand of an EV that is not met by the system 
+        Gives the power demand of an EV that is not met by the system
 
         Parameters
         ----------
         None
-        
+
         Returns
         ----------
         ev_index: float
             The power demand of an EV that is not met by the system
 
         """
-        ev_index = self.curr_demand - self.curr_charge
+        ev_index = self.curr_p_demand - self.curr_p_charge
         return ev_index
 
     def initialize_history(self):
@@ -335,7 +350,7 @@ class EVPark(Component):
         ----------
         None
         """
-        
+
         self.history["SOC"] = {}
         self.history["ev_index"] = {}
         self.history["demand"] = {}
@@ -344,7 +359,7 @@ class EVPark(Component):
         self.history["interruption_fraction"] = {}
         self.history["acc_interruptions"] = {}
         self.history["acc_interruption_duration"] = {}
-        
+
     def update_history(
         self, prev_time: Time, curr_time: Time, save_flag: bool
     ):
@@ -367,8 +382,8 @@ class EVPark(Component):
         dt = curr_time - prev_time if prev_time is not None else curr_time
         # Accumulate fraction of interupted customers
         self.interruption_fraction = (
-            abs(self.curr_charge / (self.inj_p_max * self.num_cars))
-            if self.curr_charge < 0
+            abs(self.curr_p_charge / (self.inj_p_max * self.num_cars))
+            if self.curr_p_charge < 0
             else 0
         )
 
@@ -382,22 +397,17 @@ class EVPark(Component):
                     self.curr_interruptions
                     / self.num_consecutive_interruptions
                 )
-                self.acc_interruption_duration += \
+                self.acc_interruption_duration += (
                     self.curr_interruption_duration
+                )
             self.curr_interruptions = 0
             self.curr_interruption_duration = Time(0)
             self.num_consecutive_interruptions = 0
         if save_flag:
             self.history["SOC"][curr_time] = self.get_SOC()
-            self.history["ev_index"][
-                curr_time
-            ] = self.get_ev_index()
-            self.history["demand"][
-                curr_time
-            ] = self.curr_demand
-            self.history["charge"][
-                curr_time
-            ] = self.curr_charge
+            self.history["ev_index"][curr_time] = self.get_ev_index()
+            self.history["demand"][curr_time] = self.curr_p_demand
+            self.history["charge"][curr_time] = self.curr_p_charge
             self.history["num_cars"][curr_time] = self.num_cars
             self.history["interruption_fraction"][
                 curr_time
@@ -496,8 +506,10 @@ class EVPark(Component):
         None
 
         """
-        self.curr_demand = 0
-        self.curr_charge = 0
+        self.curr_p_demand = 0
+        self.curr_q_demand = 0
+        self.curr_p_charge = 0
+        self.curr_q_charge = 0
         self.cars.clear()
         self.num_cars = 0
         ## Reliability attributes

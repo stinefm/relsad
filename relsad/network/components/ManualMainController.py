@@ -25,7 +25,7 @@ class ManualMainController(Component):
     name : string
         Name of the manual main controller
     sectioning_time : Time
-        The average sectioning time of the system 
+        The average sectioning time of the system
     power_system : PowerSystem
         The associated power system
     distribution_controllers : list
@@ -55,8 +55,9 @@ class ManualMainController(Component):
     reset_status(save_flag)
         Resets and sets the status of the class parameters
     initialize_history()
-        Initializes the history variables 
+        Initializes the history variables
     """
+
     def __init__(
         self,
         name: str,
@@ -93,7 +94,7 @@ class ManualMainController(Component):
 
         Parameters
         ----------
-        controller : Controller 
+        controller : Controller
             Distribution system controller
 
         Returns
@@ -110,7 +111,7 @@ class ManualMainController(Component):
 
         Parameters
         ----------
-        controller : Controller 
+        controller : Controller
             Microgrid controller
 
         Returns
@@ -127,7 +128,7 @@ class ManualMainController(Component):
 
         Parameters
         ----------
-        curr_time : Time 
+        curr_time : Time
             The current time
         dt : Time
             The current time step
@@ -255,6 +256,6 @@ class ManualMainController(Component):
         Returns
         ----------
         None
-        
+
         """
         pass
