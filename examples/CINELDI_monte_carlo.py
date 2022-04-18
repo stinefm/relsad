@@ -120,19 +120,19 @@ household = CostFunction(
 )
 
 B1.add_load_data(
-    cost_function=industry,
     pload_data=load_industry2,
+    cost_function=industry,
 )
 
 for bus in [B2, B3, B4]:
     bus.add_load_data(
-        cost_function=household,
         pload_data=load_house,
+        cost_function=household,
     )
 
 B5.add_load_data(
-    cost_function=household,
     pload_data=load_office,
+    cost_function=household,
 )
 
 prod_dict = dict()
@@ -140,12 +140,12 @@ prod_dict = dict()
 if include_microgrid:
     for bus in [M1, M2]:
         bus.add_load_data(
-            cost_function=household,
             pload_data=load_house,
+            cost_function=household,
         )
     M3.add_load_data(
-        cost_function=microgrid,
         pload_data=load_microgrid,
+        cost_function=microgrid,
     )
 
     if include_production:

@@ -3,6 +3,7 @@ from relsad.Time import (
     TimeUnit,
     TimeStamp,
 )
+from relsad.utils import eq
 
 
 def test_get_seconds():
@@ -16,8 +17,8 @@ def test_get_minutes():
     assert minutes == 60
 
 def test_get_hours():
-    seconds = Time(120, TimeUnit.SECOND)
-    hour = seconds.get_hour()
+    minutes = Time(120, TimeUnit.MINUTE)
+    hour = minutes.get_hours()
     assert hour == 2
 
 def test_get_days():
@@ -31,13 +32,13 @@ def test_get_weeks():
     assert week == 1
 
 def test_get_months():
-    hour = Time(672, TimeUnit.HOUR)
-    month = hour.get_month()
-    assert month == 1
+    hour = Time(729.9936, TimeUnit.HOUR)
+    month = hour.get_months()
+    assert eq(month, 1, tol=1e-6)
 
 def test_get_years():
-    week = Time(52, TimeUnit.WEEK)
+    week = Time(52.1424, TimeUnit.WEEK)
     year = week.get_years()
-    assert year == 1
+    assert eq(year, 1, tol=1e-6)
 
 

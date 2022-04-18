@@ -1,6 +1,6 @@
 from relsad.network.components import Bus, Line, DistributionController
 from .Network import Network
-from .Transmission import Transmission
+from .PowerSystem import PowerSystem
 from relsad.utils import unique
 
 
@@ -103,7 +103,7 @@ class Distribution(Network):
     counter = 0
 
     def __init__(
-        self, transmission_network: Transmission, connected_line: Line
+        self, parent_network: Network, connected_line: Line
     ):
         """Initializing distributed network type content
         Content:
@@ -133,9 +133,12 @@ class Distribution(Network):
         self.comp_dict = dict()
 
         # Network connections
-        self.parent_network = transmission_network
-        transmission_network.add_child_network(self)
-        self.power_system = transmission_network.parent_network
+        self.parent_network = parent_network
+        parent_network.add_child_network(self)
+        if isinstance(parent_network, PowerSystem):
+            self.power_system = parent_network
+        else:
+            self.power_system = parent_network.parent_network
         self.power_system.controller.add_distribution_controller(
             self.controller
         )
@@ -151,7 +154,8 @@ class Distribution(Network):
         self.acc_q_load_shed = 0
 
         self.connected_line = None
-        self.add_connected_line(connected_line)
+        if connected_line is not None:
+            self.add_connected_line(connected_line)
 
         # Sectioning
         self.sections = None

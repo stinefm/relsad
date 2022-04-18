@@ -10,7 +10,11 @@ from relsad.Time import (
     Time,
     TimeUnit,
 )
-from relsad.StatDist import StatDist
+from relsad.StatDist import (
+    StatDist,
+    StatDistType,
+    UniformParameters,
+)
 
 
 class Line(Component):
@@ -134,9 +138,15 @@ class Line(Component):
         name: str,
         fbus: Bus,
         tbus: Bus,
-        outage_time_dist: StatDist,
         r: float,  # Ohm
         x: float,  # Ohm
+        outage_time_dist: StatDist = StatDist(
+            stat_dist_type=StatDistType.UNIFORM_FLOAT,
+            parameters=UniformParameters(
+                min_val=0.5,
+                max_val=2,
+            ),
+        ),
         s_ref: float = 1,  # MVA
         v_ref: float = 12.66,  # kV
         rho: float = 1.72e-8,  # resistivity [Ohm*m]

@@ -448,10 +448,10 @@ class Battery(Component):
         self.bus.qprod_pu += qprod / self.bus.s_ref  # PU
 
         # Add load to bus
-        self.bus.pload += pload  # MW
-        self.bus.qload += qload  # MVar
-        self.bus.pload_pu += pload / self.bus.s_ref  # PU
-        self.bus.qload_pu += qload / self.bus.s_ref  # PU
+        self.bus.add_load(
+            pload=pload,
+            qload=qload,
+        )
 
         # Battery power injection
         self.p_inj = pload - pprod

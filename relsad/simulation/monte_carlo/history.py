@@ -10,10 +10,7 @@ from relsad.network.components import (
 from relsad.visualization.plotting import (
     plot_monte_carlo_history,
 )
-from relsad.results.storage import (
-    save_monte_carlo_history,
-    save_monte_carlo_history_from_dict,
-)
+from relsad.results.storage import save_monte_carlo_history_from_dict
 from relsad.simulation.sequence.history import (
     save_power_system_history,
     save_bus_history,

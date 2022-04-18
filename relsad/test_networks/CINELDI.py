@@ -50,6 +50,7 @@ def initialize_network(
     include_ev: bool = True,
     v2g_flag: bool = True,
     include_backup: bool = True,
+    microgrid_mode: MicrogridMode = MicrogridMode.SURVIVAL,
 ):
 
     # StatDist:
@@ -339,7 +340,7 @@ def initialize_network(
         DML2a = Disconnector("ML2a", ML2, M1)
         DML2b = Disconnector("ML2b", ML2, M3)
 
-        m = Microgrid(dn, L7, mode=MicrogridMode.SURVIVAL)
+        m = Microgrid(dn, L7, mode=microgrid_mode)
 
         m.add_buses([M1, M2, M3])
         m.add_lines([ML1, ML2])
@@ -499,8 +500,13 @@ def initialize_network(
 
 
 if __name__ == "__main__":
-    ps, _, _ = initialize_network()
-    fig = plot_topology(ps.buses, ps.lines)
+    ps = initialize_network()
+    fig = plot_topology(
+        buses=ps.buses,
+        lines=ps.lines,
+        bus_text=True,
+        line_text=True,
+    )
 
     fig.savefig(
         os.path.join(

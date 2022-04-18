@@ -120,8 +120,12 @@ class Bus(Component):
         Resets the load at the bus by setting the load to 0
     reset_prod()
         Resets the generation at the bus by setting the generation to 0
-    add_load_data(cost_function, pload_data, qload_data)
+    add_load_data(pload_data, qload_data, cost_function)
         Adds load data to the bus
+    prepare_load_data(time_indices)
+        Prepares the load data for the current time step configuration
+    add_load(pload, qload)
+        Adds load to the bus
     set_load_and_cost(inc_idx)
         Sets the bus load and cost in MW based on load and cost profiles in the current increment
     get_load()
@@ -321,21 +325,21 @@ class Bus(Component):
 
     def add_load_data(
         self,
-        cost_function: CostFunction,
         pload_data: np.ndarray,
         qload_data: np.ndarray = None,
+        cost_function: CostFunction = CostFunction(A=1, B=0),
     ):
         """
         Adds load data to the bus
 
         Parameters
         ----------
-        cost_function : CostFunction
-            Load cost function
         pload_data : np.ndarray
             Active power load array
         qload_data : np.ndarray
             Reactive power load array
+        cost_function : CostFunction
+            Load cost function
 
         Returns
         ----------
@@ -377,6 +381,33 @@ class Bus(Component):
                 time_indices=time_indices,
             )
 
+    def add_load(
+        self,
+        pload: float,
+        qload: float,
+    ):
+        """
+        Adds load to the bus
+
+        Parameters
+        ----------
+        pload : float
+            Active power
+        qload : float
+            Reactive power
+
+        Returns
+        ----------
+        None
+
+        """
+        # MW and MVar
+        self.pload += pload
+        self.qload += qload
+        # Per unit
+        self.pload_pu = self.pload / self.s_ref
+        self.qload_pu = self.qload / self.s_ref
+
     def set_load_and_cost(self, inc_idx: int):
         """
         Sets the bus load and cost in MW based on load and cost profiles
@@ -404,14 +435,14 @@ class Bus(Component):
                     type_cost,
                     cost_function.A + cost_function.B * 1,
                 )
-                self.pload += self.pload_data[i][inc_idx] * self.n_customers
-                self.qload += self.qload_data[i][inc_idx] * self.n_customers
+                self.add_load(
+                    pload = self.pload_data[i][inc_idx] * self.n_customers,
+                    qload = self.qload_data[i][inc_idx] * self.n_customers
+                )
         if type_cost > 0:
             self.set_cost(type_cost)
         else:
             self.set_cost(default_cost)
-        self.pload_pu = self.pload / self.s_ref
-        self.qload_pu = self.qload / self.s_ref
 
     def get_load(self):
         """
@@ -850,7 +881,6 @@ class Bus(Component):
         None
 
         """
-        # if self.battery is None:
         self.p_load_shed_stack += p_load * dt.get_hours()  # MWh
         self.q_load_shed_stack += q_load * dt.get_hours()  # MWh
 
