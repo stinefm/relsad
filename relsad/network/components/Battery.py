@@ -119,58 +119,6 @@ class Battery(Component):
         ev_flag: bool = False,
     ):
 
-        """
-        Constructs all the necessary attributes for the production object
-
-        Parameters
-        ----------
-        name : string
-            Name of the battery
-        mode : str
-            Microgrid mode
-        survival_time : Time
-            Total amount of hours the microgrid should survive on battery capacity
-        remaining_survival_time : Time
-            The time left for the battery to ensure energy for the microgrid load
-        standard_SOC_min : float
-            The minimum State of Charge for the battery which can change based on wanted battery capacity
-        bus : Bus
-            The bus the battery is connected to
-        inj_p_max : float
-            The maximum active power that the battery can inject [MW]
-        inj_q_max : float
-            The maximum reactive power that the battery can inject [MVar]
-        inj_max : float
-            The maximum apperent power that the battery can inject [MVa]
-        f_inj_p : float
-            Active power capacity fraction
-        f_inj_q : float
-            Reactivw power capacity fraction
-        E_max : float
-            The maximum capacity of the battery [MWh]
-        SOC_min : float
-            The minimal state of charge level in the battery
-        SOC_max : float
-            The maximum state of charge level in the battery
-        n_battery : float
-            The battery efficiency
-        p_inj : float
-            The injected active power in the battery [MW]
-        q_inj : float
-            The injected reactive power in the battery [MVar]
-        SOC : float
-            The state of charge of the battery
-        E_battery : float
-            The amount of energy stored in the battery [MWh]
-        ev_flag : bool
-            Boolean variable telling if the battery is an electric vehicle battery
-        lock : bool
-            Boolean variable that locks the battery if a basestation is failed, locks the functionality of the battery
-        history : dict
-            Dictonary attribute that stores the historic variables
-
-
-        """
 
         self.name = name
 
@@ -322,7 +270,8 @@ class Battery(Component):
 
         """
 
-        if self.remaining_survival_time > Time(0):
+        if self.remaining_survival_time > Time(0) and \
+            self.mode == MicrogridMode.SURVIVAL:
             self.remaining_survival_time -= dt
             self.SOC_min = min(
                 self.bus.parent_network.get_max_load()[0]

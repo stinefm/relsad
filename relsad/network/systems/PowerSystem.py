@@ -106,8 +106,6 @@ class PowerSystem(Network):
         Updates the failure status for each component that can fail in the power system
     get_system_load()
         Returns the system load at the current time in MW and MVar
-    get_max_load()
-        Get the maximum load of the power system for the entire load history in MW and MVar
     prepare_load_data(time_indices)
         Prepares the load data for the buses in the power system
     prepare_prod_data(time_indices)
@@ -566,39 +564,6 @@ class PowerSystem(Network):
             pload += p
             qload += q
         return pload, qload
-
-    def get_max_load(self):
-        """
-        Get the maximum load of the power system for the entire load history in MW and MVar
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        ----------
-        p_load_max : float
-            The maximum active power load of the power system for the entire load history
-
-        q_load_max : float
-            The maximum reactive power load of the power system for the entire load history
-
-        """
-        p_load_max, q_load_max = 0, 0
-        for bus in self.buses:
-            if bus.pload_data != list():
-                d_bus = bus  # Dummy bus used to find number of increments
-                n_increments = len(d_bus.pload_data[0])  # Number of increments
-                break
-        for increment in range(n_increments):
-            p_load, q_load = 0, 0
-            for bus in self.buses:
-                for i in range(len(bus.pload_data)):
-                    p_load += bus.pload_data[i][increment] * bus.n_customers
-                    q_load += bus.qload_data[i][increment] * bus.n_customers
-            p_load_max = max(p_load_max, p_load)
-            q_load_max = max(q_load_max, q_load)
-        return p_load_max, q_load_max
 
     def prepare_load_data(self, time_indices: np.ndarray):
         """

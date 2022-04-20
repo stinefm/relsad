@@ -83,12 +83,6 @@ class SubSystem:
     counter = 0
 
     def __init__(self):
-        """Initializing sub system content
-        Content:
-            buses(set): List of buses
-            lines(set): List of lines
-            comp_dict(dict): Dictionary of components
-        """
         # Info
         SubSystem.counter += 1
         self.name = "ps{:d}".format(SubSystem.counter)

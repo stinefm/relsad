@@ -186,13 +186,14 @@ def test_load_shed_isolated_hour():
         qload=0,
     )
     B5.add_load(
-        pload=0.07,
+        pload=0.02,
         qload=0,
     )
     B6.add_load(
         pload=0.05,
         qload=0,
     )
+
     B1.set_cost(1)
     B2.set_cost(1)
     B3.set_cost(1)
@@ -202,21 +203,24 @@ def test_load_shed_isolated_hour():
 
     B1.set_slack()
 
+    
+
     run_bfs_load_flow(ps, maxit=5)
 
+
     assert eq(B1.vomag, 1, tol=1e-6)
-    assert eq(B2.vomag, 0.999752, tol=1e-6)
-    assert eq(B3.vomag, 0.999555, tol=1e-6)
-    assert eq(B4.vomag, 0.999452, tol=1e-6)
-    assert eq(B5.vomag, 0.999380, tol=1e-6)
-    assert eq(B6.vomag, 0.999504, tol=1e-6)
+    assert eq(B2.vomag, 0.999804, tol=1e-6)
+    assert eq(B3.vomag, 0.999659, tol=1e-6)
+    assert eq(B4.vomag, 0.999607, tol=1e-6)
+    assert eq(B5.vomag, 0.999587, tol=1e-6)
+    assert eq(B6.vomag, 0.999607, tol=1e-6)
 
     assert eq(np.degrees(B1.voang), 0.0, tol=1e-6)
-    assert eq(np.degrees(B2.voang), -0.014209, tol=1e-6)
-    assert eq(np.degrees(B3.voang), -0.025463, tol=1e-6)
-    assert eq(np.degrees(B4.voang), -0.031388, tol=1e-6)
-    assert eq(np.degrees(B5.voang), -0.035536, tol=1e-6)
-    assert eq(np.degrees(B6.voang), -0.028425, tol=1e-6)
+    assert eq(np.degrees(B2.voang), -0.011248, tol=1e-6)
+    assert eq(np.degrees(B3.voang), -0.019539, tol=1e-6)
+    assert eq(np.degrees(B4.voang), -0.022501, tol=1e-6)
+    assert eq(np.degrees(B5.voang), -0.023686, tol=1e-6)
+    assert eq(np.degrees(B6.voang), -0.022501, tol=1e-6)
 
     shed_loads(
         power_system=ps,
@@ -232,7 +236,7 @@ def test_load_shed_isolated_hour():
     assert eq(B3.q_load_shed_stack, 0.0, tol=1e-6)
     assert eq(B4.p_load_shed_stack, 0.03, tol=1e-6)
     assert eq(B4.q_load_shed_stack, 0.0, tol=1e-6)
-    assert eq(B5.p_load_shed_stack, 0.07, tol=1e-6)
+    assert eq(B5.p_load_shed_stack, 0.02, tol=1e-6)
     assert eq(B5.q_load_shed_stack, 0.0, tol=1e-6)
     assert eq(B6.p_load_shed_stack, 0.05, tol=1e-6)
     assert eq(B6.q_load_shed_stack, 0.0, tol=1e-6)
@@ -266,7 +270,7 @@ def test_load_shed_isolated_half_hour():
         qload=0,
     )
     B5.add_load(
-        pload=0.07,
+        pload=0.02,
         qload=0,
     )
     B6.add_load(
@@ -285,19 +289,26 @@ def test_load_shed_isolated_half_hour():
 
     run_bfs_load_flow(ps, maxit=5)
 
+    print(B1.vomag)
+    print(B2.vomag)
+    print(B3.vomag)
+    print(B4.vomag)
+    print(B5.vomag)
+    print(B6.vomag)
+
     assert eq(B1.vomag, 1, tol=1e-6)
-    assert eq(B2.vomag, 0.999752, tol=1e-6)
-    assert eq(B3.vomag, 0.999555, tol=1e-6)
-    assert eq(B4.vomag, 0.999452, tol=1e-6)
-    assert eq(B5.vomag, 0.999380, tol=1e-6)
-    assert eq(B6.vomag, 0.999504, tol=1e-6)
+    assert eq(B2.vomag, 0.999804, tol=1e-6)
+    assert eq(B3.vomag, 0.999659, tol=1e-6)
+    assert eq(B4.vomag, 0.999607, tol=1e-6)
+    assert eq(B5.vomag, 0.999587, tol=1e-6)
+    assert eq(B6.vomag, 0.999607, tol=1e-6)
 
     assert eq(np.degrees(B1.voang), 0.0, tol=1e-6)
-    assert eq(np.degrees(B2.voang), -0.014209, tol=1e-6)
-    assert eq(np.degrees(B3.voang), -0.025463, tol=1e-6)
-    assert eq(np.degrees(B4.voang), -0.031388, tol=1e-6)
-    assert eq(np.degrees(B5.voang), -0.035536, tol=1e-6)
-    assert eq(np.degrees(B6.voang), -0.028425, tol=1e-6)
+    assert eq(np.degrees(B2.voang), -0.011248, tol=1e-6)
+    assert eq(np.degrees(B3.voang), -0.019539, tol=1e-6)
+    assert eq(np.degrees(B4.voang), -0.022501, tol=1e-6)
+    assert eq(np.degrees(B5.voang), -0.023686, tol=1e-6)
+    assert eq(np.degrees(B6.voang), -0.022501, tol=1e-6)
 
     shed_loads(
         power_system=ps,
@@ -313,7 +324,101 @@ def test_load_shed_isolated_half_hour():
     assert eq(B3.q_load_shed_stack, 0.0, tol=1e-6)
     assert eq(B4.p_load_shed_stack, 0.015, tol=1e-6)
     assert eq(B4.q_load_shed_stack, 0.0, tol=1e-6)
-    assert eq(B5.p_load_shed_stack, 0.035, tol=1e-6)
+    assert eq(B5.p_load_shed_stack, 0.01, tol=1e-6)
     assert eq(B5.q_load_shed_stack, 0.0, tol=1e-6)
     assert eq(B6.p_load_shed_stack, 0.025, tol=1e-6)
     assert eq(B6.q_load_shed_stack, 0.0, tol=1e-6)
+
+
+def test_load_shed_isolated_production_low():
+    pass
+    # ps = initialize_network(
+    #     island_mode=True,
+    # )
+
+    # B1 = ps.get_comp("B1")
+    # B2 = ps.get_comp("B2")
+    # B3 = ps.get_comp("B3")
+    # B4 = ps.get_comp("B4")
+    # B5 = ps.get_comp("B5")
+    # B6 = ps.get_comp("B6")
+
+    # B1.add_load(
+    #     pload=0,
+    #     qload=0,
+    # )
+    # B2.add_load(
+    #     pload=0.05,
+    #     qload=0,
+    # )
+    # B3.add_load(
+    #     pload=0.04,
+    #     qload=0,
+    # )
+    # B4.add_load(
+    #     pload=0.03,
+    #     qload=0,
+    # )
+    # B5.add_load(
+    #     pload=0.02,
+    #     qload=0,
+    # )
+    # B6.add_load(
+    #     pload=0.05,
+    #     qload=0,
+    # )
+
+    # P1 = Production(name="P1", bus=B4)
+    # P1.add_prod_data(
+    #     pprod_data = [0.08]
+    # )
+    
+    # B1.set_cost(1)
+    # B2.set_cost(1)
+    # B3.set_cost(1)
+    # B4.set_cost(1)
+    # B5.set_cost(1)
+    # B6.set_cost(1)
+
+    # B1.set_slack()
+
+    # run_bfs_load_flow(ps, maxit=5)
+
+    # assert eq(B1.vomag, 1, tol=1e-6)
+    # assert eq(B2.vomag, 0.999886, tol=1e-6)
+    # assert eq(B3.vomag, 0.999824, tol=1e-6)
+    # assert eq(B4.vomag, 0.999855, tol=1e-6)
+    # assert eq(B5.vomag, 0.999835, tol=1e-6)
+    # assert eq(B6.vomag, 0.999773, tol=1e-6)
+
+    # assert eq(np.degrees(B1.voang), 0.0, tol=1e-6)
+    # assert eq(np.degrees(B2.voang), -0.006512, tol=1e-6)
+    # assert eq(np.degrees(B3.voang), -0.010064, tol=1e-6)
+    # assert eq(np.degrees(B4.voang), -0.008288, tol=1e-6)
+    # assert eq(np.degrees(B5.voang), -0.009472, tol=1e-6)
+    # assert eq(np.degrees(B6.voang), -0.013025, tol=1e-6)
+
+    # shed_loads(
+    #     power_system=ps,
+    #     dt=Time(1, TimeUnit.HOUR),
+    #     alpha=1e-7,
+    # )
+
+    # print(B2.p_load_shed_stack)
+    # print(B3.p_load_shed_stack)
+    # print(B4.p_load_shed_stack)
+    # print(B5.p_load_shed_stack)
+    # print(B6.p_load_shed_stack)
+
+    # assert eq(B1.p_load_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B1.q_load_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B2.p_load_shed_stack, 0.5, tol=1e-6)
+    # assert eq(B2.q_load_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B3.p_load_shed_stack, 0.04, tol=1e-6)
+    # assert eq(B3.q_load_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B4.p_load_shed_stack, 0.03, tol=1e-6)
+    # assert eq(B4.q_load_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B5.p_load_shed_stack, 0.02, tol=1e-6)
+    # assert eq(B5.q_load_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B6.p_load_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B6.q_load_shed_stack, 0.0, tol=1e-6)

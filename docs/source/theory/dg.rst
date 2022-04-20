@@ -6,7 +6,7 @@ Load and production generation
 Load profile generator
 .....................................
 
-The load profiles used in relsad is generated based on specifications from *FASIT Kravspesifikasjon* (requirements specification) CITE. The load profiles are given for different load customer categories, time of day, low and high load, and if it is a weekday or weekend. The dataset used in the profile can be seen in HENVISE TIL DATA... 
+The load profiles used in relsad is generated based on specifications from *FASIT Kravspesifikasjon* (requirements specification) :cite:`FASIT`. The load profiles are given for different load customer categories, time of day, low and high load, and if it is a weekday or weekend. The dataset used in the profile can be seen in HENVISE TIL DATA... 
 
 The load profiles are calculated as
 
@@ -51,7 +51,7 @@ where :math:`v_{0}` is the wind speed from the weather station at height :math:`
 Solar power generator
 .....................................
 
-Solar power data can be generated based on the fill factor power model (CITE). The fill factor approach uses the relationship between the irradiance and the cell temperature with the open circuit voltage, :math:`V_{oc}`, and short circuit current, :math:`I_{sc}`, to calculate the maximum power output of a solar module. 
+Solar power data can be generated based on the fill factor power model :cite:`jones2002modelling`. The fill factor approach uses the relationship between the irradiance and the cell temperature with the open circuit voltage, :math:`V_{oc}`, and short circuit current, :math:`I_{sc}`, to calculate the maximum power output of a solar module. 
 The maximum power output of a solar module is 
 
 .. math::
@@ -104,3 +104,7 @@ The AC output power from a PV array with an inverter efficiency :math:`\eta_{inv
     P_{out, AC} = P_{out}N_{m}\eta_{inv}
 
 where :math:`N_{m}` is the number of modules in the array. 
+
+
+.. bibliography::
+    :style: plain

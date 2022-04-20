@@ -4,7 +4,10 @@ from relsad.network.systems import (
     Transmission,
 )
 from relsad.network.containers import SectionState
-from relsad.network.components import MicrogridMode
+from relsad.network.components import (
+    Bus,
+    MicrogridMode,
+)
 from relsad.utils import (
     unique,
     subtract,
@@ -22,7 +25,7 @@ def find_sub_systems(p_s: PowerSystem, curr_time: Time):
     Parameters
     ----------
     p_s : PowerSystem
-        A PowerSystem element
+        A PowerSystem object
     curr_time : Time
         Current time
 
@@ -39,90 +42,6 @@ def find_sub_systems(p_s: PowerSystem, curr_time: Time):
     used_lines = list()
     sub_system = SubSystem()
 
-    def try_to_add_connected_lines(bus, sub_system, used_buses, used_lines):
-        """
-        Add lines to the sub system
-
-        Parameters
-        ----------
-        bus : Bus
-            A Bus element
-        sub_system : SubSystem
-            A SubSystem element
-        used_buses : list
-            List of used Bus elements
-        used_lines : list
-            List of used Line elements
-
-        Returns
-        ----------
-        sub_system : SubSystem
-            A SubSystem element
-        used_buses : list
-            List of used Bus elements
-        used_lines : list
-            List of used Line elements
-
-        """
-        for line in subtract(bus.connected_lines, used_lines):
-            if line.connected:
-                sub_system.add_line(line)
-                used_lines.append(line)
-                used_lines = unique(used_lines)
-                if line.tbus == bus:
-                    sub_system, used_buses = add_bus(
-                        line.fbus, sub_system, used_buses
-                    )
-                    (
-                        sub_system,
-                        used_buses,
-                        used_lines,
-                    ) = try_to_add_connected_lines(
-                        line.fbus, sub_system, used_buses, used_lines
-                    )
-                else:
-                    sub_system, used_buses = add_bus(
-                        line.tbus, sub_system, used_buses
-                    )
-                    (
-                        sub_system,
-                        used_buses,
-                        used_lines,
-                    ) = try_to_add_connected_lines(
-                        line.tbus, sub_system, used_buses, used_lines
-                    )
-        return sub_system, used_buses, used_lines
-
-    def add_bus(bus, sub_system, used_buses):
-        """
-        Add buses to the sub system
-
-        Parameters
-        ----------
-        bus : Bus
-            A Bus element
-        sub_system : SubSystem
-            A SubSystem element
-        used_buses : list
-            List of used Bus elements
-
-        Returns
-        ----------
-        sub_system : SubSystem
-            A SubSystem element
-        used_buses : list
-            List of used Bus elements
-
-        """
-        if bus not in unique(used_buses + sub_system.buses):
-            sub_system.add_bus(bus)
-            used_buses.append(bus)
-            used_buses = unique(used_buses)
-            for child_network in p_s.child_network_list:
-                if bus in child_network.buses:
-                    sub_system.add_child_network(child_network)
-        return sub_system, used_buses
-
     while not (len(used_buses) + len(used_lines)) == (
         len(p_s.buses) + len(active_lines)
     ):
@@ -130,14 +49,21 @@ def find_sub_systems(p_s: PowerSystem, curr_time: Time):
             if bus not in unique(used_buses + sub_system.buses):
                 if (len(sub_system.buses) + len(sub_system.lines)) == 0:
                     sub_system, used_buses = add_bus(
-                        bus, sub_system, used_buses
+                        p_s,
+                        bus,
+                        sub_system,
+                        used_buses,
                     )
                     (
                         sub_system,
                         used_buses,
                         used_lines,
                     ) = try_to_add_connected_lines(
-                        bus, sub_system, used_buses, used_lines
+                        p_s,
+                        bus,
+                        sub_system,
+                        used_buses,
+                        used_lines,
                     )
                     p_s.sub_systems.append(sub_system)
                     p_s.sub_systems = unique(p_s.sub_systems)
@@ -149,6 +75,119 @@ def find_sub_systems(p_s: PowerSystem, curr_time: Time):
 
     if len(p_s.sub_systems) > 1:
         update_backup_lines_between_sub_systems(p_s, curr_time)
+
+def try_to_add_connected_lines(
+    p_s: PowerSystem,
+    bus: Bus,
+    sub_system: SubSystem,
+    used_buses: list,
+    used_lines: list,
+):
+    """
+    Add lines to the sub system
+
+    Parameters
+    ----------
+    p_s : PowerSystem
+        A PowerSystem object
+    bus : Bus
+        A Bus object
+    sub_system : SubSystem
+        A SubSystem object
+    used_buses : list
+        List of used Bus elements
+    used_lines : list
+        List of used Line elements
+
+    Returns
+    ----------
+    sub_system : SubSystem
+        A SubSystem object
+    used_buses : list
+        List of used Bus elements
+    used_lines : list
+        List of used Line elements
+
+    """
+    for line in subtract(bus.connected_lines, used_lines):
+        if line.connected:
+            sub_system.add_line(line)
+            used_lines.append(line)
+            used_lines = unique(used_lines)
+            if line.tbus == bus:
+                sub_system, used_buses = add_bus(
+                    p_s,
+                    line.fbus,
+                    sub_system,
+                    used_buses,
+                )
+                (
+                    sub_system,
+                    used_buses,
+                    used_lines,
+                ) = try_to_add_connected_lines(
+                    p_s,
+                    line.fbus,
+                    sub_system,
+                    used_buses,
+                    used_lines,
+                )
+            else:
+                sub_system, used_buses = add_bus(
+                    p_s,
+                    line.tbus,
+                    sub_system,
+                    used_buses,
+                )
+                (
+                    sub_system,
+                    used_buses,
+                    used_lines,
+                ) = try_to_add_connected_lines(
+                    p_s,
+                    line.tbus,
+                    sub_system,
+                    used_buses,
+                    used_lines,
+                )
+    return sub_system, used_buses, used_lines
+
+def add_bus(
+    p_s: PowerSystem,
+    bus: Bus,
+    sub_system: SubSystem,
+    used_buses: list,
+):
+    """
+    Add buses to the sub system
+
+    Parameters
+    ----------
+    p_s : PowerSystem
+        A PowerSystem object
+    bus : Bus
+        A Bus object
+    sub_system : SubSystem
+        A SubSystem object
+    used_buses : list
+        List of used Bus elements
+
+    Returns
+    ----------
+    sub_system : SubSystem
+        A SubSystem object
+    used_buses : list
+        List of used Bus elements
+
+    """
+    if bus not in unique(used_buses + sub_system.buses):
+        sub_system.add_bus(bus)
+        used_buses.append(bus)
+        used_buses = unique(used_buses)
+        for child_network in p_s.child_network_list:
+            if bus in child_network.buses:
+                sub_system.add_child_network(child_network)
+    return sub_system, used_buses
 
 
 def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time: Time):

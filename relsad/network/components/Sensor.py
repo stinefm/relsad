@@ -84,10 +84,6 @@ class Sensor(Component):
         Resets the status of the sensor
     initialize_history()
         Initializes the history variables
-
-
-
-
     """
 
     ## Visual attributes

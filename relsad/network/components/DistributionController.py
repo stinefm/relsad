@@ -58,7 +58,7 @@ class DistributionController(Component, Controller):
         Methods
         ----------
         check_circuitbreaker(curr_time, dt)
-            Checks if the circuitbreakers in the distribution system are open.
+            Checks if the circuitbreaker in the distribution system is open.
             If sectioning time is finished, disconnect failed sections and close the
             circuitbreaker.
         disconnect_failed_sections()
@@ -71,12 +71,12 @@ class DistributionController(Component, Controller):
         run_control_loop(curr_time, dt)
             System control check, determines if components have failed and performes the required action
         check_lines_manually(curr_time)
-        Loops through the sections connected to the controller determining
-        which lines have failed manually. Performs actions according
-        to the line status in the respective section.
-        If a section was disconnected and no longer includes any failed lines, it is connected.
-        If a section was connected and now includes a failed line, it is disconnected.
-        The total sectioning time is summed from each section.
+            Loops through the sections connected to the controller determining
+            which lines have failed manually. Performs actions according
+            to the line status in the respective section.
+            If a section was disconnected and no longer includes any failed lines, it is connected.
+            If a section was connected and now includes a failed line, it is disconnected.
+            The total sectioning time is summed from each section.
         run_manual_control_loop(curr_time, dt)
             Manual system control check, determines if components have failed and performes the required action.
         set_sectioning_time(sectioning_time)
@@ -97,10 +97,6 @@ class DistributionController(Component, Controller):
             Resets and sets the status of the class parameters
         initialize_history()
             Initializes the history variables
-
-
-
-
     """
 
     def __init__(
@@ -152,7 +148,7 @@ class DistributionController(Component, Controller):
 
     def check_circuitbreaker(self, curr_time: Time, dt: Time):
         """
-        Checks if the circuitbreakers in the distribution system are open.
+        Checks if the circuitbreaker in the distribution system is open.
         If sectioning time is finished, disconnect failed sections and close the
         circuitbreaker.
 

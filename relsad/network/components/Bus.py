@@ -160,7 +160,7 @@ class Bus(Component):
         Resets the load shed stack for the bus
     add_random_instance(random_gen)
         Adds global random seed
-    get_avg_fail_rate()
+    get_avg_fail_rate(curr_time)
         Returns the average failure rate of the transformer at the bus
     reset_status(save_falg)
         Resets and sets the status of the class parameters
@@ -652,7 +652,7 @@ class Bus(Component):
         self.avg_outage_time = Time(
             self.acc_outage_time / curr_time, curr_time.unit
         )
-        self.avg_fail_rate = self.get_avg_fail_rate()
+        self.avg_fail_rate = self.get_avg_fail_rate(curr_time)
         # Accumulate fraction of interupted customers
         self.interruption_fraction = (
             self.p_load_shed_stack / (self.pload * dt.get_hours())
@@ -693,7 +693,7 @@ class Bus(Component):
             self.history["vomag"][curr_time] = self.vomag
             self.history["avg_fail_rate"][
                 curr_time
-            ] = self.get_avg_fail_rate()  # Average failure rate (lamda_s)
+            ] = self.avg_fail_rate  # Average failure rate (lamda_s)
             self.history["avg_outage_time"][
                 curr_time
             ] = self.avg_outage_time.get_unit_quantity(
@@ -813,7 +813,7 @@ class Bus(Component):
         """
         self.ps_random = random_gen
 
-    def get_avg_fail_rate(self):
+    def get_avg_fail_rate(self, curr_time: Time):
         """
         Returns the average failure rate of the transformer at the bus
 
@@ -827,10 +827,11 @@ class Bus(Component):
             The average failure rate of the transformer at the bus
 
         """
-        avg_fail_rate = self.fail_rate_per_year
+        fail_rate = self.fail_rate_per_year
         if self.parent_network is not None:
             for line in self.parent_network.get_lines():
-                avg_fail_rate += line.fail_rate_per_year
+                fail_rate += line.fail_rate_per_year
+        avg_fail_rate = fail_rate / curr_time.get_years()
         return avg_fail_rate
 
     def reset_status(self, save_flag: bool):

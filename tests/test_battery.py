@@ -115,3 +115,30 @@ def test_charge_overload():
 
     assert prem == 1, 0
     assert b.E_battery == 1 + 2 * 0.97
+
+def test_update_bus_load_prod():
+    pass
+
+def test_update_fail_status_failed():
+    B1 = Bus("B1")
+    dt = Time(1, TimeUnit.HOUR)
+    B1.trafo_fail(dt)
+
+    b = Battery("b", B1, 1, 1, 5, 0.2, 1, 0.97)
+
+    b.update_fail_status(dt)
+
+    assert b.lock == True
+
+def test_update_fail_status_not_failed(): 
+    B1 = Bus("B1")
+    dt = Time(1, TimeUnit.HOUR)
+    B1.trafo_not_fail()
+
+    b = Battery("b", B1, 1, 1, 5, 0.2, 1, 0.97)
+
+    b.update_fail_status(dt)
+
+    assert b.lock == False
+
+

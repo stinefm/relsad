@@ -38,6 +38,10 @@ class Production(Component):
     ----------
     add_prod_data(pprod_data, qprod_data)
         Adds production data to the production component
+    prepare_prod_data(time_indices)
+        Prepares the production data for the current time step configuration
+    add_prod(pprod, qprod)
+        Adds production to the bus
     set_prod(curr_time)
         Decides how much active and reactive power that will be produced
     update_bus_prod()
@@ -65,27 +69,14 @@ class Production(Component):
     ps_random: np.random.Generator = None
 
     def __init__(
-        self, name: str, bus: Bus, pmax: float = 10, qmax: float = 10
+        self,
+        name: str,
+        bus: Bus,
+        pmax: float = 10,
+        qmax: float = 10,
     ):
 
-        """
-        Constructs all the necessary attributes for the production object
-
-        Parameters
-        ----------
-            name : string
-                Name of the production unit
-            bus : Bus
-                The bus the production unit is connected to
-            pprod : float
-                The active power produced by the production unit [MW]
-            qprod : float
-                The reactive power produced by the production unit [MVar]
-            pmax : float
-                The maximum active power that can be produced by the production unit [MW]
-            qmax : float
-                The maximum reactive power that can be produced by the production unit [MVar]
-        """
+        
         self.name = name
         self.bus = bus
         bus.prod = self
@@ -166,6 +157,30 @@ class Production(Component):
             time_indices=time_indices,
         )
 
+    def add_prod(
+        self,
+        pprod: float,
+        qprod: float,
+    ):
+        """
+        Adds production to the bus
+
+        Parameters
+        ----------
+        pprod : float
+            Active power
+        qprod : float
+            Reactive power
+
+        Returns
+        ----------
+        None
+
+        """
+        # MW and MVar
+        self.pprod += pprod
+        self.qprod += qprod
+
     def set_prod(self, inc_idx: int):
         """
         Decides how much active and reactive power that will be produced
@@ -183,13 +198,10 @@ class Production(Component):
         pprod = self.pprod_data[inc_idx]
         qprod = self.qprod_data[inc_idx]
         if pprod > self.pmax:
-            self.pprod = self.pmax
-        else:
-            self.pprod = pprod
+            pprod = self.pmax
         if qprod > self.qmax:
-            self.qprod = self.qmax
-        else:
-            self.qprod = qprod
+            qprod = self.qmax
+        self.add_prod(pprod, qprod)
         self.update_bus_prod()
 
     def update_bus_prod(self):

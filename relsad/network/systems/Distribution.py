@@ -105,13 +105,6 @@ class Distribution(Network):
     def __init__(
         self, parent_network: Network, connected_line: Line
     ):
-        """Initializing distributed network type content
-        Content:
-            buses(set): List of buses
-            lines(set): List of lines
-            comp_dict(dict): Dictionary of components
-            connected_line(Line): Line connected to distrubution network
-        """
         Distribution.counter += 1
         self.name = "dist_network{:d}".format(Distribution.counter)
 
