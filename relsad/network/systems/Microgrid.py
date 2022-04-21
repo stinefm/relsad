@@ -27,7 +27,7 @@ class Microgrid(Network):
         List containing the EV parks in the microgrid
     batteries : list
         List containing the batteries in the microgrid
-    porductions : list
+    productions : list
         List containing the generation units in the microgrid
     lines : list
         List with the lines in the microgrid
@@ -113,15 +113,6 @@ class Microgrid(Network):
         connected_line: Line,
         mode: MicrogridMode = MicrogridMode.SURVIVAL,
     ):
-        """Initializing microgrid network type content
-        Content:
-            mode(MicrogridMode): Microgrid mode, 1) survival, 2) full support, 3) limited support
-
-            buses(list): List of buses
-            lines(list): List of lines
-            comp_dict(dict): Dictionary of components
-            connected_line(Line): Line connected to distrubution network
-        """
         Microgrid.counter += 1
         self.name = "microgrid{:d}".format(Microgrid.counter)
         self.mode = mode

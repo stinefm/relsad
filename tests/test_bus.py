@@ -1,5 +1,7 @@
 from relsad.network.components import Bus, Battery, Production
 from relsad.utils import eq
+from relsad.load.bus import CostFunction
+import numpy as np
 from relsad.Time import (
     Time,
     TimeUnit,
@@ -12,6 +14,56 @@ def test_add_load():
 
     assert B1.pload == 0.05
     assert B1.qload == 0.005
+
+def test_perpare_load_data():
+    B1 = Bus("B1")
+    pload_data = np.array(
+        [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+        ]
+    )
+
+    qload_data = np.array(
+        [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+        ]
+    )
+
+    B1.add_load_data(pload_data=pload_data, qload_data=qload_data)
+    time_indices = np.linspace(0, 10, 100)
+    B1.prepare_load_data(time_indices=time_indices)
+
+    assert len(B1.pload_data[0]) == 100
+    assert len(B1.qload_data[0]) == 100
+
+
+def test_set_load_and_cost():
+    B1 = Bus("B1")
+    pload_data = np.array([1, 2, 3, 4, 5, 6])
+    qload_data = np.array([1, 2, 3, 4, 5, 6])
+
+    cost_function = CostFunction(1, 0)
+    increment = [0, 1, 2, 3, 4, 5]
+
+    B1.add_load_data(pload_data=pload_data, qload_data=qload_data, cost_function=cost_function)
+    for i in range(len(increment)):
+        B1.set_load_and_cost(increment[i])
+    
+        assert B1.cost == 1
+        assert B1.pload == B1.pload_data[0][increment[i]] 
+        assert B1.qload == B1.qload_data[0][increment[i]] 
+ 
+ 
 
 def test_trafo_fail():
     B1 = Bus("B1")
