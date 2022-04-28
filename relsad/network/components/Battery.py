@@ -96,6 +96,8 @@ class Battery(Component):
     start_survival_time()
         Starts the timer for how long the battery should focus on supporting own load
         Only for when a microgrid is added and follows a survival mode
+    set_SOC_state()
+        Sets the SOC state
     draw_SOC_state()
         Draws the SOC state based on a uniform distribution
     update(p, q, fail_duration, dt)
@@ -558,6 +560,25 @@ class Battery(Component):
 
         """
         self.remaining_survival_time = self.survival_time
+
+    def set_SOC_state(self, SOC_state: float):
+        """
+        Sets the SOC state
+
+        Parameters
+        ----------
+        SOC_state : float
+            SOC value, between SOC_min and SOC_max
+
+        Returns
+        ----------
+        None
+
+        """
+        if SOC_state < self.SOC_min or SOC_state > self.SOC_max:
+            raise Exception("Not a valid SOC state")
+        self.E_battery = SOC_state * self.E_max
+        self.update_SOC()
 
     def draw_SOC_state(self):
         """

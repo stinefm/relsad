@@ -61,7 +61,7 @@ def create_downstream_sections(
     curr_line: Line, parent_section: Section = None
 ):
     """
-
+    Creates sections downstream from the current line
 
     Parameters
     ----------
@@ -73,10 +73,10 @@ def create_downstream_sections(
     Returns
     ----------
     parent_section : Section
-        The parent section
+        The updated parent section
 
     """
-    if not parent_section:
+    if parent_section is None:
         lines = unique(
             itertools.chain.from_iterable(get_line_paths(curr_line))
         )
@@ -122,7 +122,7 @@ def create_downstream_sections(
 
 def create_internal_sections(parent_section):
     """
-
+    Creates internal sections within the parent section
 
     Parameters
     ----------
@@ -207,20 +207,21 @@ def get_section_list(parent_section, section_list=[]):
 
 def create_sections(connected_line):
     """
-
+    Create layered network sections starting downstream from the network connected line.
+    The sections are separated by disconnectors.
 
     Parameters
     ----------
     connected_line : Line
-        The parent section
+        The line connecting the network to the parent network
 
     Returns
     ----------
     parent_section : Section
-        The parent section
+        The parent section of the network
 
     """
-    parent_section = create_downstream_sections(connected_line, [])
+    parent_section = create_downstream_sections(connected_line, None)
     parent_section = create_internal_sections(parent_section)
     parent_section.attach_to_lines()
     return parent_section

@@ -112,7 +112,7 @@ def random_choice(random_instance: np.random.Generator, p_true: float):
 
 def interpolate(array: np.ndarray, time_indices: np.ndarray):
     """
-    Returns random choice based on uniform probability distribution
+    Returns the array interpolated to match the time indices
 
     arameters
     ----------
@@ -123,7 +123,8 @@ def interpolate(array: np.ndarray, time_indices: np.ndarray):
     ----------
     None
     """
-    return np.interp(time_indices, np.arange(array.size), array)
+    x = np.linspace(0, array.size - 1, time_indices.size)
+    return np.interp(x, np.arange(array.size), array)
 
 
 def convert_yearly_fail_rate(fail_rate_per_year: float, dt: Time):

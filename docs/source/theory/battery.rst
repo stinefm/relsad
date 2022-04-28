@@ -25,7 +25,7 @@ The energy in the battery is decided based on the amount of power charged or dis
 .. math::
     :label: eq:E_bat_discharge
 
-    \text{E}_{bat, discharge} = E_{bat}+\frac{P_{discharge}}{\eta_{discharge}} 
+    \text{E}_{bat, discharge} = E_{bat}-\frac{P_{discharge}}{\eta_{discharge}} 
 
 here, :math:`\eta_{charge}` and :math:`\eta_{discharge}` are the charging and discharging efficiency, respectively, and :math:`\text{P}_{charge}` and :math:`\text{P}_{discharge}` are the amount of power charged and discharged, respectively. 
 

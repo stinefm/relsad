@@ -195,6 +195,7 @@ class Production(Component):
         None
 
         """
+        self.reset_prod()
         pprod = self.pprod_data[inc_idx]
         qprod = self.qprod_data[inc_idx]
         if pprod > self.pmax:

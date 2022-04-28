@@ -15,7 +15,7 @@ def test_add_load():
     assert B1.pload == 0.05
     assert B1.qload == 0.005
 
-def test_perpare_load_data():
+def test_perpare_load_data_equal_pq():
     B1 = Bus("B1")
     pload_data = np.array(
         [
@@ -39,13 +39,110 @@ def test_perpare_load_data():
         ]
     )
 
-    B1.add_load_data(pload_data=pload_data, qload_data=qload_data)
+    B1.add_load_data(
+        pload_data=pload_data, qload_data=qload_data,
+    )
     time_indices = np.linspace(0, 10, 100)
     B1.prepare_load_data(time_indices=time_indices)
 
     assert len(B1.pload_data[0]) == 100
+    assert B1.pload_data[0][0] == 1
+    assert B1.pload_data[0][-1] == 6
     assert len(B1.qload_data[0]) == 100
+    assert B1.qload_data[0][0] == 1
+    assert B1.qload_data[0][-1] == 6
 
+def test_perpare_load_data_different_pq():
+    B1 = Bus("B1")
+    pload_data = np.array(
+        [
+            2,
+            3,
+            4,
+            5,
+            6,
+        ]
+    )
+
+    qload_data = np.array(
+        [
+            1,
+            2,
+            8,
+        ]
+    )
+
+    B1.add_load_data(
+        pload_data=pload_data, qload_data=qload_data,
+    )
+    time_indices = np.linspace(0, 10, 100)
+    B1.prepare_load_data(time_indices=time_indices)
+
+    assert len(B1.pload_data[0]) == 100
+    assert B1.pload_data[0][0] == 2
+    assert B1.pload_data[0][-1] == 6
+    assert len(B1.qload_data[0]) == 100
+    assert B1.qload_data[0][0] == 1
+    assert B1.qload_data[0][-1] == 8
+
+def test_perpare_load_data_active_load():
+    B1 = Bus("B1")
+    pload_data = np.array(
+        [
+            2,
+            3,
+            4,
+            5,
+            6,
+        ]
+    )
+
+
+    B1.add_load_data(
+        pload_data=pload_data,
+    )
+    time_indices = np.linspace(0, 10, 100)
+    B1.prepare_load_data(time_indices=time_indices)
+
+    assert len(B1.pload_data[0]) == 100
+    assert B1.pload_data[0][0] == 2
+    assert B1.pload_data[0][-1] == 6
+    assert len(B1.qload_data[0]) == 100
+    assert B1.qload_data[0][0] == 0
+    assert B1.qload_data[0][-1] == 0
+
+def test_perpare_load_data_reactive_load():
+    B1 = Bus("B1")
+    pload_data = np.array(
+        [
+            0
+        ]
+    )
+
+    qload_data = np.array(
+        [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+        ]
+    )
+
+
+    B1.add_load_data(
+        pload_data=pload_data, qload_data=qload_data
+    )
+    time_indices = np.linspace(0, 10, 100)
+    B1.prepare_load_data(time_indices=time_indices)
+
+    assert len(B1.pload_data[0]) == 100
+    assert B1.pload_data[0][0] == 0
+    assert B1.pload_data[0][-1] == 0
+    assert len(B1.qload_data[0]) == 100
+    assert B1.qload_data[0][0] == 1
+    assert B1.qload_data[0][-1] == 6
 
 def test_set_load_and_cost():
     B1 = Bus("B1")
