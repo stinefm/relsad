@@ -19,7 +19,7 @@ from relsad.simulation.monte_carlo.history import initialize_history
 
 def find_sub_systems(p_s: PowerSystem, curr_time: Time):
     """
-    Function that find the independent sub systems of the given power system
+    Function that finds the independent sub systems of the given power system
     and adds them to the sub_systems list of the power system
 
     Parameters

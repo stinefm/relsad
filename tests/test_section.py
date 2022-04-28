@@ -38,15 +38,9 @@ def initialize_network(include_ICT: bool = False):
     B5 = Bus(name="B5", n_customers=1, coordinate=[-1,-4])
     B6 = Bus(name="B6", n_customers=1, coordinate=[1,-3])
 
-    length = 1
+
     r = 0.5
     x = 0.5
-    rho = 1.72e-8
-    s_ref = 1
-    v_ref = 22.0
-    capacity = 100
-
-    area = length * rho * 1e3 / r
 
     L1 = Line(
         name="L1",
@@ -54,11 +48,6 @@ def initialize_network(include_ICT: bool = False):
         tbus=B2,
         r=r,
         x=x,
-        rho=rho,
-        area=area,
-        s_ref=s_ref,
-        v_ref=v_ref,
-        capacity=capacity, 
     )
     L2 = Line(
         name="L2",
@@ -66,35 +55,20 @@ def initialize_network(include_ICT: bool = False):
         tbus=B3,
         r=r, 
         x=x,
-        rho=rho,
-        area=area,
-        s_ref=s_ref,
-        v_ref=v_ref,
-        capacity=capacity, 
     )
     L3 = Line(
         name="L3",
         fbus=B3,
         tbus=B4,
         r=r, 
-        x=x,
-        rho=rho,
-        area=area,
-        s_ref=s_ref,
-        v_ref=v_ref,
-        capacity=capacity, 
+        x=x,    
     )
     L4 = Line(
         name="L4",
         fbus=B4,
         tbus=B5,
         r=r, 
-        x=x,
-        rho=rho,
-        area=area,
-        s_ref=s_ref,
-        v_ref=v_ref,
-        capacity=capacity, 
+        x=x, 
     )
     L5 = Line(
         name="L5",
@@ -102,11 +76,6 @@ def initialize_network(include_ICT: bool = False):
         tbus=B6,
         r=r, 
         x=x,
-        rho=rho,
-        area=area,
-        s_ref=s_ref,
-        v_ref=v_ref,
-        capacity=capacity, 
     )
 
     D1 = Disconnector("D1", L1, B1)
