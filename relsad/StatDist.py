@@ -58,7 +58,7 @@ class StatDist:
 
     def draw(self, random_instance, size: int = 1):
         """
-        Returns the hour of day
+        
 
         Parameters
         ----------
@@ -67,7 +67,7 @@ class StatDist:
 
         Returns
         ----------
-        None
+        
 
         """
         if self.draw_flag is False:

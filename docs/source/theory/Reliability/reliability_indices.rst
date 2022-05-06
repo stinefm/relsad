@@ -2,7 +2,7 @@
 Reliability indices
 ===================
 
-To evaluate the reliability of a power system reliability, proper indices can be used as a measure for the reliability assessment. The three basic reliability parameters as derived in CITE, are the fault frequency or average failure rate of the system. :math:`\lambda_{s}`, the annual average outage time in the system, :math:`U_{s}`, and the average outage time, :math:`r_{s}`. 
+To evaluate the reliability of a power system reliability, proper indices can be used as a measure for the reliability assessment. The three basic reliability parameters as derived in :cite:`Billinton:1992`, are the fault frequency or average failure rate of the system. :math:`\lambda_{s}`, the annual average outage time in the system, :math:`U_{s}`, and the average outage time, :math:`r_{s}`. 
 In a radially operated distribution system, these reliability parameters can be derived as 
 
 .. math::
