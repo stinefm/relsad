@@ -8,7 +8,7 @@ def WeatherGen():
 
     # Generating temperatures for a whole year
     data = pd.read_csv(
-        os.path.join("data", "RyggeData.csv"), header=None, skiprows=1
+        os.path.join("data", "weather_data_rygge.csv"), header=None, skiprows=1
     )
 
     temp_profiles = data[1].values.reshape(365, 24)
@@ -23,7 +23,7 @@ def LoadGen(temp):
     # Generating load profiles:
 
     data = pd.read_csv(
-        os.path.join("data", "FASIT lastprofiler.csv"),
+        os.path.join("data", "load_profiles_fasit.csv"),
         sep=";",
         decimal=",",
         header=None,

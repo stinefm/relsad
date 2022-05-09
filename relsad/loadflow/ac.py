@@ -1,5 +1,5 @@
 import numpy as np
-from relsad.topology.paths import configure
+from relsad.topology.paths import configure_bfs_load_flow_setup
 from relsad.network.systems.Network import Network
 
 
@@ -23,7 +23,7 @@ def run_bfs_load_flow(network: Network, maxit: int = 5):
     network.buses : list
         List of network buses
     """
-    topology_list, network.buses, network.lines = configure(
+    topology_list, network.buses = configure_bfs_load_flow_setup(
         network.buses, network.lines
     )
     for _ in range(maxit):
