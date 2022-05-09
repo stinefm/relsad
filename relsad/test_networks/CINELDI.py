@@ -265,6 +265,7 @@ def initialize_network(
     DL5a = Disconnector("L5a", L5, B2)
     DL5b = Disconnector("L5b", L5, B5)
 
+
     if include_backup:
         DL6a = Disconnector("L6a", L6, B3)
         DL6b = Disconnector("L6b", L6, B5)

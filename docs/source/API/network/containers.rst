@@ -5,5 +5,5 @@ containers
     :toctree: _autosummary
     :template: class.rst
 
-    relsad.network.containers.Section
-    relsad.network.containers.SectionState
+    relsad.network.containers.Section.Section
+    relsad.network.containers.Section.SectionState

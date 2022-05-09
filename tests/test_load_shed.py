@@ -111,6 +111,7 @@ def initialize_network(
         v_ref=v_ref,
     )
 
+
     E1 = CircuitBreaker("E1", L1)
 
     if include_battery: 

@@ -18,8 +18,8 @@ def unique(sequence):
     sequence :
 
     Returns
-    ----------
-    None
+    -------
+    
 
     """
     seen = set()
@@ -36,7 +36,7 @@ def subtract(list1, list2):
     list2 : list
 
     Returns
-    ----------
+    -------
     difference :
 
     """
@@ -55,8 +55,8 @@ def intersection(list1, list2):
     list2 : list
 
     Returns
-    ----------
-    None
+    -------
+    
     """
 
     return [x for x in list1 if x in list2]
@@ -71,8 +71,8 @@ def random_instance(seed=None):
     seed : int
 
     Returns
-    ----------
-    None
+    -------
+    
     """
     return np.random.default_rng(seed)
 
@@ -86,10 +86,11 @@ def eq(x: float, y: float, tol: float = 1e-6):
     x : float
     y : float
     tol : float
+        The tolerance
 
     Returns
-    ----------
-    None
+    -------
+    
     """
     return abs(x - y) < tol
 
@@ -101,10 +102,11 @@ def random_choice(random_instance: np.random.Generator, p_true: float):
     Parameters
     ----------
     random_instance : np.random.Generator
+        Instance of a random generator
     p_true : float
 
     Returns
-    ----------
+    -------
     None
     """
     return random_instance.random() < p_true
@@ -120,7 +122,7 @@ def interpolate(array: np.ndarray, time_indices: np.ndarray):
     time_indices : np.ndarray
 
     Returns
-    ----------
+    -------
     None
     """
     x = np.linspace(0, array.size - 1, time_indices.size)
@@ -139,7 +141,7 @@ def convert_yearly_fail_rate(fail_rate_per_year: float, dt: Time):
         The current time step
 
     Returns
-    ----------
+    -------
     choice : float
         Random choice
     """

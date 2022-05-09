@@ -30,9 +30,13 @@ class StatDist:
     Attributes
     ----------
     stat_dist_type : StatDistType
+        Type of statistical distribution
     parameters : namedtuple
+        Statistical distribution parameters
     draw_flag : bool
+        Flag indicating if drawing is allowed
     get_flag : bool
+
 
     Methods
     ----------
@@ -63,7 +67,9 @@ class StatDist:
         Parameters
         ----------
         random_instance : np.random.Generator
+            Instance of a random generator
         size : int
+            Size of drawn values
 
         Returns
         ----------
@@ -115,7 +121,7 @@ class StatDist:
 
         Returns
         ----------
-        None
+        
 
         """
         if self.get_flag is False:

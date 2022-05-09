@@ -104,6 +104,3 @@ The voltage angle can be expressed as
     \delta_{i} = \delta_{j} + \arctan{\frac{Im(V_{i})}{Re(V_{i})}}
 
 where :math:`\delta_{j}` is the voltage angle at bus *j* and :math:`Im(V_{i})` and :math:`Re(V_{i})` are the imaginary part and the real part of :math:`V_{i}`, respectively.
-
-.. bibliography::
-    :style: plain

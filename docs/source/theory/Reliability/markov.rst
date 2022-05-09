@@ -11,7 +11,9 @@ The transition between the working state (OK) and the failed state is decided by
 
 Some network components have multiple different failures that can occur. One example is the controller which can experience a hardware failure or a software failure. 
 
-.. image:: theory/figures/Failmode.jpg
-   :height: 100
-   :width: 200
-   :alt: Simple Markov model of the system components. :math:`\lambda_{c}` is the failure rate of component *c*, :math:`\mu_{c}` is the repair rate of component *c*, and :math:`t_{c}` is the time from component failure until the component is under repair. 
+.. figure:: ../figures/Failmode.jpg
+   :height: 200
+   :width: 400
+   :alt: Simple Markov model of the system components.
+   
+   Simple Markov model of the system components. :math:`\lambda_{c}` is the failure rate of component *c*, :math:`\mu_{c}` is the repair rate of component *c*, and :math:`t_{c}` is the time from component failure until the component is under repair. 

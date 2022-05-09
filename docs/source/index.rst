@@ -25,6 +25,7 @@ To get started, check out the sections below:
     theory
     data
     API
+    references
 
 Indices and tables
 ==================

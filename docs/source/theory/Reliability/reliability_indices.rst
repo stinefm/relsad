@@ -89,5 +89,4 @@ where :math:`\sum_{\forall i} U_{i}N_{i}` is the total number of customer interr
 
     \text{CAIDI} = \frac{\sum_{\forall i} U_{i}N_{i}}{\sum_{\forall i} \lambda_i N_{i}} = \frac{\text{SAIDI}}{\text{SAIFI}}
 
-CAIDI is the ratio between SAIDI and SAIFI and measures the average duration each given customer in the system is expected to experience. 
-
+CAIDI is the ratio between SAIDI and SAIFI and measures the average duration each given customer in the system is expected to experience.

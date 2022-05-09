@@ -1,4 +1,5 @@
-======================
+.. _battery_behavior:
+
 Battery behavior
 ======================
 
