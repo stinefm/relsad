@@ -17,65 +17,6 @@ class MyError(Exception):
         return self.m
 
 
-def test_B1_trafo_fail():
-    ps = initialize_network(
-        include_ICT=False,
-        microgrid_mode=MicrogridMode.LIMITED_SUPPORT,
-    )
-
-    # Create sections
-    ps.create_sections()
-
-    # Simulate failure at time 0
-    # Time = 0
-    curr_time = Time(0)
-    dt = Time(1, TimeUnit.HOUR)
-
-    ps.get_comp("B1").trafo_fail(dt)
-
-    ps.controller.run_control_loop(curr_time, dt)
-
-    find_sub_systems(ps, curr_time)
-
-    # Time = 1
-    curr_time = Time(1)
-    ps.controller.run_control_loop(curr_time, dt)
-
-    find_sub_systems(ps, curr_time)
-
-    assert ps.get_comp("L1").connected is True
-    assert ps.get_comp("L2").connected is True
-    assert ps.get_comp("L3").connected is True
-    assert ps.get_comp("L4").connected is True
-    assert ps.get_comp("L5").connected is True
-    assert ps.get_comp("L6").connected is False
-    assert ps.get_comp("L7").connected is True
-    assert ps.get_comp("ML1").connected is True
-    assert ps.get_comp("ML2").connected is True
-    assert ps.get_comp("E1").is_open is False
-    assert ps.get_comp("L1a").is_open is False
-    assert ps.get_comp("L1b").is_open is False
-    assert ps.get_comp("L1c").is_open is False
-    assert ps.get_comp("L2a").is_open is False
-    assert ps.get_comp("L2b").is_open is False
-    assert ps.get_comp("L3a").is_open is False
-    assert ps.get_comp("L3b").is_open is False
-    assert ps.get_comp("L4a").is_open is False
-    assert ps.get_comp("L4b").is_open is False
-    assert ps.get_comp("L5a").is_open is False
-    assert ps.get_comp("L5b").is_open is False
-    assert ps.get_comp("L6a").is_open is True
-    assert ps.get_comp("L6b").is_open is True
-    assert ps.get_comp("E2").is_open is False
-    assert ps.get_comp("L7a").is_open is False
-    assert ps.get_comp("L7b").is_open is False
-    assert ps.get_comp("L7c").is_open is False
-    assert ps.get_comp("ML1a").is_open is False
-    assert ps.get_comp("ML1b").is_open is False
-    assert ps.get_comp("ML2a").is_open is False
-    assert ps.get_comp("ML2b").is_open is False
-
-
 def test_B2_trafo_fail():
     ps = initialize_network(
         include_ICT=False,
@@ -268,6 +209,65 @@ def test_B5_trafo_fail():
     dt = Time(1, TimeUnit.HOUR)
 
     ps.get_comp("B5").trafo_fail(dt)
+
+    ps.controller.run_control_loop(curr_time, dt)
+
+    find_sub_systems(ps, curr_time)
+
+    # Time = 1
+    curr_time = Time(1)
+    ps.controller.run_control_loop(curr_time, dt)
+
+    find_sub_systems(ps, curr_time)
+
+    assert ps.get_comp("L1").connected is True
+    assert ps.get_comp("L2").connected is True
+    assert ps.get_comp("L3").connected is True
+    assert ps.get_comp("L4").connected is True
+    assert ps.get_comp("L5").connected is True
+    assert ps.get_comp("L6").connected is False
+    assert ps.get_comp("L7").connected is True
+    assert ps.get_comp("ML1").connected is True
+    assert ps.get_comp("ML2").connected is True
+    assert ps.get_comp("E1").is_open is False
+    assert ps.get_comp("L1a").is_open is False
+    assert ps.get_comp("L1b").is_open is False
+    assert ps.get_comp("L1c").is_open is False
+    assert ps.get_comp("L2a").is_open is False
+    assert ps.get_comp("L2b").is_open is False
+    assert ps.get_comp("L3a").is_open is False
+    assert ps.get_comp("L3b").is_open is False
+    assert ps.get_comp("L4a").is_open is False
+    assert ps.get_comp("L4b").is_open is False
+    assert ps.get_comp("L5a").is_open is False
+    assert ps.get_comp("L5b").is_open is False
+    assert ps.get_comp("L6a").is_open is True
+    assert ps.get_comp("L6b").is_open is True
+    assert ps.get_comp("E2").is_open is False
+    assert ps.get_comp("L7a").is_open is False
+    assert ps.get_comp("L7b").is_open is False
+    assert ps.get_comp("L7c").is_open is False
+    assert ps.get_comp("ML1a").is_open is False
+    assert ps.get_comp("ML1b").is_open is False
+    assert ps.get_comp("ML2a").is_open is False
+    assert ps.get_comp("ML2b").is_open is False
+
+
+def test_B6_trafo_fail():
+    ps = initialize_network(
+        include_ICT=False,
+        microgrid_mode=MicrogridMode.LIMITED_SUPPORT,
+    )
+
+    # Create sections
+    ps.create_sections()
+
+    # Simulate failure at time 0
+    # Time = 0
+    curr_time = Time(0)
+    dt = Time(1, TimeUnit.HOUR)
+
+    ps.get_comp("B6").trafo_fail(dt)
 
     ps.controller.run_control_loop(curr_time, dt)
 

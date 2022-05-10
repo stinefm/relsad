@@ -1,3 +1,5 @@
+.. _load_and_production_generation:
+
 =====================================
 Load and production generation
 =====================================

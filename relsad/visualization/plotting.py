@@ -96,7 +96,7 @@ def plot_topology(
                         text=intelligent_switch_text,
                         text_size=text_size,
                     )
-                legends["Intelligent switch"] = IntelligentSwitch.handle
+                    legends["Intelligent switch"] = IntelligentSwitch.handle
         for discon in line.disconnectors:
             _plot_disconnector(
                 ax, discon, text=disconnector_text, text_size=text_size
@@ -161,7 +161,7 @@ def _plot_line(
     if text:
         ax.text(
             (line.fbus.coordinate[0] + line.tbus.coordinate[0]) / 2,
-            (line.fbus.coordinate[1] + line.tbus.coordinate[1]) / 2,
+            (line.fbus.coordinate[1] + line.tbus.coordinate[1]) / 2 + 0.1,
             line.name,
             ha="center",
             va="center",
@@ -378,7 +378,7 @@ def _plot_bus(ax: plt.axis, bus: list, text: bool = False, text_size: int = 8):
     if text:
         ax.text(
             bus.coordinate[0],
-            bus.coordinate[1] - 0.3,
+            bus.coordinate[1] - 0.1,
             bus.name,
             ha="center",
             va="center",

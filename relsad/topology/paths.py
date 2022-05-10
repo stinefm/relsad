@@ -1,6 +1,7 @@
 import itertools
 from relsad.network.components import Bus, Line
 from relsad.network.containers import Section
+from relsad.network.systems import SubSystem
 from relsad.utils import unique, intersection
 
 

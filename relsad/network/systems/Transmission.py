@@ -65,12 +65,12 @@ class Transmission(Network):
     ## Counter
     counter = 0
 
-    def __init__(self, power_system, trafo_bus: Bus):
+    def __init__(self, parent_network, trafo_bus: Bus):
         Transmission.counter += 1
         self.name = "trans_network{:d}".format(Transmission.counter)
 
-        self.parent_network = power_system
-        power_system.add_child_network(self)
+        self.parent_network = parent_network
+        parent_network.add_child_network(self)
         self.child_network_list = list()
 
         self.trafo_bus = trafo_bus
@@ -84,7 +84,7 @@ class Transmission(Network):
         self.parent_network.add_bus(trafo_bus)
 
         trafo_bus.set_slack()
-        power_system.slack = trafo_bus
+        parent_network.slack = trafo_bus
         # Load shedding
         self.p_load_shed = 0
         self.acc_p_load_shed = 0

@@ -195,8 +195,8 @@ class Bus(Component):
         ZIP=[0.0, 0.0, 1.0],
         s_ref: float = 1,  # MVA
         is_slack: bool = False,
-        fail_rate_per_year: float = 0.007,
-        outage_time: Time = Time(8, TimeUnit.HOUR),
+        fail_rate_per_year: float = 0.0,
+        outage_time: Time = Time(0),
     ):
         ## Informative attributes
         self.name = name

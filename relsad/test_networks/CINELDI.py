@@ -153,86 +153,91 @@ def initialize_network(
 
     ps = PowerSystem(C1)
 
-    ## Transmission network
-    T = Bus("T", n_customers=0, coordinate=[0, 0], fail_rate_per_year=0)
+    ## Transmission network bus
+    B1 = Bus(
+        name="B1",
+        n_customers=0,
+        coordinate=[0, 0],
+        fail_rate_per_year=0,
+    )
 
     ## Distribution network
-    B1 = Bus(
-        "B1",
-        n_customers=1,
-        coordinate=[0, -1],
-        fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
-    )
     B2 = Bus(
-        "B2",
-        n_customers=100,
-        coordinate=[1, -2],
+        name="B2",
+        n_customers=1,
+        coordinate=[1, 0],
         fail_rate_per_year=fail_rate_trafo,
         outage_time=outage_time_trafo,
     )
     B3 = Bus(
-        "B3",
-        n_customers=50,
-        coordinate=[0, -2],
+        name="B3",
+        n_customers=100,
+        coordinate=[2, 1],
         fail_rate_per_year=fail_rate_trafo,
         outage_time=outage_time_trafo,
     )
     B4 = Bus(
-        "B4",
-        n_customers=90,
-        coordinate=[0, -3],
+        name="B4",
+        n_customers=50,
+        coordinate=[2, 0],
         fail_rate_per_year=fail_rate_trafo,
         outage_time=outage_time_trafo,
     )
     B5 = Bus(
-        "B5",
+        name="B5",
+        n_customers=90,
+        coordinate=[3, 0],
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+    )
+    B6 = Bus(
+        name="B6",
         n_customers=3,
-        coordinate=[1, -3],
+        coordinate=[3, 1],
         fail_rate_per_year=fail_rate_trafo,
         outage_time=outage_time_trafo,
     )
 
     L1 = Line(
-        "L1",
-        T,
-        B1,
+        name="L1",
+        fbus=B1,
+        tbus=B2,
         r=0.057526629463617,
         x=0.029324854498807,
         fail_rate_density_per_year=fail_rate_line,
         outage_time_dist=line_stat_dist,
     )
     L2 = Line(
-        "L2",
-        B1,
-        B2,
+        name="L2",
+        fbus=B2,
+        tbus=B3,
         r=0.057526629463617,
         x=0.029324854498807,
         fail_rate_density_per_year=fail_rate_line,
         outage_time_dist=line_stat_dist,
     )
     L3 = Line(
-        "L3",
-        B1,
-        B3,
+        name="L3",
+        fbus=B2,
+        tbus=B4,
         r=0.7114,
         x=0.2351,
         fail_rate_density_per_year=fail_rate_line,
         outage_time_dist=line_stat_dist,
     )
     L4 = Line(
-        "L4",
-        B3,
-        B4,
+        name="L4",
+        fbus=B4,
+        tbus=B5,
         r=0.7114,
         x=0.2351,
         fail_rate_density_per_year=fail_rate_line,
         outage_time_dist=line_stat_dist,
     )
     L5 = Line(
-        "L5",
-        B2,
-        B5,
+        name="L5",
+        fbus=B3,
+        tbus=B6,
         r=0.7114,
         x=0.2351,
         fail_rate_density_per_year=fail_rate_line,
@@ -241,9 +246,9 @@ def initialize_network(
 
     if include_backup:
         L6 = Line(
-            "L6",
-            B3,
-            B5,
+            name="L6",
+            fbus=B4,
+            tbus=B6,
             r=0.7114,
             x=0.2351,
             fail_rate_density_per_year=fail_rate_line,
@@ -253,68 +258,68 @@ def initialize_network(
 
     E1 = CircuitBreaker("E1", L1)
 
-    DL1a = Disconnector("L1a", L1, T, E1)
-    DL1b = Disconnector("L1b", L1, B1, E1)
-    DL1c = Disconnector("L1c", L1, B1)
-    DL2a = Disconnector("L2a", L2, B1)
-    DL2b = Disconnector("L2b", L2, B2)
-    DL3a = Disconnector("L3a", L3, B1)
-    DL3b = Disconnector("L3b", L3, B3)
-    DL4a = Disconnector("L4a", L4, B3)
-    DL4b = Disconnector("L4b", L4, B4)
-    DL5a = Disconnector("L5a", L5, B2)
-    DL5b = Disconnector("L5b", L5, B5)
+    DL1a = Disconnector("L1a", L1, B1, E1)
+    DL1b = Disconnector("L1b", L1, B2, E1)
+    DL1c = Disconnector("L1c", L1, B2)
+    DL2a = Disconnector("L2a", L2, B2)
+    DL2b = Disconnector("L2b", L2, B3)
+    DL3a = Disconnector("L3a", L3, B2)
+    DL3b = Disconnector("L3b", L3, B4)
+    DL4a = Disconnector("L4a", L4, B4)
+    DL4b = Disconnector("L4b", L4, B5)
+    DL5a = Disconnector("L5a", L5, B3)
+    DL5b = Disconnector("L5b", L5, B6)
 
 
     if include_backup:
-        DL6a = Disconnector("L6a", L6, B3)
-        DL6b = Disconnector("L6b", L6, B5)
+        DL6a = Disconnector("L6a", L6, B4)
+        DL6b = Disconnector("L6b", L6, B6)
 
         L6.set_backup()
 
-    tn = Transmission(ps, T)
+    tn = Transmission(parent_network=ps, trafo_bus=B1)
 
-    dn = Distribution(tn, L1)
+    dn = Distribution(parent_network=tn, connected_line=L1)
 
     if include_microgrid:
         M1 = Bus(
             "M1",
             n_customers=0,
-            coordinate=[-1, -2],
+            coordinate=[2, -1],
             fail_rate_per_year=fail_rate_trafo,
             outage_time=outage_time_trafo,
         )
         M2 = Bus(
             "M2",
             n_customers=0,
-            coordinate=[-2, -3],
+            coordinate=[3, -2],
             fail_rate_per_year=fail_rate_trafo,
             outage_time=outage_time_trafo,
         )
         M3 = Bus(
             "M3",
             n_customers=40,
-            coordinate=[-1, -3],
+            coordinate=[3, -1],
             fail_rate_per_year=fail_rate_trafo,
             outage_time=outage_time_trafo,
         )
 
-        Battery("Bat1", M1)
-        Production("P1", M2)
+        Battery(name="Bat1", bus=M1)
+        Production(name="P1", bus=M2)
 
         ML1 = Line(
-            "ML1",
-            M1,
-            M2,
+            name="ML1",
+            fbus=M1,
+            tbus=M2,
             r=0.057526629463617,
             x=0.029324854498807,
             fail_rate_density_per_year=fail_rate_line,
             outage_time_dist=line_stat_dist,
         )
         ML2 = Line(
-            "ML2",
-            M1,
-            M3,
+            name="ML2",
+            fbus=M1,
+            tbus=M3,
             r=0.057526629463617,
             x=0.029324854498807,
             fail_rate_density_per_year=fail_rate_line,
@@ -322,26 +327,60 @@ def initialize_network(
         )
 
         L7 = Line(
-            "L7",
-            B1,
-            M1,
+            name="L7",
+            fbus=B2,
+            tbus=M1,
             r=0.057526629463617,
             x=0.029324854498807,
             fail_rate_density_per_year=fail_rate_line,
             outage_time_dist=line_stat_dist,
         )
 
-        E2 = CircuitBreaker("E2", L7)
+        E2 = CircuitBreaker(name="E2", line=L7)
 
-        DL7a = Disconnector("L7a", L7, B1, E2)
-        DL7b = Disconnector("L7b", L7, M1, E2)
-        DL7c = Disconnector("L7c", L7, M1)
-        DML1a = Disconnector("ML1a", ML1, M1)
-        DML1b = Disconnector("ML1b", ML1, M2)
-        DML2a = Disconnector("ML2a", ML2, M1)
-        DML2b = Disconnector("ML2b", ML2, M3)
+        DL7a = Disconnector(
+            name="L7a",
+            line=L7,
+            bus=B2,
+            circuitbreaker=E2,
+        )
+        DL7b = Disconnector(
+            name="L7b",
+            line=L7,
+            bus=M1,
+            circuitbreaker=E2,
+        )
+        DL7c = Disconnector(
+            name="L7c",
+            line=L7,
+            bus=M1,
+        )
+        DML1a = Disconnector(
+            name="ML1a",
+            line=ML1,
+            bus=M1,
+        )
+        DML1b = Disconnector(
+            name="ML1b",
+            line=ML1,
+            bus=M2,
+        )
+        DML2a = Disconnector(
+            name="ML2a",
+            line=ML2,
+            bus=M1,
+        )
+        DML2b = Disconnector(
+            name="ML2b",
+            line=ML2,
+            bus=M3,
+        )
 
-        m = Microgrid(dn, L7, mode=microgrid_mode)
+        m = Microgrid(
+            distribution_network=dn,
+            connected_line=L7,
+            mode=microgrid_mode,
+        )
 
         m.add_buses([M1, M2, M3])
         m.add_lines([ML1, ML2])
@@ -349,36 +388,36 @@ def initialize_network(
     if include_ICT:
 
         Sensor(
-            "SL1",
-            L1,
+            name="SL1",
+            line=L1,
             fail_rate_per_year=fail_rate_sensor,
             p_fail_repair_new_signal=p_fail_repair_new_signal,
             p_fail_repair_reboot=p_fail_repair_reboot,
         )
         Sensor(
-            "SL2",
-            L2,
+            name="SL2",
+            line=L2,
             fail_rate_per_year=fail_rate_sensor,
             p_fail_repair_new_signal=p_fail_repair_new_signal,
             p_fail_repair_reboot=p_fail_repair_reboot,
         )
         Sensor(
-            "SL3",
-            L3,
+            name="SL3",
+            line=L3,
             fail_rate_per_year=fail_rate_sensor,
             p_fail_repair_new_signal=p_fail_repair_new_signal,
             p_fail_repair_reboot=p_fail_repair_reboot,
         )
         Sensor(
-            "SL4",
-            L4,
+            name="SL4",
+            line=L4,
             fail_rate_per_year=fail_rate_sensor,
             p_fail_repair_new_signal=p_fail_repair_new_signal,
             p_fail_repair_reboot=p_fail_repair_reboot,
         )
         Sensor(
-            "SL5",
-            L5,
+            name="SL5",
+            line=L5,
             fail_rate_per_year=fail_rate_sensor,
             p_fail_repair_new_signal=p_fail_repair_new_signal,
             p_fail_repair_reboot=p_fail_repair_reboot,
@@ -386,101 +425,141 @@ def initialize_network(
 
         if include_backup:
             Sensor(
-                "SL6",
-                L6,
+                name="SL6",
+                line=L6,
                 fail_rate_per_year=fail_rate_sensor,
                 p_fail_repair_new_signal=p_fail_repair_new_signal,
                 p_fail_repair_reboot=p_fail_repair_reboot,
             )
 
         IntelligentSwitch(
-            "RL1a", DL1a, fail_rate_per_year=fail_rate_intelligent_switch
+            name="RL1a", 
+            disconnector=DL1a,
+            fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            "RL1b", DL1b, fail_rate_per_year=fail_rate_intelligent_switch
+            name="RL1b", 
+            disconnector=DL1b,
+            fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            "RL1c", DL1c, fail_rate_per_year=fail_rate_intelligent_switch
+            name="RL1c", 
+            disconnector=DL1c,
+            fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            "RL2a", DL2a, fail_rate_per_year=fail_rate_intelligent_switch
+            name="RL2a", 
+            disconnector=DL2a,
+            fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            "RL2b", DL2b, fail_rate_per_year=fail_rate_intelligent_switch
+            name="RL2b", 
+            disconnector=DL2b,
+            fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            "RL3a", DL3a, fail_rate_per_year=fail_rate_intelligent_switch
+            name="RL3a", 
+            disconnector=DL3a,
+            fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            "RL3b", DL3b, fail_rate_per_year=fail_rate_intelligent_switch
+            name="RL3b", 
+            disconnector=DL3b,
+            fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            "RL4a", DL4a, fail_rate_per_year=fail_rate_intelligent_switch
+            name="RL4a", 
+            disconnector=DL4a,
+            fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            "RL4b", DL4b, fail_rate_per_year=fail_rate_intelligent_switch
+            name="RL4b", 
+            disconnector=DL4b,
+            fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            "RL5a", DL5a, fail_rate_per_year=fail_rate_intelligent_switch
+            name="RL5a", 
+            disconnector=DL5a,
+            fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            "RL5b", DL5b, fail_rate_per_year=fail_rate_intelligent_switch
+            name="RL5b", 
+            disconnector=DL5b,
+            fail_rate_per_year=fail_rate_intelligent_switch,
         )
 
         if include_backup:
             IntelligentSwitch(
-                "RL6a", DL6a, fail_rate_per_year=fail_rate_intelligent_switch
+                name="RL6a", 
+                disconnector=DL6a,
+                fail_rate_per_year=fail_rate_intelligent_switch,
             )
             IntelligentSwitch(
-                "RL6b", DL6b, fail_rate_per_year=fail_rate_intelligent_switch
+                name="RL6b", 
+                disconnector=DL6b,
+                fail_rate_per_year=fail_rate_intelligent_switch,
             )
 
         if include_microgrid:
 
             Sensor(
-                "SL7",
-                L7,
+                name="SL7",
+                line=L7,
                 fail_rate_per_year=fail_rate_sensor,
                 p_fail_repair_new_signal=p_fail_repair_new_signal,
                 p_fail_repair_reboot=p_fail_repair_reboot,
             )
 
             Sensor(
-                "SML1",
-                ML1,
+                name="SML1",
+                line=ML1,
                 fail_rate_per_year=fail_rate_sensor,
                 p_fail_repair_new_signal=p_fail_repair_new_signal,
                 p_fail_repair_reboot=p_fail_repair_reboot,
             )
             Sensor(
-                "SML2",
-                ML2,
+                name="SML2",
+                line=ML2,
                 fail_rate_per_year=fail_rate_sensor,
                 p_fail_repair_new_signal=p_fail_repair_new_signal,
                 p_fail_repair_reboot=p_fail_repair_reboot,
             )
 
             IntelligentSwitch(
-                "RL7a", DL7a, fail_rate_per_year=fail_rate_intelligent_switch
+                name="RL7a",
+                disconnector=DL7a, 
+                fail_rate_per_year=fail_rate_intelligent_switch,
             )
             IntelligentSwitch(
-                "RL7b", DL7b, fail_rate_per_year=fail_rate_intelligent_switch
+                name="RL7b",
+                disconnector=DL7b, 
+                fail_rate_per_year=fail_rate_intelligent_switch,
             )
             IntelligentSwitch(
-                "RL7c", DL7c, fail_rate_per_year=fail_rate_intelligent_switch
+                name="RL7c",
+                disconnector=DL7c, 
+                fail_rate_per_year=fail_rate_intelligent_switch,
             )
 
             IntelligentSwitch(
-                "RML1a", DML1a, fail_rate_per_year=fail_rate_intelligent_switch
+                name="RML1a",
+                disconnector=DML1a, 
+                fail_rate_per_year=fail_rate_intelligent_switch,
             )
             IntelligentSwitch(
-                "RML1b", DML1b, fail_rate_per_year=fail_rate_intelligent_switch
+                name="RML1b",
+                disconnector=DML1b, 
+                fail_rate_per_year=fail_rate_intelligent_switch,
             )
             IntelligentSwitch(
-                "RML2a", DML2a, fail_rate_per_year=fail_rate_intelligent_switch
+                name="RML2a",
+                disconnector=DML2a, 
+                fail_rate_per_year=fail_rate_intelligent_switch,
             )
             IntelligentSwitch(
-                "RML2b", DML2b, fail_rate_per_year=fail_rate_intelligent_switch
+                name="RML2b",
+                disconnector=DML2b, 
+                fail_rate_per_year=fail_rate_intelligent_switch,
             )
 
     if include_ev:
@@ -491,7 +570,7 @@ def initialize_network(
             v2g_flag=v2g_flag,
         )
 
-    dn.add_buses([B1, B2, B3, B4, B5])
+    dn.add_buses([B2, B3, B4, B5, B6])
     if include_backup:
         dn.add_lines([L2, L3, L4, L5, L6])
     else:
@@ -501,7 +580,12 @@ def initialize_network(
 
 
 if __name__ == "__main__":
-    ps = initialize_network()
+    ps = initialize_network(
+        include_microgrid=False,
+        include_production=False,
+        include_ICT=False,
+        include_ev=False,
+    )
     fig = plot_topology(
         buses=ps.buses,
         lines=ps.lines,
@@ -514,6 +598,13 @@ if __name__ == "__main__":
             os.path.dirname(os.path.abspath(__file__)),
             "CINELDI_testnetwork.pdf",
         )
+    )
+    fig.savefig(
+        os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "CINELDI_testnetwork.png",
+        ),
+        dpi=600,
     )
 
     # def print_sections(section, level=0):

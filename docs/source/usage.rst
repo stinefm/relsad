@@ -2,14 +2,18 @@
 Usage
 =====
 
-To use relsad in a project::
-
-    import relsad
+This document introduces basic usage of `relsad`.
 
 .....................................
 Traditional power system
 .....................................
 
+First, the creation of a small example network in `relsad` is presented. The network consists of 6 buses and 6 lines, where one of the lines is a backup line.
+
+
+""""""""""""""""""""""""
+Imports
+""""""""""""""""""""""""
 
 To create a power system the necessary imports need to be added. 
 
@@ -24,7 +28,7 @@ For importing components from relsad::
     )
 
 
-For importing networks from relsad:: 
+For importing systems and networks from relsad:: 
 
     from relsad.network.systems import (
         PowerSystem,
@@ -32,14 +36,14 @@ For importing networks from relsad::
         Distribution,
     )
 
-In order to evaluate time dependencies, time and time unit needs to be imported::
+To run time dependent simulations, the time utilities of `relsad` must be imported::
 
     from relsad.Time import (
         Time, 
         TimeUnit,
     )
 
-For using statistical distribution for, for example, failure rate and outage time of components, this needs to be imported::
+Adding statistical distribution for, for example, outage time of components, is done by using the statistical distribution utilities of `relsad`, which needs to be imported::
 
     from relsad.StatDist import (
         StatDist,
@@ -48,84 +52,70 @@ For using statistical distribution for, for example, failure rate and outage tim
         CustomDiscreteParameters,
     )
 
-The user can also use average values and not statistical distributions. 
+The statistical distribution utilities of `relsad` enables a variety of custom distributions, including normal and uniform distributions.
 
-For initializing a network a function can be created:: 
+""""""""""""""""""""""""
+Initialize power system
+""""""""""""""""""""""""
 
-    def initialize_network(
-        fail_rate_trafo: float,
-        fail_rate_line: float,
-        outage_time_trafo: Time,
-    ):
+For systems without ICT, a manual main controller is added with a name and a desired sectional time::
 
-Here, the failure rate and outage time for the components can be added. 
-
-Then the system is initialized
-For systems without ICT, a manual main controller is added::
-
-    C1 = ManualMainController(name"C1"m sectioning_time=Time(0))
+    C1 = ManualMainController(name="C1", sectioning_time=Time(0))
 
 Then the power system is created::
 
-    ps = PowerSystem(C1)
+    ps = PowerSystem(controller=C1)
 
-After this, the components are the system is created
+
+""""""""""""""""""""""""
+Add components
+""""""""""""""""""""""""
+After this, the components are of the system is created
 
 Creating buses::
 
-    # Failure rate and outage time of the transformer on the bus are not necessary to add, this can be added on each bus. The default is set to 0? 
+    # Failure rate and outage time of the transformer on the bus are not necessary to add, this can be added on each bus. Their default values are 0 and Time(0) respectively.
 
     B1 = Bus(
         name="B1", 
         n_customers=0, 
-        coordinate=[0,0], 
-        fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
+        coordinate=[0, 0],
     )
     B2 = Bus(
         name="B2", 
         n_customers=1, 
-        coordinate=[0,-1],
-        fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
+        coordinate=[1, 0],
     )
 
     B3 = Bus(
         name="B3", 
         n_customers=1, 
-        coordinate=[0,-2], 
-        fail_rate_per_year=fail_rate_trafo, 
-        outage_time=outage_time_trafo,
+        coordinate=[2, 1],
     )
 
     B4 = Bus(
         name="B4", 
         n_customers=1, 
-        coordinate=[-1,-3], 
-        fail_rate_per_year=fail_rate_trafo, 
-        outage_time=outage_time_trafo,
+        coordinate=[2, 0],
     )
     
     B5 = Bus(
         name="B5", 
         n_customers=1, 
-        coordinate=[-1,-4], 
-        fail_rate_per_year=fail_rate_trafo, 
-        outage_time=outage_time_trafo,
+        coordinate=[3, 0],
     )
     
     B6 = Bus(
         name="B6", 
         n_customers=1, 
-        coordinate=[1,-3], 
-        fail_rate_per_year=fail_rate_trafo, 
-        outage_time=outage_time_trafo,
+        coordinate=[3, 1],
     ) 
 
 Creating lines:: 
 
-    # Failure rate and outage time of the lines can be added to each line. The default is set to 0? 
-    # For adding statistical distributions: 
+    # Failure rate and outage time of the lines can be added to each line. The default value of the line failure rate is 0, while the default outage time is 0 (Uniform float distribution with max/min values of 0).
+
+    # For adding statistical distributions, in this case a truncated normal distribution: 
 
     line_stat_dist = StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
@@ -139,13 +129,15 @@ Creating lines::
         get_flag=False,
     )
 
+    fail_rate_line = 0.07
+
     L1 = Line(
         name="L1",
         fbus=B1,
         tbus=B2,
         r=0.5, 
         x=0.5,
-        faile_rate_density_per_year=faile_rate_line, 
+        fail_rate_density_per_year=fail_rate_line, 
         outage_time_dist=line_stat_dist,
     )
     L2 = Line(
@@ -154,7 +146,7 @@ Creating lines::
         tbus=B3,
         r=0.5, 
         x=0.5,
-        faile_rate_density_per_year=faile_rate_line, 
+        fail_rate_density_per_year=fail_rate_line, 
         outage_time_dist=line_stat_dist,
     )
     L3 = Line(
@@ -163,7 +155,7 @@ Creating lines::
         tbus=B4,
         r=0.5, 
         x=0.5,
-        faile_rate_density_per_year=faile_rate_line, 
+        fail_rate_density_per_year=fail_rate_line, 
         outage_time_dist=line_stat_dist,
     )
     L4 = Line(
@@ -172,7 +164,7 @@ Creating lines::
         tbus=B5,
         r=0.5, 
         x=0.5,
-        faile_rate_density_per_year=faile_rate_line, 
+        fail_rate_density_per_year=fail_rate_line, 
         outage_time_dist=line_stat_dist,
     )
     L5 = Line(
@@ -181,7 +173,7 @@ Creating lines::
         tbus=B6,
         r=0.5, 
         x=0.5,
-        faile_rate_density_per_year=faile_rate_line, 
+        fail_rate_density_per_year=fail_rate_line, 
         outage_time_dist=line_stat_dist,
     )
 
@@ -194,9 +186,11 @@ Creating lines::
         r=0.5, 
         x=0.5,
         is_backup=True,
-        faile_rate_density_per_year=faile_rate_line, 
+        fail_rate_density_per_year=fail_rate_line, 
         outage_time_dist=line_stat_dist,
     )
+
+    # Set L6 as a backup line
 
     L6.set_backup()
 
@@ -204,7 +198,7 @@ Creating circuit breaker::
 
     E1 = CircuitBreaker(name="E1", line=L1)
 
-Creating disconnectors:: 
+Creating disconnectors, here we add several disconnectors for each line. Lines can contain from 0 up to 2 disconnectors alone. If a circuit breaker is placed on a line, the line may contain 3 disconnectors:: 
 
     DL1a = Disconnector(name="L1a", line=L1, bus=B1, circuitbreaker=E1)
     DL1b = Disconnector(name="L1b", line=L1, bus=B2, circuitbreaker=E1)
@@ -222,12 +216,16 @@ Creating disconnectors::
     DL6a = Disconnector(name="L6a", line=L6, bus=B4)
     DL6b = Disconnector(name="L6b", line=L6, bus=B6)
 
-After creating the components in the network, the components need to be added to the associated network and the power system. 
-First, the bus connecting to the overlying network (often transmission network) is added and a transmission network needs to be created::
-    
-    tn = Transmission(ps, trafo_bus=B1)
+""""""""""""""""""""""""
+Add networks
+""""""""""""""""""""""""
 
-Then the rest of the components can be added to the distribution network by creating a distribution network before the function can return the power system:: 
+After creating the components in the network, the components need to be added to their associated networks and the associated networks must be added to the power system. 
+First, the bus connecting to the overlying network (often transmission network) is added. In this case the overlying network is a transmission network, which is created by::
+    
+    tn = Transmission(parent_network=ps, trafo_bus=B1)
+
+The distribution network contains the rest of the components, and links to the transmission network with line L1. This is done by the following code snippet:: 
 
     dn = Distribution(parent_network=tn, connected_line=L1)
     dn.add_buses(
@@ -237,7 +235,35 @@ Then the rest of the components can be added to the distribution network by crea
         [L2, L3, L4, L5, L6]
     )
 
-    return ps
+
+""""""""""""""""""""""""
+Visualize topology
+""""""""""""""""""""""""
+
+To validate the network topology, it can be plotted in the following way::
+
+    from relsad.visualization.plotting import plot_topology
+    
+    fig = plot_topology(
+        buses=ps.buses,
+        lines=ps.lines,
+        bus_text=True,
+        line_text=True,
+    )
+
+    fig.savefig(
+        "test_network.png",
+        dpi=600,
+    )
+
+The plot should look like this:
+
+.. figure:: figures/CINELDI_testnetwork.png
+   :height: 200
+   :width: 400
+   :alt: Test network.
+   
+   Test network 
 
 
 .....................................
@@ -268,17 +294,15 @@ Network with electrical vehicles and vehicle-to-grid
 
 For including electrical vehicles (EVs) import::
 
-    from relsad.network.components import (
-        EVPark,
-    )
+    from relsad.network.components import EVPark
 
-Creating EV parks::
+Creating an EV park::
 
     EVPark(
         name="EV1", 
         bus=B5, 
         num_ev=5,
-        v2g_flag=True
+        v2g_flag=True,
     )
 
 Here, the number of EVs in the park and the possibilities of vehicle-to-grid can be decided. 
@@ -298,7 +322,7 @@ For evaluating a network with a microgrid, an additional network class needs to 
         Microgrid,
     )
 
-Furthermore, microgrid mode needs to be imported from the *MicrogridController* class::
+Furthermore, microgrid mode enumeration class needs to be imported from the *MicrogridController* class::
 
     from relsad.network.components import(
         MicrogridMode, 
@@ -316,7 +340,7 @@ Then the components in the microgrid can be created::
         coordinate=[-1, -2],
         fail_rate_per_year=fail_rate_trafo,
         outage_time=outage_time_trafo,
-        )
+    )
 
     M2 = Bus(
         name="M2",
@@ -324,7 +348,7 @@ Then the components in the microgrid can be created::
         coordinate=[-2, -3],
         fail_rate_per_year=fail_rate_trafo,
         outage_time=outage_time_trafo,
-        )
+    )
 
     M3 = Bus(
         name="M3",
@@ -332,7 +356,7 @@ Then the components in the microgrid can be created::
         coordinate=[-1, -3],
         fail_rate_per_year=fail_rate_trafo,
         outage_time=outage_time_trafo,
-        )
+    )
 
     # Lines: 
 
@@ -344,7 +368,7 @@ Then the components in the microgrid can be created::
         x=0.5,
         fail_rate_density_per_year=fail_rate_line,
         outage_time_dist=line_stat_dist,
-        )
+    )
 
     ML2 = Line(
         name="ML2",
@@ -354,7 +378,7 @@ Then the components in the microgrid can be created::
         x=0.5,
         fail_rate_density_per_year=fail_rate_line,
         outage_time_dist=line_stat_dist,
-        )
+    )
 
     ML3 = Line(
         name="ML3",
@@ -364,7 +388,7 @@ Then the components in the microgrid can be created::
         x=0.5,
         fail_rate_density_per_year=fail_rate_line,
         outage_time_dist=line_stat_dist,
-        )
+    )
 
     # Circuit breaker: 
 
@@ -372,21 +396,53 @@ Then the components in the microgrid can be created::
 
     # Disconnectors: 
 
-    DML1a = Disconnector(name="ML1a", line=ML1, bus=B2, E2)
-    DML1b = Disconnector(name="ML1b", line=ML1, bus=M1, E2)
-    DML1c = Disconnector(name="ML1c", line=ML1, bus=M1)
-    DML2a = Disconnector(name="ML2a", line=ML2, bus=M1)
-    DML2b = Disconnector(name="ML2b", line=ML2, bus=M2)
-    DML3a = Disconnector(name="ML3a", line=ML3, bus=M1)
-    DML4b = Disconnector(name="ML4b", line=ML3, bus=M3)
+    DML1a = Disconnector(
+        name="ML1a",
+        line=ML1,
+        bus=B2,
+        circuitbreaker=E2,
+    )
+    DML1b = Disconnector(
+        name="ML1b",
+        line=ML1,
+        bus=M1,
+        circuitbreaker=E2,
+    )
+    DML1c = Disconnector(
+        name="ML1c",
+        line=ML1,
+        bus=M1,
+    )
+    DML2a = Disconnector(
+        name="ML2a",
+        line=ML2,
+        bus=M1,
+    )
+    DML2b = Disconnector(
+        name="ML2b",
+        line=ML2,
+        bus=M2,
+    )
+    DML3a = Disconnector(
+        name="ML3a",
+        line=ML3,
+        bus=M1,
+    )
+    DML4b = Disconnector(
+        name="ML4b",
+        line=ML3,
+        bus=M3,
+    )
 
 After the microgrid components are created, the microgrid can be created and the components can be added::
 
-    m = Microgrid(dn, ML1, mode=microgrid_mode)
+    m = Microgrid(
+        distribution_network=dn,
+        connected_line=ML1,
+        mode=microgrid_mode,
+    )
     m.add_buses([M1, M2, M3])
     m.add_lines([ML2, ML3])
-
-
 
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -407,4 +463,97 @@ For evaluating islanded networks or microgrids, the network should be created wi
 Network with ICT
 .....................................
 
+For including ICT, the ICT components need to be imported:: 
 
+    from relsad.network.components import (
+        MainController, 
+        Sensor, 
+        IntelligentSwitch,
+    )
+
+The components can be created.
+For controller::
+
+    C1 = MainController(name="C1")
+
+In addition, different failure rates and repair times for the controller can be added. 
+
+The intelligent switch is added to disconnectors::
+
+    Isw1 = IntelligentSwitch(name="Isw1", disconnector=DL2a)
+
+A failure rate for the intelligent switch can also be added to the component.
+
+A sensor can be added on a line::
+
+    S1 = Sensor(name="S1", line=L2)
+
+Failure rates and repair time of the sensor can be added to the component. 
+
+
+.....................................
+Monte Carlo simulation
+.....................................
+
+In :ref:`load_and_production_generation`, examples of how to generate load and generation profiles are provided. 
+The generated profiles can be used to set the load and generation on the buses in the system. 
+The load and generation profiles can then be added::
+
+
+In addition, a cost related to the load can be added to the bus::
+
+    household = CostFunction(
+        A = A,
+        B = B,
+    )
+
+Load and cost can be added to the buses::
+
+    B2.add_load_data(
+        pload_data=load_household,
+        cost_function=household,
+    )
+
+Generation can be added to a production unit on the bus::
+
+    P1.add_prod_data(
+        pprod_data=Prod_PV,
+    )
+
+Finally, to run a simulation the user must specify:
+
+* The number of iterations, `iterations`
+* Simulation start time, `start_time`
+* Simulation stop time, `stop_time`
+* Time step, `time_step`
+* Time unit presented in results, `time_unit`
+* List of Monte Carlo iterations to save, `save_iterations`
+* Saving directory for results, `save_dir`
+* Number of processes, `n_procs`
+  
+::
+
+    sim = Simulation(power_system=ps, random_seed=random_seed)
+    sim.run_monte_carlo(
+        iterations=iterations, 
+        start_time=TimeStamp(
+            year=start_year, 
+            month=start_month,
+            day=start_day,
+            hour=start_hour, 
+            minute=start_minute, 
+            second=start_second,
+        ),
+        stop_time=TimeStamp(
+            year=stop_year,
+            month=stop_month, 
+            day=stop_day,
+            minute=stop_minute, 
+            second=stop_second,
+        ),
+        time_step=Time(1, TimeUnit.Hour), 
+        time_unit=TimeUnit.Hour,
+        save_iterations=save_iterations, 
+        save_dir=save_dir,
+        n_procs=number_processes, 
+    )

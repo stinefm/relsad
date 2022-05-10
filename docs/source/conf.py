@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.abspath(os.path.join('..', '..')))
 # -- Project information -----------------------------------------------------
 
 project = u"relsad"
-copyright = u"2021, Stine Fleischer Myhre"
+copyright = u"2022, Stine Fleischer Myhre"
 author = u"Stine Fleischer Myhre"
 
 # -- General configuration ---------------------------------------------

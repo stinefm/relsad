@@ -31,12 +31,12 @@ ps = initialize_network(
 )
 
 # Fetching bus-objects
-T = ps.get_comp("T")
 B1 = ps.get_comp("B1")
 B2 = ps.get_comp("B2")
 B3 = ps.get_comp("B3")
 B4 = ps.get_comp("B4")
 B5 = ps.get_comp("B5")
+B6 = ps.get_comp("B6")
 if include_microgrid:
     M1 = ps.get_comp("M1")
     M2 = ps.get_comp("M2")
@@ -119,18 +119,18 @@ household = CostFunction(
     B=14.7,
 )
 
-B1.add_load_data(
+B2.add_load_data(
     pload_data=load_industry2,
     cost_function=industry,
 )
 
-for bus in [B2, B3, B4]:
+for bus in [B3, B4, B5]:
     bus.add_load_data(
         pload_data=load_house,
         cost_function=household,
     )
 
-B5.add_load_data(
+B6.add_load_data(
     pload_data=load_office,
     cost_function=household,
 )
