@@ -7,7 +7,7 @@ from relsad.Time import (
     Time,
     TimeUnit,
 )
-from relsad.StatDist import StatDist
+from relsad.Table import Table
 
 """
 ### What it should include: ###
@@ -51,7 +51,7 @@ class EVPark(Component):
         Name of the EV park
     bus : Bus
         The bus the EV park is connected to
-    num_ev_dist : StatDist
+    num_ev_dist : Table
         Statistical distribution that gives the amount of EVs available at a given time in the network
     inj_p_max : float
         The active power charging/discharging capacity of the EV battery [MW]
@@ -128,7 +128,7 @@ class EVPark(Component):
         self,
         name: str,
         bus: Bus,
-        num_ev_dist: StatDist,
+        num_ev_dist: Table,
         inj_p_max: float = 0.072,
         inj_q_max: float = 0.072,
         E_max: float = 0.70,
@@ -203,7 +203,7 @@ class EVPark(Component):
         None
 
         """
-        self.num_cars = round(self.num_ev_dist.get(hour_of_day))
+        self.num_cars = round(self.num_ev_dist.get_value(hour_of_day))
         soc_states = self.ps_random.uniform(
             low=self.SOC_min,
             high=self.SOC_max,

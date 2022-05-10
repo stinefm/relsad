@@ -10,20 +10,18 @@ class StatDistType(Enum):
     UNIFORM_FLOAT = 1
     UNIFORM_INT = 2
     TRUNCNORMAL = 3
-    CUSTOM_DISCRETE = 4
 
 
 UniformParameters = namedtuple("UniformParameters", ["min_val", "max_val"])
 NormalParameters = namedtuple(
     "NormalParameters", ["loc", "scale", "min_val", "max_val"]
 )
-CustomDiscreteParameters = namedtuple("CustomDiscreteParameters", ["xk", "pk"])
 
 
 class StatDist:
 
     """
-    Common class for statistical distributions
+    Utility class for statistical distributions in relsad
 
     ...
 
@@ -41,9 +39,13 @@ class StatDist:
     Methods
     ----------
     draw(random_instance, size)
-    get(value)
+        Returns array of drawn instances of the statistical distribution
+        of given size
     get_pdf(x)
+        Returns the probability distribution function of
+        the statistical distribution
     histplot(ax, n_points, n_bins)
+        Plots the statistical distribution in a histogram
     plot(ax, x, color)
 
     """
@@ -62,7 +64,8 @@ class StatDist:
 
     def draw(self, random_instance, size: int = 1):
         """
-        
+        Returns array of drawn instances of the statistical distribution
+        of given size
 
         Parameters
         ----------
@@ -73,25 +76,28 @@ class StatDist:
 
         Returns
         ----------
-        
+        drawn_values : np.ndarray
+            Array of drawn instances of the statistical distribution
+            of given size
 
         """
+        drawn_values = None
         if self.draw_flag is False:
-            return None
+            return drawn_values
         if self.stat_dist_type == StatDistType.UNIFORM_FLOAT:
-            return random_instance.uniform(
+            drawn_values = random_instance.uniform(
                 low=self.parameters.min_val,
                 high=self.parameters.max_val,
                 size=size,
             )
         elif self.stat_dist_type == StatDistType.UNIFORM_INT:
-            return random_instance.integers(
+            drawn_values = random_instance.integers(
                 low=self.parameters.min_val,
                 high=self.parameters.max_val,
                 size=size,
             )
         elif self.stat_dist_type == StatDistType.TRUNCNORMAL:
-            return stats.truncnorm.rvs(
+            drawn_values = stats.truncnorm.rvs(
                 (self.parameters.min_val - self.parameters.loc)
                 / self.parameters.scale,
                 (self.parameters.max_val - self.parameters.loc)
@@ -101,44 +107,20 @@ class StatDist:
                 size=size,
                 random_state=random_instance,
             )
-        elif self.stat_dist_type == StatDistType.CUSTOM_DISCRETE:
-            return stats.rv_discrete(
-                values=(
-                    self.parameters.xk,
-                    self.parameters.pk,
-                ),
-                size=size,
-                seed=random_instance,
-            )
-
-    def get(self, value):
-        """
-        Returns the hour of day
-
-        Parameters
-        ----------
-        value :
-
-        Returns
-        ----------
-        
-
-        """
-        if self.get_flag is False:
-            return None
-        if self.stat_dist_type == StatDistType.CUSTOM_DISCRETE:
-            return self.parameters.xk[value]
+        return drawn_values
 
     def get_pdf(
         self,
         x,
     ):
         """
-        Returns the hour of day
+        Returns the probability distribution function of
+        the statistical distribution
 
         Parameters
         ----------
-        x
+        x : np.ndarray
+            Array of possible distribution values
 
         Returns
         ----------
@@ -159,8 +141,6 @@ class StatDist:
                 loc=self.parameters.loc,
                 scale=self.parameters.scale,
             )
-        elif self.stat_dist_type == StatDistType.CUSTOM_DISCRETE:
-            pass
 
     def histplot(
         self,
@@ -170,7 +150,7 @@ class StatDist:
         n_bins: int = 50,
     ):
         """
-        Returns the hour of day
+        Plots the statistical distribution in a histogram
 
         Parameters
         ----------
@@ -179,7 +159,9 @@ class StatDist:
         path : str
             Save path
         n_points : int
+            Number of distribution points
         n_bins : int
+            Number of bins in histogram
 
         Returns
         ----------
@@ -201,13 +183,14 @@ class StatDist:
         color: str = "b",
     ):
         """
-        Returns the hour of day
+        Plots the statistical distribution in the provided axis
 
         Parameters
         ----------
         ax : matplotlib.axes.Axes
             Plot axis
-        x
+        x : np.ndarray
+            Array of possible distribution values
         color : str
 
         Returns
@@ -233,8 +216,6 @@ class StatDist:
                 ),
                 color=color,
             )
-        elif self.stat_dist_type == StatDistType.CUSTOM_DISCRETE:
-            pass
 
 
 if __name__ == "__main__":

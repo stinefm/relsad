@@ -29,8 +29,8 @@ from relsad.StatDist import (
     StatDist,
     StatDistType,
     NormalParameters,
-    CustomDiscreteParameters,
 )
+from relsad.Table import Table
 
 
 def initialize_network(
@@ -55,46 +55,14 @@ def initialize_network(
         get_flag=False,
     )
 
-    def num_ev_stat_dist_func(
+    def num_ev_table_func(
         n_customers,
         ev_percentage=0.47,
         daily_charge_frac=0.61,
     ):
-        return StatDist(
-            stat_dist_type=StatDistType.CUSTOM_DISCRETE,
-            parameters=CustomDiscreteParameters(
-                xk=np.array(
-                    [
-                        0.52,
-                        0.52,
-                        0.52,
-                        0.52,
-                        0.52,
-                        0.52,
-                        0.52,
-                        0.08,
-                        0.08,
-                        0.18,
-                        0.18,
-                        0.18,
-                        0.18,
-                        0.18,
-                        0.18,
-                        0.18,
-                        0.28,
-                        0.28,
-                        0.28,
-                        0.28,
-                        0.42,
-                        0.42,
-                        0.42,
-                        0.42,
-                    ]
-                )
-                * n_customers
-                * ev_percentage
-                * daily_charge_frac,
-                pk=[
+        return Table(
+            x=np.array(
+                [
                     0,
                     1,
                     2,
@@ -121,8 +89,37 @@ def initialize_network(
                     23,
                 ],
             ),
-            draw_flag=False,
-            get_flag=True,
+            y=np.array(
+                [
+                    0.52,
+                    0.52,
+                    0.52,
+                    0.52,
+                    0.52,
+                    0.52,
+                    0.52,
+                    0.08,
+                    0.08,
+                    0.18,
+                    0.18,
+                    0.18,
+                    0.18,
+                    0.18,
+                    0.18,
+                    0.18,
+                    0.28,
+                    0.28,
+                    0.28,
+                    0.28,
+                    0.42,
+                    0.42,
+                    0.42,
+                    0.42,
+                ]
+            )
+            * n_customers
+            * ev_percentage
+            * daily_charge_frac,
         )
 
     if include_ICT:
@@ -800,127 +797,127 @@ def initialize_network(
         EVPark(
             name="EV1",
             bus=B3,
-            num_ev_dist=num_ev_stat_dist_func(B3.n_customers),
+            num_ev_dist=num_ev_table_func(B3.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV2",
             bus=B5,
-            num_ev_dist=num_ev_stat_dist_func(B5.n_customers),
+            num_ev_dist=num_ev_table_func(B5.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV3",
             bus=B6,
-            num_ev_dist=num_ev_stat_dist_func(B6.n_customers),
+            num_ev_dist=num_ev_table_func(B6.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV4",
             bus=B9,
-            num_ev_dist=num_ev_stat_dist_func(B9.n_customers),
+            num_ev_dist=num_ev_table_func(B9.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV5",
             bus=B10,
-            num_ev_dist=num_ev_stat_dist_func(B10.n_customers),
+            num_ev_dist=num_ev_table_func(B10.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV6",
             bus=B11,
-            num_ev_dist=num_ev_stat_dist_func(B11.n_customers),
+            num_ev_dist=num_ev_table_func(B11.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV7",
             bus=B12,
-            num_ev_dist=num_ev_stat_dist_func(B12.n_customers),
+            num_ev_dist=num_ev_table_func(B12.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV8",
             bus=B13,
-            num_ev_dist=num_ev_stat_dist_func(B13.n_customers),
+            num_ev_dist=num_ev_table_func(B13.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV9",
             bus=B15,
-            num_ev_dist=num_ev_stat_dist_func(B15.n_customers),
+            num_ev_dist=num_ev_table_func(B15.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV10",
             bus=B16,
-            num_ev_dist=num_ev_stat_dist_func(B16.n_customers),
+            num_ev_dist=num_ev_table_func(B16.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV11",
             bus=B17,
-            num_ev_dist=num_ev_stat_dist_func(B17.n_customers),
+            num_ev_dist=num_ev_table_func(B17.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV12",
             bus=B18,
-            num_ev_dist=num_ev_stat_dist_func(B18.n_customers),
+            num_ev_dist=num_ev_table_func(B18.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV13",
             bus=B19,
-            num_ev_dist=num_ev_stat_dist_func(B19.n_customers),
+            num_ev_dist=num_ev_table_func(B19.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV14",
             bus=B20,
-            num_ev_dist=num_ev_stat_dist_func(B20.n_customers),
+            num_ev_dist=num_ev_table_func(B20.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV15",
             bus=B21,
-            num_ev_dist=num_ev_stat_dist_func(B21.n_customers),
+            num_ev_dist=num_ev_table_func(B21.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV16",
             bus=B22,
-            num_ev_dist=num_ev_stat_dist_func(B22.n_customers),
+            num_ev_dist=num_ev_table_func(B22.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV17",
             bus=B23,
-            num_ev_dist=num_ev_stat_dist_func(B23.n_customers),
+            num_ev_dist=num_ev_table_func(B23.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV18",
             bus=B26,
-            num_ev_dist=num_ev_stat_dist_func(B26.n_customers),
+            num_ev_dist=num_ev_table_func(B26.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV19",
             bus=B27,
-            num_ev_dist=num_ev_stat_dist_func(B27.n_customers),
+            num_ev_dist=num_ev_table_func(B27.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV20",
             bus=B28,
-            num_ev_dist=num_ev_stat_dist_func(B28.n_customers),
+            num_ev_dist=num_ev_table_func(B28.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV21",
             bus=B33,
-            num_ev_dist=num_ev_stat_dist_func(B33.n_customers),
+            num_ev_dist=num_ev_table_func(B33.n_customers),
             v2g_flag=v2g_flag,
         )
 

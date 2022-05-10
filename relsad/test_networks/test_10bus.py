@@ -29,8 +29,9 @@ from relsad.StatDist import (
     StatDist,
     StatDistType,
     NormalParameters,
-    CustomDiscreteParameters,
 )
+
+from relsad.Table import Table
 
 
 def initialize_network(
@@ -63,46 +64,14 @@ def initialize_network(
         get_flag=False,
     )
 
-    def num_ev_stat_dist_func(
+    def num_ev_table_func(
         n_customers,
         ev_percentage=0.47,
         daily_charge_frac=0.61,
     ):
-        return StatDist(
-            stat_dist_type=StatDistType.CUSTOM_DISCRETE,
-            parameters=CustomDiscreteParameters(
-                xk=np.array(
-                    [
-                        0.52,
-                        0.52,
-                        0.52,
-                        0.52,
-                        0.52,
-                        0.52,
-                        0.52,
-                        0.08,
-                        0.08,
-                        0.18,
-                        0.18,
-                        0.18,
-                        0.18,
-                        0.18,
-                        0.18,
-                        0.18,
-                        0.28,
-                        0.28,
-                        0.28,
-                        0.28,
-                        0.42,
-                        0.42,
-                        0.42,
-                        0.42,
-                    ]
-                )
-                * n_customers
-                * ev_percentage
-                * daily_charge_frac,
-                pk=[
+        return Table(
+            x=np.array(
+                [
                     0,
                     1,
                     2,
@@ -129,8 +98,37 @@ def initialize_network(
                     23,
                 ],
             ),
-            draw_flag=False,
-            get_flag=True,
+            y=np.array(
+                [
+                    0.52,
+                    0.52,
+                    0.52,
+                    0.52,
+                    0.52,
+                    0.52,
+                    0.52,
+                    0.08,
+                    0.08,
+                    0.18,
+                    0.18,
+                    0.18,
+                    0.18,
+                    0.18,
+                    0.18,
+                    0.18,
+                    0.28,
+                    0.28,
+                    0.28,
+                    0.28,
+                    0.42,
+                    0.42,
+                    0.42,
+                    0.42,
+                ]
+            )
+            * n_customers
+            * ev_percentage
+            * daily_charge_frac,
         )
 
     if include_ICT:
@@ -611,31 +609,31 @@ def initialize_network(
         EVPark(
             name="EVB3",
             bus=B3,
-            num_ev_dist=num_ev_stat_dist_func(B3.n_customers),
+            num_ev_dist=num_ev_table_func(B3.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EVB4",
             bus=B4,
-            num_ev_dist=num_ev_stat_dist_func(B4.n_customers),
+            num_ev_dist=num_ev_table_func(B4.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EVB6",
             bus=B6,
-            num_ev_dist=num_ev_stat_dist_func(B6.n_customers),
+            num_ev_dist=num_ev_table_func(B6.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EVB7",
             bus=B7,
-            num_ev_dist=num_ev_stat_dist_func(B7.n_customers),
+            num_ev_dist=num_ev_table_func(B7.n_customers),
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EVB9",
             bus=B9,
-            num_ev_dist=num_ev_stat_dist_func(B9.n_customers),
+            num_ev_dist=num_ev_table_func(B9.n_customers),
             v2g_flag=v2g_flag,
         )
 
