@@ -14,7 +14,7 @@ class TimeUnit(Enum):
 class Time:
 
     """
-    Common class for time
+    Time utility class
 
     ...
 
@@ -42,18 +42,19 @@ class Time:
     convert_unit(unit)
         Converts the time based on the sat time unit to the correct time
     get_unit_quantity(unit)
+        Returns the time quantity of the class instance in the given unit
     get_seconds()
-        Returns the time in seconds
+        Returns the time quantity in seconds
     get_minutes()
-        Returns the time in minutes
+        Returns the time quantity in minutes
     get_hours()
-        Returns the time in hours
+        Returns the time quantity in hours
     get_days()
-        Returns the time in days
+        Returns the time quantity in days
     get_months()
-        Returns the time in months
+        Returns the time quantity in months
     get_years()
-        Returns the time in year
+        Returns the time quantity in year
 
     """
 
@@ -154,7 +155,7 @@ class Time:
 
     def get_unit_quantity(self, unit: TimeUnit):
         """
-        Converts the time based on the sat time unit to the correct time
+        Returns the time quantity of the class instance in the given unit
 
         Parameters
         ----------
@@ -163,23 +164,26 @@ class Time:
 
         Returns
         ----------
-        None
+        time_quantity : float
+            The time quantity of the class instance in the given unit
 
         """
+        time_quantity = 0
         if unit == TimeUnit.SECOND:
-            return self.get_seconds()
+            time_quantity = self.get_seconds()
         elif unit == TimeUnit.MINUTE:
-            return self.get_minutes()
+            time_quantity = self.get_minutes()
         elif unit == TimeUnit.HOUR:
-            return self.get_hours()
+            time_quantity = self.get_hours()
         elif unit == TimeUnit.DAY:
-            return self.get_days()
+            time_quantity = self.get_days()
         elif unit == TimeUnit.WEEK:
-            return self.get_weeks()
+            time_quantity = self.get_weeks()
         elif unit == TimeUnit.MONTH:
-            return self.get_months()
+            time_quantity = self.get_months()
         elif unit == TimeUnit.YEAR:
-            return self.get_years()
+            time_quantity = self.get_years()
+        return time_quantity
 
     def __lt__(self, other):
         return isinstance(
@@ -232,7 +236,7 @@ class Time:
 
     def get_seconds(self):
         """
-        Returns the time in seconds
+        Returns the time quantity in seconds
 
         Parameters
         ----------
@@ -240,24 +244,26 @@ class Time:
 
         Returns
         ----------
-        None
+        seconds : float
+            The time quantity in seconds
 
         """
+        seconds = 0
         if self.unit == TimeUnit.SECOND:
-            return self.quantity
+            seconds = self.quantity
         elif self.unit == TimeUnit.MINUTE:
-            return self.quantity * self.SEC_per_MIN
+            seconds = self.quantity * self.SEC_per_MIN
         elif self.unit == TimeUnit.HOUR:
-            return self.quantity * self.SEC_per_MIN * self.MIN_per_HOUR
+            seconds = self.quantity * self.SEC_per_MIN * self.MIN_per_HOUR
         elif self.unit == TimeUnit.DAY:
-            return (
+            seconds = (
                 self.quantity
                 * self.SEC_per_MIN
                 * self.MIN_per_HOUR
                 * self.HOUR_per_DAY
             )
         elif self.unit == TimeUnit.WEEK:
-            return (
+            seconds = (
                 self.quantity
                 * self.SEC_per_MIN
                 * self.MIN_per_HOUR
@@ -265,7 +271,7 @@ class Time:
                 * self.DAY_per_WEEK
             )
         elif self.unit == TimeUnit.MONTH:
-            return (
+            seconds = (
                 self.quantity
                 * self.SEC_per_MIN
                 * self.MIN_per_HOUR
@@ -274,7 +280,7 @@ class Time:
                 * self.WEEK_per_MONTH
             )
         elif self.unit == TimeUnit.YEAR:
-            return (
+            seconds = (
                 self.quantity
                 * self.SEC_per_MIN
                 * self.MIN_per_HOUR
@@ -283,10 +289,11 @@ class Time:
                 * self.WEEK_per_MONTH
                 * self.MONTH_per_YEAR
             )
+        return seconds
 
     def get_minutes(self):
         """
-        Returns the time in minutes
+        Returns the time quantity in minutes
 
         Parameters
         ----------
@@ -294,26 +301,28 @@ class Time:
 
         Returns
         ----------
-        None
+        minutes : float
+            The time quantity in minutes
 
         """
+        minutes = 0
         if self.unit == TimeUnit.SECOND:
-            return self.quantity / self.SEC_per_MIN
+            minutes = self.quantity / self.SEC_per_MIN
         elif self.unit == TimeUnit.MINUTE:
-            return self.quantity
+            minutes = self.quantity
         elif self.unit == TimeUnit.HOUR:
-            return self.quantity * self.MIN_per_HOUR
+            minutes = self.quantity * self.MIN_per_HOUR
         elif self.unit == TimeUnit.DAY:
-            return self.quantity * self.MIN_per_HOUR * self.HOUR_per_DAY
+            minutes = self.quantity * self.MIN_per_HOUR * self.HOUR_per_DAY
         elif self.unit == TimeUnit.WEEK:
-            return (
+            minutes = (
                 self.quantity
                 * self.MIN_per_HOUR
                 * self.HOUR_per_DAY
                 * self.DAY_per_WEEK
             )
         elif self.unit == TimeUnit.MONTH:
-            return (
+            minutes = (
                 self.quantity
                 * self.MIN_per_HOUR
                 * self.HOUR_per_DAY
@@ -321,7 +330,7 @@ class Time:
                 * self.WEEK_per_MONTH
             )
         elif self.unit == TimeUnit.YEAR:
-            return (
+            minutes = (
                 self.quantity
                 * self.MIN_per_HOUR
                 * self.HOUR_per_DAY
@@ -329,10 +338,11 @@ class Time:
                 * self.WEEK_per_MONTH
                 * self.MONTH_per_YEAR
             )
+        return minutes
 
     def get_hours(self):
         """
-        Returns the time in hours
+        Returns the time quantity in hours
 
         Parameters
         ----------
@@ -340,38 +350,41 @@ class Time:
 
         Returns
         ----------
-        None
+        hours : float
+            The time quantity in hours
 
         """
+        hours = 0
         if self.unit == TimeUnit.SECOND:
-            return self.quantity / self.SEC_per_MIN / self.MIN_per_HOUR
+            hours = self.quantity / self.SEC_per_MIN / self.MIN_per_HOUR
         elif self.unit == TimeUnit.MINUTE:
-            return self.quantity / self.MIN_per_HOUR
+            hours = self.quantity / self.MIN_per_HOUR
         elif self.unit == TimeUnit.HOUR:
-            return self.quantity
+            hours = self.quantity
         elif self.unit == TimeUnit.DAY:
-            return self.quantity * self.HOUR_per_DAY
+            hours = self.quantity * self.HOUR_per_DAY
         elif self.unit == TimeUnit.WEEK:
-            return self.quantity * self.HOUR_per_DAY * self.DAY_per_WEEK
+            hours = self.quantity * self.HOUR_per_DAY * self.DAY_per_WEEK
         elif self.unit == TimeUnit.MONTH:
-            return (
+            hours = (
                 self.quantity
                 * self.HOUR_per_DAY
                 * self.DAY_per_WEEK
                 * self.WEEK_per_MONTH
             )
         elif self.unit == TimeUnit.YEAR:
-            return (
+            hours = (
                 self.quantity
                 * self.HOUR_per_DAY
                 * self.DAY_per_WEEK
                 * self.WEEK_per_MONTH
                 * self.MONTH_per_YEAR
             )
+        return hours
 
     def get_days(self):
         """
-        Returns the time in days
+        Returns the time quantity in days
 
         Parameters
         ----------
@@ -379,37 +392,40 @@ class Time:
 
         Returns
         ----------
-        None
+        days : float
+            The time quantity in days
 
         """
+        days = 0
         if self.unit == TimeUnit.SECOND:
-            return (
+            days = (
                 self.quantity
                 / self.SEC_per_MIN
                 / self.MIN_per_HOUR
                 / self.HOUR_per_DAY
             )
         elif self.unit == TimeUnit.MINUTE:
-            return self.quantity / self.MIN_per_HOUR / self.HOUR_per_DAY
+            days = self.quantity / self.MIN_per_HOUR / self.HOUR_per_DAY
         elif self.unit == TimeUnit.HOUR:
-            return self.quantity / self.HOUR_per_DAY
+            days = self.quantity / self.HOUR_per_DAY
         elif self.unit == TimeUnit.DAY:
-            return self.quantity
+            days = self.quantity
         elif self.unit == TimeUnit.WEEK:
-            return self.quantity * self.DAY_per_WEEK
+            days = self.quantity * self.DAY_per_WEEK
         elif self.unit == TimeUnit.MONTH:
-            return self.quantity * self.DAY_per_WEEK * self.WEEK_per_MONTH
+            days = self.quantity * self.DAY_per_WEEK * self.WEEK_per_MONTH
         elif self.unit == TimeUnit.YEAR:
-            return (
+            days = (
                 self.quantity
                 * self.DAY_per_WEEK
                 * self.WEEK_per_MONTH
                 * self.MONTH_per_YEAR
             )
+        return days
 
     def get_weeks(self):
         """
-        Returns the time in weeks
+        Returns the time quantity in weeks
 
         Parameters
         ----------
@@ -417,11 +433,13 @@ class Time:
 
         Returns
         ----------
-        None
+        weeks : float
+            The time quantity in weeks
 
         """
+        weeks = 0
         if self.unit == TimeUnit.SECOND:
-            return (
+            weeks = (
                 self.quantity
                 / self.SEC_per_MIN
                 / self.MIN_per_HOUR
@@ -429,26 +447,27 @@ class Time:
                 / self.DAY_per_WEEK
             )
         elif self.unit == TimeUnit.MINUTE:
-            return (
+            weeks = (
                 self.quantity
                 / self.MIN_per_HOUR
                 / self.HOUR_per_DAY
                 / self.DAY_per_WEEK
             )
         elif self.unit == TimeUnit.HOUR:
-            return self.quantity / self.HOUR_per_DAY / self.DAY_per_WEEK
+            weeks = self.quantity / self.HOUR_per_DAY / self.DAY_per_WEEK
         elif self.unit == TimeUnit.DAY:
-            return self.quantity / self.DAY_per_WEEK
+            weeks = self.quantity / self.DAY_per_WEEK
         elif self.unit == TimeUnit.WEEK:
-            return self.quantity
+            weeks = self.quantity
         elif self.unit == TimeUnit.MONTH:
-            return self.quantity * self.WEEK_per_MONTH
+            weeks = self.quantity * self.WEEK_per_MONTH
         elif self.unit == TimeUnit.YEAR:
-            return self.quantity * self.WEEK_per_MONTH * self.MONTH_per_YEAR
+            weeks = self.quantity * self.WEEK_per_MONTH * self.MONTH_per_YEAR
+        return weeks
 
     def get_months(self):
         """
-        Returns the time in months
+        Returns the time quantity in months
 
         Parameters
         ----------
@@ -456,11 +475,13 @@ class Time:
 
         Returns
         ----------
-        None
+        months : float
+            The time quantity in months
 
         """
+        months = 0
         if self.unit == TimeUnit.SECOND:
-            return (
+            months = (
                 self.quantity
                 / self.SEC_per_MIN
                 / self.MIN_per_HOUR
@@ -469,7 +490,7 @@ class Time:
                 / self.WEEK_per_MONTH
             )
         elif self.unit == TimeUnit.MINUTE:
-            return (
+            months = (
                 self.quantity
                 / self.MIN_per_HOUR
                 / self.HOUR_per_DAY
@@ -477,24 +498,25 @@ class Time:
                 / self.WEEK_per_MONTH
             )
         elif self.unit == TimeUnit.HOUR:
-            return (
+            months = (
                 self.quantity
                 / self.HOUR_per_DAY
                 / self.DAY_per_WEEK
                 / self.WEEK_per_MONTH
             )
         elif self.unit == TimeUnit.DAY:
-            return self.quantity / self.DAY_per_WEEK / self.WEEK_per_MONTH
+            months = self.quantity / self.DAY_per_WEEK / self.WEEK_per_MONTH
         elif self.unit == TimeUnit.WEEK:
-            return self.quantity / self.WEEK_per_MONTH
+            months = self.quantity / self.WEEK_per_MONTH
         elif self.unit == TimeUnit.MONTH:
-            return self.quantity
+            months = self.quantity
         elif self.unit == TimeUnit.YEAR:
-            return self.quantity * self.MONTH_per_YEAR
+            months = self.quantity * self.MONTH_per_YEAR
+        return months
 
     def get_years(self):
         """
-        Returns the time in years
+        Returns the time quantity in years
 
         Parameters
         ----------
@@ -502,11 +524,13 @@ class Time:
 
         Returns
         ----------
-        None
+        years : float
+            The time quantity in years
 
         """
+        years = 0
         if self.unit == TimeUnit.SECOND:
-            return (
+            years = (
                 self.quantity
                 / self.SEC_per_MIN
                 / self.MIN_per_HOUR
@@ -516,7 +540,7 @@ class Time:
                 / self.MONTH_per_YEAR
             )
         elif self.unit == TimeUnit.MINUTE:
-            return (
+            years = (
                 self.quantity
                 / self.MIN_per_HOUR
                 / self.HOUR_per_DAY
@@ -525,7 +549,7 @@ class Time:
                 / self.MONTH_per_YEAR
             )
         elif self.unit == TimeUnit.HOUR:
-            return (
+            years = (
                 self.quantity
                 / self.HOUR_per_DAY
                 / self.DAY_per_WEEK
@@ -533,23 +557,24 @@ class Time:
                 / self.MONTH_per_YEAR
             )
         elif self.unit == TimeUnit.DAY:
-            return (
+            years = (
                 self.quantity
                 / self.DAY_per_WEEK
                 / self.WEEK_per_MONTH
                 / self.MONTH_per_YEAR
             )
         elif self.unit == TimeUnit.WEEK:
-            return self.quantity / self.WEEK_per_MONTH / self.MONTH_per_YEAR
+            years = self.quantity / self.WEEK_per_MONTH / self.MONTH_per_YEAR
         elif self.unit == TimeUnit.MONTH:
-            return self.quantity / self.MONTH_per_YEAR
+            years = self.quantity / self.MONTH_per_YEAR
         elif self.unit == TimeUnit.YEAR:
-            return self.quantity
+            years = self.quantity
+        return years
 
 
 class TimeStamp:
     """
-    Common class for time stamp
+    Time stamp utility class
 
     ...
 
@@ -571,6 +596,7 @@ class TimeStamp:
     Methods
     ----------
     get_hour_of_day(time_passed)
+        Returns the hour of day based on the time passed
 
     """
 
@@ -589,6 +615,14 @@ class TimeStamp:
         self.hour = hour
         self.minute = minute
         self.second = second
+        # Calculate time quantity
+        self.time_quantity = Time(0, TimeUnit.SECOND)
+        self.time_quantity += Time(year, TimeUnit.YEAR)
+        self.time_quantity += Time(month, TimeUnit.MONTH)
+        self.time_quantity += Time(day, TimeUnit.DAY)
+        self.time_quantity += Time(hour, TimeUnit.HOUR)
+        self.time_quantity += Time(minute, TimeUnit.MINUTE)
+        self.time_quantity += Time(second, TimeUnit.SECOND)
 
     def __str__(self):
         return (
@@ -622,16 +656,17 @@ class TimeStamp:
 
     def get_hour_of_day(self, time_passed: Time):
         """
-        Returns the hour of day
+        Returns the hour of day based on the time passed
 
         Parameters
         ----------
         time_passed : Time
-            Time that have passed to the given hour of day
+            Time passed
 
         Returns
         ----------
-        None
+        hour_of_day : int
+            The hour of day based on the time passed
 
         """
         if not isinstance(time_passed, Time):
@@ -647,7 +682,10 @@ class TimeStamp:
             d = int(dup.get_days())
             dup -= Time(d, TimeUnit.DAY)
         dup -= Time(self.hour, TimeUnit.HOUR)
-        return int(dup.get_hours())
+        dup += Time(self.minute, TimeUnit.MINUTE)
+        dup += Time(self.second, TimeUnit.SECOND)
+        hour_of_day = int(dup.get_hours())
+        return hour_of_day
 
     def __sub__(self, other):
         if not isinstance(other, self.__class__):
