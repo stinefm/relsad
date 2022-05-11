@@ -312,9 +312,9 @@ Here, the number of EVs in the park and the possibilities of vehicle-to-grid can
 Network with microgrid
 .....................................
 
-^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""
 Grid connected microgrids
-^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""
 
 For evaluating a network with a microgrid, an additional network class needs to be imported::
 
@@ -445,9 +445,9 @@ After the microgrid components are created, the microgrid can be created and the
     m.add_lines([ML2, ML3])
 
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""
 Islanded networks (microgrids)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""
 
 For evaluating islanded networks or microgrids, the network should be created without an overlying network connection::
 
@@ -471,7 +471,7 @@ For including ICT, the ICT components need to be imported::
         IntelligentSwitch,
     )
 
-The components can be created.
+The ICT components can be created.
 For controller::
 
     C1 = MainController(name="C1")
@@ -482,13 +482,13 @@ The intelligent switch is added to disconnectors::
 
     Isw1 = IntelligentSwitch(name="Isw1", disconnector=DL2a)
 
-A failure rate for the intelligent switch can also be added to the component.
+A failure rate for the intelligent switch can also be added to the component. There can only be one intelligent switch on each disconnector. 
 
 A sensor can be added on a line::
 
     S1 = Sensor(name="S1", line=L2)
 
-Failure rates and repair time of the sensor can be added to the component. 
+Failure rates and repair time of the sensor can be added to the component. There can only be on sensor on each line. 
 
 
 .....................................
@@ -497,10 +497,10 @@ Monte Carlo simulation
 
 In :ref:`load_and_production_generation`, examples of how to generate load and generation profiles are provided. 
 The generated profiles can be used to set the load and generation on the buses in the system. 
-The load and generation profiles can then be added::
+The load and generation profiles can then be added to the buses in the system. 
 
 
-In addition, a cost related to the load can be added to the bus::
+In addition, a cost related to the load can be added to the bus. For generating the specific interruption for a load category:: 
 
     household = CostFunction(
         A = A,
@@ -514,11 +514,15 @@ Load and cost can be added to the buses::
         cost_function=household,
     )
 
+Here, a household type load is chosen. The household type load is based on the load profile shown in :ref:`load_and_production_generation`.
+
 Generation can be added to a production unit on the bus::
 
     P1.add_prod_data(
         pprod_data=Prod_PV,
     )
+
+Here, the generation profile represent production from solar power. This generation type is based on the generation profiles shown in :ref:`load_and_production_generation`. 
 
 Finally, to run a simulation the user must specify:
 
