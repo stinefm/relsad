@@ -14,8 +14,6 @@ components
     relsad.network.components.Disconnector.Disconnector
     relsad.network.components.DistributionController.DistributionController
     relsad.network.components.EVPark.EVPark
-    relsad.network.components.ICTLine.ICTLine
-    relsad.network.components.ICTNode.ICTNode
     relsad.network.components.IntelligentSwitch.IntelligentSwitch
     relsad.network.components.IntelligentSwitch.IntelligentSwitchState
     relsad.network.components.Line.Line

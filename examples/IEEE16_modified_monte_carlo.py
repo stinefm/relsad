@@ -1,9 +1,16 @@
-from relsad.test_networks.IEEE69_modified import (
+from relsad.test_networks.IEEE16_modified import (
     initialize_network,
 )
 from relsad.visualization.plotting import plot_topology
 from relsad.utils import random_instance
+from relsad.load.bus import CostFunction
 from relsad.simulation import Simulation
+from relsad.Time import (
+    Time,
+    TimeUnit,
+    TimeStamp,
+)
+
 from load_and_gen_data import (
     WeatherGen,
     LoadGen,
@@ -123,7 +130,7 @@ if __name__ == "__main__":
     PV = PVgeneration(temp_profiles, solar_profiles)
 
     (
-        load_house,
+        load_household,
         load_farm,
         load_microgrid,
         load_industry2,
@@ -131,104 +138,103 @@ if __name__ == "__main__":
         load_office,
     ) = LoadGen(temp_profiles)
 
-    load_dict = dict()
-
-    load_dict[B2] = {
-        "Husholdning": {"pload": load_house * 60, "qload": load_house * 0}
-    }
-    load_dict[B3] = {
-        "Offentlig virksomhet": {
-            "pload": load_office * 2,
-            "qload": load_office * 0,
-        }
-    }
-    load_dict[B4] = {
-        "Husholdning": {"pload": load_house * 60, "qload": load_house * 0}
-    }
-    load_dict[B5] = {
-        "Industri": {"pload": load_industry2 * 2, "qload": load_industry2 * 0}
-    }
-    load_dict[B6] = {
-        "Jordbruk": {"pload": load_farm * 90, "qload": load_farm * 0}
-    }
-    load_dict[B7] = {
-        "Jordbruk": {"pload": load_farm * 90, "qload": load_farm * 0}
-    }
-    load_dict[B8] = {
-        "Offentlig virksomhet": {
-            "pload": load_office * 2,
-            "qload": load_office * 0,
-        }
-    }
-    load_dict[B9] = {
-        "Handel og tjenester": {
-            "pload": load_trade * 3,
-            "qload": load_trade * 0,
-        }
-    }
-
-    load_dict[B10] = {
-        "Industri": {"pload": load_industry2 * 2, "qload": load_industry2 * 0}
-    }
-    load_dict[B11] = {
-        "Jordbruk": {"pload": load_farm * 80, "qload": load_farm * 0}
-    }
-    load_dict[B12] = {
-        "Handel og tjenester": {
-            "pload": load_trade * 3,
-            "qload": load_trade * 0,
-        }
-    }
-    load_dict[B13] = {
-        "Husholdning": {"pload": load_house * 60, "qload": load_house * 0}
-    }
-    load_dict[B14] = {
-        "Husholdning": {"pload": load_house * 60, "qload": load_house * 0}
-    }
-    load_dict[B15] = {
-        "Jordbruk": {"pload": load_farm * 80, "qload": load_farm * 0}
-    }
-
-    load_dict[B16] = {
-        "Husholdning": {"pload": load_house * 60, "qload": load_house * 0}
-    }
-
-    # Microgrid:
-    load_dict[BM2] = {
-        "Microgrid": {"pload": load_farm * 40, "qload": load_farm * 0}
-    }
-
-    prod_dict = dict()
-
-    prod_dict[P1] = {"pprod": wind, "qprod": wind * 0}
-    prod_dict[P2] = {"pprod": PV, "qprod": PV * 0}
-
-    ps.add_load_dict(load_dict)
-    ps.add_prod_dict(prod_dict)
-
-    save_dir = r"C:\Users\stinefm\Documents\IEEE69_modified_21-05-2021\s3"
-
-    fig = plot_topology(ps.buses, ps.lines, figsize=(6.5, 4.5))
-    fig.savefig(os.path.join(save_dir, "topology.pdf"))
-
-    sim = Simulation(ps, random_seed=0)
-
-    sim.run_monte_carlo(
-        iterations=54,
-        increments=8760,
-        save_iterations=[
-            0,
-            6,
-            19,
-            27,
-            29,
-            31,
-            35,
-            39,
-            52,
-        ],
-        save_dir=save_dir,
+    farm = CostFunction(
+        A=21.4 - 17.5,
+        B=17.5,
     )
+
+    microgrid = CostFunction(
+        A=(21.4 - 17.5) * 1000,
+        B=17.5 * 1000,
+    )
+
+    industry = CostFunction(
+        A=132.6 - 92.5,
+        B=92.5,
+    )
+
+    trade = CostFunction(
+        A=220.3 - 102.4,
+        B=102.4,
+    )
+
+    public = CostFunction(
+        A=194.5 - 31.4,
+        B=31.4,
+    )
+
+    household = CostFunction(
+        A=8.8,
+        B=14.7,
+    )
+
+    for bus in [B2, B4, B13, B14, B16]:
+        bus.add_load_data(
+        pload_data=load_household,
+        cost_function=household
+    )
+
+    for bus in [B6, B7, B11, B15, BM2]:
+        bus.add_load_data(
+        pload_data=load_farm,
+        cost_function=farm
+    )
+
+    for bus in [B5, B10]:
+        bus.add_load_data(
+        pload_data=load_industry2,
+        cost_function=industry
+    )
+
+    for bus in [B3, B8]:
+        bus.add_load_data(
+        pload_data=load_office,
+        cost_function=public
+    )
+
+    for bus in [B9, B12]:
+        bus.add_load_data(
+        pload_data=load_trade,
+        cost_function=trade
+    )
+
+
+    P1.add_prod_data(
+        pprod_data=PV,
+    )
+    P2.add_prod_data(
+        pprod_data=wind,
+    )
+
+
+    #save_dir = r"C:\Users\stinefm\Documents\IEEE69_modified_21-05-2021\s3"
+
+    sim = Simulation(ps, random_seed=3)
+    sim.run_monte_carlo(
+        iterations=5,
+        start_time=TimeStamp(
+            year=2019,
+            month=1,
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+        ),
+        stop_time=TimeStamp(
+            year=2020,
+            month=1,
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+        ),
+        time_step=Time(1, TimeUnit.HOUR),
+        time_unit=TimeUnit.HOUR,
+        save_iterations=[1],
+        #save_dir=save_dir,
+        n_procs=1,
+        debug=True,
+)
 
     end = time.time()
     print("Time elapsed: {}".format(end - start))

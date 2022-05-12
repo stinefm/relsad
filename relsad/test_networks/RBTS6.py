@@ -4,49 +4,248 @@ from relsad.network.components import (
     CircuitBreaker,
     Disconnector,
     Line,
+    ManualMainController, 
+
 )
-from relsad.network.systems import Distribution, PowerSystem, Transmission
+from relsad.network.systems import (
+    Distribution, 
+    PowerSystem, 
+    Transmission,
+)
+from relsad.Time import (
+    Time,
+    TimeUnit,
+)
+
+from relsad.StatDist import (
+    StatDist,
+    StatDistType,
+    NormalParameters,
+)
+from relsad.Table import Table
 from relsad.visualization.plotting import plot_topology
 
 
 def initialize_network():
-    ps = PowerSystem()
+
+    C1 = ManualMainController(
+            name="C1",
+            sectioning_time=Time(1, TimeUnit.HOUR),
+        )
+    ps = PowerSystem(C1)
+
+    line_stat_dist = StatDist(
+        stat_dist_type=StatDistType.TRUNCNORMAL,
+        parameters=NormalParameters(
+            loc=1.25,
+            scale=1,
+            min_val=0.5,
+            max_val=2,
+        ),
+        draw_flag=True,
+        get_flag=False,
+    )
     fail_rate_trafo = 0.007  # 0.008
     fail_rate_line = 0.07  # 0.08
+    outage_time_trafo = Time(8, TimeUnit.HOUR)
 
-    B1 = Bus("B1", coordinate=[0, 0], fail_rate_per_year=0)
-    B2 = Bus("B2", coordinate=[0, -1], fail_rate_per_year=fail_rate_trafo)
-    B3 = Bus("B3", coordinate=[0, -2], fail_rate_per_year=fail_rate_trafo)
-    B4 = Bus("B4", coordinate=[0, -3], fail_rate_per_year=fail_rate_trafo)
-    B5 = Bus("B5", coordinate=[0, -4], fail_rate_per_year=fail_rate_trafo)
-    B6 = Bus("B6", coordinate=[0, -5], fail_rate_per_year=fail_rate_trafo)
-    B7 = Bus("B7", coordinate=[0, -6], fail_rate_per_year=fail_rate_trafo)
-    B8 = Bus("B8", coordinate=[0, -7], fail_rate_per_year=fail_rate_trafo)
-    B9 = Bus("B9", coordinate=[0, -8], fail_rate_per_year=fail_rate_trafo)
-    B10 = Bus("B10", coordinate=[0, -9], fail_rate_per_year=fail_rate_trafo)
-    B11 = Bus("B11", coordinate=[0, -10], fail_rate_per_year=fail_rate_trafo)
-    B12 = Bus("B12", coordinate=[0, -11], fail_rate_per_year=fail_rate_trafo)
-    B13 = Bus("B13", coordinate=[0, -12], fail_rate_per_year=fail_rate_trafo)
-    B14 = Bus("B14", coordinate=[0, -13], fail_rate_per_year=fail_rate_trafo)
-    B15 = Bus("B15", coordinate=[0, -14], fail_rate_per_year=fail_rate_trafo)
-    B16 = Bus("B16", coordinate=[0, -15], fail_rate_per_year=fail_rate_trafo)
-    B17 = Bus("B17", coordinate=[0, -16], fail_rate_per_year=fail_rate_trafo)
-    B18 = Bus("B18", coordinate=[0, -17], fail_rate_per_year=fail_rate_trafo)
-    B19 = Bus("B19", coordinate=[-1, -2], fail_rate_per_year=fail_rate_trafo)
-    B20 = Bus("B20", coordinate=[-1, -3], fail_rate_per_year=fail_rate_trafo)
-    B21 = Bus("B21", coordinate=[-1, -4], fail_rate_per_year=fail_rate_trafo)
-    B22 = Bus("B22", coordinate=[-1, -5], fail_rate_per_year=fail_rate_trafo)
-    B23 = Bus("B23", coordinate=[1, -3], fail_rate_per_year=fail_rate_trafo)
-    B24 = Bus("B24", coordinate=[1, -4], fail_rate_per_year=fail_rate_trafo)
-    B25 = Bus("B25", coordinate=[1, -5], fail_rate_per_year=fail_rate_trafo)
-    B26 = Bus("B26", coordinate=[-1, -6], fail_rate_per_year=fail_rate_trafo)
-    B27 = Bus("B27", coordinate=[-1, -7], fail_rate_per_year=fail_rate_trafo)
-    B28 = Bus("B28", coordinate=[-1, -8], fail_rate_per_year=fail_rate_trafo)
-    B29 = Bus("B29", coordinate=[-1, -9], fail_rate_per_year=fail_rate_trafo)
-    B30 = Bus("B30", coordinate=[-1, -10], fail_rate_per_year=fail_rate_trafo)
-    B31 = Bus("B31", coordinate=[-1, -11], fail_rate_per_year=fail_rate_trafo)
-    B32 = Bus("B32", coordinate=[-1, -12], fail_rate_per_year=fail_rate_trafo)
-    B33 = Bus("B33", coordinate=[-1, -13], fail_rate_per_year=fail_rate_trafo)
+    B1 = Bus(
+        name="B1", 
+        coordinate=[0, 0], 
+        fail_rate_per_year=0,
+        )
+    B2 = Bus(
+        name="B2", 
+        coordinate=[0, -1], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B3 = Bus(
+        name="B3", 
+        coordinate=[0, -2], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B4 = Bus(
+        name="B4", 
+        coordinate=[0, -3], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B5 = Bus(
+        name="B5", 
+        coordinate=[0, -4], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B6 = Bus(
+        name="B6", 
+        coordinate=[0, -5], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B7 = Bus(
+        name="B7", 
+        coordinate=[0, -6], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B8 = Bus(
+        name="B8", 
+        coordinate=[0, -7], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B9 = Bus(
+        name="B9", 
+        coordinate=[0, -8], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B10 = Bus(
+        name="B10", 
+        coordinate=[0, -9], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B11 = Bus(
+        name="B11", 
+        coordinate=[0, -10], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B12 = Bus(
+        name="B12", 
+        coordinate=[0, -11], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B13 = Bus(
+        name="B13", 
+        coordinate=[0, -12], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B14 = Bus(
+        name="B14", 
+        coordinate=[0, -13], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B15 = Bus(
+        name="B15", 
+        coordinate=[0, -14], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B16 = Bus(
+        name="B16", 
+        coordinate=[0, -15], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B17 = Bus(
+        name="B17", 
+        coordinate=[0, -16], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B18 = Bus(
+        name="B18", 
+        coordinate=[0, -17], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B19 = Bus(
+        name="B19", 
+        coordinate=[-1, -2], 
+        fail_rate_per_year=fail_rate_trafo,
+        outge_time=outage_time_trafo,
+        )
+    B20 = Bus(
+        name="B20", 
+        coordinate=[-1, -3], 
+        fail_rate_per_year=fail_rate_trafo,
+        outge_time=outage_time_trafo,
+        )
+    B21 = Bus(
+        name="B21", 
+        coordinate=[-1, -4], 
+        fail_rate_per_year=fail_rate_trafo,
+        outge_time=outage_time_trafo,
+        )
+    B22 = Bus(
+        name="B22", 
+        coordinate=[-1, -5], 
+        fail_rate_per_year=fail_rate_trafo,
+        outge_time=outage_time_trafo,
+        )
+    B23 = Bus(
+        name="B23", 
+        coordinate=[1, -3], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B24 = Bus(
+        name="B24", 
+        coordinate=[1, -4], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B25 = Bus(
+        name="B25", 
+        coordinate=[1, -5], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B26 = Bus(
+        name="B26", 
+        coordinate=[-1, -6], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B27 = Bus(
+        name="B27", 
+        coordinate=[-1, -7], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B28 = Bus(
+        name="B28", 
+        coordinate=[-1, -8], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B29 = Bus(
+        name="B29", 
+        coordinate=[-1, -9], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B30 = Bus(
+        name="B30", 
+        coordinate=[-1, -10], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B31 = Bus(
+        name="B31", 
+        coordinate=[-1, -11], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B32 = Bus(
+        name="B32", 
+        coordinate=[-1, -12], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
+    B33 = Bus(
+        name="B33", 
+        coordinate=[-1, -13], 
+        fail_rate_per_year=fail_rate_trafo,
+        outage_time=outage_time_trafo,
+        )
 
     L1 = Line(
         "L1",
@@ -55,6 +254,7 @@ def initialize_network():
         0.057526629463617,
         0.029324854498807,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L2 = Line(
         "L2",
@@ -63,6 +263,7 @@ def initialize_network():
         0.307599005700253,
         0.156669594992563,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L3 = Line(
         "L3",
@@ -71,6 +272,7 @@ def initialize_network():
         0.228359505246029,
         0.11630112507612,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L4 = Line(
         "L4",
@@ -79,6 +281,7 @@ def initialize_network():
         0.237780894670114,
         0.121105409749329,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L5 = Line(
         "L5",
@@ -87,6 +290,7 @@ def initialize_network():
         0.511001187968574,
         0.441120683630991,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L6 = Line(
         "L6",
@@ -95,6 +299,7 @@ def initialize_network():
         0.116800271535674,
         0.386089786465145,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L7 = Line(
         "L7",
@@ -103,6 +308,7 @@ def initialize_network():
         1.06779906360124,
         0.770619740244183,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L8 = Line(
         "L8",
@@ -111,6 +317,7 @@ def initialize_network():
         0.642651066675984,
         0.4617104750876,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L9 = Line(
         "L9",
@@ -119,6 +326,7 @@ def initialize_network():
         0.651386129718182,
         0.4617104750876,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L10 = Line(
         "L10",
@@ -127,6 +335,7 @@ def initialize_network():
         0.122665242435435,
         0.040555649838776,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L11 = Line(
         "L11",
@@ -135,6 +344,7 @@ def initialize_network():
         0.233600543071348,
         0.077242914616007,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L12 = Line(
         "L12",
@@ -143,6 +353,7 @@ def initialize_network():
         0.915933753281888,
         0.720642700981322,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L13 = Line(
         "L13",
@@ -151,6 +362,7 @@ def initialize_network():
         0.337922153118168,
         0.444801888770203,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L14 = Line(
         "L14",
@@ -159,6 +371,7 @@ def initialize_network():
         0.368744446995637,
         0.328188797156862,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L15 = Line(
         "L15",
@@ -167,6 +380,7 @@ def initialize_network():
         0.465641253456589,
         0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L16 = Line(
         "L16",
@@ -175,6 +389,7 @@ def initialize_network():
         0.804249732956644,
         1.07378882111589,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L17 = Line(
         "L17",
@@ -183,6 +398,7 @@ def initialize_network():
         0.456719010492059,
         0.358137584730111,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L18 = Line(
         "L18",
@@ -191,6 +407,7 @@ def initialize_network():
         0.102325024208603,
         0.097645526150283,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L19 = Line(
         "L19",
@@ -199,6 +416,7 @@ def initialize_network():
         0.938520130576714,
         0.84567888909964,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L20 = Line(
         "L20",
@@ -207,6 +425,7 @@ def initialize_network():
         0.255500593984287,
         0.298489582813389,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L21 = Line(
         "L21",
@@ -215,6 +434,7 @@ def initialize_network():
         0.442306156472432,
         0.584812470675146,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L22 = Line(
         "L22",
@@ -223,6 +443,7 @@ def initialize_network():
         0.281518603188548,
         0.192358566850685,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L23 = Line(
         "L23",
@@ -231,6 +452,7 @@ def initialize_network():
         0.560291900849547,
         0.442430943087321,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L24 = Line(
         "L24",
@@ -239,6 +461,7 @@ def initialize_network():
         0.559044034700662,
         0.437439478491779,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L25 = Line(
         "L25",
@@ -247,6 +470,7 @@ def initialize_network():
         0.126658414111869,
         0.064514679897376,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L26 = Line(
         "L26",
@@ -255,6 +479,7 @@ def initialize_network():
         0.177321779756616,
         0.090283115871859,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L27 = Line(
         "L27",
@@ -263,6 +488,7 @@ def initialize_network():
         0.660745125834823,
         0.582566311607152,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L28 = Line(
         "L28",
@@ -271,6 +497,7 @@ def initialize_network():
         0.501766978466822,
         0.437127511954558,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L29 = Line(
         "L29",
@@ -279,6 +506,7 @@ def initialize_network():
         0.316646035279672,
         0.161286699743439,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L30 = Line(
         "L30",
@@ -287,6 +515,7 @@ def initialize_network():
         0.60796038773697,
         0.600847550688323,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L31 = Line(
         "L31",
@@ -295,6 +524,7 @@ def initialize_network():
         0.193731219614459,
         0.225801379640814,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
     L32 = Line(
         "L32",
@@ -303,6 +533,7 @@ def initialize_network():
         0.212761178384962,
         0.330809316069521,
         fail_rate_density_per_year=fail_rate_line,
+        outage_time_dist=line_stat_dist,
     )
 
     E1 = CircuitBreaker("E1", L1)

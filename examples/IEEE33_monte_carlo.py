@@ -1,6 +1,7 @@
 from relsad.test_networks.IEEE33 import initialize_network
 from relsad.visualization.plotting import plot_topology
 from relsad.simulation import Simulation
+from relsad.load.bus import CostFunction
 from relsad.Time import (
     Time,
     TimeUnit,
@@ -78,128 +79,64 @@ PV = PVgeneration(temp_profiles, solar_profiles)
     load_office,
 ) = LoadGen(temp_profiles)
 
-cost_functions = {
-    "Jordbruk": {"A": 21.4 - 17.5, "B": 17.5},
-    "Microgrid": {"A": (21.4 - 17.5) * 1000, "B": 17.5 * 1000},
-    "Industri": {"A": 132.6 - 92.5, "B": 92.5},
-    "Handel og tjenester": {"A": 220.3 - 102.4, "B": 102.4},
-    "Offentlig virksomhet": {"A": 194.5 - 31.4, "B": 31.4},
-    "Husholdning": {"A": 8.8, "B": 14.7},
-}
+farm = CostFunction(
+    A=21.4 - 17.5,
+    B=17.5,
+)
 
-load_dict = dict()
+microgrid = CostFunction(
+    A=(21.4 - 17.5) * 1000,
+    B=17.5 * 1000,
+)
 
-load_dict["load"] = {}
+industry = CostFunction(
+    A=132.6 - 92.5,
+    B=92.5,
+)
 
-load_dict["cost"] = cost_functions
+trade = CostFunction(
+    A=220.3 - 102.4,
+    B=102.4,
+)
 
-load_dict["load"][B2] = {
-    "Handel og tjenester": {"pload": load_trade, "qload": load_trade * 0}
-}
-load_dict["load"][B3] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B4] = {
-    "Offentlig virksomhet": {
-        "pload": load_office,
-        "qload": load_office * 0,
-    }
-}
-load_dict["load"][B5] = {
-    "Jordbruk": {"pload": load_farm, "qload": load_farm * 0}
-}
-load_dict["load"][B6] = {
-    "Jordbruk": {"pload": load_farm, "qload": load_farm * 0}
-}
-load_dict["load"][B7] = {
-    "Industri": {"pload": load_industry2, "qload": load_industry2 * 0}
-}
-load_dict["load"][B8] = {
-    "Industri": {"pload": load_industry2, "qload": load_industry2 * 0}
-}
-load_dict["load"][B9] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B10] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B11] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B12] = {
-    "Jordbruk": {"pload": load_farm, "qload": load_farm * 0}
-}
-load_dict["load"][B13] = {
-    "Jordbruk": {"pload": load_farm, "qload": load_farm * 0}
-}
-load_dict["load"][B14] = {
-    "Offentlig virksomhet": {
-        "pload": load_office,
-        "qload": load_office * 0,
-    }
-}
-load_dict["load"][B15] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B16] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B17] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B18] = {
-    "Jordbruk": {"pload": load_farm, "qload": load_farm * 0}
-}
-load_dict["load"][B19] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B20] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B21] = {
-    "Jordbruk": {"pload": load_farm, "qload": load_farm * 0}
-}
-load_dict["load"][B22] = {
-    "Jordbruk": {"pload": load_farm, "qload": load_farm * 0}
-}
-load_dict["load"][B23] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B24] = {
-    "Industri": {"pload": load_industry2, "qload": load_industry2 * 0}
-}
-load_dict["load"][B25] = {
-    "Industri": {"pload": load_industry2, "qload": load_industry2 * 0}
-}
-load_dict["load"][B26] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B27] = {
-    "Husholdning": {"pload": load_house, "qload": load_house * 0}
-}
-load_dict["load"][B28] = {
-    "Jordbruk": {"pload": load_farm, "qload": load_farm * 0}
-}
-load_dict["load"][B29] = {
-    "Handel og tjenester": {"pload": load_trade, "qload": load_trade * 0}
-}
-load_dict["load"][B30] = {
-    "Industri": {"pload": load_industry2, "qload": load_industry2 * 0}
-}
-load_dict["load"][B31] = {
-    "Offentlig virksomhet": {
-        "pload": load_office,
-        "qload": load_office * 0,
-    }
-}
-load_dict["load"][B32] = {
-    "Industri": {"pload": load_industry2, "qload": load_industry2 * 0}
-}
-load_dict["load"][B33] = {
-    "Jordbruk": {"pload": load_farm, "qload": load_farm * 0}
-}
+public = CostFunction(
+    A=194.5 - 31.4,
+    B=31.4,
+)
 
-prod_dict = dict()
+household = CostFunction(
+    A=8.8,
+    B=14.7,
+)
+
+
+for bus in [B3, B9, B10, B11, B15, B16, B17, B19, B20, B23, B26, B27]:
+    bus.add_load_data(
+        pload_data=load_house,
+        cost_function=household,
+    )
+for bus in [B2, B29]:
+    bus.add_load_data(
+        pload_data=load_trade,
+        cost_function=trade,
+    )
+for bus in [B4, B14, B31]:
+    bus.add_load_data(
+        pload_data=load_office,
+        cost_function=trade,
+    )
+for bus in [B5, B6, B12, B13, B18, B21, B22, B28, B33]:
+    bus.add_load_data(
+        pload_data=load_farm,
+        cost_function=farm,
+    )
+for bus in [B7, B8, B24, B25, B30, B32, ]:
+    bus.add_load_data(
+        pload_data=load_industry2,
+        cost_function=industry,
+    )
+
+
 
 if include_microgrid:
 
@@ -212,20 +149,23 @@ if include_microgrid:
     P1 = BM3.get_production()
     P2 = BM4.get_production()
 
-    prod_dict[P1] = {"pprod": wind, "qprod": PV * 0}
-    prod_dict[P2] = {"pprod": PV, "qprod": PV * 0}
+    P1.add_prod_data(
+        pprod_data=wind,
+    )
+    P2.add_prod_data(
+        pprod_data=PV,
+    )
 
-    load_dict["load"][BM2] = {
-        "Microgrid": {"pload": load_farm, "qload": load_farm * 0}
-    }
+    BM2.add_load_data(
+        pload_data=load_farm,
+        cost_function=microgrid,
+    )
 
 if include_production:
 
     Battery = B30.get_battery()
-    Wind_Plant = B15.get_production()
-    prod_dict[Wind_Plant] = {"pprod": wind * 2, "qprod": wind * 0}
 
-save_dir = r"test_IEEE33"
+#save_dir = r"test_IEEE33"
 
 # fig = plot_topology(ps.buses, ps.lines, figsize=(6.5, 4.5))
 # fig.savefig(os.path.join(save_dir, "topology.pdf"))
@@ -252,10 +192,8 @@ sim.run_monte_carlo(
     ),
     time_step=Time(30, TimeUnit.MINUTE),
     time_unit=TimeUnit.HOUR,
-    load_dict=load_dict,
-    prod_dict=prod_dict,
     save_iterations=[1, 2, 3, 4, 5],
-    save_dir=save_dir,
+    #save_dir=save_dir,
     n_procs=4,
     debug=True,
 )

@@ -88,37 +88,6 @@ def windGen(wind):
     v = np.zeros_like(wind)
     P_out = np.zeros_like(wind)
 
-    # v_rated = np.array(
-    #     [
-    #         1,
-    #         2,
-    #         3,
-    #         4,
-    #         5,
-    #         6,
-    #         7,
-    #         8,
-    #         9,
-    #         10,
-    #         11,
-    #         12,
-    #         13,
-    #         14,
-    #         15,
-    #         16,
-    #         17,
-    #         18,
-    #         19,
-    #         20,
-    #         21,
-    #         22,
-    #         23,
-    #         24,
-    #         25,
-    #         25,
-    #     ]
-    # )
-
     P_rated = np.array(
         [
             0,
@@ -335,23 +304,19 @@ if __name__ == "__main__":
 
     ax4.legend()
 
-    # print(np.max(load_microgrid)*40)
-    # print(np.median(load_microgrid)*40)
-    # print(load_microgrid*40)
-    # print(np.max(PV))
     house = np.max(load_house) * 357  # * 300  # 400
     farm = np.max(load_farm) * 273  # * 250  # 340
     industry = np.max(load_industry2) * 8  # * 4  # 5
     office = np.max(load_office) * 3  # * 4
     trade = np.max(load_trade) * 2  # * 6  # 7
-    # print("Max load house:", house)
-    # print("Max load farm:", farm)
-    # print("Max load industry:", industry)
-    # print("Max load office:", office)
-    # print("Max load trade:", trade)
-    # print("Wind:", np.max(wind))
-    # print("PV:", np.max(PV))
-    # print("Sum:", np.sum(house + farm + industry + office + trade))
+    print("Max load house:", house)
+    print("Max load farm:", farm)
+    print("Max load industry:", industry)
+    print("Max load office:", office)
+    print("Max load trade:", trade)
+    print("Wind:", np.max(wind))
+    print("PV:", np.max(PV))
+    print("Sum:", np.sum(house + farm + industry + office + trade))
     print(sum(load_house))
     print(sum(load_farm))
 

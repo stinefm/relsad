@@ -1,5 +1,6 @@
-from test_10bus import initialize_network
+from relsad.test_networks.test_10bus import initialize_network
 from relsad.simulation import Simulation
+from relsad.load.bus import CostFunction
 from relsad.Time import (
     Time,
     TimeUnit,
@@ -76,72 +77,71 @@ if __name__ == "__main__":
         load_office,
     ) = LoadGen(temp_profiles)
 
-    cost_functions = {
-        "Jordbruk": {"A": 21.4 - 17.5, "B": 17.5},
-        "Microgrid": {"A": (21.4 - 17.5) * 1000, "B": 17.5 * 1000},
-        "Industri": {"A": 132.6 - 92.5, "B": 92.5},
-        "Handel og tjenester": {"A": 220.3 - 102.4, "B": 102.4},
-        "Offentlig virksomhet": {"A": 194.5 - 31.4, "B": 31.4},
-        "Husholdning": {"A": 8.8, "B": 14.7},
-    }
+    farm = CostFunction(
+        A=21.4 - 17.5,
+        B=17.5,
+    )
 
-    load_dict = dict()
-    load_dict["load"] = {}
+    microgrid = CostFunction(
+        A=(21.4 - 17.5) * 1000,
+        B=17.5 * 1000,
+    )
 
-    load_dict["cost"] = cost_functions
+    industry = CostFunction(
+        A=132.6 - 92.5,
+        B=92.5,
+    )
 
-    load_dict["load"][B2] = {
-        "Industri": {"pload": load_industry2, "qload": load_industry2 * 0},
-    }
-    load_dict["load"][B3] = {
-        "Husholdning": {"pload": load_house, "qload": load_house * 0}
-    }
-    load_dict["load"][B4] = {
-        "Husholdning": {"pload": load_house, "qload": load_house * 0}
-    }
-    load_dict["load"][B5] = {
-        "Handel og tjenester": {"pload": load_trade, "qload": load_trade * 0}
-    }
-    load_dict["load"][B6] = {
-        "Husholdning": {"pload": load_house, "qload": load_house * 0}
-    }
+    trade = CostFunction(
+        A=220.3 - 102.4,
+        B=102.4,
+    )
 
-    load_dict["load"][B7] = {
-        "Husholdning": {"pload": load_house, "qload": load_house * 0},
-    }
-    load_dict["load"][B8] = {
-        "Industri": {"pload": load_industry2, "qload": load_industry2 * 0},
-    }
+    public = CostFunction(
+        A=194.5 - 31.4,
+        B=31.4,
+    )
 
-    load_dict["load"][B9] = {
-        "Husholdning": {"pload": load_house, "qload": load_house * 0},
-    }
-    load_dict["load"][B10] = {
-        "Industri": {"pload": load_industry2, "qload": load_industry2 * 0},
-    }
+    household = CostFunction(
+        A=8.8,
+        B=14.7,
+    )
 
-    prod_dict = dict()
+    for bus in [B3, B4, B6, B7, B9]:
+        bus.add_load_data(
+            pload_data=load_house,
+            cost_function=household,
+    )
+    for bus in [B2, B8, B10]:
+        bus.add_load_data(
+            pload_data=load_industry2,
+            cost_function=industry,
+    )
+    B5.add_load_data(
+        pload_data=load_trade,
+        cost_function=trade,
+    )
+
 
     if include_microgrid:
-        load_dict["load"][M1] = {
-            "Microgrid": {"pload": load_microgrid, "qload": load_microgrid * 0}
-        }
-        load_dict["load"][M2] = {
-            "Microgrid": {"pload": load_microgrid, "qload": load_microgrid * 0}
-        }
-        load_dict["load"][M3] = {
-            "Microgrid": {"pload": load_microgrid, "qload": load_microgrid * 0}
-        }
+
+        for bus in [M1, M2, M3]:
+            bus.add_load_data(
+                pload_data=load_microgrid,
+                cost_function=microgrid,
+    )
+
 
         if include_production:
-            prod_dict[P1] = {"pprod": (PV + wind), "qprod": PV * 0}
+            P1.add_prod_data(
+                pprod_data=PV+wind,
+            )
 
-    save_dir = r"test_10bus"
+    #save_dir = r"test_10bus"
 
     sim = Simulation(ps, random_seed=3)
     sim.run_monte_carlo(
-        iterations=10,
-        increments=100,
+        iterations=5,
         start_time=TimeStamp(
             year=2019,
             month=1,
@@ -150,12 +150,18 @@ if __name__ == "__main__":
             minute=0,
             second=0,
         ),
+        stop_time=TimeStamp(
+            year=2020,
+            month=1,
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+        ),
         time_step=Time(1, TimeUnit.HOUR),
         time_unit=TimeUnit.HOUR,
-        load_dict=load_dict,
-        prod_dict=prod_dict,
-        save_iterations=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        save_dir=save_dir,
+        save_iterations=[1],
+        #save_dir=save_dir,
         n_procs=1,
         debug=True,
     )
