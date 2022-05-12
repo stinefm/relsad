@@ -135,8 +135,6 @@ B6.add_load_data(
     cost_function=household,
 )
 
-prod_dict = dict()
-
 if include_microgrid:
     for bus in [M1, M2]:
         bus.add_load_data(
