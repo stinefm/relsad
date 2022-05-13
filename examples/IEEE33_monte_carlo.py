@@ -130,7 +130,7 @@ for bus in [B5, B6, B12, B13, B18, B21, B22, B28, B33]:
         pload_data=load_farm,
         cost_function=farm,
     )
-for bus in [B7, B8, B24, B25, B30, B32, ]:
+for bus in [B7, B8, B24, B25, B30, B32]:
     bus.add_load_data(
         pload_data=load_industry2,
         cost_function=industry,
@@ -164,6 +164,11 @@ if include_microgrid:
 if include_production:
 
     Battery = B30.get_battery()
+    P3 = B15.get_production()
+
+    P3.add_prod_data(
+        pprod_data=wind*2,
+    )
 
 #save_dir = r"test_IEEE33"
 
