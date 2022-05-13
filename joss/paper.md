@@ -12,13 +12,13 @@ authors:
     affiliation: 1 # (Multiple affiliations must be quoted)
   - name: Olav Bjarte Fosso # note this makes a footnote saying 'Co-first author'
     affiliation: 1
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-3460-5839
   - name: Poul Einar Heegaard
     affiliation: 2
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0003-0083-5860
   - name: Oddbjørn Gjerde
     affiliation: 3
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-7978-747X
 affiliations:
  - name: Department of Electric Power Engineering, NTNU, Trondheim, Norway
    index: 1
