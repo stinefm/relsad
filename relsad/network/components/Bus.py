@@ -13,6 +13,12 @@ from relsad.Time import (
     TimeUnit,
 )
 
+from relsad.StatDist import (
+    StatDist,
+    StatDistType,
+    UniformParameters,
+)
+
 
 class Bus(Component):
     """
@@ -84,8 +90,12 @@ class Bus(Component):
         The reactive generated power at the bus in pu
     fail_rate_per_year : float
         The failure rate per year for the transformer at the bus
-    outage_time : Time
-        The outage time of the transformer at the bus
+    trafo_failed : bool
+        Failure status of the transformer
+    outage_time_dist : StatDist
+        The outage time of the transformer at the bus [hours/fault]
+    remaining_outage_time : Time
+        The remaining outage time of the line
     acc_outage_time : Time
         The accumulated outage time of the transformer at the bus
     avg_outage_time : Time
@@ -130,6 +140,8 @@ class Bus(Component):
         Sets the bus load and cost in MW based on load and cost profiles in the current increment
     get_load()
         Retuns the current load at the bus in MW
+    draw_outage_time(dt)
+        Decides and returns the outage time of the trafo based on a statistical distribution
     trafo_fail(dt)
         Sets the transformer status to failed, load and generation at the node are set to zero
     trafo_not_fail()
@@ -196,7 +208,13 @@ class Bus(Component):
         s_ref: float = 1,  # MVA
         is_slack: bool = False,
         fail_rate_per_year: float = 0.0,
-        outage_time: Time = Time(0),
+        outage_time_dist: StatDist = StatDist(
+            stat_dist_type=StatDistType.UNIFORM_FLOAT,
+            parameters=UniformParameters(
+                min_val=0.0,
+                max_val=0.0,
+            ),
+        ),
     ):
         ## Informative attributes
         self.name = name
@@ -236,7 +254,7 @@ class Bus(Component):
 
         ## Reliabilility attributes
         self.fail_rate_per_year = fail_rate_per_year  # failures per year
-        self.outage_time = outage_time  # hours
+        self.outage_time_dist = outage_time_dist
         self.acc_outage_time = Time(0)
         self.avg_fail_rate = 0
         self.avg_outage_time = Time(0)
@@ -244,6 +262,10 @@ class Bus(Component):
         self.interruption_fraction = 0
         self.curr_interruptions = 0
         self.acc_interruptions = 0
+
+        ## Status attribute
+        self.trafo_failed = False
+        self.remaining_outage_time = Time(0)
 
         ## Production, EV park and battery
         self.prod = None
@@ -462,6 +484,25 @@ class Bus(Component):
         """
         return self.pload, self.qload
 
+    def draw_outage_time(self, dt: Time):
+        """
+        Decides and returns the outage time of the trafo based on a statistical distribution
+
+        Parameters
+        ----------
+        dt : Time
+            The current time step
+
+        Returns
+        ----------
+        None
+
+        """
+        return Time(
+            self.outage_time_dist.draw(self.ps_random),
+            dt.unit,
+        )
+
     def trafo_fail(self, dt: Time):
         """
         Sets the transformer status to failed, load and generation at the bus are set to zero
@@ -477,7 +518,7 @@ class Bus(Component):
 
         """
         self.trafo_failed = True
-        self.remaining_outage_time = self.outage_time
+        self.remaining_outage_time = self.draw_outage_time(dt)
         self.shed_load(dt)
         if self.prod is not None:
             self.prod.reset_prod()
