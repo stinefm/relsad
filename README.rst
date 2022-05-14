@@ -2,24 +2,23 @@
 RELSAD
 #################################################
 
-![](https://github.com/stinefm/relsad/workflows/build/badge.svg) [![codecov](https://codecov.io/gh/stinefm/relsad/branch/main/graph/badge.svg)](https://codecov.io/gh/stinefm/relsad) ![Release](https://github.com/stinefm/relsad/workflows/Release/badge.svg) [![Documentation Status](https://readthedocs.org/projects/relsad/badge/?version=latest)](https://relsad.readthedocs.io/en/latest/?badge=latest)
-
 A Python package for reliability assessment of modern distribution systems.
 
 .....................................
 Installation
 .....................................
 
+Install using:
+
+.. code-block:: console
+
+    $ python setup.py install
+
 Install in developer mode using:
 
 .. code-block:: console
 
-    python setup.py develop
-
-
-.. code-block:: console
-
-    $ pip install -i https://test.pypi.org/simple/ relsad
+    $ python setup.py develop
 
 .....................................
 Features

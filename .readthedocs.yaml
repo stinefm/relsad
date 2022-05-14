@@ -1,0 +1,22 @@
+# ReadTheDocs configuration.
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html
+
+version: 2
+
+sphinx:
+  builder: html
+  configuration: docs/conf.py
+
+# Build all the formats
+formats:
+  - epub
+  - htmlzip
+  - pdf
+
+python:
+  version: 3.8
+  install:
+    - requirements: docs/requirements.txt
+    - method: pip
+      path: .
+  system_packages: false
