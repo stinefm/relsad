@@ -41,7 +41,7 @@ Dependencies
 Usage
 .....................................
 
-See :ref:`usage`.
+See https://relsad.readthedocs.io/en/latest/usage.html.
 
 .....................................
 Documentation
