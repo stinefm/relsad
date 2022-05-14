@@ -3,6 +3,7 @@ from collections import namedtuple
 from scipy import stats
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.special as sps
 from relsad.utils import random_instance
 
 
@@ -10,11 +11,20 @@ class StatDistType(Enum):
     UNIFORM_FLOAT = 1
     UNIFORM_INT = 2
     TRUNCNORMAL = 3
+    GAMMA = 4
 
 
-UniformParameters = namedtuple("UniformParameters", ["min_val", "max_val"])
+UniformParameters = namedtuple(
+    "UniformParameters",
+    ["min_val", "max_val"],
+)
 NormalParameters = namedtuple(
-    "NormalParameters", ["loc", "scale", "min_val", "max_val"]
+    "NormalParameters",
+    ["loc", "scale", "min_val", "max_val"],
+)
+GammaParameters = namedtuple(
+    "GammaParameters",
+    ["shape", "scale"],
 )
 
 
@@ -31,9 +41,6 @@ class StatDist:
         Type of statistical distribution
     parameters : namedtuple
         Statistical distribution parameters
-    draw_flag : bool
-        Flag indicating if drawing is allowed
-    get_flag : bool
 
 
     Methods
@@ -54,13 +61,9 @@ class StatDist:
         self,
         stat_dist_type: StatDistType,
         parameters: namedtuple,
-        draw_flag: bool = True,
-        get_flag: bool = True,
     ):
         self.stat_dist_type = stat_dist_type
         self.parameters = parameters
-        self.draw_flag = draw_flag
-        self.get_flag = get_flag
 
     def draw(self, random_instance, size: int = 1):
         """
@@ -82,8 +85,6 @@ class StatDist:
 
         """
         drawn_values = None
-        if self.draw_flag is False:
-            return drawn_values
         if self.stat_dist_type == StatDistType.UNIFORM_FLOAT:
             drawn_values = random_instance.uniform(
                 low=self.parameters.min_val,
@@ -106,6 +107,12 @@ class StatDist:
                 scale=self.parameters.scale,
                 size=size,
                 random_state=random_instance,
+            )
+        elif self.stat_dist_type == StatDistType.GAMMA:
+            drawn_values = random_instance.gamma(
+                shape=self.parameters.shape,
+                scale=self.parameters.scale,
+                size=size,
             )
         return drawn_values
 
@@ -141,23 +148,27 @@ class StatDist:
                 loc=self.parameters.loc,
                 scale=self.parameters.scale,
             )
+        elif self.stat_dist_type == StatDistType.GAMMA:
+            return x ** (self.parameters.shape - 1) * (
+                np.exp(-x / self.parameters.scale) / (
+                    sps.gamma(self.parameters.shape)
+                    * self.parameters.scale ** self.parameters.shape
+                )
+            )
 
     def histplot(
         self,
         ax,
-        path: str,
         n_points: int = 5000,
         n_bins: int = 50,
     ):
         """
-        Plots the statistical distribution in a histogram
+        Plots the statistical distribution in a normalized histogram
 
         Parameters
         ----------
         ax : matplotlib.axes.Axes
             Plot axis
-        path : str
-            Save path
         n_points : int
             Number of distribution points
         n_bins : int
@@ -173,8 +184,7 @@ class StatDist:
             rand_instance,
             size=n_points,
         )
-        ax.hist(dist, bins=n_bins)
-        fig.savefig(path)
+        ax.hist(dist, bins=n_bins, density=True)
 
     def plot(
         self,
@@ -205,35 +215,56 @@ class StatDist:
         elif self.stat_dist_type == StatDistType.TRUNCNORMAL:
             ax.plot(
                 x,
-                stats.truncnorm.pdf(
-                    x,
-                    (self.parameters.min_val - self.parameters.loc)
-                    / self.parameters.scale,
-                    (self.parameters.max_val - self.parameters.loc)
-                    / self.parameters.scale,
-                    loc=self.parameters.loc,
-                    scale=self.parameters.scale,
-                ),
+                self.get_pdf(x),
+                color=color,
+            )
+        elif self.stat_dist_type == StatDistType.GAMMA:
+            ax.plot(
+                x,
+                self.get_pdf(x),
                 color=color,
             )
 
 
 if __name__ == "__main__":
-    loc = 1.25
-    scale = 0.1
-    min_val, max_val = 0.5, 2
-    stat_dist = StatDist(
+    trunc_normal_loc = 2
+    trunc_normal_scale = 1
+    min_val, max_val = 0, 20
+    trunc_normal = StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
         parameters=NormalParameters(
-            loc=loc,
-            scale=scale,
+            loc=trunc_normal_loc,
+            scale=trunc_normal_scale,
             min_val=min_val,
             max_val=max_val,
         ),
-        draw_flag=True,
-        get_flag=False,
+    )
+
+    gamma_1_shape = 1
+    gamma_1_scale = 2
+    gamma_1 = StatDist(
+        stat_dist_type=StatDistType.GAMMA,
+        parameters=GammaParameters(
+            shape=gamma_1_shape,
+            scale=gamma_1_scale,
+        ),
+    )
+
+    gamma_2_shape = 7.5
+    gamma_2_scale = 1
+    gamma_2 = StatDist(
+        stat_dist_type=StatDistType.GAMMA,
+        parameters=GammaParameters(
+            shape=gamma_2_shape,
+            scale=gamma_2_scale,
+        ),
     )
     fig, ax = plt.subplots()
     x = np.linspace(min_val, max_val, 1000)
-    stat_dist.plot(ax=ax, x=x)
+    trunc_normal.plot(ax=ax, x=x)
+    gamma_1.plot(ax=ax, x=x)
+    gamma_1.histplot(ax=ax)
+    gamma_2.plot(ax=ax, x=x)
+    gamma_2.histplot(ax=ax)
     fig.savefig(fname="stat_dist_plot.pdf")
+    plt.show()
