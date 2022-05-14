@@ -1,4 +1,5 @@
 .. _bfs_theory:
+
 ======================
 Backward-Forward sweep
 ======================
