@@ -76,7 +76,6 @@ class Production(Component):
         qmax: float = 10,
     ):
 
-        
         self.name = name
         self.bus = bus
         bus.prod = self

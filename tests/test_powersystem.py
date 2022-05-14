@@ -23,7 +23,7 @@ from relsad.Time import (
 
 
 def initialize_network(
-    island_mode: bool=False,
+    island_mode: bool = False,
     n_sections: int = 1,
 ):
 
@@ -31,12 +31,12 @@ def initialize_network(
 
     ps = PowerSystem(C1)
 
-    B1 = Bus(name="B1", n_customers=0, coordinate=[0,0])
-    B2 = Bus(name="B2", n_customers=1, coordinate=[0,-1])
-    B3 = Bus(name="B3", n_customers=1, coordinate=[0,-2])
-    B4 = Bus(name="B4", n_customers=1, coordinate=[-1,-3])
-    B5 = Bus(name="B5", n_customers=1, coordinate=[-1,-4])
-    B6 = Bus(name="B6", n_customers=1, coordinate=[1,-3])
+    B1 = Bus(name="B1", n_customers=0, coordinate=[0, 0])
+    B2 = Bus(name="B2", n_customers=1, coordinate=[0, -1])
+    B3 = Bus(name="B3", n_customers=1, coordinate=[0, -2])
+    B4 = Bus(name="B4", n_customers=1, coordinate=[-1, -3])
+    B5 = Bus(name="B5", n_customers=1, coordinate=[-1, -4])
+    B6 = Bus(name="B6", n_customers=1, coordinate=[1, -3])
 
     r = 0.5
     x = 0.5
@@ -78,35 +78,27 @@ def initialize_network(
     )
 
     if n_sections >= 1:
-        D1 = Disconnector("D1", L1, B1)
+        Disconnector("D1", L1, B1)
     if n_sections >= 2:
-        D2 = Disconnector("D2", L2, B2)
+        Disconnector("D2", L2, B2)
     if n_sections >= 3:
-        D3 = Disconnector("D3", L3, B3)
+        Disconnector("D3", L3, B3)
     if n_sections >= 4:
-        D4 = Disconnector("D4", L4, B4)
+        Disconnector("D4", L4, B4)
     if n_sections >= 5:
-        D5 = Disconnector("D5", L5, B5)
+        Disconnector("D5", L5, B5)
 
-    E1 = CircuitBreaker("E1", L1)
+    CircuitBreaker("E1", L1)
 
     if island_mode:
         dn = Distribution(parent_network=ps, connected_line=None)
-        dn.add_buses(
-            [B1, B2, B3, B4, B5, B6]
-        )
-        dn.add_lines(
-            [L1, L2, L3, L4, L5]
-        )
+        dn.add_buses([B1, B2, B3, B4, B5, B6])
+        dn.add_lines([L1, L2, L3, L4, L5])
     else:
         tn = Transmission(ps, trafo_bus=B1)
         dn = Distribution(parent_network=tn, connected_line=L1)
-        dn.add_buses(
-            [B2, B3, B4, B5, B6]
-        )
-        dn.add_lines(
-            [L2, L3, L4, L5]
-        )
+        dn.add_buses([B2, B3, B4, B5, B6])
+        dn.add_lines([L2, L3, L4, L5])
     return ps
 
 
@@ -116,7 +108,7 @@ def test_create_sections_1():
     ps.create_sections()
 
     distribution = [
-        child_network 
+        child_network
         for child_network in ps.child_network_list
         if isinstance(child_network, Distribution)
     ][0]
@@ -131,13 +123,14 @@ def test_create_sections_1():
     assert ps.get_comp("L5") in distribution.sections[0].lines
     assert ps.get_comp("D1") in distribution.sections[0].disconnectors
 
+
 def test_create_sections_2():
     ps = initialize_network(n_sections=2)
 
     ps.create_sections()
 
     distribution = [
-        child_network 
+        child_network
         for child_network in ps.child_network_list
         if isinstance(child_network, Distribution)
     ][0]
@@ -158,7 +151,7 @@ def test_create_sections_3():
     ps.create_sections()
 
     distribution = [
-        child_network 
+        child_network
         for child_network in ps.child_network_list
         if isinstance(child_network, Distribution)
     ][0]
@@ -173,13 +166,14 @@ def test_create_sections_3():
     assert ps.get_comp("D2") in distribution.sections[1].disconnectors
     assert ps.get_comp("D3") in distribution.sections[2].disconnectors
 
+
 def test_create_sections_4():
     ps = initialize_network(n_sections=4)
 
     ps.create_sections()
 
     distribution = [
-        child_network 
+        child_network
         for child_network in ps.child_network_list
         if isinstance(child_network, Distribution)
     ][0]
@@ -195,13 +189,14 @@ def test_create_sections_4():
     assert ps.get_comp("D3") in distribution.sections[2].disconnectors
     assert ps.get_comp("D4") in distribution.sections[3].disconnectors
 
+
 def test_create_sections_5():
     ps = initialize_network(n_sections=5)
 
     ps.create_sections()
 
     distribution = [
-        child_network 
+        child_network
         for child_network in ps.child_network_list
         if isinstance(child_network, Distribution)
     ][0]
@@ -227,7 +222,7 @@ def test_system_load_balance_active_load():
     B4 = ps.get_comp("B4")
     B5 = ps.get_comp("B5")
     B6 = ps.get_comp("B6")
-    
+
     B1.add_load_data(
         pload_data=np.array([0]),
         qload_data=np.array([0]),
@@ -260,6 +255,7 @@ def test_system_load_balance_active_load():
     assert eq(system_load_balance_p, 0.19, tol=1e-6)
     assert eq(system_load_balance_q, 0, tol=1e-6)
 
+
 def test_system_load_balance_reactive_load():
     ps = initialize_network(island_mode=True)
     B1 = ps.get_comp("B1")
@@ -268,7 +264,7 @@ def test_system_load_balance_reactive_load():
     B4 = ps.get_comp("B4")
     B5 = ps.get_comp("B5")
     B6 = ps.get_comp("B6")
-    
+
     B1.add_load_data(
         pload_data=np.array([0]),
         qload_data=np.array([0]),
@@ -300,6 +296,7 @@ def test_system_load_balance_reactive_load():
 
     assert eq(system_load_balance_p, 0.19, tol=1e-6)
     assert eq(system_load_balance_q, 0.19, tol=1e-6)
+
 
 def test_system_load_balance_active_power_high():
     ps = initialize_network(island_mode=True)
@@ -309,7 +306,7 @@ def test_system_load_balance_active_power_high():
     B4 = ps.get_comp("B4")
     B5 = ps.get_comp("B5")
     B6 = ps.get_comp("B6")
-    
+
     B1.add_load_data(
         pload_data=np.array([0]),
         qload_data=np.array([0]),
@@ -342,6 +339,7 @@ def test_system_load_balance_active_power_high():
     assert eq(system_load_balance_p, -0.03, tol=1e-6)
     assert eq(system_load_balance_q, 0.19, tol=1e-6)
 
+
 def test_system_load_balance_reactive_power_high():
     ps = initialize_network(island_mode=True)
     B1 = ps.get_comp("B1")
@@ -350,7 +348,7 @@ def test_system_load_balance_reactive_power_high():
     B4 = ps.get_comp("B4")
     B5 = ps.get_comp("B5")
     B6 = ps.get_comp("B6")
-    
+
     B1.add_load_data(
         pload_data=np.array([0]),
         qload_data=np.array([0]),
@@ -383,6 +381,7 @@ def test_system_load_balance_reactive_power_high():
     assert eq(system_load_balance_p, 0.19, tol=1e-6)
     assert eq(system_load_balance_q, -0.09, tol=1e-6)
 
+
 def test_system_load_balance_active_reactive_power_high():
     ps = initialize_network(island_mode=True)
     B1 = ps.get_comp("B1")
@@ -391,7 +390,7 @@ def test_system_load_balance_active_reactive_power_high():
     B4 = ps.get_comp("B4")
     B5 = ps.get_comp("B5")
     B6 = ps.get_comp("B6")
-    
+
     B1.add_load_data(
         pload_data=np.array([0]),
         qload_data=np.array([0]),
@@ -424,6 +423,7 @@ def test_system_load_balance_active_reactive_power_high():
     assert eq(system_load_balance_p, -0.03, tol=1e-6)
     assert eq(system_load_balance_q, -0.09, tol=1e-6)
 
+
 def test_system_load_balance_active_reactive_power_low():
     ps = initialize_network(island_mode=True)
     B1 = ps.get_comp("B1")
@@ -432,7 +432,7 @@ def test_system_load_balance_active_reactive_power_low():
     B4 = ps.get_comp("B4")
     B5 = ps.get_comp("B5")
     B6 = ps.get_comp("B6")
-    
+
     B1.add_load_data(
         pload_data=np.array([0]),
         qload_data=np.array([0]),

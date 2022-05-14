@@ -51,8 +51,6 @@ def initialize_network(
             min_val=0.5,
             max_val=2,
         ),
-        draw_flag=True,
-        get_flag=False,
     )
 
     def num_ev_table_func(

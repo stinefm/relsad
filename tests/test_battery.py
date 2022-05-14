@@ -15,7 +15,7 @@ def test_charge_from_min():
         inj_q_max=1,
         E_max=5,
         SOC_min=0.2,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=0.97,
     )
     dt = Time(1, TimeUnit.HOUR)
@@ -34,7 +34,7 @@ def test_discharge_from_min():
         inj_q_max=1,
         E_max=5,
         SOC_min=0.2,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=0.97,
     )
     dt = Time(1, TimeUnit.HOUR)
@@ -54,7 +54,7 @@ def test_charge_from_max():
         inj_q_max=1,
         E_max=5,
         SOC_min=0.2,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=0.97,
     )
     dt = Time(1, TimeUnit.HOUR)
@@ -79,7 +79,7 @@ def test_discharge_from_max():
         inj_q_max=1,
         E_max=5,
         SOC_min=0.2,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=0.97,
     )
     dt = Time(1, TimeUnit.HOUR)
@@ -105,7 +105,7 @@ def test_discharge_overload():
         inj_q_max=1,
         E_max=5,
         SOC_min=0.2,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=0.97,
     )
     dt = Time(1, TimeUnit.HOUR)
@@ -131,7 +131,7 @@ def test_discharge_below_min():
         inj_q_max=1,
         E_max=5,
         SOC_min=0.2,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=0.97,
     )
     dt = Time(1, TimeUnit.HOUR)
@@ -153,7 +153,7 @@ def test_charge_above_max():
         inj_q_max=1,
         E_max=5,
         SOC_min=0.2,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=0.97,
     )
     dt = Time(1, TimeUnit.HOUR)
@@ -177,7 +177,7 @@ def test_charge_overload():
         inj_q_max=1,
         E_max=5,
         SOC_min=0.2,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=0.97,
     )
     dt = Time(1, TimeUnit.HOUR)
@@ -187,6 +187,7 @@ def test_charge_overload():
 
     assert prem == 1, 0
     assert b.E_battery == 1 + 2 * 0.97
+
 
 def test_update_bus_load_and_prod_charge_normal():
     B1 = Bus("B1")
@@ -203,7 +204,7 @@ def test_update_bus_load_and_prod_charge_normal():
         inj_q_max=1,
         E_max=E_max,
         SOC_min=SOC_min,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=n_battery,
     )
 
@@ -223,6 +224,7 @@ def test_update_bus_load_and_prod_charge_normal():
     assert eq(B1.qprod, 0, tol=1e-6)
     assert eq(b.SOC, SOC_min + n_battery * p / E_max, tol=1e-6)
 
+
 def test_update_bus_load_and_prod_charge_low():
     B1 = Bus("B1")
     dt = Time(1, TimeUnit.HOUR)
@@ -238,7 +240,7 @@ def test_update_bus_load_and_prod_charge_low():
         inj_q_max=1,
         E_max=E_max,
         SOC_min=SOC_min,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=n_battery,
     )
 
@@ -258,6 +260,7 @@ def test_update_bus_load_and_prod_charge_low():
     assert eq(B1.qprod, 0, tol=1e-6)
     assert eq(b.SOC, SOC_min + n_battery * p / E_max, tol=1e-6)
 
+
 def test_update_bus_load_and_prod_charge_SOC_max():
     B1 = Bus("B1")
     dt = Time(1, TimeUnit.HOUR)
@@ -274,7 +277,7 @@ def test_update_bus_load_and_prod_charge_SOC_max():
         inj_q_max=1,
         E_max=E_max,
         SOC_min=SOC_min,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=n_battery,
     )
 
@@ -295,6 +298,7 @@ def test_update_bus_load_and_prod_charge_SOC_max():
     assert eq(B1.qprod, 0, tol=1e-6)
     assert eq(b.SOC, SOC_state, tol=1e-6)
 
+
 def test_update_bus_load_and_prod_discharge_SOC_min():
     B1 = Bus("B1")
     dt = Time(1, TimeUnit.HOUR)
@@ -310,7 +314,7 @@ def test_update_bus_load_and_prod_discharge_SOC_min():
         inj_q_max=1,
         E_max=E_max,
         SOC_min=SOC_min,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=n_battery,
     )
 
@@ -330,6 +334,7 @@ def test_update_bus_load_and_prod_discharge_SOC_min():
     assert eq(B1.qprod, 0, tol=1e-6)
     assert eq(b.SOC, SOC_min, tol=1e-6)
 
+
 def test_update_bus_load_and_prod_discharge_SOC_low():
     B1 = Bus("B1")
     dt = Time(1, TimeUnit.HOUR)
@@ -346,7 +351,7 @@ def test_update_bus_load_and_prod_discharge_SOC_low():
         inj_q_max=1,
         E_max=E_max,
         SOC_min=SOC_min,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=n_battery,
     )
     b.set_SOC_state(SOC_state)
@@ -358,13 +363,18 @@ def test_update_bus_load_and_prod_discharge_SOC_low():
         dt=dt,
     )
 
-    assert eq(p_rem, p-(SOC_state*E_max - SOC_min*E_max)*n_battery, tol=1e-6)
+    assert eq(
+        p_rem, p - (SOC_state * E_max - SOC_min * E_max) * n_battery, tol=1e-6
+    )
     assert eq(q_rem, 0, tol=1e-6)
     assert eq(B1.pload, 0, tol=1e-6)
     assert eq(B1.qload, 0, tol=1e-6)
-    assert eq(B1.pprod, (SOC_state*E_max - SOC_min*E_max)*n_battery, tol=1e-6)
+    assert eq(
+        B1.pprod, (SOC_state * E_max - SOC_min * E_max) * n_battery, tol=1e-6
+    )
     assert eq(B1.qprod, 0, tol=1e-6)
     assert eq(b.SOC, SOC_min, tol=1e-6)
+
 
 def test_update_bus_load_and_prod_discharge_SOC_medium():
     B1 = Bus("B1")
@@ -382,7 +392,7 @@ def test_update_bus_load_and_prod_discharge_SOC_medium():
         inj_q_max=1,
         E_max=E_max,
         SOC_min=SOC_min,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=n_battery,
     )
     b.set_SOC_state(SOC_state)
@@ -403,6 +413,7 @@ def test_update_bus_load_and_prod_discharge_SOC_medium():
     assert eq(B1.qprod, 0, tol=1e-6)
     assert eq(b.SOC, SOC_state - p / n_battery / E_max, tol=1e-6)
 
+
 def test_update_bus_load_and_prod_discharge_SOC_medium_reactive():
     B1 = Bus("B1")
     dt = Time(1, TimeUnit.HOUR)
@@ -419,7 +430,7 @@ def test_update_bus_load_and_prod_discharge_SOC_medium_reactive():
         inj_q_max=1,
         E_max=E_max,
         SOC_min=SOC_min,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=n_battery,
     )
     b.set_SOC_state(SOC_state)
@@ -441,6 +452,7 @@ def test_update_bus_load_and_prod_discharge_SOC_medium_reactive():
     assert eq(B1.qprod, q, tol=1e-6)
     assert eq(b.SOC, SOC_state - q / n_battery / E_max, tol=1e-6)
 
+
 def test_update_bus_load_and_prod_discharge_SOC_medium_active_and_reactive():
     B1 = Bus("B1")
     dt = Time(1, TimeUnit.HOUR)
@@ -457,7 +469,7 @@ def test_update_bus_load_and_prod_discharge_SOC_medium_active_and_reactive():
         inj_q_max=1,
         E_max=E_max,
         SOC_min=SOC_min,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=n_battery,
     )
     b.set_SOC_state(SOC_state)
@@ -477,7 +489,7 @@ def test_update_bus_load_and_prod_discharge_SOC_medium_active_and_reactive():
     assert eq(B1.qload, 0, tol=1e-6)
     assert eq(B1.pprod, p, tol=1e-6)
     assert eq(B1.qprod, q, tol=1e-6)
-    assert eq(b.SOC, SOC_state - (p+q) / n_battery / E_max, tol=1e-6)
+    assert eq(b.SOC, SOC_state - (p + q) / n_battery / E_max, tol=1e-6)
 
 
 def test_update_fail_status_failed():
@@ -492,15 +504,16 @@ def test_update_fail_status_failed():
         inj_q_max=1,
         E_max=5,
         SOC_min=0.2,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=0.97,
     )
 
     b.update_fail_status(dt)
 
-    assert b.lock == True
+    assert b.lock is True
 
-def test_update_fail_status_not_failed(): 
+
+def test_update_fail_status_not_failed():
     B1 = Bus("B1")
     dt = Time(1, TimeUnit.HOUR)
     B1.trafo_not_fail()
@@ -512,12 +525,10 @@ def test_update_fail_status_not_failed():
         inj_q_max=1,
         E_max=5,
         SOC_min=0.2,
-        SOC_max=1, 
+        SOC_max=1,
         n_battery=0.97,
     )
 
     b.update_fail_status(dt)
 
-    assert b.lock == False
-
-
+    assert b.lock is False

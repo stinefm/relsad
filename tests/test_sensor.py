@@ -10,5 +10,6 @@ from relsad.Time import (
 def test_repair():
     pass
 
+
 def test_get_line_fail_status():
     pass

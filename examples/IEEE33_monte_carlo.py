@@ -137,7 +137,6 @@ for bus in [B7, B8, B24, B25, B30, B32]:
     )
 
 
-
 if include_microgrid:
 
     BM1 = ps.get_comp("BM1")
@@ -167,10 +166,10 @@ if include_production:
     P3 = B15.get_production()
 
     P3.add_prod_data(
-        pprod_data=wind*2,
+        pprod_data=wind * 2,
     )
 
-#save_dir = r"test_IEEE33"
+# save_dir = r"test_IEEE33"
 
 # fig = plot_topology(ps.buses, ps.lines, figsize=(6.5, 4.5))
 # fig.savefig(os.path.join(save_dir, "topology.pdf"))
@@ -198,7 +197,7 @@ sim.run_monte_carlo(
     time_step=Time(30, TimeUnit.MINUTE),
     time_unit=TimeUnit.HOUR,
     save_iterations=[1, 2, 3, 4, 5],
-    #save_dir=save_dir,
+    # save_dir=save_dir,
     n_procs=4,
     debug=True,
 )

@@ -12,9 +12,10 @@ def test_close():
     L1 = Line("L1", B1, B2, 0.5, 0.5)
     D1 = Disconnector("D1", L1, B1)
 
-    D1.close() 
+    D1.close()
 
-    assert D1.is_open == False
+    assert D1.is_open is False
+
 
 def test_open():
     B1 = Bus("B1")
@@ -22,6 +23,6 @@ def test_open():
     L1 = Line("L1", B1, B2, 0.5, 0.5)
     D1 = Disconnector("D1", L1, B1)
 
-    D1.open() 
+    D1.open()
 
-    assert D1.is_open == True
+    assert D1.is_open is True

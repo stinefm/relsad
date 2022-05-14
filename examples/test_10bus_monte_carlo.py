@@ -111,17 +111,16 @@ if __name__ == "__main__":
         bus.add_load_data(
             pload_data=load_house,
             cost_function=household,
-    )
+        )
     for bus in [B2, B8, B10]:
         bus.add_load_data(
             pload_data=load_industry2,
             cost_function=industry,
-    )
+        )
     B5.add_load_data(
         pload_data=load_trade,
         cost_function=trade,
     )
-
 
     if include_microgrid:
 
@@ -129,15 +128,14 @@ if __name__ == "__main__":
             bus.add_load_data(
                 pload_data=load_microgrid,
                 cost_function=microgrid,
-    )
-
+            )
 
         if include_production:
             P1.add_prod_data(
-                pprod_data=PV+wind,
+                pprod_data=PV + wind,
             )
 
-    #save_dir = r"test_10bus"
+    # save_dir = r"test_10bus"
 
     sim = Simulation(ps, random_seed=3)
     sim.run_monte_carlo(
@@ -161,7 +159,7 @@ if __name__ == "__main__":
         time_step=Time(1, TimeUnit.HOUR),
         time_unit=TimeUnit.HOUR,
         save_iterations=[1],
-        #save_dir=save_dir,
+        # save_dir=save_dir,
         n_procs=1,
         debug=True,
     )

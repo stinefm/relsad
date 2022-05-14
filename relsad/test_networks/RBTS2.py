@@ -10,8 +10,8 @@ from relsad.network.components import (
     IntelligentSwitch,
 )
 from relsad.network.systems import (
-    Distribution, 
-    PowerSystem, 
+    Distribution,
+    PowerSystem,
     Transmission,
 )
 
@@ -28,6 +28,7 @@ from relsad.StatDist import (
     NormalParameters,
 )
 from relsad.Table import Table
+
 
 def initialize_network():
     C1 = ManualMainController(
@@ -46,8 +47,6 @@ def initialize_network():
             min_val=0.5,
             max_val=2,
         ),
-        draw_flag=True,
-        get_flag=False,
     )
     outage_time_trafo = Time(200, TimeUnit.HOUR)
     rho = 1.72e-8

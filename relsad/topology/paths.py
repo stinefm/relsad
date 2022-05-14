@@ -82,13 +82,11 @@ def create_downstream_sections(
         # No parent section, gathers all downstream lines and
         # disconnectors to create a parent section
         lines = unique(
-            itertools.chain.from_iterable(
-                get_downstream_lines(curr_line)
-            )
+            itertools.chain.from_iterable(get_downstream_lines(curr_line))
         )
         disconnectors = (
             curr_line.disconnectors + curr_line.circuitbreaker.disconnectors
-            if curr_line.circuitbreaker != None
+            if curr_line.circuitbreaker is not None
             else curr_line.disconnectors
         )
         parent_section = Section(None, lines, disconnectors)
@@ -140,7 +138,7 @@ def refine_sections(
     parent_section: Section,
 ):
     """
-    Refines the sections within the parent section including the parent 
+    Refines the sections within the parent section including the parent
     section itself. Removes unnecessary coarse sections. Returns the
     refined parent section.
 
@@ -170,7 +168,7 @@ def refine_sections(
     for child_section in child_sections:
         child_section = refine_sections(child_section)
 
-    if lines == [] and parent_section.parent != None:
+    if lines == [] and parent_section.parent is not None:
         # No unique parent section lines, parent section
         # covered by its child sections and thus unnecessary
         # Removes parent section
@@ -179,7 +177,7 @@ def refine_sections(
         # parent section
         parent_section = parent_section.parent
         for child_section in child_sections:
-            if not child_section in parent_section.child_sections:
+            if child_section not in parent_section.child_sections:
                 parent_section.child_sections.append(child_section)
         parent_section = refine_sections(parent_section)
     else:
@@ -196,8 +194,8 @@ def refine_sections(
                 if x.line in parent_section.lines
                 or sum(
                     [
-                        l in parent_section.lines
-                        for l in x.line.fbus.toline_list
+                        toline in parent_section.lines
+                        for toline in x.line.fbus.toline_list
                     ]
                 )
                 > 0
@@ -211,7 +209,7 @@ def refine_sections(
             parent_section.disconnectors = (
                 parent_section.lines[0].disconnectors
                 + parent_section.lines[0].circuitbreaker.disconnectors
-                if parent_section.lines[0].circuitbreaker != None
+                if parent_section.lines[0].circuitbreaker is not None
                 else parent_section.lines[0].disconnectors
             )
     return parent_section
@@ -219,7 +217,7 @@ def refine_sections(
 
 def get_section_list(
     parent_section: Section,
-    section_list: list=[],
+    section_list: list = [],
 ):
     """
     Appends and returns a list containing the sections in the path
@@ -299,11 +297,9 @@ def configure_bfs_load_flow_setup(
             bus_list[i] = old
             break
 
-    # Update directions based on slack bus 
+    # Update directions based on slack bus
     # (making slack bus parent of the radial tree)
-    update_direction_based_on_slack_bus(
-        slack_bus, bus_list, line_list
-    )
+    update_direction_based_on_slack_bus(slack_bus, bus_list, line_list)
 
     downstream_bus_list = get_downstream_buses(slack_bus)
 
@@ -343,13 +339,14 @@ def line_between_buses(
             return line
     return None
 
+
 def update_direction_based_on_slack_bus(
     slack_bus: Bus,
     bus_list: list,
     line_list: list,
 ):
     """
-    Update directions based on slack bus 
+    Update directions based on slack bus
     (making slack bus parent of the radial tree)
 
     Parameters
@@ -383,6 +380,7 @@ def update_direction_based_on_slack_bus(
                 used_target_buses.append(target_bus)
                 used_target_buses = unique(used_target_buses)
         target_buses = new_target_buses
+
 
 def get_topology_bus_list(downstream_bus_list: list):
     """
@@ -427,6 +425,7 @@ def get_topology_bus_list(downstream_bus_list: list):
 
     return topology_bus_list
 
+
 def flatten(toflatten: list):
     """
     Function that flattens nested list, handy for printing
@@ -434,7 +433,7 @@ def flatten(toflatten: list):
     Parameters
     ----------
     toflatten : list
-        Nested list 
+        Nested list
 
     Returns
     -------
@@ -477,6 +476,7 @@ def find_backup_lines_between_sub_systems(
         external_backup_lines2,
     )
     return backup_lines
+
 
 def find_external_backup_lines(sub_system: SubSystem):
     """

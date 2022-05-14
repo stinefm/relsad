@@ -59,8 +59,9 @@ def num_ev_table_func():
                 0.42,
                 0.42,
             ]
-        )
+        ),
     )
+
 
 def test_get_values():
     table = num_ev_table_func()

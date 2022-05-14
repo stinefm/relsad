@@ -64,14 +64,14 @@ def intersection(list1: list, list2: list):
     -------
     intersec : list
         The intersection between two list with preserved order
-    
+
     """
     intersec = [x for x in list1 if x in list2]
 
     return intersec
 
 
-def random_instance(seed: int=None):
+def random_instance(seed: int = None):
     """
     Return a numpy random instance with optional seed
 
@@ -84,7 +84,7 @@ def random_instance(seed: int=None):
     -------
     random_instance : numpy.random.Generator
         Random instance generator
-    
+
     """
     random_instance = np.random.default_rng(seed)
     return random_instance
@@ -108,7 +108,7 @@ def eq(x: float, y: float, tol: float = 1e-6):
     equal : bool
         Boolean variable stating whether the left and right hand side
         are equal within the given tolerance
-    
+
     """
     equal = abs(x - y) < tol
     return equal

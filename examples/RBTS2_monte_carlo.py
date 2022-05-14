@@ -62,7 +62,6 @@ if __name__ == "__main__":
     BF43 = ps.get_comp("BF43")
     BF44 = ps.get_comp("BF44")
 
-
     load_res1 = np.ones(8760) * (0.535 / 210)
     load_res2 = np.ones(8760) * (0.450 / 200)
     load_small1 = np.ones(8760) * (1 / 1)
@@ -111,22 +110,22 @@ if __name__ == "__main__":
         bus.add_load_data(
             pload_data=load_res1,
             cost_function=household,
-    )
+        )
     for bus in [B4, B5, B13, B14, B20, B21]:
         bus.add_load_data(
             pload_data=load_gov,
             cost_function=household,
-    )
+        )
     for bus in [B5, B7, B15, B16, B22]:
         bus.add_load_data(
             pload_data=load_com,
             cost_function=household,
-    )
+        )
     for bus in [B12, B17, B18, B19]:
         bus.add_load_data(
             pload_data=load_res2,
             cost_function=household,
-    )
+        )
     B8.add_load_data(
         pload_data=load_small1,
         cost_function=household,
@@ -136,7 +135,7 @@ if __name__ == "__main__":
         cost_function=household,
     )
 
-    #save_dir = r"test_RBTS2"
+    # save_dir = r"test_RBTS2"
 
     sim = Simulation(ps, random_seed=3)
     sim.run_monte_carlo(
@@ -160,7 +159,7 @@ if __name__ == "__main__":
         time_step=Time(1, TimeUnit.HOUR),
         time_unit=TimeUnit.HOUR,
         save_iterations=[1],
-        #save_dir=save_dir,
+        # save_dir=save_dir,
         n_procs=1,
         debug=True,
     )

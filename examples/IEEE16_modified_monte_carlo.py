@@ -169,35 +169,19 @@ if __name__ == "__main__":
     )
 
     for bus in [B2, B4, B13, B14, B16]:
-        bus.add_load_data(
-        pload_data=load_household,
-        cost_function=household
-    )
+        bus.add_load_data(pload_data=load_household, cost_function=household)
 
     for bus in [B6, B7, B11, B15, BM2]:
-        bus.add_load_data(
-        pload_data=load_farm,
-        cost_function=farm
-    )
+        bus.add_load_data(pload_data=load_farm, cost_function=farm)
 
     for bus in [B5, B10]:
-        bus.add_load_data(
-        pload_data=load_industry2,
-        cost_function=industry
-    )
+        bus.add_load_data(pload_data=load_industry2, cost_function=industry)
 
     for bus in [B3, B8]:
-        bus.add_load_data(
-        pload_data=load_office,
-        cost_function=public
-    )
+        bus.add_load_data(pload_data=load_office, cost_function=public)
 
     for bus in [B9, B12]:
-        bus.add_load_data(
-        pload_data=load_trade,
-        cost_function=trade
-    )
-
+        bus.add_load_data(pload_data=load_trade, cost_function=trade)
 
     P1.add_prod_data(
         pprod_data=PV,
@@ -206,8 +190,7 @@ if __name__ == "__main__":
         pprod_data=wind,
     )
 
-
-    #save_dir = r"C:\Users\stinefm\Documents\IEEE69_modified_21-05-2021\s3"
+    # save_dir = r"C:\Users\stinefm\Documents\IEEE69_modified_21-05-2021\s3"
 
     sim = Simulation(ps, random_seed=3)
     sim.run_monte_carlo(
@@ -231,10 +214,10 @@ if __name__ == "__main__":
         time_step=Time(1, TimeUnit.HOUR),
         time_unit=TimeUnit.HOUR,
         save_iterations=[1],
-        #save_dir=save_dir,
+        # save_dir=save_dir,
         n_procs=1,
         debug=True,
-)
+    )
 
     end = time.time()
     print("Time elapsed: {}".format(end - start))

@@ -204,7 +204,7 @@ class Line(Component):
         self.remaining_outage_time = Time(0)
 
         ## Communication
-        
+
         self.sensor = None
 
         ## History

@@ -102,9 +102,7 @@ class Distribution(Network):
     ## Counter
     counter = 0
 
-    def __init__(
-        self, parent_network: Network, connected_line: Line
-    ):
+    def __init__(self, parent_network: Network, connected_line: Line):
         Distribution.counter += 1
         self.name = "dist_network{:d}".format(Distribution.counter)
 

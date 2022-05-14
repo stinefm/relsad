@@ -15,6 +15,7 @@ def test_add_load():
     assert B1.pload == 0.05
     assert B1.qload == 0.005
 
+
 def test_perpare_load_data_equal_pq():
     B1 = Bus("B1")
     pload_data = np.array(
@@ -40,7 +41,8 @@ def test_perpare_load_data_equal_pq():
     )
 
     B1.add_load_data(
-        pload_data=pload_data, qload_data=qload_data,
+        pload_data=pload_data,
+        qload_data=qload_data,
     )
     time_indices = np.linspace(0, 10, 100)
     B1.prepare_load_data(time_indices=time_indices)
@@ -51,6 +53,7 @@ def test_perpare_load_data_equal_pq():
     assert len(B1.qload_data[0]) == 100
     assert B1.qload_data[0][0] == 1
     assert B1.qload_data[0][-1] == 6
+
 
 def test_perpare_load_data_different_pq():
     B1 = Bus("B1")
@@ -73,7 +76,8 @@ def test_perpare_load_data_different_pq():
     )
 
     B1.add_load_data(
-        pload_data=pload_data, qload_data=qload_data,
+        pload_data=pload_data,
+        qload_data=qload_data,
     )
     time_indices = np.linspace(0, 10, 100)
     B1.prepare_load_data(time_indices=time_indices)
@@ -84,6 +88,7 @@ def test_perpare_load_data_different_pq():
     assert len(B1.qload_data[0]) == 100
     assert B1.qload_data[0][0] == 1
     assert B1.qload_data[0][-1] == 8
+
 
 def test_perpare_load_data_active_load():
     B1 = Bus("B1")
@@ -96,7 +101,6 @@ def test_perpare_load_data_active_load():
             6,
         ]
     )
-
 
     B1.add_load_data(
         pload_data=pload_data,
@@ -111,13 +115,10 @@ def test_perpare_load_data_active_load():
     assert B1.qload_data[0][0] == 0
     assert B1.qload_data[0][-1] == 0
 
+
 def test_perpare_load_data_reactive_load():
     B1 = Bus("B1")
-    pload_data = np.array(
-        [
-            0
-        ]
-    )
+    pload_data = np.array([0])
 
     qload_data = np.array(
         [
@@ -130,10 +131,7 @@ def test_perpare_load_data_reactive_load():
         ]
     )
 
-
-    B1.add_load_data(
-        pload_data=pload_data, qload_data=qload_data
-    )
+    B1.add_load_data(pload_data=pload_data, qload_data=qload_data)
     time_indices = np.linspace(0, 10, 100)
     B1.prepare_load_data(time_indices=time_indices)
 
@@ -144,6 +142,7 @@ def test_perpare_load_data_reactive_load():
     assert B1.qload_data[0][0] == 1
     assert B1.qload_data[0][-1] == 6
 
+
 def test_set_load_and_cost():
     B1 = Bus("B1")
     pload_data = np.array([1, 2, 3, 4, 5, 6])
@@ -152,15 +151,18 @@ def test_set_load_and_cost():
     cost_function = CostFunction(1, 0)
     increment = [0, 1, 2, 3, 4, 5]
 
-    B1.add_load_data(pload_data=pload_data, qload_data=qload_data, cost_function=cost_function)
+    B1.add_load_data(
+        pload_data=pload_data,
+        qload_data=qload_data,
+        cost_function=cost_function,
+    )
     for i in range(len(increment)):
         B1.set_load_and_cost(increment[i])
-    
+
         assert B1.cost == 1
-        assert B1.pload == B1.pload_data[0][increment[i]] 
-        assert B1.qload == B1.qload_data[0][increment[i]] 
- 
- 
+        assert B1.pload == B1.pload_data[0][increment[i]]
+        assert B1.qload == B1.qload_data[0][increment[i]]
+
 
 def test_trafo_fail():
     B1 = Bus("B1")
@@ -172,13 +174,10 @@ def test_trafo_fail():
 
     B1.trafo_fail(dt)
 
-    assert B1.trafo_failed == True
+    assert B1.trafo_failed is True
     assert P.pprod == 0
     assert P.qprod == 0
 
+
 def update_fail_status():
-    pass 
-
-
-
-
+    pass

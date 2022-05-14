@@ -5,5 +5,6 @@ from relsad.Time import (
     TimeUnit,
 )
 
+
 def test_update():
     pass

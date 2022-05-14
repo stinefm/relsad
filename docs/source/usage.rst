@@ -127,8 +127,6 @@ Creating lines::
             min_val=0.5,
             max_val=2,
         ),
-        draw_flag=True,
-        get_flag=False,
     )
 
     fail_rate_line = 0.07

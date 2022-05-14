@@ -14,8 +14,6 @@ from relsad.Time import (
 )
 
 
-
-
 class Bus(Component):
     """
     Common base class for all distribution buses
@@ -438,8 +436,8 @@ class Bus(Component):
                     cost_function.A + cost_function.B * 1,
                 )
                 self.add_load(
-                    pload = self.pload_data[i][inc_idx] * self.n_customers,
-                    qload = self.qload_data[i][inc_idx] * self.n_customers
+                    pload=self.pload_data[i][inc_idx] * self.n_customers,
+                    qload=self.qload_data[i][inc_idx] * self.n_customers,
                 )
         if type_cost > 0:
             self.set_cost(type_cost)

@@ -25,18 +25,19 @@ from relsad.Time import (
     TimeUnit,
 )
 
+
 def initialize_network():
 
     C1 = ManualMainController(name="C1", sectioning_time=Time(0))
 
     ps = PowerSystem(C1)
 
-    B1 = Bus(name="B1", n_customers=0, coordinate=[0,0])
-    B2 = Bus(name="B2", n_customers=1, coordinate=[0,-1])
-    B3 = Bus(name="B3", n_customers=1, coordinate=[0,-2])
-    B4 = Bus(name="B4", n_customers=1, coordinate=[-1,-3])
-    B5 = Bus(name="B5", n_customers=1, coordinate=[-1,-4])
-    B6 = Bus(name="B6", n_customers=1, coordinate=[1,-3])
+    B1 = Bus(name="B1", n_customers=0, coordinate=[0, 0])
+    B2 = Bus(name="B2", n_customers=1, coordinate=[0, -1])
+    B3 = Bus(name="B3", n_customers=1, coordinate=[0, -2])
+    B4 = Bus(name="B4", n_customers=1, coordinate=[-1, -3])
+    B5 = Bus(name="B5", n_customers=1, coordinate=[-1, -4])
+    B6 = Bus(name="B6", n_customers=1, coordinate=[1, -3])
 
     length = 1
     r = 0.5
@@ -58,67 +59,63 @@ def initialize_network():
         area=area,
         s_ref=s_ref,
         v_ref=v_ref,
-        capacity=capacity, 
+        capacity=capacity,
     )
     L2 = Line(
         name="L2",
         fbus=B2,
         tbus=B3,
-        r=r, 
+        r=r,
         x=x,
         rho=rho,
         area=area,
         s_ref=s_ref,
         v_ref=v_ref,
-        capacity=capacity, 
+        capacity=capacity,
     )
     L3 = Line(
         name="L3",
         fbus=B3,
         tbus=B4,
-        r=r, 
+        r=r,
         x=x,
         rho=rho,
         area=area,
         s_ref=s_ref,
         v_ref=v_ref,
-        capacity=capacity, 
+        capacity=capacity,
     )
     L4 = Line(
         name="L4",
         fbus=B4,
         tbus=B5,
-        r=r, 
+        r=r,
         x=x,
         rho=rho,
         area=area,
         s_ref=s_ref,
         v_ref=v_ref,
-        capacity=capacity, 
+        capacity=capacity,
     )
     L5 = Line(
         name="L5",
         fbus=B3,
         tbus=B6,
-        r=r, 
+        r=r,
         x=x,
         rho=rho,
         area=area,
         s_ref=s_ref,
         v_ref=v_ref,
-        capacity=capacity, 
+        capacity=capacity,
     )
 
-    E1 = CircuitBreaker("E1", L1)
+    CircuitBreaker("E1", L1)
 
     tn = Transmission(ps, trafo_bus=B1)
     dn = Distribution(parent_network=tn, connected_line=L1)
-    dn.add_buses(
-        [B2, B3, B4, B5, B6]
-    )
-    dn.add_lines(
-        [L2, L3, L4, L5]
-    )
+    dn.add_buses([B2, B3, B4, B5, B6])
+    dn.add_lines([L2, L3, L4, L5])
     return ps
 
 
@@ -131,7 +128,7 @@ def test_load_flow_normal_load():
     B4 = ps.get_comp("B4")
     B5 = ps.get_comp("B5")
     B6 = ps.get_comp("B6")
-    
+
     L1 = ps.get_comp("L1")
     L2 = ps.get_comp("L2")
     L3 = ps.get_comp("L3")
@@ -164,7 +161,6 @@ def test_load_flow_normal_load():
     )
 
     run_bfs_load_flow(ps, maxit=5)
-
 
     assert eq(B1.vomag, 1, tol=1e-6)
     assert eq(B2.vomag, 0.999804, tol=1e-6)
@@ -263,7 +259,6 @@ def test_load_flow_high_load():
     assert eq(L5.ploss, 1.076718, tol=1e-6)
 
 
-
 def test_load_flow_normal_production():
     ps = initialize_network()
 
@@ -332,6 +327,7 @@ def test_load_flow_normal_production():
     assert eq(L3.ploss, 0.000002, tol=1e-6)
     assert eq(L4.ploss, 0.000005, tol=1e-6)
     assert eq(L5.ploss, 0.000003, tol=1e-6)
+
 
 def test_load_flow_high_production():
     ps = initialize_network()
@@ -402,6 +398,7 @@ def test_load_flow_high_production():
     assert eq(L4.ploss, 5.059683e-6, tol=1e-6)
     assert eq(L5.ploss, 2.582324e-6, tol=1e-6)
 
+
 def test_load_flow_reactive_normal():
     ps = initialize_network()
 
@@ -452,7 +449,6 @@ def test_load_flow_reactive_normal():
     print(B5.vomag)
     print(B6.vomag)
 
-
     assert eq(B1.vomag, 1, tol=1e-6)
     assert eq(B2.vomag, 0.999784, tol=1e-6)
     assert eq(B3.vomag, 0.999625, tol=1e-6)
@@ -490,6 +486,7 @@ def test_load_flow_reactive_normal():
     assert eq(L3.qloss, 2.610774e-6, tol=1e-6)
     assert eq(L4.qloss, 4.177352e-7, tol=1e-6)
     assert eq(L5.qloss, 2.61072e-6, tol=1e-6)
+
 
 def test_load_flow_reactive_high():
     ps = initialize_network()
@@ -559,7 +556,6 @@ def test_load_flow_reactive_high():
     assert eq(L3.get_line_load()[1], 5.032713, tol=1e-6)
     assert eq(L4.get_line_load()[1], 2.004523, tol=1e-6)
     assert eq(L5.get_line_load()[1], 5.028138, tol=1e-6)
-    
 
     assert eq(L1.ploss, 0.400966, tol=1e-6)
     assert eq(L2.ploss, 0.220030, tol=1e-6)
@@ -642,7 +638,6 @@ def test_load_flow_reactive_active_high():
     assert eq(L3.get_line_load()[1], 7.638302, tol=1e-6)
     assert eq(L4.get_line_load()[1], 2.540028, tol=1e-6)
     assert eq(L5.get_line_load()[1], 5.505584, tol=1e-6)
-    
 
     assert eq(L1.ploss, 11.696009, tol=1e-6)
     assert eq(L2.ploss, 7.994683, tol=1e-6)
@@ -655,6 +650,7 @@ def test_load_flow_reactive_active_high():
     assert eq(L3.qloss, 2.098274, tol=1e-6)
     assert eq(L4.qloss, 0.540028, tol=1e-6)
     assert eq(L5.qloss, 0.505584, tol=1e-6)
+
 
 def test_load_flow_active_reactive_production():
     ps = initialize_network()
@@ -705,7 +701,6 @@ def test_load_flow_active_reactive_production():
     print(B4.vomag)
     print(B5.vomag)
     print(B6.vomag)
-
 
     assert eq(B1.vomag, 1, tol=1e-6)
     assert eq(B2.vomag, 1.000075, tol=1e-6)

@@ -25,25 +25,26 @@ from relsad.Time import (
     TimeUnit,
 )
 
+
 def initialize_network(
-    island_mode: bool=False,
-    include_battery: bool=False,
-    include_wind: bool=False, 
-    include_PV: bool=False,
-    include_ev: bool=False,
-    v2g_flag: bool=False,
+    island_mode: bool = False,
+    include_battery: bool = False,
+    include_wind: bool = False,
+    include_PV: bool = False,
+    include_ev: bool = False,
+    v2g_flag: bool = False,
 ):
 
     C1 = ManualMainController(name="C1", sectioning_time=Time(0))
 
     ps = PowerSystem(C1)
 
-    B1 = Bus(name="B1", n_customers=0, coordinate=[0,0])
-    B2 = Bus(name="B2", n_customers=1, coordinate=[0,-1])
-    B3 = Bus(name="B3", n_customers=1, coordinate=[0,-2])
-    B4 = Bus(name="B4", n_customers=1, coordinate=[-1,-3])
-    B5 = Bus(name="B5", n_customers=1, coordinate=[-1,-4])
-    B6 = Bus(name="B6", n_customers=1, coordinate=[1,-3])
+    B1 = Bus(name="B1", n_customers=0, coordinate=[0, 0])
+    B2 = Bus(name="B2", n_customers=1, coordinate=[0, -1])
+    B3 = Bus(name="B3", n_customers=1, coordinate=[0, -2])
+    B4 = Bus(name="B4", n_customers=1, coordinate=[-1, -3])
+    B5 = Bus(name="B5", n_customers=1, coordinate=[-1, -4])
+    B6 = Bus(name="B6", n_customers=1, coordinate=[1, -3])
 
     length = 1
     r = 0.5
@@ -69,7 +70,7 @@ def initialize_network(
         name="L2",
         fbus=B2,
         tbus=B3,
-        r=r, 
+        r=r,
         x=x,
         rho=rho,
         area=area,
@@ -80,7 +81,7 @@ def initialize_network(
         name="L3",
         fbus=B3,
         tbus=B4,
-        r=r, 
+        r=r,
         x=x,
         rho=rho,
         area=area,
@@ -91,7 +92,7 @@ def initialize_network(
         name="L4",
         fbus=B4,
         tbus=B5,
-        r=r, 
+        r=r,
         x=x,
         rho=rho,
         area=area,
@@ -102,7 +103,7 @@ def initialize_network(
         name="L5",
         fbus=B3,
         tbus=B6,
-        r=r, 
+        r=r,
         x=x,
         rho=rho,
         area=area,
@@ -110,10 +111,10 @@ def initialize_network(
         v_ref=v_ref,
     )
 
-    E1 = CircuitBreaker("E1", L1)
+    CircuitBreaker("E1", L1)
 
-    if include_battery: 
-        battery = Battery(
+    if include_battery:
+        Battery(
             name="Bat1",
             bus=B5,
             inj_p_max=0.05,
@@ -124,35 +125,27 @@ def initialize_network(
             n_battery=0.95,
         )
 
-    if include_wind: 
-        wind = Production(name="wind", bus=B4)
-    
+    if include_wind:
+        Production(name="wind", bus=B4)
+
     if include_PV:
-        PV = Production(name="PV", bus=B6)
-    
-    if include_ev: 
-        EV1 = EVPark(name="EV1", bus=B2, num_ev_dist=1, v2g_flag=v2g_flag)
-        EV2 = EVPark(name="EV2", bus=B3, num_ev_dist=1, v2g_flag=v2g_flag)
-        EV3 = EVPark(name="EV3", bus=B4, num_ev_dist=1, v2g_flag=v2g_flag)
-        EV4 = EVPark(name="EV4", bus=B6, num_ev_dist=1, v2g_flag=v2g_flag)
+        Production(name="PV", bus=B6)
+
+    if include_ev:
+        EVPark(name="EV1", bus=B2, num_ev_dist=1, v2g_flag=v2g_flag)
+        EVPark(name="EV2", bus=B3, num_ev_dist=1, v2g_flag=v2g_flag)
+        EVPark(name="EV3", bus=B4, num_ev_dist=1, v2g_flag=v2g_flag)
+        EVPark(name="EV4", bus=B6, num_ev_dist=1, v2g_flag=v2g_flag)
 
     if island_mode:
         dn = Distribution(parent_network=ps, connected_line=None)
-        dn.add_buses(
-            [B1, B2, B3, B4, B5, B6]
-        )
-        dn.add_lines(
-            [L1, L2, L3, L4, L5]
-        )
+        dn.add_buses([B1, B2, B3, B4, B5, B6])
+        dn.add_lines([L1, L2, L3, L4, L5])
     else:
         tn = Transmission(ps, trafo_bus=B1)
         dn = Distribution(parent_network=tn, connected_line=L1)
-        dn.add_buses(
-            [B2, B3, B4, B5, B6]
-        )
-        dn.add_lines(
-            [L2, L3, L4, L5]
-        )
+        dn.add_buses([B2, B3, B4, B5, B6])
+        dn.add_lines([L2, L3, L4, L5])
     return ps
 
 
@@ -219,6 +212,7 @@ def test_load_flow_battery_charge():
     assert eq(np.degrees(B4.voang), -0.031388, tol=1e-6)
     assert eq(np.degrees(B5.voang), -0.035536, tol=1e-6)
     assert eq(np.degrees(B6.voang), -0.028425, tol=1e-6)
+
 
 def test_load_flow_battery_discharge():
     ps = initialize_network(
@@ -303,18 +297,22 @@ def test_load_flow_battery_discharge():
     assert eq(np.degrees(B5.voang), -0.035536, tol=1e-6)
     assert eq(np.degrees(B6.voang), -0.028425, tol=1e-6)
 
+
 def test_load_flow_wind_1():
     pass
+
 
 def test_load_flow_wind_2():
     pass
 
+
 def test_load_flow_PV_1():
     pass
+
 
 def test_load_flow_PV_2():
     pass
 
+
 def test_load_flow_V2g():
     pass
-

@@ -31,18 +31,19 @@ from relsad.Time import (
     TimeUnit,
 )
 
+
 def initialize_network():
 
     C1 = ManualMainController(name="C1", sectioning_time=Time(0))
 
     ps = PowerSystem(C1)
 
-    B1 = Bus(name="B1", n_customers=0, coordinate=[0,0])
-    B2 = Bus(name="B2", n_customers=1, coordinate=[0,-1])
-    B3 = Bus(name="B3", n_customers=1, coordinate=[0,-2])
-    B4 = Bus(name="B4", n_customers=1, coordinate=[-1,-3])
-    B5 = Bus(name="B5", n_customers=1, coordinate=[-1,-4])
-    B6 = Bus(name="B6", n_customers=1, coordinate=[1,-3])
+    B1 = Bus(name="B1", n_customers=0, coordinate=[0, 0])
+    B2 = Bus(name="B2", n_customers=1, coordinate=[0, -1])
+    B3 = Bus(name="B3", n_customers=1, coordinate=[0, -2])
+    B4 = Bus(name="B4", n_customers=1, coordinate=[-1, -3])
+    B5 = Bus(name="B5", n_customers=1, coordinate=[-1, -4])
+    B6 = Bus(name="B6", n_customers=1, coordinate=[1, -3])
 
     r = 0.5
     x = 0.5
@@ -58,51 +59,47 @@ def initialize_network():
         name="L2",
         fbus=B2,
         tbus=B3,
-        r=r, 
-        x=x, 
+        r=r,
+        x=x,
     )
     L3 = Line(
         name="L3",
         fbus=B3,
         tbus=B4,
-        r=r, 
+        r=r,
         x=x,
     )
     L4 = Line(
         name="L4",
         fbus=B4,
         tbus=B5,
-        r=r, 
+        r=r,
         x=x,
     )
     L5 = Line(
         name="L5",
         fbus=B3,
         tbus=B6,
-        r=r, 
+        r=r,
         x=x,
     )
     L6 = Line(
         name="L6",
         fbus=B4,
         tbus=B6,
-        r=r, 
+        r=r,
         x=x,
     )
-    D1 = Disconnector("D1", line=L6, bus=B4)
+    Disconnector("D1", line=L6, bus=B4)
 
     L6.set_backup()
 
-    E1 = CircuitBreaker("E1", L1)
+    CircuitBreaker("E1", L1)
 
     tn = Transmission(ps, trafo_bus=B1)
     dn = Distribution(parent_network=tn, connected_line=L1)
-    dn.add_buses(
-        [B2, B3, B4, B5, B6]
-    )
-    dn.add_lines(
-        [L2, L3, L4, L5, L6]
-    )
+    dn.add_buses([B2, B3, B4, B5, B6])
+    dn.add_lines([L2, L3, L4, L5, L6])
     return ps
 
 
@@ -127,6 +124,7 @@ def test_find_sub_systems():
     assert ps.get_comp("B5") in ps.sub_systems[0].buses
     assert ps.get_comp("B6") in ps.sub_systems[0].buses
 
+
 def test_find_sub_systems_fail():
     ps = initialize_network()
 
@@ -149,7 +147,3 @@ def test_find_sub_systems_fail():
     assert ps.get_comp("B4") in ps.sub_systems[0].buses
     assert ps.get_comp("B5") in ps.sub_systems[0].buses
     assert ps.get_comp("B6") in ps.sub_systems[0].buses
-
-def test_set_slack():
-    ps = initialize_network()
-

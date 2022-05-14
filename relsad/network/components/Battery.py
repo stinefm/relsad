@@ -121,7 +121,6 @@ class Battery(Component):
         ev_flag: bool = False,
     ):
 
-
         self.name = name
 
         self.mode = None
@@ -272,8 +271,10 @@ class Battery(Component):
 
         """
 
-        if self.remaining_survival_time > Time(0) and \
-            self.mode == MicrogridMode.SURVIVAL:
+        if (
+            self.remaining_survival_time > Time(0)
+            and self.mode == MicrogridMode.SURVIVAL
+        ):
             self.remaining_survival_time -= dt
             self.SOC_min = min(
                 self.bus.parent_network.get_max_load()[0]

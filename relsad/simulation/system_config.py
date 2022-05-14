@@ -76,6 +76,7 @@ def find_sub_systems(p_s: PowerSystem, curr_time: Time):
     if len(p_s.sub_systems) > 1:
         update_backup_lines_between_sub_systems(p_s, curr_time)
 
+
 def try_to_add_connected_lines(
     p_s: PowerSystem,
     bus: Bus,
@@ -151,6 +152,7 @@ def try_to_add_connected_lines(
                     used_lines,
                 )
     return sub_system, used_buses, used_lines
+
 
 def add_bus(
     p_s: PowerSystem,

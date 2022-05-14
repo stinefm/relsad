@@ -29,16 +29,16 @@ from relsad.Table import Table
 
 
 def initialize_network():
-    
+
     C1 = ManualMainController(
-            name="C1",
-            sectioning_time=Time(1, TimeUnit.HOUR),
-        )
+        name="C1",
+        sectioning_time=Time(1, TimeUnit.HOUR),
+    )
     ps = PowerSystem(C1)
 
     fail_rate_trafo = 0.007  # fails per year
     fail_rate_line = 0.07  # fails per year
-    outage_time_trafo = Time(8, TimeUnit.HOUR),  # hours
+    outage_time_trafo = (Time(8, TimeUnit.HOUR),)  # hours
     line_stat_dist = StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
         parameters=NormalParameters(
@@ -47,8 +47,6 @@ def initialize_network():
             min_val=0.5,
             max_val=2,
         ),
-        draw_flag=True,
-        get_flag=False,
     )
     # battery_capacity = 1  # MWh
     # microgrid_mode = MicrogridMode.LIMITED_SUPPORT
@@ -58,7 +56,7 @@ def initialize_network():
         n_customers=0,
         coordinate=[0, 0],
         fail_rate_per_year=0,
-        )
+    )
     B2 = Bus(
         "B2",
         n_customers=1,

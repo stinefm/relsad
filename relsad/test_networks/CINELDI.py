@@ -63,8 +63,6 @@ def initialize_network(
             min_val=0.5,
             max_val=2,
         ),
-        draw_flag=True,
-        get_flag=False,
     )
 
     def num_ev_table_func(
@@ -267,7 +265,6 @@ def initialize_network(
     DL5a = Disconnector("L5a", L5, B3)
     DL5b = Disconnector("L5b", L5, B6)
 
-
     if include_backup:
         DL6a = Disconnector("L6a", L6, B4)
         DL6b = Disconnector("L6b", L6, B6)
@@ -430,69 +427,69 @@ def initialize_network(
             )
 
         IntelligentSwitch(
-            name="RL1a", 
+            name="RL1a",
             disconnector=DL1a,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            name="RL1b", 
+            name="RL1b",
             disconnector=DL1b,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            name="RL1c", 
+            name="RL1c",
             disconnector=DL1c,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            name="RL2a", 
+            name="RL2a",
             disconnector=DL2a,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            name="RL2b", 
+            name="RL2b",
             disconnector=DL2b,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            name="RL3a", 
+            name="RL3a",
             disconnector=DL3a,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            name="RL3b", 
+            name="RL3b",
             disconnector=DL3b,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            name="RL4a", 
+            name="RL4a",
             disconnector=DL4a,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            name="RL4b", 
+            name="RL4b",
             disconnector=DL4b,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            name="RL5a", 
+            name="RL5a",
             disconnector=DL5a,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
-            name="RL5b", 
+            name="RL5b",
             disconnector=DL5b,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
 
         if include_backup:
             IntelligentSwitch(
-                name="RL6a", 
+                name="RL6a",
                 disconnector=DL6a,
                 fail_rate_per_year=fail_rate_intelligent_switch,
             )
             IntelligentSwitch(
-                name="RL6b", 
+                name="RL6b",
                 disconnector=DL6b,
                 fail_rate_per_year=fail_rate_intelligent_switch,
             )
@@ -524,38 +521,38 @@ def initialize_network(
 
             IntelligentSwitch(
                 name="RL7a",
-                disconnector=DL7a, 
+                disconnector=DL7a,
                 fail_rate_per_year=fail_rate_intelligent_switch,
             )
             IntelligentSwitch(
                 name="RL7b",
-                disconnector=DL7b, 
+                disconnector=DL7b,
                 fail_rate_per_year=fail_rate_intelligent_switch,
             )
             IntelligentSwitch(
                 name="RL7c",
-                disconnector=DL7c, 
+                disconnector=DL7c,
                 fail_rate_per_year=fail_rate_intelligent_switch,
             )
 
             IntelligentSwitch(
                 name="RML1a",
-                disconnector=DML1a, 
+                disconnector=DML1a,
                 fail_rate_per_year=fail_rate_intelligent_switch,
             )
             IntelligentSwitch(
                 name="RML1b",
-                disconnector=DML1b, 
+                disconnector=DML1b,
                 fail_rate_per_year=fail_rate_intelligent_switch,
             )
             IntelligentSwitch(
                 name="RML2a",
-                disconnector=DML2a, 
+                disconnector=DML2a,
                 fail_rate_per_year=fail_rate_intelligent_switch,
             )
             IntelligentSwitch(
                 name="RML2b",
-                disconnector=DML2b, 
+                disconnector=DML2b,
                 fail_rate_per_year=fail_rate_intelligent_switch,
             )
 
