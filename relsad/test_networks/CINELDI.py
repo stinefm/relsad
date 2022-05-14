@@ -162,35 +162,30 @@ def initialize_network(
         n_customers=1,
         coordinate=[1, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B3 = Bus(
         name="B3",
         n_customers=100,
         coordinate=[2, 1],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B4 = Bus(
         name="B4",
         n_customers=50,
         coordinate=[2, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B5 = Bus(
         name="B5",
         n_customers=90,
         coordinate=[3, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B6 = Bus(
         name="B6",
         n_customers=3,
         coordinate=[3, 1],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
 
     L1 = Line(
@@ -281,21 +276,18 @@ def initialize_network(
             n_customers=0,
             coordinate=[2, -1],
             fail_rate_per_year=fail_rate_trafo,
-            outage_time=outage_time_trafo,
         )
         M2 = Bus(
             "M2",
             n_customers=0,
             coordinate=[3, -2],
             fail_rate_per_year=fail_rate_trafo,
-            outage_time=outage_time_trafo,
         )
         M3 = Bus(
             "M3",
             n_customers=40,
             coordinate=[3, -1],
             fail_rate_per_year=fail_rate_trafo,
-            outage_time=outage_time_trafo,
         )
 
         Battery(name="Bat1", bus=M1)

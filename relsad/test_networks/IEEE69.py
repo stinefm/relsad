@@ -61,397 +61,331 @@ def initialize_network(
         name="B2",
         coordinate=[1, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B3 = Bus(
         name="B3",
         coordinate=[2, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B4 = Bus(
         name="B4",
         coordinate=[3, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B5 = Bus(
         name="B5",
         coordinate=[4, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B6 = Bus(
         name="B6",
         coordinate=[5, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B7 = Bus(
         name="B7",
         coordinate=[6, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B8 = Bus(
         name="B8",
         coordinate=[7, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B9 = Bus(
         name="B9",
         coordinate=[8, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B10 = Bus(
         name="B10",
         coordinate=[9, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B11 = Bus(
         name="B11",
         coordinate=[10, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B12 = Bus(
         name="B12",
         coordinate=[11, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B13 = Bus(
         name="B13",
         coordinate=[12, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B14 = Bus(
         name="B14",
         coordinate=[13, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B15 = Bus(
         name="B15",
         coordinate=[14, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B16 = Bus(
         name="B16",
         coordinate=[15, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B17 = Bus(
         name="B17",
         coordinate=[16, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B18 = Bus(
         name="B18",
         coordinate=[17, 0.5],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B19 = Bus(
         name="B19",
         coordinate=[18, 0.5],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B20 = Bus(
         name="B20",
         coordinate=[19, 0.5],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B21 = Bus(
         name="B21",
         coordinate=[20, 0.5],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B22 = Bus(
         name="B22",
         coordinate=[21, 0.5],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B23 = Bus(
         name="B23",
         coordinate=[22, 0.5],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B24 = Bus(
         name="B24",
         coordinate=[23, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B25 = Bus(
         name="B25",
         coordinate=[24, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B26 = Bus(
         name="B26",
         coordinate=[25, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B27 = Bus(
         name="B27",
         coordinate=[26, 0],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B28 = Bus(
         name="B28",
         coordinate=[3, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B29 = Bus(
         name="B29",
         coordinate=[4, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B30 = Bus(
         name="B30",
         coordinate=[5, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B31 = Bus(
         name="B31",
         coordinate=[6, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B32 = Bus(
         name="B32",
         coordinate=[7, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B33 = Bus(
         name="B33",
         coordinate=[8, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B34 = Bus(
         name="B34",
         coordinate=[9, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B35 = Bus(
         name="B35",
         coordinate=[10, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B36 = Bus(
         name="B36",
         coordinate=[3, 2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B37 = Bus(
         name="B37",
         coordinate=[4, 2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B38 = Bus(
         name="B38",
         coordinate=[5, 2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B39 = Bus(
         name="B39",
         coordinate=[6, 2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B40 = Bus(
         name="B40",
         coordinate=[7, 2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B41 = Bus(
         name="B41",
         coordinate=[8, 2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B42 = Bus(
         name="B42",
         coordinate=[9, 2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B43 = Bus(
         name="B43",
         coordinate=[10, 2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B44 = Bus(
         name="B44",
         coordinate=[11, 2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B45 = Bus(
         name="B45",
         coordinate=[12, 2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B46 = Bus(
         name="B46",
         coordinate=[13, 2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B47 = Bus(
         name="B47",
         coordinate=[4, -1.5],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B48 = Bus(
         name="B48",
         coordinate=[5, -1.5],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B49 = Bus(
         name="B49",
         coordinate=[6, -1.5],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B50 = Bus(
         name="B50",
         coordinate=[7, -1.5],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B51 = Bus(
         name="B51",
         coordinate=[8, 1],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B52 = Bus(
         name="B52",
         coordinate=[9, 1],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B53 = Bus(
         name="B53",
         coordinate=[9, -1],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B54 = Bus(
         name="B54",
         coordinate=[10, -1],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B55 = Bus(
         name="B55",
         coordinate=[11, -1],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B56 = Bus(
         name="B56",
         coordinate=[12, -1],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B57 = Bus(
         name="B57",
         coordinate=[13, -1],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B58 = Bus(
         name="B58",
         coordinate=[14, -1],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B59 = Bus(
         name="B59",
         coordinate=[15, -1.5],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B60 = Bus(
         name="B60",
         coordinate=[16, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B61 = Bus(
         name="B61",
         coordinate=[17, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B62 = Bus(
         name="B62",
         coordinate=[18, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B63 = Bus(
         name="B63",
         coordinate=[19, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B64 = Bus(
         name="B64",
         coordinate=[20, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B65 = Bus(
         name="B65",
         coordinate=[21, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B66 = Bus(
         name="B66",
         coordinate=[11, 1],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B67 = Bus(
         name="B67",
         coordinate=[12, 1],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
 
     # Microgrid:
@@ -459,25 +393,21 @@ def initialize_network(
         name="B68",
         coordinate=[16, 1.5],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B69 = Bus(
         name="B69",
         coordinate=[17, 1.5],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B70 = Bus(
         name="B70",
         coordinate=[17, 2],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
     B71 = Bus(
         name="B71",
         coordinate=[17, 1],
         fail_rate_per_year=fail_rate_trafo,
-        outage_time=outage_time_trafo,
     )
 
     Battery(name="Bat1", bus=B68)
