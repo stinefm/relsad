@@ -150,7 +150,8 @@ class StatDist:
             )
         elif self.stat_dist_type == StatDistType.GAMMA:
             return x ** (self.parameters.shape - 1) * (
-                np.exp(-x / self.parameters.scale) / (
+                np.exp(-x / self.parameters.scale)
+                / (
                     sps.gamma(self.parameters.shape)
                     * self.parameters.scale ** self.parameters.shape
                 )
