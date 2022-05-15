@@ -13,3 +13,6 @@ API
     API/reliability
     API/results
     API/simulation
+    API/dist_and_tables
+    API/time
+    API/utils
