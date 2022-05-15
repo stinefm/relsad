@@ -9,35 +9,6 @@ from relsad.Time import (
 )
 from relsad.Table import Table
 
-"""
-### What it should include: ###
-
-    1. Number of cars - The total amount of cars that can be charging at the same time
-    2. Inverter capacity of the charger
-    3. The efficiency of the charger
-    4. The SOC level, the min SOC and the max SOC
-
-    Each time a failure occurs the model will draw the amount of cars at the EV park and the SOC level of each car
-    This will follow a uniform distribution (binomial distribution?)
-    If V2G is applied - need a TRUE/FALSE variable that one can turn on and off based on if the system should
-    include V2G or just only EV.
-
-    If only EV:
-        The EV park will be seen as a load and will charge the cars with power
-    If V2G:
-        The EV park will be seen as a battery if it is in an island mode with no other production
-            if there is other production, this should be used first
-            if there is more production than load, then the EV park can charge the cars instead.
-
-    Assumptions:
-        During a failure no new cars can come to the park and now cars will leave the park during the outage period.
-        Do not consider which time of the day the failure occurs
-        Assume equal size of all cars
-
-
-
-"""
-
 
 class EVPark(Component):
 
