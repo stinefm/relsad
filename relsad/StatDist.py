@@ -84,6 +84,8 @@ class StatDist:
             of given size
 
         """
+        if random_instance is None:
+            random_instance = np.random.default_rng()
         drawn_values = None
         if self.stat_dist_type == StatDistType.UNIFORM_FLOAT:
             drawn_values = random_instance.uniform(
