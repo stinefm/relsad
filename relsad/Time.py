@@ -1,4 +1,5 @@
 from enum import Enum
+from numbers import Number
 
 
 class TimeUnit(Enum):
@@ -32,8 +33,8 @@ class Time:
         Weeks in a month
     MONTH_per_YEAR : float
         Months in a year
-    quantity : int
-        Time quantity, the number of a time unit
+    quantity : float
+        Time quantity, the quantity of a time unit
     unit : TimeUnit
         The time unit
 
@@ -65,7 +66,9 @@ class Time:
     WEEK_per_MONTH = 4.3452
     MONTH_per_YEAR = 12
 
-    def __init__(self, quantity: int, unit: TimeUnit = TimeUnit.HOUR):
+    def __init__(self, quantity: float, unit: TimeUnit = TimeUnit.HOUR):
+        if not isinstance(quantity, Number):
+            raise Exception("The time quantity must be a number.")
         self.quantity = quantity
         self.unit = unit
 

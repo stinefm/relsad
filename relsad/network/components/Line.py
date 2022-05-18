@@ -309,7 +309,10 @@ class Line(Component):
 
         """
         return Time(
-            self.outage_time_dist.draw(self.ps_random),
+            self.outage_time_dist.draw(
+                random_instance=self.ps_random,
+                size=1,
+            )[0],
             dt.unit,
         )
 
@@ -424,6 +427,7 @@ class Line(Component):
             if self.remaining_outage_time <= Time(0):
                 self.not_fail()
                 self.parent_network.controller.check_components = True
+                self.remaining_outage_time = Time(0)
         else:
             p_fail = convert_yearly_fail_rate(self.fail_rate_per_year, dt)
             if random_choice(self.ps_random, p_fail):

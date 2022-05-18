@@ -499,7 +499,10 @@ class Bus(Component):
 
         """
         return Time(
-            self.outage_time_dist.draw(self.ps_random),
+            self.outage_time_dist.draw(
+                random_instance=self.ps_random,
+                size=1,
+            )[0],
             dt.unit,
         )
 
@@ -588,6 +591,7 @@ class Bus(Component):
             self.remaining_outage_time -= dt
             if self.remaining_outage_time <= Time(0):
                 self.trafo_not_fail()
+                self.remaining_outage_time = Time(0)
             else:
                 self.shed_load(dt)
                 if self.prod is not None:
