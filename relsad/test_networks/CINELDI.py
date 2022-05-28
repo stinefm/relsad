@@ -59,9 +59,8 @@ def initialize_network(
             min_val=0.5,
             max_val=2,
         ),
-    )
+    ),
 ):
-
     def num_ev_table_func(
         n_customers,
         ev_percentage=0.47,
