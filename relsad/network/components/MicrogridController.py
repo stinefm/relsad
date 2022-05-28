@@ -216,7 +216,8 @@ class MicrogridController(Component, Controller):
                 num_fails += 1 if line_fail_status else 0
             if num_fails == 0:
                 section.connect(dt)
-                self.failed_sections.remove(section)
+                if section in self.failed_sections:
+                    self.failed_sections.remove(section)
         for section in connected_sections:
             sensors = unique([x.line.sensor for x in section.disconnectors])
             num_fails = 0
@@ -303,7 +304,8 @@ class MicrogridController(Component, Controller):
         for section in disconnected_sections:
             if sum([x.failed for x in section.lines]) == 0:
                 section.connect_manually()
-                self.failed_sections.remove(section)
+                if section in self.failed_sections:
+                    self.failed_sections.remove(section)
         # Loop connected sections
         for section in connected_sections:
             if sum([x.failed for x in section.lines]) > 0:
