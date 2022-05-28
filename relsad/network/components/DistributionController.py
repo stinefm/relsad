@@ -165,15 +165,13 @@ class DistributionController(Component, Controller):
 
         """
         if self.network.connected_line.circuitbreaker.is_open:
-            if (
-                self.sectioning_time <= Time(0)
-                and not self.network.connected_line.failed
-            ):
-                # Sectioning time finished
+            if self.sectioning_time <= Time(0):
                 self.disconnect_failed_sections()
-                self.network.connected_line.circuitbreaker.close()
-                self.network.connected_line.section.connect_manually()
-                self.failed_sections = []
+                if not self.network.connected_line.failed:
+                    # Sectioning time finished
+                    self.network.connected_line.circuitbreaker.close()
+                    self.network.connected_line.section.connect_manually()
+                    self.failed_sections = []
 
     def disconnect_failed_sections(self):
         """
@@ -239,6 +237,7 @@ class DistributionController(Component, Controller):
                 num_fails += 1 if line_fail_status else 0
             if num_fails == 0:
                 section.connect(dt)
+                self.failed_sections.remove(section)
         # Loop connected sections
         for section in connected_sections:
             sensors = unique([x.line.sensor for x in section.disconnectors])
@@ -249,7 +248,7 @@ class DistributionController(Component, Controller):
                 self.sectioning_time += repair_time
                 num_fails += 1 if line_fail_status else 0
             if num_fails > 0:
-                section.state = SectionState.FAILED
+                section.state = SectionState.DISCONNECTED
                 self.sectioning_time += section.get_disconnect_time(dt)
                 self.failed_sections.append(section)
                 self.failed_sections = unique(self.failed_sections)
@@ -293,8 +292,8 @@ class DistributionController(Component, Controller):
 
     def check_lines_manually(self, curr_time):
         """
-        Loops through the sections connected to the controller determining
-        which lines have failed manually. Performs actions according
+        Loops manually through the sections connected to the controller determining
+        which lines have failed. Performs actions according
         to the line status in the respective section.
 
         If a section was disconnected and no longer includes any failed
@@ -329,10 +328,11 @@ class DistributionController(Component, Controller):
         for section in disconnected_sections:
             if sum([x.failed for x in section.lines]) == 0:
                 section.connect_manually()
+                self.failed_sections.remove(section)
         # Loop connected sections
         for section in connected_sections:
             if sum([x.failed for x in section.lines]) > 0:
-                section.state = SectionState.FAILED
+                section.state = SectionState.DISCONNECTED
                 self.failed_sections.append(section)
                 self.failed_sections = unique(self.failed_sections)
                 self.sectioning_time = self.manual_sectioning_time

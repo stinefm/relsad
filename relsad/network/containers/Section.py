@@ -5,7 +5,6 @@ from relsad.Time import Time
 class SectionState(Enum):
     CONNECTED = 1
     DISCONNECTED = 2
-    FAILED = 3
 
 
 class Section:

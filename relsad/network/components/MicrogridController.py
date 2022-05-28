@@ -150,20 +150,17 @@ class MicrogridController(Component, Controller):
 
         """
         if self.network.connected_line.circuitbreaker.is_open:
+            # If circuitbreaker in Microgrid with survival mode and parent Distribution
+            # system has no failed lines
             if (
-                self.sectioning_time <= Time(0)
-                and not self.network.connected_line.failed
+                self.network.mode == MicrogridMode.SURVIVAL
+                and self.network.distribution_network.failed_line is True
             ):
-                # If circuitbreaker in Microgrid with survival mode and parent Distribution
-                # system has no failed lines
-                if self.network.mode == MicrogridMode.SURVIVAL:
-                    if not self.network.distribution_network.failed_line:
-                        self.disconnect_failed_sections()
-                        self.network.connected_line.circuitbreaker.close()
-                        self.network.connected_line.section.connect_manually()
-                        self.failed_sections = []
-                else:
-                    self.disconnect_failed_sections()
+                return
+            elif self.sectioning_time <= Time(0):
+                self.disconnect_failed_sections()
+                if not self.network.connected_line.failed:
+                    # Sectioning time finished
                     self.network.connected_line.circuitbreaker.close()
                     self.network.connected_line.section.connect_manually()
                     self.failed_sections = []
@@ -219,6 +216,7 @@ class MicrogridController(Component, Controller):
                 num_fails += 1 if line_fail_status else 0
             if num_fails == 0:
                 section.connect(dt)
+                self.failed_sections.remove(section)
         for section in connected_sections:
             sensors = unique([x.line.sensor for x in section.disconnectors])
             num_fails = 0
@@ -227,7 +225,7 @@ class MicrogridController(Component, Controller):
                 self.sectioning_time += repair_time
                 num_fails += 1 if line_fail_status else 0
             if num_fails > 0:
-                section.state = SectionState.FAILED
+                section.state = SectionState.DISCONNECTED
                 self.sectioning_time += section.get_disconnect_time(dt)
                 self.failed_sections.append(section)
                 self.failed_sections = unique(self.failed_sections)
@@ -269,7 +267,17 @@ class MicrogridController(Component, Controller):
 
     def check_lines_manually(self, curr_time):
         """
-        Sets the controller state to software fail
+        Loops manually through the sections connected to the controller determining
+        which lines have failed. Performs actions according
+        to the line status in the respective section.
+
+        If a section was disconnected and no longer includes any failed
+        lines, it is connected.
+
+        If a section was connected and now includes a failed line,
+        it is disconnected.
+
+        The total sectioning time is summed from each section.
 
         Parameters
         ----------
@@ -291,12 +299,15 @@ class MicrogridController(Component, Controller):
             for x in self.network.sections
             if x.state == SectionState.DISCONNECTED
         ]
+        # Loop disconnected sections
         for section in disconnected_sections:
             if sum([x.failed for x in section.lines]) == 0:
                 section.connect_manually()
+                self.failed_sections.remove(section)
+        # Loop connected sections
         for section in connected_sections:
             if sum([x.failed for x in section.lines]) > 0:
-                section.state = SectionState.FAILED
+                section.state = SectionState.DISCONNECTED
                 self.failed_sections.append(section)
                 self.failed_sections = unique(self.failed_sections)
                 self.sectioning_time = self.manual_sectioning_time
