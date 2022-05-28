@@ -138,7 +138,7 @@ Creating lines::
         r=0.5, 
         x=0.5,
         fail_rate_density_per_year=fail_rate_line, 
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L2 = Line(
         name="L2",
@@ -147,7 +147,7 @@ Creating lines::
         r=0.5, 
         x=0.5,
         fail_rate_density_per_year=fail_rate_line, 
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L3 = Line(
         name="L3",
@@ -156,7 +156,7 @@ Creating lines::
         r=0.5, 
         x=0.5,
         fail_rate_density_per_year=fail_rate_line, 
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L4 = Line(
         name="L4",
@@ -165,7 +165,7 @@ Creating lines::
         r=0.5, 
         x=0.5,
         fail_rate_density_per_year=fail_rate_line, 
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L5 = Line(
         name="L5",
@@ -174,7 +174,7 @@ Creating lines::
         r=0.5, 
         x=0.5,
         fail_rate_density_per_year=fail_rate_line, 
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
 
     # Backup line
@@ -187,7 +187,7 @@ Creating lines::
         x=0.5,
         is_backup=True,
         fail_rate_density_per_year=fail_rate_line, 
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
 
     # Set L6 as a backup line
@@ -367,7 +367,7 @@ Then the components in the microgrid can be created::
         r=0.5,
         x=0.5,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
 
     ML2 = Line(
@@ -377,7 +377,7 @@ Then the components in the microgrid can be created::
         r=0.5,
         x=0.5,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
 
     ML3 = Line(
@@ -387,7 +387,7 @@ Then the components in the microgrid can be created::
         r=0.5,
         x=0.5,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
 
     # Circuit breaker: 

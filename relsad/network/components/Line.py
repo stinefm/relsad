@@ -69,8 +69,8 @@ class Line(Component):
         The reactive power loss over the line [MVar]
     fail_rate_per_year : float
         Failure rate per year [fault/year/km]
-    outage_time_dist : StatDist
-        Outage time [hours/fault]
+    repair_time_dist : StatDist
+        The repair time of the line [hours/fault] [hours/fault]
     connected : bool
         Indicates if the line is connected or disconnected
     failed : bool
@@ -91,8 +91,8 @@ class Line(Component):
         Disconnects a line and removes the line for the list of lines
     connect()
         Connects a line and append the line to the list of lines
-    draw_outage_time(dt)
-        Decides and returns the outage time of the line based on a statistical distribution
+    draw_repair_time(dt)
+        Decides and returns the repair time of the line based on a statistical distribution
     fail(dt)
         Sets the fail status of the line to True and opens the connected disconnectors and the connected circuit breaker
     not_fail()
@@ -140,7 +140,7 @@ class Line(Component):
         tbus: Bus,
         r: float,  # Ohm
         x: float,  # Ohm
-        outage_time_dist: StatDist = StatDist(
+        repair_time_dist: StatDist = StatDist(
             stat_dist_type=StatDistType.UNIFORM_FLOAT,
             parameters=UniformParameters(
                 min_val=0.0,
@@ -196,7 +196,7 @@ class Line(Component):
         self.fail_rate_per_year = (
             fail_rate_density_per_year * self.length
         )  # failures per year
-        self.outage_time_dist = outage_time_dist
+        self.repair_time_dist = repair_time_dist
 
         ## Status attribute
         self.connected = connected
@@ -294,9 +294,9 @@ class Line(Component):
             self.fbus.fromline_list.append(self)
             self.fbus.nextbus.append(self.tbus)
 
-    def draw_outage_time(self, dt: Time):
+    def draw_repair_time(self, dt: Time):
         """
-        Decides and returns the outage time of the line based on a statistical distribution
+        Decides and returns the repair time of the line based on a statistical distribution
 
         Parameters
         ----------
@@ -309,7 +309,7 @@ class Line(Component):
 
         """
         return Time(
-            self.outage_time_dist.draw(
+            self.repair_time_dist.draw(
                 random_instance=self.ps_random,
                 size=1,
             )[0],
@@ -332,7 +332,7 @@ class Line(Component):
         """
         self.failed = True
         self.parent_network.failed_line = True
-        self.remaining_outage_time = self.draw_outage_time(dt)
+        self.remaining_outage_time = self.draw_repair_time(dt)
         if self.connected:
             # Relay
 

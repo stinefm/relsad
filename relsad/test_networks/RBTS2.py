@@ -293,7 +293,7 @@ def initialize_network():
         r=r2,
         x=0.156669594992563,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L2 = Line(
         "L2",
@@ -302,7 +302,7 @@ def initialize_network():
         r=r1,
         x=0.156669594992563,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L3 = Line(
         "L3",
@@ -311,7 +311,7 @@ def initialize_network():
         r=r3,
         x=0.11630112507612,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L4 = Line(
         "L4",
@@ -320,7 +320,7 @@ def initialize_network():
         r=r2,
         x=0.121105409749329,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L5 = Line(
         "L5",
@@ -329,7 +329,7 @@ def initialize_network():
         r=r3,
         x=0.441120683630991,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L6 = Line(
         "L6",
@@ -338,7 +338,7 @@ def initialize_network():
         r=r1,
         x=0.386089786465145,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L7 = Line(
         "L7",
@@ -347,7 +347,7 @@ def initialize_network():
         r=r2,
         x=0.770619740244183,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L8 = Line(
         "L8",
@@ -356,7 +356,7 @@ def initialize_network():
         r=r3,
         x=0.4617104750876,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L9 = Line(
         "L9",
@@ -365,7 +365,7 @@ def initialize_network():
         r=r2,
         x=0.4617104750876,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L10 = Line(
         "L10",
@@ -374,7 +374,7 @@ def initialize_network():
         r=r1,
         x=0.040555649838776,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L11 = Line(
         "L11",
@@ -383,7 +383,7 @@ def initialize_network():
         r=r3,
         x=0.077242914616007,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     LB1 = Line(
         "LB1",
@@ -392,7 +392,7 @@ def initialize_network():
         r=r1,
         x=0.077242914616007,
         fail_rate_density_per_year=0,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
 
     L12 = Line(
@@ -402,7 +402,7 @@ def initialize_network():
         r=r2,
         x=0.720642700981322,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
 
     L13 = Line(
@@ -412,7 +412,7 @@ def initialize_network():
         r=r3,
         x=0.444801888770203,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L14 = Line(
         "L14",
@@ -421,7 +421,7 @@ def initialize_network():
         r=r1,
         x=0.328188797156862,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L15 = Line(
         "L15",
@@ -430,7 +430,7 @@ def initialize_network():
         r=r3,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
 
     L16 = Line(
@@ -440,7 +440,7 @@ def initialize_network():
         r=r2,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L17 = Line(
         "L17",
@@ -449,7 +449,7 @@ def initialize_network():
         r=r1,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L18 = Line(
         "L18",
@@ -458,7 +458,7 @@ def initialize_network():
         r=r3,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L19 = Line(
         "L19",
@@ -467,7 +467,7 @@ def initialize_network():
         r=r2,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L20 = Line(
         "L20",
@@ -476,7 +476,7 @@ def initialize_network():
         r=r3,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L21 = Line(
         "L21",
@@ -485,7 +485,7 @@ def initialize_network():
         r=r1,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L22 = Line(
         "L22",
@@ -494,7 +494,7 @@ def initialize_network():
         r=r2,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L23 = Line(
         "L23",
@@ -503,7 +503,7 @@ def initialize_network():
         r=r3,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L24 = Line(
         "L24",
@@ -512,7 +512,7 @@ def initialize_network():
         r=r2,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L25 = Line(
         "L25",
@@ -521,7 +521,7 @@ def initialize_network():
         r=r1,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     LB2 = Line(
         "LB2",
@@ -530,7 +530,7 @@ def initialize_network():
         r=r1,
         x=0.340043525571273,
         fail_rate_density_per_year=0,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
 
     L26 = Line(
@@ -540,7 +540,7 @@ def initialize_network():
         r=r3,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L27 = Line(
         "L27",
@@ -549,7 +549,7 @@ def initialize_network():
         r=r2,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L28 = Line(
         "L28",
@@ -558,7 +558,7 @@ def initialize_network():
         r=r1,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L29 = Line(
         "L29",
@@ -567,7 +567,7 @@ def initialize_network():
         r=r2,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L30 = Line(
         "L30",
@@ -576,7 +576,7 @@ def initialize_network():
         r=r1,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L31 = Line(
         "L31",
@@ -585,7 +585,7 @@ def initialize_network():
         r=r3,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L32 = Line(
         "L32",
@@ -594,7 +594,7 @@ def initialize_network():
         r=r2,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L33 = Line(
         "L33",
@@ -603,7 +603,7 @@ def initialize_network():
         r=r3,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L34 = Line(
         "L34",
@@ -612,7 +612,7 @@ def initialize_network():
         r=r1,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L35 = Line(
         "L35",
@@ -621,7 +621,7 @@ def initialize_network():
         r=r2,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
     L36 = Line(
         "L36",
@@ -630,7 +630,7 @@ def initialize_network():
         r=r3,
         x=0.340043525571273,
         fail_rate_density_per_year=fail_rate_line,
-        outage_time_dist=line_stat_dist,
+        repair_time_dist=line_stat_dist,
     )
 
     E1 = CircuitBreaker("E1", L1)
