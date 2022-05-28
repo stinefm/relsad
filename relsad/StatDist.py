@@ -4,7 +4,7 @@ from scipy import stats
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.special as sps
-from relsad.utils import random_instance
+from relsad.utils import get_random_instance
 
 
 class StatDistType(Enum):
@@ -182,9 +182,9 @@ class StatDist:
         None
 
         """
-        rand_instance = random_instance()
+        random_instance = get_random_instance()
         dist = self.draw(
-            rand_instance,
+            random_instance,
             size=n_points,
         )
         ax.hist(dist, bins=n_bins, density=True)

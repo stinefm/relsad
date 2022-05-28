@@ -71,7 +71,7 @@ def intersection(list1: list, list2: list):
     return intersec
 
 
-def random_instance(seed: int = None):
+def get_random_instance(seed: int = None):
     """
     Return a numpy random instance with optional seed
 
@@ -131,6 +131,8 @@ def random_choice(random_instance: np.random.Generator, p_true: float):
         Random choice based on uniform probability distribution
 
     """
+    if random_instance is None:
+        random_instance = get_random_instance()
     choice = random_instance.random() < p_true
     return choice
 
