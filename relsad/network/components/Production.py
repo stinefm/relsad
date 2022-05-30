@@ -76,6 +76,24 @@ class Production(Component):
         qmax: float = 10,
     ):
 
+        # Verify input
+        if bus is None:
+            raise Exception(
+                "Production unit must be connected to a Bus"
+            )
+        if bus.parent_network is not None:
+            raise Exception(
+                "Production unit must be created before the bus is connected to a network"
+            )
+        if pmax < 0:
+            raise Exception(
+                "The maximum active power that can be produced must be positive"
+            )
+        if qmax < 0:
+            raise Exception(
+                "The maximum reactive power that can be produced must be positive"
+            )
+
         self.name = name
         self.bus = bus
         bus.prod = self

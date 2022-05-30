@@ -216,6 +216,7 @@ class Bus(Component):
             ),
         ),
     ):
+
         ## Informative attributes
         self.name = name
         self.n_customers = n_customers

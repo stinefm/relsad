@@ -110,6 +110,16 @@ class IntelligentSwitch(Component):
         state: IntelligentSwitchState = IntelligentSwitchState.OK,
     ):
 
+        # Verify input
+        if disconnector is None:
+            raise Exception(
+                "IntelligentSwitch must be connected to a Disconnector"
+            )
+        if fail_rate_per_year < 0:
+            raise Exception(
+                "The failure rate per year must be positive"
+            )
+
         self.name = name
         self.disconnector = disconnector
         disconnector.intelligent_switch = self

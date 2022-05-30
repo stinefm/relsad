@@ -122,6 +122,41 @@ class EVPark(Component):
         v2g_flag: bool = True,
     ):
 
+        # Verify input
+        if bus is None:
+            raise Exception(
+                "EVPark must be connected to a Bus"
+            )
+        if bus.parent_network is not None:
+            raise Exception(
+                "EVPark must be created before the bus is connected to a network"
+            )
+        if num_ev_dist is None:
+            raise Exception(
+                "EVPark must have a table distributing the number"
+                "of EV during the day"
+            )
+        if inj_p_max < 0:
+            raise Exception(
+                "The active power injection must be positive"
+            )
+        if inj_q_max < 0:
+            raise Exception(
+                "The reactive power injection must be positive"
+            )
+        if E_max < 0:
+            raise Exception(
+                "The energy capacity must be positive"
+            )
+        if SOC_min < 0 or SOC_max > 1:
+            raise Exception(
+                "The SOC limits must be between 0 and 1"
+            )
+        if n_battery < 0 or n_battery > 1:
+            raise Exception(
+                "The efficiency must be between 0 and 1"
+            )
+
         self.name = name
 
         self.bus = bus
@@ -204,6 +239,7 @@ class EVPark(Component):
                 SOC_max=self.SOC_max,
                 n_battery=self.n_battery,
                 ev_flag=True,
+                random_instance=self.ps_random,
             )
             for i in range(self.num_cars)
         ]
