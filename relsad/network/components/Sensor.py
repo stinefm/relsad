@@ -116,6 +116,28 @@ class Sensor(Component):
         state: SensorState = SensorState.OK,
     ):
 
+        # Verify input
+        if line is None:
+            raise Exception(
+                "Sensor must be connected to a Line"
+            )
+        if line.parent_network is not None:
+            raise Exception(
+                "Sensor must be created before the line is connected to a network"
+            )
+        if fail_rate_per_year < 0:
+            raise Exception(
+                "The failure rate per year must be positive"
+            )
+        if p_fail_repair_new_signal < 0 or p_fail_repair_new_signal > 1:
+            raise Exception(
+                "p_fail_repair_new_signal must be between 0 and 1"
+            )
+        if p_fail_repair_reboot < 0 or p_fail_repair_reboot > 1:
+            raise Exception(
+                "p_fail_repair_reboot must be between 0 and 1"
+            )
+
         self.name = name
         self.line = line
         line.sensor = self

@@ -92,6 +92,21 @@ class CircuitBreaker(Component):
         fail_rate: float = 0.0,
         outage_time: Time = Time(1, TimeUnit.HOUR),
     ):
+
+        # Verify input
+        if line is None:
+            raise Exception(
+                "CircuitBreaker must be connected to a Line"
+            )
+        if line.parent_network is not None:
+            raise Exception(
+                "CircuitBreaker must be created before the line is connected to a network"
+            )
+        if fail_rate < 0:
+            raise Exception(
+                "The failure rate must be positive"
+            )
+
         self.name = name
 
         dx = line.tbus.coordinate[0] - line.fbus.coordinate[0]
