@@ -262,111 +262,6 @@ def initialize_network(
 
         L6.set_backup()
 
-    tn = Transmission(parent_network=ps, trafo_bus=B1)
-
-    dn = Distribution(parent_network=tn, connected_line=L1)
-
-    if include_microgrid:
-        M1 = Bus(
-            "M1",
-            n_customers=0,
-            coordinate=[2, -1],
-            fail_rate_per_year=fail_rate_trafo,
-        )
-        M2 = Bus(
-            "M2",
-            n_customers=0,
-            coordinate=[3, -2],
-            fail_rate_per_year=fail_rate_trafo,
-        )
-        M3 = Bus(
-            "M3",
-            n_customers=40,
-            coordinate=[3, -1],
-            fail_rate_per_year=fail_rate_trafo,
-        )
-
-        Battery(name="Bat1", bus=M1)
-        Production(name="P1", bus=M2)
-
-        ML1 = Line(
-            name="ML1",
-            fbus=M1,
-            tbus=M2,
-            r=0.057526629463617,
-            x=0.029324854498807,
-            fail_rate_density_per_year=fail_rate_line,
-            repair_time_dist=line_stat_dist,
-        )
-        ML2 = Line(
-            name="ML2",
-            fbus=M1,
-            tbus=M3,
-            r=0.057526629463617,
-            x=0.029324854498807,
-            fail_rate_density_per_year=fail_rate_line,
-            repair_time_dist=line_stat_dist,
-        )
-
-        L7 = Line(
-            name="L7",
-            fbus=B2,
-            tbus=M1,
-            r=0.057526629463617,
-            x=0.029324854498807,
-            fail_rate_density_per_year=fail_rate_line,
-            repair_time_dist=line_stat_dist,
-        )
-
-        E2 = CircuitBreaker(name="E2", line=L7)
-
-        DL7a = Disconnector(
-            name="L7a",
-            line=L7,
-            bus=B2,
-            circuitbreaker=E2,
-        )
-        DL7b = Disconnector(
-            name="L7b",
-            line=L7,
-            bus=M1,
-            circuitbreaker=E2,
-        )
-        DL7c = Disconnector(
-            name="L7c",
-            line=L7,
-            bus=M1,
-        )
-        DML1a = Disconnector(
-            name="ML1a",
-            line=ML1,
-            bus=M1,
-        )
-        DML1b = Disconnector(
-            name="ML1b",
-            line=ML1,
-            bus=M2,
-        )
-        DML2a = Disconnector(
-            name="ML2a",
-            line=ML2,
-            bus=M1,
-        )
-        DML2b = Disconnector(
-            name="ML2b",
-            line=ML2,
-            bus=M3,
-        )
-
-        m = Microgrid(
-            distribution_network=dn,
-            connected_line=L7,
-            mode=microgrid_mode,
-        )
-
-        m.add_buses([M1, M2, M3])
-        m.add_lines([ML1, ML2])
-
     if include_ICT:
 
         Sensor(
@@ -480,10 +375,113 @@ def initialize_network(
                 name="RL6b",
                 disconnector=DL6b,
                 fail_rate_per_year=fail_rate_intelligent_switch,
-            )
+            )  
 
-        if include_microgrid:
+    if include_ev:
+        EVPark(
+            name="EV1",
+            bus=B5,
+            num_ev_dist=num_ev_table_func(B3.n_customers),
+            v2g_flag=v2g_flag,
+        )
 
+    tn = Transmission(parent_network=ps, trafo_bus=B1)
+
+    dn = Distribution(parent_network=tn, connected_line=L1)
+
+    if include_microgrid:
+        M1 = Bus(
+            "M1",
+            n_customers=0,
+            coordinate=[2, -1],
+            fail_rate_per_year=fail_rate_trafo,
+        )
+        M2 = Bus(
+            "M2",
+            n_customers=0,
+            coordinate=[3, -2],
+            fail_rate_per_year=fail_rate_trafo,
+        )
+        M3 = Bus(
+            "M3",
+            n_customers=40,
+            coordinate=[3, -1],
+            fail_rate_per_year=fail_rate_trafo,
+        )
+
+        Battery(name="Bat1", bus=M1)
+        Production(name="P1", bus=M2)
+
+        ML1 = Line(
+            name="ML1",
+            fbus=M1,
+            tbus=M2,
+            r=0.057526629463617,
+            x=0.029324854498807,
+            fail_rate_density_per_year=fail_rate_line,
+            repair_time_dist=line_stat_dist,
+        )
+        ML2 = Line(
+            name="ML2",
+            fbus=M1,
+            tbus=M3,
+            r=0.057526629463617,
+            x=0.029324854498807,
+            fail_rate_density_per_year=fail_rate_line,
+            repair_time_dist=line_stat_dist,
+        )
+
+        L7 = Line(
+            name="L7",
+            fbus=B2,
+            tbus=M1,
+            r=0.057526629463617,
+            x=0.029324854498807,
+            fail_rate_density_per_year=fail_rate_line,
+            repair_time_dist=line_stat_dist,
+        )
+
+        E2 = CircuitBreaker(name="E2", line=L7)
+
+        DL7a = Disconnector(
+            name="L7a",
+            line=L7,
+            bus=B2,
+            circuitbreaker=E2,
+        )
+        DL7b = Disconnector(
+            name="L7b",
+            line=L7,
+            bus=M1,
+            circuitbreaker=E2,
+        )
+        DL7c = Disconnector(
+            name="L7c",
+            line=L7,
+            bus=M1,
+        )
+        DML1a = Disconnector(
+            name="ML1a",
+            line=ML1,
+            bus=M1,
+        )
+        DML1b = Disconnector(
+            name="ML1b",
+            line=ML1,
+            bus=M2,
+        )
+        DML2a = Disconnector(
+            name="ML2a",
+            line=ML2,
+            bus=M1,
+        )
+        DML2b = Disconnector(
+            name="ML2b",
+            line=ML2,
+            bus=M3,
+        )
+
+        if include_ICT:
             Sensor(
                 name="SL7",
                 line=L7,
@@ -544,13 +542,16 @@ def initialize_network(
                 fail_rate_per_year=fail_rate_intelligent_switch,
             )
 
-    if include_ev:
-        EVPark(
-            name="EV1",
-            bus=B5,
-            num_ev_dist=num_ev_table_func(B3.n_customers),
-            v2g_flag=v2g_flag,
+        m = Microgrid(
+            distribution_network=dn,
+            connected_line=L7,
+            mode=microgrid_mode,
         )
+
+        m.add_buses([M1, M2, M3])
+        m.add_lines([ML1, ML2])
+
+    
 
     dn.add_buses([B2, B3, B4, B5, B6])
     if include_backup:

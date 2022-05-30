@@ -69,8 +69,8 @@ class Line(Component):
         The reactive power loss over the line [MVar]
     fail_rate_per_year : float
         Failure rate per year [fault/year/km]
-    outage_time_dist : StatDist
-        Outage time [hours/fault]
+    repair_time_dist : StatDist
+        The repair time of the line [hours/fault]
     connected : bool
         Indicates if the line is connected or disconnected
     failed : bool
@@ -91,8 +91,8 @@ class Line(Component):
         Disconnects a line and removes the line for the list of lines
     connect()
         Connects a line and append the line to the list of lines
-    draw_outage_time(dt)
-        Decides and returns the outage time of the line based on a statistical distribution
+    draw_repair_time(dt)
+        Decides and returns the repair time of the line based on a statistical distribution
     fail(dt)
         Sets the fail status of the line to True and opens the connected disconnectors and the connected circuit breaker
     not_fail()
