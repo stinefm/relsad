@@ -8,6 +8,7 @@ from relsad.network.components import (
     CircuitBreaker,
     IntelligentSwitch,
     Sensor,
+    EVPark,
 )
 import os
 
@@ -21,6 +22,7 @@ def plot_topology(
     disconnector_text: bool = False,
     intelligent_switch_text: bool = False,
     sensor_text: bool = False,
+    text_dx: tuple = (0, -0.1),
     **kwargs
 ):
 
@@ -55,14 +57,24 @@ def plot_topology(
     None
 
     """
+    # Handle keyword arguments
+
+    left = kwargs["left"] if "left" in kwargs else 0.02
+    right = kwargs["right"] if "right" in kwargs else 0.98
+    bottom = kwargs["bottom"] if "bottom" in kwargs else 0.1
+    top = kwargs["top"] if "top" in kwargs else 0.75
+
+    text_size = kwargs["text_size"] if "text_size" in kwargs else 6
+
+    # Clear used keyword arguments
+    kwargs.pop("left", None)
+    kwargs.pop("right", None)
+    kwargs.pop("bottom", None)
+    kwargs.pop("top", None)
+    kwargs.pop("text_size", None)
 
     fig, ax = plt.subplots(**kwargs)
-    left = 0.02
-    right = 0.98
-    bottom = 0.1
-    top = 0.75
-
-    text_size = 6
+    
 
     fig.subplots_adjust(
         left=left,
@@ -74,44 +86,71 @@ def plot_topology(
     )
     legends = {}
     for bus in buses:
-        _plot_bus(ax, bus, text=bus_text, text_size=text_size)
+        _plot_bus(
+            ax=ax,
+            bus=bus,
+            text=bus_text,
+            text_size=text_size,
+            text_dx=text_dx,
+        )
         legends["Bus"] = Bus.handle
+        if bus.ev_park is not None:
+            legends["EV park"] = EVPark.handle
     for line in lines:
-        _plot_line(ax, line, text=line_text, text_size=text_size)
+        _plot_line(
+            ax=ax,
+            line=line,
+            text=line_text,
+            text_size=text_size,
+        )
         legends["Line"] = Line.handle
         if line.circuitbreaker is not None:
             _plot_circuitbreaker(
-                ax, line, text=circuitbreaker_text, text_size=text_size
+                ax=ax,
+                line=line,
+                text=circuitbreaker_text,
+                text_size=text_size,
             )
             legends["Circuit breaker"] = CircuitBreaker.handle
             for discon in line.circuitbreaker.disconnectors:
                 _plot_disconnector(
-                    ax, discon, text=disconnector_text, text_size=text_size
+                    ax=ax,
+                    discon=discon,
+                    text=disconnector_text,
+                    text_size=text_size,
                 )
                 legends["Disconnector"] = Disconnector.handle
                 if discon.intelligent_switch:
                     _plot_intelligent_switch(
-                        ax,
-                        discon,
+                        ax=ax,
+                        discon=discon,
                         text=intelligent_switch_text,
                         text_size=text_size,
                     )
                     legends["Intelligent switch"] = IntelligentSwitch.handle
         for discon in line.disconnectors:
             _plot_disconnector(
-                ax, discon, text=disconnector_text, text_size=text_size
+                ax=ax,
+                discon=discon,
+                text=disconnector_text,
+                text_size=text_size,
             )
             legends["Disconnector"] = Disconnector.handle
             if discon.intelligent_switch:
                 _plot_intelligent_switch(
-                    ax,
-                    discon,
+                    ax=ax,
+                    discon=discon,
                     text=intelligent_switch_text,
                     text_size=text_size,
                 )
                 legends["Intelligent switch"] = IntelligentSwitch.handle
         if line.sensor:
-            _plot_sensor(ax, line, text=sensor_text, text_size=text_size)
+            _plot_sensor(
+                ax=ax,
+                line=line,
+                text=sensor_text,
+                text_size=text_size,
+            )
             legends["Sensor"] = Sensor.handle
 
     plt.figlegend(
@@ -130,7 +169,10 @@ def plot_topology(
 
 
 def _plot_line(
-    ax: plt.axis, line: Line, text: bool = False, text_size: int = 8
+    ax: plt.axis,
+    line: Line,
+    text: bool = False,
+    text_size: int = 8,
 ):
     """
     Plot lines
@@ -170,7 +212,10 @@ def _plot_line(
 
 
 def _plot_circuitbreaker(
-    ax: plt.axis, line: Line, text: bool = False, text_size: int = 8
+    ax: plt.axis,
+    line: Line,
+    text: bool = False,
+    text_size: int = 8,
 ):
     """
     Plot circuitbreakers
@@ -215,7 +260,10 @@ def _plot_circuitbreaker(
 
 
 def _plot_disconnector(
-    ax: plt.axis, discon: Disconnector, text: bool = False, text_size: int = 8
+    ax: plt.axis,
+    discon: Disconnector,
+    text: bool = False,
+    text_size: int = 8,
 ):
     """
     Plot disconnectors
@@ -259,7 +307,10 @@ def _plot_disconnector(
 
 
 def _plot_intelligent_switch(
-    ax: plt.axis, discon: Disconnector, text: bool = False, text_size: int = 8
+    ax: plt.axis,
+    discon: Disconnector,
+    text: bool = False,
+    text_size: int = 8,
 ):
     """
     Plot intelligent switches
@@ -302,7 +353,10 @@ def _plot_intelligent_switch(
 
 
 def _plot_sensor(
-    ax: plt.axis, line: Line, text: bool = False, text_size: int = 8
+    ax: plt.axis,
+    line: Line,
+    text: bool = False,
+    text_size: int = 8,
 ):
     """
     Plot sensors
@@ -344,7 +398,13 @@ def _plot_sensor(
         )
 
 
-def _plot_bus(ax: plt.axis, bus: list, text: bool = False, text_size: int = 8):
+def _plot_bus(
+    ax: plt.axis,
+    bus: Bus,
+    text: bool = False,
+    text_size: int = 8,
+    text_dx: tuple = (0, -0.1),
+):
     """
     Plot circuitbreakers
 
@@ -352,8 +412,8 @@ def _plot_bus(ax: plt.axis, bus: list, text: bool = False, text_size: int = 8):
     ----------
     ax : matplotlib.axes.Axes
         Plot axis
-    bus : list
-        List of Bus elements
+    bus : Bus
+        Bus element
     text : bool
         Flag determining if bus name will be plotted
     text_size : int
@@ -377,16 +437,32 @@ def _plot_bus(ax: plt.axis, bus: list, text: bool = False, text_size: int = 8):
     )
     if text:
         ax.text(
-            bus.coordinate[0],
-            bus.coordinate[1] - 0.1,
+            bus.coordinate[0] + text_dx[0],
+            bus.coordinate[1] + text_dx[1],
             bus.name,
             ha="center",
             va="center",
             size=text_size,
         )
+    if bus.ev_park is not None:
+        ax.plot(
+            bus.coordinate[0],
+            bus.coordinate[1],
+            marker=bus.ev_park.marker,
+            markeredgewidth=bus.ev_park.handle.get_markeredgewidth(),
+            markersize=bus.ev_park.size,
+            linestyle="None",
+            color=bus.color,
+            clip_on=False,
+            zorder=3,
+        )
 
 
-def plot_history(comp_list: list, attribute: str, save_dir: str):
+def plot_history(
+    comp_list: list,
+    attribute: str,
+    save_dir: str,
+):
     """
     Plots the history
 
@@ -417,7 +493,11 @@ def plot_history(comp_list: list, attribute: str, save_dir: str):
     plt.close(fig)
 
 
-def plot_monte_carlo_history(comp_list: list, attribute: str, save_dir: str):
+def plot_monte_carlo_history(
+    comp_list: list,
+    attribute: str,
+    save_dir: str,
+):
     """
     Plots the history from the Monte Carlo simulation
 
@@ -449,7 +529,11 @@ def plot_monte_carlo_history(comp_list: list, attribute: str, save_dir: str):
     plt.close(fig)
 
 
-def plot_history_last_state(comp_list: list, attribute: str, save_dir: str):
+def plot_history_last_state(
+    comp_list: list,
+    attribute: str,
+    save_dir: str,
+):
     """
     Plots the last state from the history
 

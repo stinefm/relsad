@@ -1,3 +1,4 @@
+import matplotlib.lines as mlines
 from .Component import Component
 from .Bus import Bus
 from .Battery import Battery
@@ -91,6 +92,18 @@ class EVPark(Component):
         Resets and sets the status of the class parameters
 
     """
+
+    ## Visual attributes
+    marker = "x"
+    size = 3 ** 2
+    handle = mlines.Line2D(
+        [],
+        [],
+        marker=marker,
+        markeredgewidth=1,
+        markersize=size,
+        linestyle="None",
+    )
 
     ## Random instance
     ps_random: np.random.Generator = None
