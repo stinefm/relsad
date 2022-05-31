@@ -399,7 +399,7 @@ class DistributionController(Component, Controller):
 
     def spread_sectioning_time_to_children(self):
         """
-        Gives the children network of the distribution system the same sectioning time
+        Returns the children network of the distribution system the same sectioning time
 
         Parameters
         ----------

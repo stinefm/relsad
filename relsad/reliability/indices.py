@@ -110,7 +110,8 @@ def EENS(network):
 
 def EV_Index(network: Network):
     """
-    Returns the current EV Index, which indicates how much power an EV are unable to charge
+    Returns the current EV Index, which is the current power demand from
+    all the EV parks in the system.
 
     Parameters
     ----------
@@ -119,16 +120,19 @@ def EV_Index(network: Network):
 
     Returns
     ----------
-    sum([ev_park.get_ev_index() for ev_park in network.ev_parks]) : float
-        Index telling how much power an EV are unable to charge
+    ev_index : float
+        Index reflecting the current power demand from all the EV parks in
+        the system
 
     """
-    return sum([ev_park.get_ev_index() for ev_park in network.ev_parks])
+    ev_index = sum([ev_park.get_ev_index() for ev_park in network.ev_parks])
+    return ev_index
 
 
 def EV_Interruption(network: Network):
     """
-    Returns the current EV Interruption. Tells how many EVs that get interrupted/used for grid support
+    Returns the current EV Interruption. Reflects the number of interruptions
+    per EV car for grid support
 
     Parameters
     ----------
@@ -137,8 +141,8 @@ def EV_Interruption(network: Network):
 
     Returns
     ----------
-    interrupted_cars/total_cars : float
-        An average number of how many EVs that get used for grid support
+    ev_interruption : float
+        The number of interruption per EV car for grid support
 
     """
     interrupted_cars = sum(
@@ -150,12 +154,14 @@ def EV_Interruption(network: Network):
     total_cars = sum([ev_park.num_cars for ev_park in network.ev_parks])
     if total_cars == 0:
         return 0
-    return interrupted_cars / total_cars
+    ev_interruption = interrupted_cars / total_cars
+    return ev_interruption
 
 
 def EV_Duration(network: Network, time_unit: TimeUnit):
     """
-    Returns the current EV Duration. Tells the average duration of the interrupted/used EVs for grid support
+    Returns the current EV Duration. Reflects the average duration of an EV car
+    interruption for grid support
 
     Parameters
     ----------
@@ -166,8 +172,8 @@ def EV_Duration(network: Network, time_unit: TimeUnit):
 
     Returns
     ----------
-    sum_interruption_duration_x_num_cars/total_cars : float
-        The average duration of the interruptions/an EV is being used for grid support
+    ev_duration : float
+        The average duration of an EV car interruption for grid support
 
     """
     sum_interruption_duration_x_num_cars = sum(
@@ -187,4 +193,5 @@ def EV_Duration(network: Network, time_unit: TimeUnit):
     )
     if total_cars == 0:
         return 0
-    return sum_interruption_duration_x_num_cars / total_cars
+    ev_duration = sum_interruption_duration_x_num_cars / total_cars
+    return ev_duration

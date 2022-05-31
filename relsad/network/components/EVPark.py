@@ -24,7 +24,7 @@ class EVPark(Component):
     bus : Bus
         The bus the EV park is connected to
     num_ev_dist : Table
-        Statistical distribution that gives the amount of EVs available at a given time in the network
+        Statistical distribution that returns the amount of EVs available at a given time in the network
     inj_p_max : float
         The active power charging/discharging capacity of the EV battery [MW]
     inj_q_max : float
@@ -71,11 +71,11 @@ class EVPark(Component):
     update(p, q, fail_duration, dt, hour_of_day)
         Updates the EV park status for the current time step
     get_curr_demand(dt)
-        Gives the current power demand of an EV
+        Returns the current power demand of an EV
     get_SOC()
-        Gives the SOC level of the EV park
+        Returns the SOC level of the EV park
     get_ev_index()
-        Gives the power demand of av EV that is not met by the system
+        Returns the power demand of av EV that is not met by the system
     initialize_history()
         Initializes the history variables
     update_history(prev_time, curr_time, save_flag)
@@ -297,7 +297,7 @@ class EVPark(Component):
 
     def get_curr_demand(self, dt: Time):
         """
-        Gives the current power demand of an EV
+        Returns the current power demand of an EV
 
         Parameters
         ----------
@@ -323,7 +323,7 @@ class EVPark(Component):
 
     def get_SOC(self):
         """
-        Gives the SOC level of the EV park
+        Returns the SOC level of the EV park
 
         Parameters
         ----------
@@ -343,7 +343,7 @@ class EVPark(Component):
 
     def get_ev_index(self):
         """
-        Gives the power demand of an EV that is not met by the system
+        Returns the power demand of an EV that is not met by the system
 
         Parameters
         ----------

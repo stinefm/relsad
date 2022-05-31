@@ -40,7 +40,7 @@ class Disconnector(Component):
         base_bus : Bus
             Wich bus the disconnector is closes to (for setting coordinates)
         intelligent_switch : IntelligentSwitch
-            Gives the intelligent switch connected to the disconnector if any
+            Returns the intelligent switch connected to the disconnector if any
         history : dict
             Dictonary attribute that stores the historic variables
 
