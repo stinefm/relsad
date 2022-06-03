@@ -194,6 +194,7 @@ class StatDist:
         ax,
         x,
         color: str = "b",
+        label: str = None,
     ):
         """
         Plots the statistical distribution in the provided axis
@@ -220,12 +221,14 @@ class StatDist:
                 x,
                 self.get_pdf(x),
                 color=color,
+                label=label,
             )
         elif self.stat_dist_type == StatDistType.GAMMA:
             ax.plot(
                 x,
                 self.get_pdf(x),
                 color=color,
+                label=label,
             )
 
 
