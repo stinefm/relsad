@@ -222,12 +222,18 @@ class EVPark(Component):
         None
 
         """
+        # Draw number of cars in the EV park
         self.num_cars = round(self.num_ev_dist.get_value(hour_of_day))
+
+        # Draw the SOC states of the cars in the EV park
         soc_states = self.ps_random.uniform(
             low=self.SOC_min,
             high=self.SOC_max,
             size=self.num_cars,
         )
+
+        # Create the current cars in the EV park with
+        # their respective status
         self.cars = [
             Battery(
                 name="ev{:d}_{}".format(i, self.name),
@@ -247,7 +253,14 @@ class EVPark(Component):
             car.E_battery = soc_states[i] * self.E_max
             car.update_SOC()
 
-    def update(self, p, q, fail_duration: Time, dt: Time, hour_of_day: int):
+    def update(
+        self,
+        p: float,
+        q: float,
+        fail_duration: Time,
+        dt: Time,
+        hour_of_day: int,
+    ):
         """
         Updates the EV park status for the current time step
 
@@ -273,24 +286,32 @@ class EVPark(Component):
         """
         if fail_duration == dt:
             self.draw_current_state(hour_of_day)
-        (
-            self.curr_p_demand,
-            self.curr_q_demand,
-        ) = self.get_curr_demand(dt)
+
+        # Update car batteries based on system balance
         p_start = p
         q_start = q
         for car in self.cars:
             if self.v2g_flag is True:
+                # Vehicle to grid: allow charge and discharge
                 p, q = car.update_bus_load_and_prod(p, q, dt)
             else:
+                # Not vehicle to grid: allow charge only
                 if p < 0:
                     p, q = car.update_bus_load_and_prod(p, q, dt)
         p_change = p_start - p
         q_change = q_start - q
+
+        # Define load or production generated from the EV park
         pprod = max(0, p_change)
         qprod = max(0, q_change)
         pload = abs(min(0, p_change))
         qload = abs(min(0, q_change))
+
+        # Update current demand and charge attributes
+        (
+            self.curr_p_demand,
+            self.curr_q_demand,
+        ) = self.get_curr_demand(dt)
         self.curr_p_charge = pload - pprod
         self.curr_q_charge = qload - qprod
         return p, q
