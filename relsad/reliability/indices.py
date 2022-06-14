@@ -1,3 +1,4 @@
+import numpy as np
 from relsad.network.systems import Network
 from relsad.utils import eq
 from relsad.Time import TimeUnit
@@ -131,8 +132,8 @@ def EV_Index(network: Network):
 
 def EV_Interruption(network: Network):
     """
-    Returns the current EV Interruption. Reflects the number of interruptions
-    per EV car for grid support
+    Returns the current EV Interruption. Reflects the average number of
+    interruptions per EV car for grid support
 
     Parameters
     ----------
@@ -142,19 +143,25 @@ def EV_Interruption(network: Network):
     Returns
     ----------
     ev_interruption : float
-        The number of interruption per EV car for grid support
+        The average number of interruptions per EV car for grid support
 
     """
     interrupted_cars = sum(
         [
-            ev_park.acc_interruptions * ev_park.num_cars
+            ev_park.acc_interruptions
             for ev_park in network.ev_parks
         ]
     )
-    total_cars = sum([ev_park.num_cars for ev_park in network.ev_parks])
-    if total_cars == 0:
+    average_num_cars = sum(
+        [
+            np.mean(list(ev_park.history["num_cars"].values()))
+            for ev_park in network.ev_parks
+        ]
+    )
+    print(average_num_cars)
+    if average_num_cars == 0:
         return 0
-    ev_interruption = interrupted_cars / total_cars
+    ev_interruption = interrupted_cars / average_num_cars
     return ev_interruption
 
 
@@ -176,22 +183,20 @@ def EV_Duration(network: Network, time_unit: TimeUnit):
         The average duration of an EV car interruption for grid support
 
     """
-    sum_interruption_duration_x_num_cars = sum(
+    sum_interruption_duration_x_num_interruptions = sum(
         [
             ev_park.acc_interruption_duration.get_unit_quantity(time_unit)
-            * ev_park.num_cars
+            * ev_park.acc_interruptions
             for ev_park in network.ev_parks
-            if ev_park.acc_interruptions > 0
         ]
     )
-    total_cars = sum(
+    num_interruptions = sum(
         [
-            ev_park.num_cars
+            ev_park.acc_interruptions
             for ev_park in network.ev_parks
-            if ev_park.acc_interruptions > 0
         ]
     )
-    if total_cars == 0:
+    if num_interruptions == 0:
         return 0
-    ev_duration = sum_interruption_duration_x_num_cars / total_cars
+    ev_duration = sum_interruption_duration_x_num_interruptions / num_interruptions
     return ev_duration
