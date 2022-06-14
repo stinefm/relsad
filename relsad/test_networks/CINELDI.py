@@ -375,7 +375,7 @@ def initialize_network(
                 name="RL6b",
                 disconnector=DL6b,
                 fail_rate_per_year=fail_rate_intelligent_switch,
-            )  
+            )
 
     if include_ev:
         EVPark(
@@ -550,8 +550,6 @@ def initialize_network(
 
         m.add_buses([M1, M2, M3])
         m.add_lines([ML1, ML2])
-
-    
 
     dn.add_buses([B2, B3, B4, B5, B6])
     if include_backup:

@@ -78,9 +78,7 @@ class Production(Component):
 
         # Verify input
         if bus is None:
-            raise Exception(
-                "Production unit must be connected to a Bus"
-            )
+            raise Exception("Production unit must be connected to a Bus")
         if bus.parent_network is not None:
             raise Exception(
                 "Production unit must be created before the bus is connected to a network"

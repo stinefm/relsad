@@ -124,33 +124,21 @@ class Battery(Component):
 
         # Verify input
         if bus is None:
-            raise Exception(
-                "Battery must be connected to a Bus"
-            )
+            raise Exception("Battery must be connected to a Bus")
         if bus.parent_network is not None and random_instance is None:
             raise Exception(
                 "Battery must be created before the bus is connected to a network"
             )
         if inj_p_max < 0:
-            raise Exception(
-                "The active power injection must be positive"
-            )
+            raise Exception("The active power injection must be positive")
         if inj_q_max < 0:
-            raise Exception(
-                "The reactive power injection must be positive"
-            )
+            raise Exception("The reactive power injection must be positive")
         if E_max < 0:
-            raise Exception(
-                "The energy capacity must be positive"
-            )
+            raise Exception("The energy capacity must be positive")
         if SOC_min < 0 or SOC_max > 1:
-            raise Exception(
-                "The SOC limits must be between 0 and 1"
-            )
+            raise Exception("The SOC limits must be between 0 and 1")
         if n_battery < 0 or n_battery > 1:
-            raise Exception(
-                "The efficiency must be between 0 and 1"
-            )
+            raise Exception("The efficiency must be between 0 and 1")
 
         self.name = name
 

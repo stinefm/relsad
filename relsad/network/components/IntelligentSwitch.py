@@ -116,9 +116,7 @@ class IntelligentSwitch(Component):
                 "IntelligentSwitch must be connected to a Disconnector"
             )
         if fail_rate_per_year < 0:
-            raise Exception(
-                "The failure rate per year must be positive"
-            )
+            raise Exception("The failure rate per year must be positive")
 
         self.name = name
         self.disconnector = disconnector

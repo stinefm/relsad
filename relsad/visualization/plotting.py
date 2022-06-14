@@ -74,7 +74,6 @@ def plot_topology(
     kwargs.pop("text_size", None)
 
     fig, ax = plt.subplots(**kwargs)
-    
 
     fig.subplots_adjust(
         left=left,

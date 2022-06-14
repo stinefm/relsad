@@ -95,17 +95,13 @@ class CircuitBreaker(Component):
 
         # Verify input
         if line is None:
-            raise Exception(
-                "CircuitBreaker must be connected to a Line"
-            )
+            raise Exception("CircuitBreaker must be connected to a Line")
         if line.parent_network is not None:
             raise Exception(
                 "CircuitBreaker must be created before the line is connected to a network"
             )
         if fail_rate < 0:
-            raise Exception(
-                "The failure rate must be positive"
-            )
+            raise Exception("The failure rate must be positive")
 
         self.name = name
 

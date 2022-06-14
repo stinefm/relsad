@@ -158,49 +158,29 @@ class Line(Component):
 
         # Verify input
         if fbus is None:
-            raise Exception(
-                "Line must have a origin bus"
-            )
+            raise Exception("Line must have a origin bus")
         if tbus is None:
-            raise Exception(
-                "Line must have a target bus"
-            )
+            raise Exception("Line must have a target bus")
         if r < 0:
-            raise Exception(
-                "r must be positive"
-            )
+            raise Exception("r must be positive")
         if x < 0:
-            raise Exception(
-                "x must be positive"
-            )
+            raise Exception("x must be positive")
         if repair_time_dist is None:
-            raise Exception(
-                "The line must have a repair time distribution"
-            )
+            raise Exception("The line must have a repair time distribution")
         if s_ref < 0:
-            raise Exception(
-                "s_ref must be positive"
-            )
+            raise Exception("s_ref must be positive")
         if v_ref < 0:
-            raise Exception(
-                "v_ref must be positive"
-            )
+            raise Exception("v_ref must be positive")
         if rho < 0:
-            raise Exception(
-                "The resistivity must be positive"
-            )
+            raise Exception("The resistivity must be positive")
         if area < 0:
-            raise Exception(
-                "The line section area must be positive"
-            )
+            raise Exception("The line section area must be positive")
         if fail_rate_density_per_year < 0:
             raise Exception(
                 "The failure rate density per year must be positive"
             )
         if capacity < 0:
-            raise Exception(
-                "The line capacity must be positive"
-            )
+            raise Exception("The line capacity must be positive")
 
         ## Informative attributes
         self.name = name

@@ -430,8 +430,10 @@ def plot_ev_park_history(ev_parks, save_dir: str):
         "demand",
         "charge",
         "num_cars",
-        "interruption_fraction",
-        "acc_interruptions",
+        "park_interruption_fraction",
+        "acc_num_interruptions",
+        "acc_exp_interruptions",
+        "acc_exp_car_interruptions",
         "acc_interruption_duration",
     ]
     for state_var in whole_state_list:
@@ -460,8 +462,10 @@ def save_ev_park_history(ev_parks, save_dir: str):
         "demand",
         "charge",
         "num_cars",
-        "interruption_fraction",
-        "acc_interruptions",
+        "park_interruption_fraction",
+        "acc_num_interruptions",
+        "acc_exp_interruptions",
+        "acc_exp_car_interruptions",
         "acc_interruption_duration",
     ]
     for state_var in whole_state_list:

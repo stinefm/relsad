@@ -147,10 +147,7 @@ def EV_Interruption(network: Network):
 
     """
     interrupted_cars = sum(
-        [
-            ev_park.acc_interruptions
-            for ev_park in network.ev_parks
-        ]
+        [ev_park.acc_exp_car_interruptions for ev_park in network.ev_parks]
     )
     average_num_cars = sum(
         [
@@ -158,7 +155,6 @@ def EV_Interruption(network: Network):
             for ev_park in network.ev_parks
         ]
     )
-    print(average_num_cars)
     if average_num_cars == 0:
         return 0
     ev_interruption = interrupted_cars / average_num_cars
@@ -183,20 +179,16 @@ def EV_Duration(network: Network, time_unit: TimeUnit):
         The average duration of an EV car interruption for grid support
 
     """
-    sum_interruption_duration_x_num_interruptions = sum(
+    sum_interruption_duration = sum(
         [
             ev_park.acc_interruption_duration.get_unit_quantity(time_unit)
-            * ev_park.acc_interruptions
             for ev_park in network.ev_parks
         ]
     )
-    num_interruptions = sum(
-        [
-            ev_park.acc_interruptions
-            for ev_park in network.ev_parks
-        ]
+    sum_interruptions = sum(
+        [ev_park.acc_num_interruptions for ev_park in network.ev_parks]
     )
-    if num_interruptions == 0:
+    if sum_interruptions == 0:
         return 0
-    ev_duration = sum_interruption_duration_x_num_interruptions / num_interruptions
+    ev_duration = sum_interruption_duration / sum_interruptions
     return ev_duration

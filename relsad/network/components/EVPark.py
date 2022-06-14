@@ -52,15 +52,19 @@ class EVPark(Component):
     num_cars : int
         Number of cars in the EV park
     num_consecutive_interruptions : int
-        Number of consecutive interruptions an EV experiences
-    interruption_fraction : float
-        Fraction of interruptions on an EV
-    acc_interruptions : float
-        Accumulated interruptions an EV experiences
+        Number of consecutive interruptions experienced by the EV park
+    park_interruption_fraction : float
+        Fraction of interruption experienced by the EV park
+    acc_num_interruptions : float
+        Accumulated number of interruptions experienced by the EV park
+    acc_exp_interruptions : float
+        Accumulated experienced interruptions in the EV park
+    acc_exp_car_interruptions : float
+        Accumulated experienced car interruptions in the EV park
     curr_interruption_duration : Time
-        Current interruption duration an EV experiences
+        Current interruption duration experienced by the EV park
     acc_interruption_duration : Time
-        Accumulated interruption duration an EV experiences
+        Accumulated interruption duration experienced by the EV park
     history : dict
         Dictonary attribute that stores the historic variables
 
@@ -124,9 +128,7 @@ class EVPark(Component):
 
         # Verify input
         if bus is None:
-            raise Exception(
-                "EVPark must be connected to a Bus"
-            )
+            raise Exception("EVPark must be connected to a Bus")
         if bus.parent_network is not None:
             raise Exception(
                 "EVPark must be created before the bus is connected to a network"
@@ -137,25 +139,15 @@ class EVPark(Component):
                 "of EV during the day"
             )
         if inj_p_max < 0:
-            raise Exception(
-                "The active power injection must be positive"
-            )
+            raise Exception("The active power injection must be positive")
         if inj_q_max < 0:
-            raise Exception(
-                "The reactive power injection must be positive"
-            )
+            raise Exception("The reactive power injection must be positive")
         if E_max < 0:
-            raise Exception(
-                "The energy capacity must be positive"
-            )
+            raise Exception("The energy capacity must be positive")
         if SOC_min < 0 or SOC_max > 1:
-            raise Exception(
-                "The SOC limits must be between 0 and 1"
-            )
+            raise Exception("The SOC limits must be between 0 and 1")
         if n_battery < 0 or n_battery > 1:
-            raise Exception(
-                "The efficiency must be between 0 and 1"
-            )
+            raise Exception("The efficiency must be between 0 and 1")
 
         self.name = name
 
@@ -184,9 +176,12 @@ class EVPark(Component):
 
         ## Reliability attributes
         self.num_consecutive_interruptions = 0
-        self.interruption_fraction = 0
-        self.curr_interruptions = 0
-        self.acc_interruptions = 0
+        self.park_interruption_fraction = 0
+        self.acc_num_interruptions = 0
+        self.curr_exp_interruptions = 0
+        self.acc_exp_interruptions = 0
+        self.curr_exp_car_interruptions = 0
+        self.acc_exp_car_interruptions = 0
         self.curr_interruption_duration = Time(0)
         self.acc_interruption_duration = Time(0)
 
@@ -397,8 +392,10 @@ class EVPark(Component):
         self.history["demand"] = {}
         self.history["charge"] = {}
         self.history["num_cars"] = {}
-        self.history["interruption_fraction"] = {}
-        self.history["acc_interruptions"] = {}
+        self.history["park_interruption_fraction"] = {}
+        self.history["acc_num_interruptions"] = {}
+        self.history["acc_exp_interruptions"] = {}
+        self.history["acc_exp_car_interruptions"] = {}
         self.history["acc_interruption_duration"] = {}
 
     def update_history(
@@ -422,26 +419,35 @@ class EVPark(Component):
         """
         dt = curr_time - prev_time if prev_time is not None else curr_time
         # Accumulate fraction of interupted customers
-        self.interruption_fraction = (
+        self.park_interruption_fraction = (
             abs(self.curr_p_charge / (self.inj_p_max * self.num_cars))
             if self.curr_p_charge < 0
             else 0
         )
 
-        if self.interruption_fraction > 0:
-            self.curr_interruptions += self.interruption_fraction
+        if self.park_interruption_fraction > 0:
+            self.curr_exp_interruptions += self.park_interruption_fraction
+            self.curr_exp_car_interruptions += (
+                self.park_interruption_fraction * self.num_cars
+            )
             self.num_consecutive_interruptions += 1
             self.curr_interruption_duration += dt
         else:
             if self.num_consecutive_interruptions >= 1:
-                self.acc_interruptions += (
-                    self.curr_interruptions
+                self.acc_num_interruptions += 1
+                self.acc_exp_interruptions += (
+                    self.curr_exp_interruptions
+                    / self.num_consecutive_interruptions
+                )
+                self.acc_exp_car_interruptions += (
+                    self.curr_exp_car_interruptions
                     / self.num_consecutive_interruptions
                 )
                 self.acc_interruption_duration += (
                     self.curr_interruption_duration
                 )
-            self.curr_interruptions = 0
+            self.curr_exp_interruptions = 0
+            self.curr_exp_car_interruptions = 0
             self.curr_interruption_duration = Time(0)
             self.num_consecutive_interruptions = 0
         if save_flag:
@@ -450,12 +456,18 @@ class EVPark(Component):
             self.history["demand"][curr_time] = self.curr_p_demand
             self.history["charge"][curr_time] = self.curr_p_charge
             self.history["num_cars"][curr_time] = self.num_cars
-            self.history["interruption_fraction"][
+            self.history["park_interruption_fraction"][
                 curr_time
-            ] = self.interruption_fraction
-            self.history["acc_interruptions"][
+            ] = self.park_interruption_fraction
+            self.history["acc_num_interruptions"][
                 curr_time
-            ] = self.acc_interruptions
+            ] = self.acc_num_interruptions
+            self.history["acc_exp_interruptions"][
+                curr_time
+            ] = self.acc_exp_interruptions
+            self.history["acc_exp_car_interruptions"][
+                curr_time
+            ] = self.acc_exp_car_interruptions
             self.history["acc_interruption_duration"][
                 curr_time
             ] = self.acc_interruption_duration
@@ -555,9 +567,12 @@ class EVPark(Component):
         self.num_cars = 0
         ## Reliability attributes
         self.num_consecutive_interruptions = 0
-        self.interruption_fraction = 0
-        self.curr_interruptions = 0
-        self.acc_interruptions = 0
+        self.park_interruption_fraction = 0
+        self.acc_num_interruptions = 0
+        self.curr_exp_interruptions = 0
+        self.acc_exp_interruptions = 0
+        self.curr_exp_car_interruptions = 0
+        self.acc_exp_car_interruptions = 0
         self.acc_interruption_duration = Time(0)
         self.curr_interruption_duration = Time(0)
         if save_flag:
