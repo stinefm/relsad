@@ -151,8 +151,8 @@ def EV_Interruption(network: Network):
     )
     average_num_cars = sum(
         [
-            np.mean(list(ev_park.history["num_cars"].values()))
-            if "num_cars" in ev_park.history
+            ev_park.acc_num_cars / ev_park.num_car_draws
+            if ev_park.num_car_draws > 0
             else 0
             for ev_park in network.ev_parks
         ]

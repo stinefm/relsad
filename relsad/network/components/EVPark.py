@@ -55,12 +55,20 @@ class EVPark(Component):
         Number of consecutive interruptions experienced by the EV park
     park_interruption_fraction : float
         Fraction of interruption experienced by the EV park
+    acc_num_cars : int
+        Accumulated number of cars in EV park
+    num_car_draws : int
+        Number of car draws in the EV park
     acc_num_interruptions : float
         Accumulated number of interruptions experienced by the EV park
     acc_exp_interruptions : float
         Accumulated experienced interruptions in the EV park
+    curr_exp_interruptions : float
+        Current experienced interruptions in the EV park
     acc_exp_car_interruptions : float
         Accumulated experienced car interruptions in the EV park
+    curr_exp_car_interruptions : float
+        Current experienced car interruptions in the EV park
     curr_interruption_duration : Time
         Current interruption duration experienced by the EV park
     acc_interruption_duration : Time
@@ -177,6 +185,8 @@ class EVPark(Component):
         ## Reliability attributes
         self.num_consecutive_interruptions = 0
         self.park_interruption_fraction = 0
+        self.acc_num_cars = 0
+        self.num_car_draws = 0
         self.acc_num_interruptions = 0
         self.curr_exp_interruptions = 0
         self.acc_exp_interruptions = 0
@@ -281,6 +291,8 @@ class EVPark(Component):
         """
         if fail_duration == dt:
             self.draw_current_state(hour_of_day)
+            self.num_car_draws += 1
+            self.acc_num_cars += self.num_cars
 
         # Update car batteries based on system balance
         p_start = p
@@ -568,6 +580,8 @@ class EVPark(Component):
         ## Reliability attributes
         self.num_consecutive_interruptions = 0
         self.park_interruption_fraction = 0
+        self.acc_num_cars = 0
+        self.num_car_draws = 0
         self.acc_num_interruptions = 0
         self.curr_exp_interruptions = 0
         self.acc_exp_interruptions = 0
