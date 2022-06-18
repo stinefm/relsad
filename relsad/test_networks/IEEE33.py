@@ -36,14 +36,16 @@ from relsad.Table import Table
 def initialize_network(
     include_microgrid: bool = True,
     include_production: bool = True,
+    include_backup: bool = True,
     include_ICT: bool = True,
     include_ev: bool = True,
     v2g_flag: bool = True,
-):
-
-    # StatDist:
-
-    line_stat_dist = StatDist(
+    fail_rate_trafo: float = 0.0,  # fails per year
+    fail_rate_line: float = 0.013,  # fails per year
+    inverter: float = 0.0036,
+    ev_percentage: float = 0.46,
+    ev_E_max: float = 0.07,
+    line_stat_dist=StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
         parameters=NormalParameters(
             loc=1.25,
@@ -51,8 +53,8 @@ def initialize_network(
             min_val=0.5,
             max_val=2,
         ),
-    )
-
+    ),
+):
     def num_ev_table_func(
         n_customers,
         ev_percentage=0.47,
@@ -131,10 +133,6 @@ def initialize_network(
         )
 
     ps = PowerSystem(C1)
-
-    fail_rate_trafo = 0.0  # fails per year
-    fail_rate_line = 0.013  # fails per year
-    outage_time_trafo = Time(8, TimeUnit.HOUR)  # hours
 
     B1 = Bus("B1", n_customers=0, coordinate=[-1, 0], fail_rate_per_year=0)
     B2 = Bus(
@@ -691,72 +689,69 @@ def initialize_network(
     DL32b = Disconnector("L32b", L32, B33)
 
     # Backup lines
+    if include_backup:
+        L33 = Line(
+            "L33",
+            B9,
+            B15,
+            r=2.0000,
+            x=2.0000,
+            fail_rate_density_per_year=fail_rate_line,
+        )
+        L34 = Line(
+            "L34",
+            B12,
+            B22,
+            r=2.0000,
+            x=2.0000,
+            fail_rate_density_per_year=fail_rate_line,
+        )
+        L35 = Line(
+            "L35",
+            B18,
+            B33,
+            r=0.5000,
+            x=0.5000,
+            fail_rate_density_per_year=fail_rate_line,
+        )
+        L36 = Line(
+            "L36",
+            B25,
+            B29,
+            r=0.5000,
+            x=0.5000,
+            fail_rate_density_per_year=fail_rate_line,
+        )
+        L37 = Line(
+            "L37",
+            B8,
+            B21,
+            r=2.0000,
+            x=2.0000,
+            fail_rate_density_per_year=fail_rate_line,
+        )
 
-    # L33 = Line(
-    #     "L33",
-    #     B9,
-    #     B15,
-    #     r=2.0000,
-    #     x=2.0000,
-    #     fail_rate_density_per_year=fail_rate_line,
-    # )
-    # L34 = Line(
-    #     "L34",
-    #     B12,
-    #     B22,
-    #     r=2.0000,
-    #     x=2.0000,
-    #     fail_rate_density_per_year=fail_rate_line,
-    # )
-    # L35 = Line(
-    #     "L35",
-    #     B18,
-    #     B33,
-    #     r=0.5000,
-    #     x=0.5000,
-    #     fail_rate_density_per_year=fail_rate_line,
-    # )
-    # L36 = Line(
-    #     "L36",
-    #     B25,
-    #     B29,
-    #     r=0.5000,
-    #     x=0.5000,
-    #     fail_rate_density_per_year=fail_rate_line,
-    # )
-    # L37 = Line(
-    #     "L37",
-    #     B8,
-    #     B21,
-    #     r=2.0000,
-    #     x=2.0000,
-    #     fail_rate_density_per_year=fail_rate_line,
-    # )
+        # Backup
+        Disconnector("L33a", L33, B9)
+        Disconnector("L33b", L33, B15)
+        Disconnector("L34a", L34, B12)
+        Disconnector("L34b", L34, B22)
+        Disconnector("L35a", L35, B18)
+        Disconnector("L35b", L35, B33)
+        Disconnector("L36a", L36, B25)
+        Disconnector("L36b", L36, B29)
+        Disconnector("L37a", L37, B8)
+        Disconnector("L37b", L37, B21)
 
-    # # Backup
-    # DL33a = Disconnector("L33a", L33, B9)
-    # DL33b = Disconnector("L33b", L33, B15)
-    # DL34a = Disconnector("L34a", L34, B12)
-    # DL34b = Disconnector("L34b", L34, B22)
-    # DL35a = Disconnector("L35a", L35, B18)
-    # DL35b = Disconnector("L35b", L35, B33)
-    # DL36a = Disconnector("L36a", L36, B25)
-    # DL36b = Disconnector("L36b", L36, B29)
-    # DL37a = Disconnector("L37a", L37, B8)
-    # DL37b = Disconnector("L37b", L37, B21)
-
-    # L33.set_backup()
-    # L34.set_backup()
-    # L35.set_backup()
-    # L36.set_backup()
-    # L37.set_backup()
+        L33.set_backup()
+        L34.set_backup()
+        L35.set_backup()
+        L36.set_backup()
+        L37.set_backup()
 
     if include_production:
 
-        battery_capacity = 1  # MWh
-
-        Battery("Battery", B30, E_max=battery_capacity)
-        Production("Wind_Plant", B15)
+        Battery("Battery", B30)
 
     if include_ev:
 
@@ -764,210 +759,171 @@ def initialize_network(
             name="EV1",
             bus=B3,
             num_ev_dist=num_ev_table_func(B3.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV2",
             bus=B5,
             num_ev_dist=num_ev_table_func(B5.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV3",
             bus=B6,
             num_ev_dist=num_ev_table_func(B6.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV4",
             bus=B9,
             num_ev_dist=num_ev_table_func(B9.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV5",
             bus=B10,
             num_ev_dist=num_ev_table_func(B10.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV6",
             bus=B11,
             num_ev_dist=num_ev_table_func(B11.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV7",
             bus=B12,
             num_ev_dist=num_ev_table_func(B12.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV8",
             bus=B13,
             num_ev_dist=num_ev_table_func(B13.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV9",
             bus=B15,
             num_ev_dist=num_ev_table_func(B15.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV10",
             bus=B16,
             num_ev_dist=num_ev_table_func(B16.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV11",
             bus=B17,
             num_ev_dist=num_ev_table_func(B17.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV12",
             bus=B18,
             num_ev_dist=num_ev_table_func(B18.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV13",
             bus=B19,
             num_ev_dist=num_ev_table_func(B19.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV14",
             bus=B20,
             num_ev_dist=num_ev_table_func(B20.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV15",
             bus=B21,
             num_ev_dist=num_ev_table_func(B21.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV16",
             bus=B22,
             num_ev_dist=num_ev_table_func(B22.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV17",
             bus=B23,
             num_ev_dist=num_ev_table_func(B23.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV18",
             bus=B26,
             num_ev_dist=num_ev_table_func(B26.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV19",
             bus=B27,
             num_ev_dist=num_ev_table_func(B27.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV20",
             bus=B28,
             num_ev_dist=num_ev_table_func(B28.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
         EVPark(
             name="EV21",
             bus=B33,
             num_ev_dist=num_ev_table_func(B33.n_customers),
+            inj_p_max=inverter,
+            E_max=ev_E_max,
             v2g_flag=v2g_flag,
         )
 
-    tn = Transmission(ps, B1)
-
-    dn = Distribution(tn, L1)
-
-    dn.add_buses(
-        [
-            B2,
-            B3,
-            B4,
-            B5,
-            B6,
-            B7,
-            B8,
-            B9,
-            B10,
-            B11,
-            B12,
-            B13,
-            B14,
-            B15,
-            B16,
-            B17,
-            B18,
-            B19,
-            B20,
-            B21,
-            B22,
-            B23,
-            B24,
-            B25,
-            B26,
-            B27,
-            B28,
-            B29,
-            B30,
-            B31,
-            B32,
-            B33,
-        ]
-    )
-
-    dn.add_lines(
-        [
-            L2,
-            L3,
-            L4,
-            L5,
-            L6,
-            L7,
-            L8,
-            L9,
-            L10,
-            L11,
-            L12,
-            L13,
-            L14,
-            L15,
-            L16,
-            L17,
-            L18,
-            L19,
-            L20,
-            L21,
-            L22,
-            L23,
-            L24,
-            L25,
-            L26,
-            L27,
-            L28,
-            L29,
-            L30,
-            L31,
-            L32,
-            # L33,
-            # L34,
-            # L35,
-            # L36,
-            # L37,
-        ]
-    )
     if include_microgrid:
 
         # Micorgrid:
@@ -1055,10 +1011,6 @@ def initialize_network(
         DML3b = Disconnector("ML3b", ML3, BM3)
         DML4a = Disconnector("ML4a", ML4, BM1)
         DML4b = Disconnector("ML4b", ML4, BM4)
-
-        m = Microgrid(dn, ML1, mode=microgrid_mode)
-        m.add_buses([BM1, BM2, BM3, BM4])
-        m.add_lines([ML2, ML3, ML4])
 
     if include_ICT:
 
@@ -1196,6 +1148,93 @@ def initialize_network(
             IntelligentSwitch("ISwML4a", DML4a)
             IntelligentSwitch("ISwML4b", DML4b)
 
+    tn = Transmission(ps, B1)
+
+    dn = Distribution(tn, L1)
+
+    dn.add_buses(
+        [
+            B2,
+            B3,
+            B4,
+            B5,
+            B6,
+            B7,
+            B8,
+            B9,
+            B10,
+            B11,
+            B12,
+            B13,
+            B14,
+            B15,
+            B16,
+            B17,
+            B18,
+            B19,
+            B20,
+            B21,
+            B22,
+            B23,
+            B24,
+            B25,
+            B26,
+            B27,
+            B28,
+            B29,
+            B30,
+            B31,
+            B32,
+            B33,
+        ]
+    )
+
+    dn.add_lines(
+        [
+            L2,
+            L3,
+            L4,
+            L5,
+            L6,
+            L7,
+            L8,
+            L9,
+            L10,
+            L11,
+            L12,
+            L13,
+            L14,
+            L15,
+            L16,
+            L17,
+            L18,
+            L19,
+            L20,
+            L21,
+            L22,
+            L23,
+            L24,
+            L25,
+            L26,
+            L27,
+            L28,
+            L29,
+            L30,
+            L31,
+            L32,
+            # L33,
+            # L34,
+            # L35,
+            # L36,
+            # L37,
+        ]
+    )
+
+    if include_microgrid:
+        m = Microgrid(dn, ML1, mode=microgrid_mode)
+        m.add_buses([BM1, BM2, BM3, BM4])
+        m.add_lines([ML2, ML3, ML4])
+
     return ps
 
 
@@ -1212,20 +1251,6 @@ if __name__ == "__main__":
     fig.savefig(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "IEEE33_testnetwork.pdf",
+            "IEEE33.pdf",
         )
     )
-
-    # def print_sections(section, level=0):
-    #     print("\nSection: (level {})".format(level))
-    #     print("Lines: ", section.comp_list)
-    #     print("Disconnectors: ", section.disconnectors)
-    #     level += 1
-    #     for child_section in section.child_sections:
-    #         print_sections(child_section, level)
-
-    # for network in ps.child_network_list:
-    #     print("\n\n", network)
-    #     if not isinstance(network, Transmission):
-    #         parent_section = create_sections(network.connected_line)
-    #         print_sections(parent_section)

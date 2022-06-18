@@ -36,9 +36,9 @@ def initialize_network():
     )
 
     ps = PowerSystem(C1)
-    fail_rate_trafo = 0.0150  # 0.008
-    fail_rate_line = 0.0650  # 0.08
-    # repair_time_trafo = 200
+    fail_rate_trafo = 0.0150
+    fail_rate_line = 0.0650
+
     line_stat_dist = StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
         parameters=NormalParameters(
@@ -48,7 +48,7 @@ def initialize_network():
             max_val=2,
         ),
     )
-    outage_time_trafo = Time(200, TimeUnit.HOUR)
+
     rho = 1.72e-8
     a = 64.52e-6
     l1 = 0.6  # km
@@ -798,20 +798,6 @@ if __name__ == "__main__":
     fig.savefig(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "RBTS2_testnetwork.pdf",
+            "RBTS2.pdf",
         )
     )
-
-    # def print_sections(section, level=0):
-    #     print("\nSection: (level {})".format(level))
-    #     print("Lines: ", section.comp_list)
-    #     print("Disconnectors: ", section.disconnectors)
-    #     level += 1
-    #     for child_section in section.child_sections:
-    #         print_sections(child_section, level)
-
-    # for network in ps.child_network_list:
-    #     print("\n\n", network)
-    #     if not isinstance(network, Transmission):
-    #         parent_section = create_sections(network.connected_line)
-    #         print_sections(parent_section)

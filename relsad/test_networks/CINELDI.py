@@ -49,6 +49,8 @@ def initialize_network(
     include_ICT: bool = True,
     include_ev: bool = True,
     v2g_flag: bool = True,
+    ev_percentage: float = 0.47,
+    ev_E_max: float = 0.07,
     include_backup: bool = True,
     microgrid_mode: MicrogridMode = MicrogridMode.SURVIVAL,
     line_stat_dist: StatDist = StatDist(
@@ -63,7 +65,7 @@ def initialize_network(
 ):
     def num_ev_table_func(
         n_customers,
-        ev_percentage=0.47,
+        ev_percentage=ev_percentage,
         daily_charge_frac=0.61,
     ):
         return Table(
@@ -383,6 +385,7 @@ def initialize_network(
             bus=B5,
             num_ev_dist=num_ev_table_func(B3.n_customers),
             v2g_flag=v2g_flag,
+            E_max=ev_E_max,
         )
 
     tn = Transmission(parent_network=ps, trafo_bus=B1)
@@ -577,27 +580,13 @@ if __name__ == "__main__":
     fig.savefig(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "CINELDI_testnetwork.pdf",
+            "CINELDI.pdf",
         )
     )
     fig.savefig(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "CINELDI_testnetwork.png",
+            "CINELDI.png",
         ),
         dpi=600,
     )
-
-    # def print_sections(section, level=0):
-    #     print("\nSection: (level {})".format(level))
-    #     print("Lines: ", section.comp_list)
-    #     print("Disconnectors: ", section.disconnectors)
-    #     level += 1
-    #     for child_section in section.child_sections:
-    #         print_sections(child_section, level)
-
-    # for network in ps.child_network_list:
-    #     print("\n\n", network)
-    #     if not isinstance(network, Transmission):
-    #         parent_section = create_sections(network.connected_line)
-    #         print_sections(parent_section)

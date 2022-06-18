@@ -4,12 +4,12 @@ import matplotlib.pyplot as plt
 import os
 
 
-def WeatherGen():
+def weather_generation_data(
+    path: str = os.path.join("data", "weather_data_rygge.csv"),
+):
 
-    # Generating temperatures for a whole year
-    data = pd.read_csv(
-        os.path.join("data", "weather_data_rygge.csv"), header=None, skiprows=1
-    )
+    # Generate temperatures for a whole year
+    data = pd.read_csv(path, header=None, skiprows=1)
 
     temp_profiles = data[1].values.reshape(365, 24)
     wind_profiles = data[2].values.reshape(365, 24)
@@ -18,12 +18,15 @@ def WeatherGen():
     return temp_profiles, wind_profiles, solar_profiles
 
 
-def LoadGen(temp):
+def load_data(
+    temp: np.array,
+    path: str = os.path.join("data", "load_profiles_fasit.csv"),
+):
 
     # Generating load profiles:
 
     data = pd.read_csv(
-        os.path.join("data", "load_profiles_fasit.csv"),
+        path,
         sep=";",
         decimal=",",
         header=None,
@@ -74,7 +77,9 @@ def LoadGen(temp):
     )
 
 
-def windGen(wind):
+def wind_power(
+    wind: np.array,
+):
 
     # Wind power
 
@@ -148,7 +153,10 @@ def windGen(wind):
     return P_out.reshape((8760))
 
 
-def PVgeneration(temp, irridation):
+def pv_power(
+    temp: np.array,
+    irridation: np.array,
+):
 
     modules = 5000 / 2
 
@@ -261,10 +269,10 @@ def PVgeneration(temp, irridation):
 if __name__ == "__main__":
 
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    temp_profiles, wind_profiles, solar_profiles = WeatherGen()
+    temp_profiles, wind_profiles, solar_profiles = weather_generation_data()
 
-    wind = windGen(wind_profiles)
-    PV = PVgeneration(temp_profiles, solar_profiles)
+    wind = wind_power(wind_profiles)
+    PV = pv_power(temp_profiles, solar_profiles)
 
     fig1, ax1 = plt.subplots()
     ax1.plot(wind.flatten(), label="wind")
@@ -278,7 +286,7 @@ if __name__ == "__main__":
         load_industry2,
         load_trade,
         load_office,
-    ) = LoadGen(temp_profiles)
+    ) = load_data(temp_profiles)
 
     fig2, ax2 = plt.subplots()
     ax2.plot(load_house.flatten(), label="house")

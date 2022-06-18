@@ -43,16 +43,13 @@ def initialize_network(
     fail_rate_sensor: float = 0.023,
     p_fail_repair_new_signal: float = 1 - 0.95,
     p_fail_repair_reboot: float = 1 - 0.9,
-    outage_time_trafo: Time = Time(8, TimeUnit.HOUR),
     include_microgrid: bool = True,
     include_production: bool = True,
     include_ICT: bool = True,
     include_ev: bool = True,
     v2g_flag: bool = True,
     include_backup: bool = True,
-):
-
-    line_stat_dist = StatDist(
+    line_stat_dist=StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
         parameters=NormalParameters(
             loc=1.25,
@@ -60,8 +57,8 @@ def initialize_network(
             min_val=0.5,
             max_val=2,
         ),
-    )
-
+    ),
+):
     def num_ev_table_func(
         n_customers,
         ev_percentage=0.47,
@@ -142,10 +139,6 @@ def initialize_network(
             name="C1",
             sectioning_time=Time(0, TimeUnit.HOUR),
         )
-
-    fail_rate_trafo = 0
-    fail_rate_line = 0.7
-    outage_time_trafo = Time(8, TimeUnit.HOUR)  # hours
 
     ps = PowerSystem(C1)
 
@@ -333,10 +326,6 @@ def initialize_network(
 
         L10.set_backup()
 
-    tn = Transmission(ps, B1)
-
-    dn = Distribution(tn, L1)
-
     if include_microgrid:
         M1 = Bus(
             "M1",
@@ -398,11 +387,6 @@ def initialize_network(
         DML1b = Disconnector("ML1b", ML1, M2)
         DML2a = Disconnector("ML2a", ML2, M1)
         DML2b = Disconnector("ML2b", ML2, M3)
-
-        m = Microgrid(dn, L11, mode=MicrogridMode.SURVIVAL)
-
-        m.add_buses([M1, M2, M3])
-        m.add_lines([ML1, ML2])
 
     if include_ICT:
 
@@ -626,13 +610,23 @@ def initialize_network(
             v2g_flag=v2g_flag,
         )
 
+    tn = Transmission(ps, B1)
+
+    dn = Distribution(tn, L1)
+
     dn.add_buses([B1, B2, B3, B4, B5, B6, B7, B8, B9, B10])
     if include_backup:
         dn.add_lines([L2, L3, L4, L5, L6, L7, L8, L9, L10])
     else:
         dn.add_lines([L2, L3, L4, L5, L6, L7, L8, L9])
 
-    return ps, include_microgrid, include_production, include_backup
+    if include_microgrid:
+        m = Microgrid(dn, L11, mode=MicrogridMode.SURVIVAL)
+
+        m.add_buses([M1, M2, M3])
+        m.add_lines([ML1, ML2])
+
+    return ps
 
 
 if __name__ == "__main__":
@@ -642,20 +636,6 @@ if __name__ == "__main__":
     fig.savefig(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "test_bus10_testnetwork.pdf",
+            "TEST10.pdf",
         )
     )
-
-    # def print_sections(section, level=0):
-    #     print("\nSection: (level {})".format(level))
-    #     print("Lines: ", section.comp_list)
-    #     print("Disconnectors: ", section.disconnectors)
-    #     level += 1
-    #     for child_section in section.child_sections:
-    #         print_sections(child_section, level)
-
-    # for network in ps.child_network_list:
-    #     print("\n\n", network)
-    #     if not isinstance(network, Transmission):
-    #         parent_section = create_sections(network.connected_line)
-    #         print_sections(parent_section)

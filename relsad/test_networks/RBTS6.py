@@ -44,7 +44,6 @@ def initialize_network():
     )
     fail_rate_trafo = 0.007  # 0.008
     fail_rate_line = 0.07  # 0.08
-    outage_time_trafo = Time(8, TimeUnit.HOUR)
 
     B1 = Bus(
         name="B1",
@@ -140,25 +139,21 @@ def initialize_network():
         name="B19",
         coordinate=[-1, -2],
         fail_rate_per_year=fail_rate_trafo,
-        outge_time=outage_time_trafo,
     )
     B20 = Bus(
         name="B20",
         coordinate=[-1, -3],
         fail_rate_per_year=fail_rate_trafo,
-        outge_time=outage_time_trafo,
     )
     B21 = Bus(
         name="B21",
         coordinate=[-1, -4],
         fail_rate_per_year=fail_rate_trafo,
-        outge_time=outage_time_trafo,
     )
     B22 = Bus(
         name="B22",
         coordinate=[-1, -5],
         fail_rate_per_year=fail_rate_trafo,
-        outge_time=outage_time_trafo,
     )
     B23 = Bus(
         name="B23",
@@ -665,20 +660,6 @@ if __name__ == "__main__":
     fig.savefig(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "RBTS6_testnetwork.pdf",
+            "RBTS6.pdf",
         )
     )
-
-    def print_sections(section, level=0):
-        print("\nSection: (level {})".format(level))
-        print("Lines: ", section.comp_list)
-        print("Disconnectors: ", section.disconnectors)
-        level += 1
-        for child_section in section.child_sections:
-            print_sections(child_section, level)
-
-    for network in ps.child_network_list:
-        print("\n\n", network)
-        if not isinstance(network, Transmission):
-            parent_section = create_sections(network.connected_line)
-            print_sections(parent_section)
