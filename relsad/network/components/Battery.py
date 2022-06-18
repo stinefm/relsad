@@ -1,3 +1,4 @@
+from numbers import Number
 from .Component import Component
 from .Bus import Bus
 from .MicrogridController import MicrogridMode
@@ -120,6 +121,7 @@ class Battery(Component):
         n_battery: float = 0.95,
         ev_flag: bool = False,
         random_instance: np.random.Generator = None,
+        SOC_start: float = None,
     ):
 
         # Verify input
@@ -139,6 +141,15 @@ class Battery(Component):
             raise Exception("The SOC limits must be between 0 and 1")
         if n_battery < 0 or n_battery > 1:
             raise Exception("The efficiency must be between 0 and 1")
+        if (
+                SOC_start is not None and
+                not isinstance(SOC_start, Number) and (
+                    SOC_start < 0 or SOC_start > 1
+                )
+        ):
+            raise Exception(
+                "The SOC start value must be a number between 0 and 1"
+            )
 
         self.name = name
 
@@ -169,7 +180,10 @@ class Battery(Component):
 
         self.p_inj = 0.0  # MW
         self.q_inj = 0.0  # MVar
-        self.SOC = SOC_min
+        if SOC_start is None:
+            self.SOC = SOC_min
+        else:
+            self.SOC = SOC_start
         self.E_battery = self.SOC * self.E_max  # MWh
         self.update_SOC()
 
