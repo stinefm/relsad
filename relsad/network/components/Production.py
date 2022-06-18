@@ -163,10 +163,25 @@ class Production(Component):
         None
 
         """
+        if self.pprod_data is None:
+            raise Exception(
+                "Active production data must be provided for {:s}".format(
+                    self.name
+                )
+            )
+
         self.pprod_data = interpolate(
             array=self.pprod_data,
             time_indices=time_indices,
         )
+
+        if self.qprod_data is None:
+            raise Exception(
+                "Reactive production data must be provided for {:s}".format(
+                    self.name
+                )
+            )
+
         self.qprod_data = interpolate(
             array=self.qprod_data,
             time_indices=time_indices,
