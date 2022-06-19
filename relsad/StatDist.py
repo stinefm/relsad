@@ -8,6 +8,29 @@ from relsad.utils import get_random_instance
 
 
 class StatDistType(Enum):
+    """
+    Statistical distribution type
+
+    Attributes
+    ----------
+    UNIFORM_FLOAT : int
+        Uniform distribution with floating point numbers.
+        Parameters from UniformParameters:
+        (min_val, max_val)
+    UNIFORM_INT : int
+        Uniform distribution with integers.
+        Parameters from UniformParameters:
+        (min_val, max_val)
+    TRUNCNORMAL : int
+        Truncated normal distribution.
+        Parameters from NormalParameters:
+        (loc, scale, min_val, max_val)
+    GAMMA : int
+        Gamma distribution
+        Parameters from GammaParameters:
+        (shape, scale)
+    """
+
     UNIFORM_FLOAT = 1
     UNIFORM_INT = 2
     TRUNCNORMAL = 3

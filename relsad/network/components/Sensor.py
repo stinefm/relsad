@@ -14,6 +14,19 @@ from relsad.Time import (
 
 
 class SensorState(Enum):
+    """
+    Sensor state
+
+    Attributes
+    ----------
+    OK : int
+        The sensor is up and running
+    FAILED : int
+        The sensor has failed
+    REPAIR : int
+        The sensor is being repaired
+    """
+
     OK = 1
     FAILED = 2
     REPAIR = 3

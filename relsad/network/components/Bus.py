@@ -277,7 +277,7 @@ class Bus(Component):
         self.history = {}
         self.monte_carlo_history = {}
 
-        self.reset_status(True)
+        self.reset_status(save_flag=True)
 
     def __str__(self):
         return self.name

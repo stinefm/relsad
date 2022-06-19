@@ -3,6 +3,17 @@ from relsad.Time import Time
 
 
 class SectionState(Enum):
+    """
+    Section state
+
+    Attributes
+    ----------
+    CONNECTED : int
+        The section is connected to its parent network
+    CONNECTED : int
+        The section is disconnected from its parent network
+    """
+
     CONNECTED = 1
     DISCONNECTED = 2
 

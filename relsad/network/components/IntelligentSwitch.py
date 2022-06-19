@@ -14,6 +14,19 @@ from relsad.Time import (
 
 
 class IntelligentSwitchState(Enum):
+    """
+    Intelligent switch state
+
+    Attributes
+    ----------
+    OK : int
+        The intelligent switch is up and running
+    FAILED : int
+        The intelligent switch has failed
+    REPAIR : int
+        The intelligent switch is being repaired
+    """
+
     OK = 1
     FAILED = 2
     REPAIR = 3

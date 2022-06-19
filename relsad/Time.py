@@ -3,6 +3,27 @@ from numbers import Number
 
 
 class TimeUnit(Enum):
+    """
+    Time unit
+
+    Attributes
+    ----------
+    SECOND : int
+        Second
+    MINUTE : int
+        Minute
+    HOUR : int
+        Hour
+    DAY : int
+        Day
+    WEEK : int
+        Week
+    MONTH : int
+        Month
+    YEAR : int
+        Year
+    """
+
     SECOND = 1
     MINUTE = 2
     HOUR = 3

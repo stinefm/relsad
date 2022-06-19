@@ -19,6 +19,27 @@ from relsad.Time import (
 
 
 class MicrogridMode(Enum):
+    """
+    Microgrid mode
+
+    Attributes
+    ----------
+    SURVIVAL : int
+        The microgrid is in survival mode, it disconnects
+        from the parent network for the entire failure
+        duration
+    FULL_SUPPORT : int
+        The microgrid is in full support mode, it disconnects
+        from the parent network only during sectioning time.
+        When connected to the parent network, the microgrid
+        provides all the support it has available.
+    LIMITED_SUPPORT : int
+        The microgrid is in limited support mode, it disconnects
+        from the parent network only during sectioning time.
+        When connected to the parent network, the microgrid
+        provides only surplus support.
+    """
+
     SURVIVAL = 1
     FULL_SUPPORT = 2
     LIMITED_SUPPORT = 3

@@ -1,4 +1,3 @@
-from enum import Enum
 import matplotlib.lines as mlines
 import numpy as np
 from .Component import Component
