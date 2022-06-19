@@ -1,3 +1,4 @@
+from enum import Enum
 from numbers import Number
 from .Component import Component
 from .Bus import Bus
@@ -8,6 +9,38 @@ from relsad.Time import (
     Time,
     TimeUnit,
 )
+
+
+class BatteryType(Enum):
+    """
+    Battery type
+
+    Attributes
+    ----------
+    REGULAR : int
+        Regular battery type
+    EV : int
+        Electric vehicle battery type
+    """
+
+    REGULAR = 1
+    EV = 2
+
+
+class BatteryState(Enum):
+    """
+    Battery state
+
+    Attributes
+    ----------
+    ACTIVE : int
+        Battery is active
+    INACTIVE : int
+        Battery is inactive
+    """
+
+    ACTIVE = 1
+    INACTIVE = 2
 
 
 class Battery(Component):
@@ -48,6 +81,8 @@ class Battery(Component):
         The maximum state of charge level in the battery
     n_battery : float
         The battery efficiency
+    SOC_start : float
+        The iteration start value for the state of charge level in the battery
     p_inj : float
         The injected active power in the battery [MW]
     q_inj : float
@@ -56,10 +91,10 @@ class Battery(Component):
         The state of charge of the battery
     E_battery : float
         The amount of energy stored in the battery [MWh]
-    ev_flag : bool
-        Boolean variable telling if the battery is an electric vehicle battery
-    lock : bool
-        Boolean variable that locks the battery if a basestation is failed, locks the functionality of the battery
+    battery_type : BatteryType
+        The battery type
+    state : BatteryState
+        Battery state
     history : dict
         Dictonary attribute that stores the historic variables
 
@@ -119,7 +154,7 @@ class Battery(Component):
         SOC_min: float = 0.1,
         SOC_max: float = 1,
         n_battery: float = 0.95,
-        ev_flag: bool = False,
+        battery_type: BatteryType = BatteryType.REGULAR,
         random_instance: np.random.Generator = None,
         SOC_start: float = None,
     ):
@@ -142,10 +177,9 @@ class Battery(Component):
         if n_battery < 0 or n_battery > 1:
             raise Exception("The efficiency must be between 0 and 1")
         if (
-                SOC_start is not None and
-                not isinstance(SOC_start, Number) and (
-                    SOC_start < 0 or SOC_start > 1
-                )
+            SOC_start is not None
+            and not isinstance(SOC_start, Number)
+            and (SOC_start < 0 or SOC_start > 1)
         ):
             raise Exception(
                 "The SOC start value must be a number between 0 and 1"
@@ -161,16 +195,20 @@ class Battery(Component):
         self.standard_SOC_min = SOC_min
 
         self.bus = bus
-        if ev_flag is not True:
+
+        self.battery_type = battery_type
+
+        if battery_type == BatteryType.REGULAR:
+            # Link battery to parent bus
             bus.battery = self
 
         self.inj_p_max = inj_p_max  # MW
         self.inj_q_max = inj_q_max  # MVar
         self.inj_max = self.inj_p_max
-        self.f_inj_p = 1  # active capacity fraction
-        self.f_inj_q = (
-            self.inj_q_max / self.inj_max
-        )  # reactive capacity fraction
+        # active capacity fraction
+        self.f_inj_p = 1
+        # reactive capacity fraction
+        self.f_inj_q = self.inj_q_max / self.inj_max
 
         self.E_max = E_max  # MWh
         self.SOC_min = SOC_min
@@ -178,16 +216,16 @@ class Battery(Component):
         self.SOC_max = SOC_max
         self.n_battery = n_battery
 
+        if SOC_start is None:
+            self.set_SOC_state(SOC_state=SOC_min)
+        else:
+            self.set_SOC_state(SOC_state=SOC_start)
+        self.SOC_start = SOC_start
+
         self.p_inj = 0.0  # MW
         self.q_inj = 0.0  # MVar
-        if SOC_start is None:
-            self.SOC = SOC_min
-        else:
-            self.SOC = SOC_start
-        self.E_battery = self.SOC * self.E_max  # MWh
-        self.update_SOC()
 
-        self.lock = False
+        self.state = BatteryState.ACTIVE
 
         ## History
         self.history = {}
@@ -407,7 +445,7 @@ class Battery(Component):
         """
         p, q = system_load_balance_p, system_load_balance_q
 
-        if self.lock:  # Trafo has failed
+        if self.state == BatteryState.INACTIVE:  # Trafo has failed
             p_rem, q_rem = p, q
             return p_rem, q_rem
 
@@ -525,9 +563,9 @@ class Battery(Component):
 
         """
         if self.bus.trafo_failed:
-            self.lock = True
+            self.state = BatteryState.INACTIVE
         else:
-            self.lock = False
+            self.state = BatteryState.ACTIVE
 
     def add_random_instance(self, random_gen):
         """
@@ -559,9 +597,11 @@ class Battery(Component):
         None
 
         """
-        self.SOC = self.standard_SOC_min
-        self.E_battery = self.SOC * self.E_max
-        self.lock = False
+        if self.SOC_start is None:
+            self.set_SOC_state(SOC_state=self.standard_SOC_min)
+        else:
+            self.set_SOC_state(SOC_state=self.SOC_start)
+        self.state = BatteryState.ACTIVE
         if save_flag:
             self.initialize_history()
 

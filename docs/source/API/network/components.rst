@@ -6,6 +6,8 @@ components
     :template: class.rst
 
     relsad.network.components.Battery.Battery
+    relsad.network.components.Battery.BatteryType
+    relsad.network.components.Battery.BatteryState
     relsad.network.components.Bus.Bus
     relsad.network.components.Circuitbreaker.Circuitbreaker
     relsad.network.components.Component.Component

@@ -1,4 +1,8 @@
-from relsad.network.components import Bus, Battery
+from relsad.network.components import (
+    Bus,
+    Battery,
+    BatteryState,
+)
 from relsad.utils import eq
 from relsad.Time import (
     Time,
@@ -510,7 +514,7 @@ def test_update_fail_status_failed():
 
     b.update_fail_status(dt)
 
-    assert b.lock is True
+    assert b.state == BatteryState.INACTIVE
 
 
 def test_update_fail_status_not_failed():
@@ -531,4 +535,4 @@ def test_update_fail_status_not_failed():
 
     b.update_fail_status(dt)
 
-    assert b.lock is False
+    assert b.state == BatteryState.ACTIVE

@@ -8,7 +8,11 @@ Network components
 
 """
 
-from .Battery import Battery
+from .Battery import (
+    Battery,
+    BatteryType,
+    BatteryState,
+)
 from .Bus import Bus
 from .Component import Component
 from .Controller import (

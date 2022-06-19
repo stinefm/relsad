@@ -1,7 +1,10 @@
 import matplotlib.lines as mlines
 from .Component import Component
 from .Bus import Bus
-from .Battery import Battery
+from .Battery import (
+    Battery,
+    BatteryType,
+)
 from .MicrogridController import MicrogridMode
 import numpy as np
 from relsad.Time import (
@@ -249,14 +252,12 @@ class EVPark(Component):
                 SOC_min=self.SOC_min,
                 SOC_max=self.SOC_max,
                 n_battery=self.n_battery,
-                ev_flag=True,
+                battery_type=BatteryType.EV,
                 random_instance=self.ps_random,
+                SOC_start=soc_states[i],
             )
             for i in range(self.num_cars)
         ]
-        for i, car in enumerate(self.cars):
-            car.E_battery = soc_states[i] * self.E_max
-            car.update_SOC()
 
     def update(
         self,
