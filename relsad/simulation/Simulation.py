@@ -64,6 +64,7 @@ class Simulation:
 
     def __init__(self, power_system: PowerSystem, random_seed: int = None):
         self.power_system = power_system
+        self.power_system.verify_component_setup()
         self.random_seed = random_seed
         self.fail_duration = Time(0)
 

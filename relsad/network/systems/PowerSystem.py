@@ -126,6 +126,8 @@ class PowerSystem(Network):
         Returns the specified history variable
     reset_load_shed_variables()
         Resets the load shed variables
+    verify_component_setup()
+        Verifies the component setup in the power system
 
     """
 
@@ -744,3 +746,26 @@ class PowerSystem(Network):
         self.acc_p_load_shed = 0
         self.q_load_shed = 0
         self.acc_q_load_shed = 0
+
+    def verify_component_setup(self):
+        """
+        Verifies the component setup in the power system
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
+        for bus in self.buses:
+            for line in bus.connected_lines:
+                if line not in self.lines and line.is_backup:
+                    if line.parent_network is None:
+                        raise Exception(
+                            "Line, {:s}, does not have a parent network".format(
+                                line.name
+                            )
+                        )
