@@ -1,5 +1,6 @@
 import time
 import os
+from relsad.network.components import MicrogridMode
 from relsad.visualization.plotting import plot_topology
 from relsad.simulation import Simulation
 from relsad.Time import (
@@ -38,6 +39,8 @@ def run_simulation(
             max_val=2,
         ),
     ),
+    microgrid_mode: MicrogridMode = MicrogridMode.LIMITED_SUPPORT,
+    battery_capacity: float = 1,  # MWh
     random_seed: int = 2837314,
     save_dir: str = "results",
 ):
@@ -57,6 +60,8 @@ def run_simulation(
         ev_percentage=ev_percentage,
         ev_E_max=ev_E_max,
         line_stat_dist=line_stat_dist,
+        microgrid_mode=microgrid_mode,
+        battery_capacity=battery_capacity,
     )
 
     ps = set_network_load_and_prod(

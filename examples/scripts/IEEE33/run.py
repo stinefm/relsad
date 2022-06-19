@@ -1,5 +1,6 @@
 import os
 import sys
+from relsad.network.components import MicrogridMode
 from relsad.StatDist import (
     StatDist,
     StatDistType,
@@ -31,6 +32,8 @@ run_simulation(
             max_val=2,
         ),
     ),
+    microgrid_mode=MicrogridMode.LIMITED_SUPPORT,
+    battery_capacity=1,  # MWh
     random_seed=2837314,
     save_dir="results",
 )

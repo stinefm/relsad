@@ -45,7 +45,7 @@ def initialize_network(
     inverter: float = 0.0036,
     ev_percentage: float = 0.46,
     ev_E_max: float = 0.07,
-    line_stat_dist=StatDist(
+    line_stat_dist: StatDist = StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
         parameters=NormalParameters(
             loc=1.25,
@@ -54,6 +54,8 @@ def initialize_network(
             max_val=2,
         ),
     ),
+    microgrid_mode: MicrogridMode = MicrogridMode.LIMITED_SUPPORT,
+    battery_capacity: float = 1,  # MWh
 ):
     def num_ev_table_func(
         n_customers,
@@ -732,16 +734,16 @@ def initialize_network(
         )
 
         # Backup
-        Disconnector("L33a", L33, B9)
-        Disconnector("L33b", L33, B15)
-        Disconnector("L34a", L34, B12)
-        Disconnector("L34b", L34, B22)
-        Disconnector("L35a", L35, B18)
-        Disconnector("L35b", L35, B33)
-        Disconnector("L36a", L36, B25)
-        Disconnector("L36b", L36, B29)
-        Disconnector("L37a", L37, B8)
-        Disconnector("L37b", L37, B21)
+        DL33a = Disconnector("L33a", L33, B9)
+        DL33b = Disconnector("L33b", L33, B15)
+        DL34a = Disconnector("L34a", L34, B12)
+        DL34b = Disconnector("L34b", L34, B22)
+        DL35a = Disconnector("L35a", L35, B18)
+        DL35b = Disconnector("L35b", L35, B33)
+        DL36a = Disconnector("L36a", L36, B25)
+        DL36b = Disconnector("L36b", L36, B29)
+        DL37a = Disconnector("L37a", L37, B8)
+        DL37b = Disconnector("L37b", L37, B21)
 
         L33.set_backup()
         L34.set_backup()
@@ -928,9 +930,6 @@ def initialize_network(
 
         # Micorgrid:
 
-        microgrid_mode = MicrogridMode.LIMITED_SUPPORT
-        battery_capacity = 1  # MWh
-
         BM1 = Bus(
             "BM1",
             n_customers=0,
@@ -1048,11 +1047,12 @@ def initialize_network(
         Sensor("SL32", L32)
 
         # Backup lines
-        # Sensor("SL33", L33)
-        # Sensor("SL34", L34)
-        # Sensor("SL35", L35)
-        # Sensor("SL36", L36)
-        # Sensor("SL37", L37)
+        if include_backup:
+            Sensor("SL33", L33)
+            Sensor("SL34", L34)
+            Sensor("SL35", L35)
+            Sensor("SL36", L36)
+            Sensor("SL37", L37)
 
         IntelligentSwitch("ISwL1a", DL1a)
         IntelligentSwitch("ISwL1b", DL1b)
@@ -1121,16 +1121,17 @@ def initialize_network(
         IntelligentSwitch("ISwL32b", DL32b)
 
         # Backup lines:
-        # IntelligentSwitch("ISwL33a", DL33a)
-        # IntelligentSwitch("ISwL33b", DL33b)
-        # IntelligentSwitch("ISwL34a", DL34a)
-        # IntelligentSwitch("ISwL34b", DL34b)
-        # IntelligentSwitch("ISwL35a", DL35a)
-        # IntelligentSwitch("ISwL35b", DL35b)
-        # IntelligentSwitch("ISwL36a", DL36a)
-        # IntelligentSwitch("ISwL36b", DL36b)
-        # IntelligentSwitch("ISwL37a", DL37a)
-        # IntelligentSwitch("ISwL37b", DL37b)
+        if include_backup:
+            IntelligentSwitch("ISwL33a", DL33a)
+            IntelligentSwitch("ISwL33b", DL33b)
+            IntelligentSwitch("ISwL34a", DL34a)
+            IntelligentSwitch("ISwL34b", DL34b)
+            IntelligentSwitch("ISwL35a", DL35a)
+            IntelligentSwitch("ISwL35b", DL35b)
+            IntelligentSwitch("ISwL36a", DL36a)
+            IntelligentSwitch("ISwL36b", DL36b)
+            IntelligentSwitch("ISwL37a", DL37a)
+            IntelligentSwitch("ISwL37b", DL37b)
 
         if include_microgrid:
             Sensor("SML1", ML1)
@@ -1222,13 +1223,19 @@ def initialize_network(
             L30,
             L31,
             L32,
-            # L33,
-            # L34,
-            # L35,
-            # L36,
-            # L37,
         ]
     )
+
+    if include_backup:
+        dn.add_lines(
+            [
+                L33,
+                L34,
+                L35,
+                L36,
+                L37,
+            ]
+        )
 
     if include_microgrid:
         m = Microgrid(dn, ML1, mode=microgrid_mode)
