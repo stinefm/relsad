@@ -147,19 +147,20 @@ def EV_Interruption(network: Network):
 
     """
     interrupted_cars = sum(
-        [ev_park.acc_exp_car_interruptions for ev_park in network.ev_parks]
-    )
-    average_num_cars = sum(
         [
-            ev_park.acc_num_cars / ev_park.num_car_draws
-            if ev_park.num_car_draws > 0
-            else 0
+            ev_park.acc_exp_car_interruptions * ev_park.acc_num_cars
             for ev_park in network.ev_parks
         ]
     )
-    if average_num_cars == 0:
+    total_num_cars = sum(
+        [
+            ev_park.acc_num_cars
+            for ev_park in network.ev_parks
+        ]
+    )
+    if total_num_cars == 0:
         return 0
-    ev_interruption = interrupted_cars / average_num_cars
+    ev_interruption = interrupted_cars / total_num_cars
     return ev_interruption
 
 
