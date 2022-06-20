@@ -60,6 +60,8 @@ class EVPark(Component):
         Fraction of interruption experienced by the EV park
     acc_num_cars : int
         Accumulated number of cars in EV park
+    acc_num_interruptions : float
+        Accumulated number of interruptions experienced by the EV park
     acc_exp_interruptions : float
         Accumulated experienced interruptions in the EV park
     curr_exp_interruptions : float
@@ -185,6 +187,7 @@ class EVPark(Component):
         self.num_consecutive_interruptions = 0
         self.park_interruption_fraction = 0
         self.acc_num_cars = 0
+        self.acc_num_interruptions = 0
         self.curr_exp_interruptions = 0
         self.acc_exp_interruptions = 0
         self.curr_exp_car_interruptions = 0
@@ -399,6 +402,7 @@ class EVPark(Component):
         self.history["charge"] = {}
         self.history["num_cars"] = {}
         self.history["park_interruption_fraction"] = {}
+        self.history["acc_num_interruptions"] = {}
         self.history["acc_exp_interruptions"] = {}
         self.history["acc_exp_car_interruptions"] = {}
         self.history["acc_interruption_duration"] = {}
@@ -439,6 +443,7 @@ class EVPark(Component):
             self.curr_interruption_duration += dt
         else:
             if self.num_consecutive_interruptions >= 1:
+                self.acc_num_interruptions += 1
                 self.acc_exp_interruptions += (
                     self.curr_exp_interruptions
                     / self.num_consecutive_interruptions
@@ -463,6 +468,9 @@ class EVPark(Component):
             self.history["park_interruption_fraction"][
                 curr_time
             ] = self.park_interruption_fraction
+            self.history["acc_num_interruptions"][
+                curr_time
+            ] = self.acc_num_interruptions
             self.history["acc_exp_interruptions"][
                 curr_time
             ] = self.acc_exp_interruptions
@@ -570,6 +578,7 @@ class EVPark(Component):
         self.num_consecutive_interruptions = 0
         self.park_interruption_fraction = 0
         self.acc_num_cars = 0
+        self.acc_num_interruptions = 0
         self.curr_exp_interruptions = 0
         self.acc_exp_interruptions = 0
         self.curr_exp_car_interruptions = 0
