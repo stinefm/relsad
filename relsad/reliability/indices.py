@@ -146,9 +146,9 @@ def EV_Interruption(network: Network):
         The average number of interruptions per EV car for grid support
 
     """
-    interrupted_cars_x_num_cars = sum(
+    interrupted_cars = sum(
         [
-            ev_park.acc_exp_car_interruptions * ev_park.acc_num_cars
+            ev_park.acc_exp_car_interruptions
             for ev_park in network.ev_parks
         ]
     )
@@ -160,7 +160,7 @@ def EV_Interruption(network: Network):
     )
     if total_num_cars == 0:
         return 0
-    ev_interruption = interrupted_cars_x_num_cars / total_num_cars
+    ev_interruption = interrupted_cars / total_num_cars
     return ev_interruption
 
 
