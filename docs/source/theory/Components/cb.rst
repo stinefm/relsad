@@ -10,7 +10,7 @@ Circuit breaker
 
 A circuit breaker is an electrical safety switch that is used to disconnect parts of the system to protect equipment from damage and prevent risks in relation to overcurrent or short circuits. The circuit breaker will automatically react when an unwanted event happens in the system to disconnect the system. The breaker can be reset when the unwanted event is cleared. 
 
-In RELSAD, when a failure occurs, the closest circuit breaker to the failure will react and disconnect the system until the failure is isolated. The time it takes from the occurrence of a failure until the failure is isolated and the circuit breaker is reset, is called *sectioning time* and can be set by the user. 
+In RELSAD, when a failure occurs, the closest circuit breaker to the failure will react and disconnect the system until the failure is isolated. The time it takes from the occurrence of a failure until the failure is isolated, and the circuit breaker is reset, is called *sectioning time* and can be set by the user. 
 
 ..............
 Disconnector
@@ -25,4 +25,4 @@ In RELSAD, the disconnectors can be placed on any line segment in the system, an
 Intelligent switch
 ..................
 
-In RELSAD, intelligent switches are implemented to make the system more automated. The intelligent switch objects can be placed on disconnectors in the system and by that be used to automatically control the disconnectors. An initelligent switch can recieve commands about the switch postion from a controller and automatically open/close the switch. 
+In RELSAD, intelligent switches are implemented to make the system more automated. The intelligent switch objects can be placed on disconnectors in the system and by that be used to automatically control the disconnectors. An intelligent switch can receive commands about the switch position from a controller and automatically open/close the switch.h. 
