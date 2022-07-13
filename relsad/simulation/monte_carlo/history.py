@@ -137,12 +137,25 @@ def save_network_monte_carlo_history(
         "interruption_fraction",
         "acc_interruptions",
     ]
+    ev_park_state_list = [
+        "acc_num_interruptions",
+        "acc_exp_interruptions",
+        "acc_exp_car_interruptions",
+        "acc_interruption_duration",
+        "acc_num_cars",
+    ]
     for bus in power_system.buses:
         bus_save_dir = os.path.join(save_dir, bus.name)
         for state_var in bus_state_list:
             save_monte_carlo_history_from_dict(
                 save_dict, [bus], state_var, bus_save_dir
             )
+        if bus.ev_park is not None:
+            ev_park_save_dir = os.path.join(bus_save_dir, bus.ev_park.name)
+            for state_var in ev_park_state_list:
+                save_monte_carlo_history_from_dict(
+                    save_dict, [bus.ev_park], state_var, ev_park_save_dir
+                )
 
 
 def initialize_history(power_system: PowerSystem):
@@ -217,10 +230,21 @@ def initialize_monte_carlo_history(power_system: PowerSystem):
         "interruption_fraction",
         "acc_interruptions",
     ]
+    ev_park_state_list = [
+        "acc_num_interruptions",
+        "acc_exp_interruptions",
+        "acc_exp_car_interruptions",
+        "acc_interruption_duration",
+        "acc_num_cars",
+    ]
     for bus in power_system.buses:
         save_dict[bus.name] = {}
         for state_var in bus_state_list:
             save_dict[bus.name][state_var] = {}
+        if bus.ev_park is not None:
+            save_dict[bus.ev_park.name] = {}
+            for state_var in ev_park_state_list:
+                save_dict[bus.ev_park.name][state_var] = {}
     return save_dict
 
 
@@ -422,6 +446,16 @@ def update_monte_carlo_comp_history(
         }
         for state_var, value in bus_state_dict.items():
             save_dict[bus.name][state_var][it] = value
+        if bus.ev_park is not None:
+            ev_park_state_dict = {
+                "acc_num_interruptions": bus.ev_park.acc_num_interruptions,
+                "acc_exp_interruptions": bus.ev_park.acc_exp_interruptions,
+                "acc_exp_car_interruptions": bus.ev_park.acc_exp_car_interruptions,
+                "acc_interruption_duration": bus.ev_park.acc_interruption_duration,
+                "acc_num_cars": bus.ev_park.acc_num_cars,
+            }
+            for state_var, value in ev_park_state_dict.items():
+                save_dict[bus.ev_park.name][state_var][it] = value
     return save_dict
 
 
@@ -561,4 +595,16 @@ def merge_monte_carlo_comp_history(
             save_dict[bus.name][state_var][it] = it_dict[bus.name][state_var][
                 it
             ]
+        if bus.ev_park is not None:
+            ev_park_state_dict = {
+                "acc_num_interruptions": bus.ev_park.acc_num_interruptions,
+                "acc_exp_interruptions": bus.ev_park.acc_exp_interruptions,
+                "acc_exp_car_interruptions": bus.ev_park.acc_exp_car_interruptions,
+                "acc_interruption_duration": bus.ev_park.acc_interruption_duration,
+                "acc_num_cars": bus.ev_park.acc_num_cars,
+            }
+            for state_var in ev_park_state_dict.keys():
+                save_dict[bus.ev_park.name][state_var][it] = it_dict[
+                    bus.ev_park.name
+                ][state_var][it]
     return save_dict

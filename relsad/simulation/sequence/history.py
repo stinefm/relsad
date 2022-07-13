@@ -435,6 +435,7 @@ def plot_ev_park_history(ev_parks, save_dir: str):
         "acc_exp_interruptions",
         "acc_exp_car_interruptions",
         "acc_interruption_duration",
+        "acc_num_cars",
     ]
     for state_var in whole_state_list:
         plot_history(ev_parks, state_var, save_dir)
@@ -467,6 +468,7 @@ def save_ev_park_history(ev_parks, save_dir: str):
         "acc_exp_interruptions",
         "acc_exp_car_interruptions",
         "acc_interruption_duration",
+        "acc_num_cars",
     ]
     for state_var in whole_state_list:
         save_history(ev_parks, state_var, save_dir)

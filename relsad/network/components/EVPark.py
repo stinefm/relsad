@@ -406,6 +406,7 @@ class EVPark(Component):
         self.history["acc_exp_interruptions"] = {}
         self.history["acc_exp_car_interruptions"] = {}
         self.history["acc_interruption_duration"] = {}
+        self.history["acc_num_cars"] = {}
 
     def update_history(
         self, prev_time: Time, curr_time: Time, save_flag: bool
@@ -480,6 +481,7 @@ class EVPark(Component):
             self.history["acc_interruption_duration"][
                 curr_time
             ] = self.acc_interruption_duration
+            self.history["acc_num_cars"][curr_time] = self.acc_num_cars
 
     def get_history(self, attribute: str):
         """
