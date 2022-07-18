@@ -192,13 +192,11 @@ def EV_Interruption(network: Network):
     """
     interruptions_x_num_cars = sum(
         [
-            ev_park.acc_exp_interruptions * ev_park.acc_num_cars
+            ev_park.acc_exp_interruptions * ev_park.num_cars
             for ev_park in network.ev_parks
         ]
     )
-    total_num_cars = sum(
-        [ev_park.acc_num_cars for ev_park in network.ev_parks]
-    )
+    total_num_cars = sum([ev_park.num_cars for ev_park in network.ev_parks])
     if total_num_cars == 0:
         ev_interruption = 0
     else:

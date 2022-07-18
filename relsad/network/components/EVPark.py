@@ -50,16 +50,18 @@ class EVPark(Component):
         Current active power that are being charged/dischared [MW]
     curr_q_charge : float
         Current reactive power that are being charged/dischared [MVar]
-    cars : list
-        List of cars in the EV park
+    available_cars : list
+        List of available cars in the EV park
+    available_num_cars : int
+        Number of available cars in the EV park
     num_cars : int
         Number of cars in the EV park
     num_consecutive_interruptions : int
         Number of consecutive interruptions experienced by the EV park
     park_interruption_fraction : float
         Fraction of interruption experienced by the EV park
-    acc_num_cars : int
-        Accumulated number of cars in EV park
+    acc_available_num_cars : int
+        Accumulated available number of cars in EV park
     acc_num_interruptions : float
         Accumulated number of interruptions experienced by the EV park
     acc_exp_interruptions : float
@@ -180,13 +182,14 @@ class EVPark(Component):
 
         self.v2g_flag = v2g_flag
 
-        self.cars = list()
-        self.num_cars = 0
+        self.available_cars = list()
+        self.available_num_cars = 0
+        self.num_cars = round(max(self.num_ev_dist.y))
 
         ## Reliability attributes
         self.num_consecutive_interruptions = 0
         self.park_interruption_fraction = 0
-        self.acc_num_cars = 0
+        self.acc_available_num_cars = 0
         self.acc_num_interruptions = 0
         self.curr_exp_interruptions = 0
         self.acc_exp_interruptions = 0
@@ -228,18 +231,20 @@ class EVPark(Component):
 
         """
         # Draw number of cars in the EV park
-        self.num_cars = round(self.num_ev_dist.get_value(hour_of_day))
+        self.available_num_cars = round(
+            self.num_ev_dist.get_value(hour_of_day)
+        )
 
         # Draw the SOC states of the cars in the EV park
         soc_states = self.ps_random.uniform(
             low=self.SOC_min,
             high=self.SOC_max,
-            size=self.num_cars,
+            size=self.available_num_cars,
         )
 
         # Create the current cars in the EV park with
         # their respective status
-        self.cars = [
+        self.available_cars = [
             Battery(
                 name="ev{:d}_{}".format(i, self.name),
                 bus=self.bus,
@@ -253,7 +258,7 @@ class EVPark(Component):
                 random_instance=self.ps_random,
                 SOC_start=soc_states[i],
             )
-            for i in range(self.num_cars)
+            for i in range(self.available_num_cars)
         ]
 
     def update(
@@ -289,12 +294,12 @@ class EVPark(Component):
         """
         if fail_duration == dt:
             self.draw_current_state(hour_of_day)
-            self.acc_num_cars += self.num_cars
+            self.acc_available_num_cars += self.available_num_cars
 
         # Update car batteries based on system balance
         p_start = p
         q_start = q
-        for car in self.cars:
+        for car in self.available_cars:
             if self.v2g_flag is True:
                 # Vehicle to grid: allow charge and discharge
                 p, q = car.update_bus_load_and_prod(p, q, dt)
@@ -339,7 +344,7 @@ class EVPark(Component):
         """
         curr_p_demand = 0
         curr_q_demand = 0
-        for car in self.cars:
+        for car in self.available_cars:
             curr_p_demand += min(
                 car.inj_p_max,
                 (car.E_max * car.SOC_max - car.E_battery) / dt.get_hours(),
@@ -361,9 +366,9 @@ class EVPark(Component):
 
         """
 
-        if self.num_cars <= 0:
+        if self.available_num_cars <= 0:
             return 0
-        mean_SOC = np.mean([car.SOC for car in self.cars])
+        mean_SOC = np.mean([car.SOC for car in self.available_cars])
         return mean_SOC
 
     def get_ev_index(self):
@@ -401,12 +406,13 @@ class EVPark(Component):
         self.history["demand"] = {}
         self.history["charge"] = {}
         self.history["num_cars"] = {}
+        self.history["available_num_cars"] = {}
         self.history["park_interruption_fraction"] = {}
         self.history["acc_num_interruptions"] = {}
         self.history["acc_exp_interruptions"] = {}
         self.history["acc_exp_car_interruptions"] = {}
         self.history["acc_interruption_duration"] = {}
-        self.history["acc_num_cars"] = {}
+        self.history["acc_available_num_cars"] = {}
 
     def update_history(
         self, prev_time: Time, curr_time: Time, save_flag: bool
@@ -429,17 +435,17 @@ class EVPark(Component):
         """
         dt = curr_time - prev_time if prev_time is not None else curr_time
         # Accumulate fraction of interupted customers
-        self.park_interruption_fraction = (
-            abs(self.curr_p_charge / (self.inj_p_max * self.num_cars))
+        self.curr_exp_car_interruptions = (
+            abs(self.curr_p_charge / self.inj_p_max)
             if self.curr_p_charge < 0
             else 0
+        )
+        self.park_interruption_fraction = (
+            self.curr_exp_car_interruptions / self.num_cars
         )
 
         if self.park_interruption_fraction > 0:
             self.curr_exp_interruptions += self.park_interruption_fraction
-            self.curr_exp_car_interruptions += (
-                self.park_interruption_fraction * self.num_cars
-            )
             self.num_consecutive_interruptions += 1
             self.curr_interruption_duration += dt
         else:
@@ -466,6 +472,9 @@ class EVPark(Component):
             self.history["demand"][curr_time] = self.curr_p_demand
             self.history["charge"][curr_time] = self.curr_p_charge
             self.history["num_cars"][curr_time] = self.num_cars
+            self.history["available_num_cars"][
+                curr_time
+            ] = self.available_num_cars
             self.history["park_interruption_fraction"][
                 curr_time
             ] = self.park_interruption_fraction
@@ -481,7 +490,9 @@ class EVPark(Component):
             self.history["acc_interruption_duration"][
                 curr_time
             ] = self.acc_interruption_duration.get_hours()
-            self.history["acc_num_cars"][curr_time] = self.acc_num_cars
+            self.history["acc_available_num_cars"][
+                curr_time
+            ] = self.acc_available_num_cars
 
     def get_history(self, attribute: str):
         """
@@ -574,12 +585,12 @@ class EVPark(Component):
         self.curr_q_demand = 0
         self.curr_p_charge = 0
         self.curr_q_charge = 0
-        self.cars.clear()
-        self.num_cars = 0
+        self.available_cars.clear()
+        self.available_num_cars = 0
         ## Reliability attributes
         self.num_consecutive_interruptions = 0
         self.park_interruption_fraction = 0
-        self.acc_num_cars = 0
+        self.acc_available_num_cars = 0
         self.acc_num_interruptions = 0
         self.curr_exp_interruptions = 0
         self.acc_exp_interruptions = 0

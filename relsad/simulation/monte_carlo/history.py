@@ -148,7 +148,8 @@ def save_network_monte_carlo_history(
         "acc_exp_interruptions",
         "acc_exp_car_interruptions",
         "acc_interruption_duration",
-        "acc_num_cars",
+        "acc_available_num_cars",
+        "num_cars",
     ]
     for bus in power_system.buses:
         bus_save_dir = os.path.join(save_dir, bus.name)
@@ -243,7 +244,8 @@ def initialize_monte_carlo_history(power_system: PowerSystem):
         "acc_exp_interruptions",
         "acc_exp_car_interruptions",
         "acc_interruption_duration",
-        "acc_num_cars",
+        "acc_available_num_cars",
+        "num_cars",
     ]
     for bus in power_system.buses:
         save_dict[bus.name] = {}
@@ -472,7 +474,8 @@ def update_monte_carlo_comp_history(
                 "acc_exp_interruptions": bus.ev_park.acc_exp_interruptions,
                 "acc_exp_car_interruptions": bus.ev_park.acc_exp_car_interruptions,
                 "acc_interruption_duration": bus.ev_park.acc_interruption_duration.get_hours(),
-                "acc_num_cars": bus.ev_park.acc_num_cars,
+                "acc_available_num_cars": bus.ev_park.acc_available_num_cars,
+                "num_cars": bus.ev_park.num_cars,
             }
             for state_var, value in ev_park_state_dict.items():
                 save_dict[bus.ev_park.name][state_var][it] = value
@@ -620,7 +623,8 @@ def merge_monte_carlo_comp_history(
                 "acc_exp_interruptions",
                 "acc_exp_car_interruptions",
                 "acc_interruption_duration",
-                "acc_num_cars",
+                "acc_available_num_cars",
+                "num_cars",
             ]
             for state_var in ev_park_state_list:
                 save_dict[bus.ev_park.name][state_var][it] = it_dict[
