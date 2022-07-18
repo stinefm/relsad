@@ -250,20 +250,35 @@ class Simulation:
             Dictionary with simulation results
 
         """
+        # Initiate random instance
         if random_seed is None:
             random_instance = np.random.default_rng()
         else:
             random_instance = np.random.default_rng(random_seed)
+
+        # Distribute random instance to power system components
         self.distribute_random_instance(random_instance)
+
+        # Initialize monte carlo history variables
         save_dict = initialize_monte_carlo_history(self.power_system)
+
+        # Print current iteration
         print("it: {}".format(it), flush=True)
+
+        # Reset power system
         save_flag = it in save_iterations
         reset_system(self.power_system, save_flag)
+
+        # Run iteration sequence
         self.run_sequence(start_time, time_array, time_unit, save_flag)
+
+        # Update monte carlo history variables
+        sim_duration = Time(time_array[-1], time_unit)
         save_dict = update_monte_carlo_power_system_history(
-            self.power_system, it, time_unit, save_dict
+            self.power_system, it, sim_duration, save_dict
         )
         if save_flag:
+            # Save iteration history
             save_iteration_history(self.power_system, it, save_dir)
         return save_dict
 
@@ -308,18 +323,30 @@ class Simulation:
         None
 
         """
+        # Initialize random seeds
         ss = SeedSequence(self.random_seed)
         child_seeds = ss.spawn(iterations)
+
+        # Create power system sections
         self.power_system.create_sections()
+
+        # Set up time increments based on defined period
         increments = int((stop_time - start_time) / time_step)
+        sim_duration = increments * time_step.get_unit_quantity(time_unit)
         time_array = np.arange(
-            stop=increments * time_step.get_unit_quantity(time_unit),
+            stop=sim_duration,
             step=time_step.get_unit_quantity(time_unit),
         )
         time_array_indices = np.arange(increments)
+
+        # Prepare load and production data
         self.power_system.prepare_load_data(time_array_indices)
         self.power_system.prepare_prod_data(time_array_indices)
+
+        # Initialize history variables
         initialize_history(self.power_system)
+
+        # Run iterations
         if debug:
             it_dicts = []
             for it in range(1, iterations + 1):
@@ -351,11 +378,13 @@ class Simulation:
                         for it in range(1, iterations + 1)
                     ],
                 )
+
+        # Merge monte carlo history variables from iterations
         save_dict = merge_monte_carlo_history(
             self.power_system,
-            time_unit,
             it_dicts,
         )
+        # Save monte carlo history variables
         save_network_monte_carlo_history(
             self.power_system,
             os.path.join(save_dir, "monte_carlo"),

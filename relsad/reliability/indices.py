@@ -1,7 +1,7 @@
 import numpy as np
 from relsad.network.systems import Network
 from relsad.utils import eq
-from relsad.Time import TimeUnit
+from relsad.Time import Time
 
 
 def SAIFI(network: Network):
@@ -15,7 +15,7 @@ def SAIFI(network: Network):
 
     Returns
     ----------
-    interrupted_customers/total_customers : float
+    saifi : float
         The SAIFI value
 
     """
@@ -24,11 +24,13 @@ def SAIFI(network: Network):
     )
     total_customers = sum([bus.n_customers for bus in network.buses])
     if total_customers == 0:
-        return 0
-    return interrupted_customers / total_customers
+        saifi = 0
+    else:
+        saifi = interrupted_customers / total_customers
+    return saifi
 
 
-def SAIDI(network: Network, time_unit: TimeUnit):
+def SAIDI(network: Network):
     """
     Returns the current SAIDI (System average interruption duration index)
 
@@ -36,18 +38,16 @@ def SAIDI(network: Network, time_unit: TimeUnit):
     ----------
     network : Network
         A Network element
-    time_unit : TimeUnit
-        A time unit (hour, seconds, ect)
 
     Returns
     ----------
-    sum_outage_time_x_n_customer/total_customers : float
+    saidi : float
         The SAIDI value
 
     """
     sum_outage_time_x_n_customer = sum(
         [
-            bus.acc_outage_time.get_unit_quantity(time_unit) * bus.n_customers
+            bus.acc_outage_time.get_hours() * bus.n_customers
             for bus in network.buses
             if bus.acc_interruptions > 0
         ]
@@ -56,11 +56,13 @@ def SAIDI(network: Network, time_unit: TimeUnit):
         [bus.n_customers for bus in network.buses if bus.acc_interruptions > 0]
     )
     if total_customers == 0:
-        return 0
-    return sum_outage_time_x_n_customer / total_customers
+        saidi = 0
+    else:
+        saidi = sum_outage_time_x_n_customer / total_customers
+    return saidi
 
 
-def CAIDI(network: Network, time_unit: TimeUnit):
+def CAIDI(network: Network):
     """
     Returns the current CAIFI (Customer average interruption duration index)
 
@@ -68,23 +70,63 @@ def CAIDI(network: Network, time_unit: TimeUnit):
     ----------
     network : Network
         A Network element
-    time_unit : TimeUnit
-        A time unit (hour, seconds, ect)
 
     Returns
     ----------
-    SAIDI(network, time_unit)/SAIFI(network) : float
+    caidi : float
         The CAIDI value
 
     """
     saifi = SAIFI(network)
     if not eq(saifi, 0):
-        return SAIDI(network, time_unit) / saifi
+        caidi = SAIDI(network) / saifi
     else:
-        return 0
+        caidi = 0
+    return caidi
 
 
-def EENS(network):
+def ASUI(network: Network, current_time: Time):
+    """
+    Returns the current ASUI (average service unavailability index)
+
+    Parameters
+    ----------
+    network : Network
+        A Network element
+    current_time : Time
+        Current time
+
+    Returns
+    ----------
+    asui : float
+        The ASUI value
+    """
+    hours = current_time.get_hours()
+    asui = SAIDI(network) / hours
+    return asui
+
+
+def ASAI(network: Network, current_time: Time):
+    """
+    Returns the current ASAI (average service avaialbility index)
+
+    Parameters
+    ----------
+    network : Network
+        A Network element
+    current_time : Time
+        Current time
+
+    Returns
+    ----------
+    asai : float
+        The ASAI value
+    """
+    asai = 1 - ASUI(network, current_time)
+    return asai
+
+
+def ENS(network):
     """
     Returns the current ENS (Energy not Supplied)
 
@@ -95,7 +137,7 @@ def EENS(network):
 
     Returns
     ----------
-    sum_outage_time_x_load_shed/total_customers : float
+    ens : float
         The ENS value
 
     """
@@ -105,8 +147,10 @@ def EENS(network):
     )
     total_customers = sum([bus.n_customers for bus in network.buses])
     if total_customers == 0:
-        return 0
-    return sum_outage_time_x_load_shed / total_customers
+        ens = 0
+    else:
+        ens = sum_outage_time_x_load_shed / total_customers
+    return ens
 
 
 def EV_Index(network: Network):
@@ -147,16 +191,10 @@ def EV_Interruption(network: Network):
 
     """
     interrupted_cars = sum(
-        [
-            ev_park.acc_exp_car_interruptions
-            for ev_park in network.ev_parks
-        ]
+        [ev_park.acc_exp_car_interruptions for ev_park in network.ev_parks]
     )
     total_num_cars = sum(
-        [
-            ev_park.acc_num_cars
-            for ev_park in network.ev_parks
-        ]
+        [ev_park.acc_num_cars for ev_park in network.ev_parks]
     )
     if total_num_cars == 0:
         return 0
@@ -164,7 +202,7 @@ def EV_Interruption(network: Network):
     return ev_interruption
 
 
-def EV_Duration(network: Network, time_unit: TimeUnit):
+def EV_Duration(network: Network):
     """
     Returns the current EV Duration. Reflects the average duration of an EV car
     interruption for grid support
@@ -173,8 +211,6 @@ def EV_Duration(network: Network, time_unit: TimeUnit):
     ----------
     network : Network
         A Network element
-    time_unit : TimeUnit
-        A time unit (hour, seconds, ect.)
 
     Returns
     ----------
@@ -184,7 +220,7 @@ def EV_Duration(network: Network, time_unit: TimeUnit):
     """
     sum_interruption_duration = sum(
         [
-            ev_park.acc_interruption_duration.get_unit_quantity(time_unit)
+            ev_park.acc_interruption_duration.get_hours()
             for ev_park in network.ev_parks
         ]
     )

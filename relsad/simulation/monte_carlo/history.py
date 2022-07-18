@@ -1,6 +1,6 @@
 import os
 import copy
-from relsad.Time import TimeUnit
+from relsad.Time import Time
 from relsad.network.systems import (
     PowerSystem,
 )
@@ -28,7 +28,9 @@ from relsad.reliability.indices import (
     SAIFI,
     SAIDI,
     CAIDI,
-    EENS,
+    ASAI,
+    ASUI,
+    ENS,
     EV_Index,
     EV_Interruption,
     EV_Duration,
@@ -57,7 +59,9 @@ def plot_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
         "SAIFI",
         "SAIDI",
         "CAIDI",
-        "EENS",
+        "ASAI",
+        "ASUI",
+        "ENS",
         "EV_Index",
         "EV_Interruption",
         "EV_Duration",
@@ -113,7 +117,9 @@ def save_network_monte_carlo_history(
         "SAIFI",
         "SAIDI",
         "CAIDI",
-        "EENS",
+        "ASAI",
+        "ASUI",
+        "ENS",
         "EV_Index",
         "EV_Interruption",
         "EV_Duration",
@@ -196,7 +202,9 @@ def initialize_monte_carlo_history(power_system: PowerSystem):
         "SAIFI",
         "SAIDI",
         "CAIDI",
-        "EENS",
+        "ASAI",
+        "ASUI",
+        "ENS",
         "EV_Index",
         "EV_Interruption",
         "EV_Duration",
@@ -308,7 +316,10 @@ def save_iteration_history(power_system: PowerSystem, it: int, save_dir: str):
 
 
 def update_monte_carlo_power_system_history(
-    power_system: PowerSystem, it: int, time_unit: TimeUnit, save_dict: dict
+    power_system: PowerSystem,
+    it: int,
+    current_time: Time,
+    save_dict: dict,
 ):
     """
     Updates the history dictionary from the Monte Carlo simulation
@@ -319,8 +330,8 @@ def update_monte_carlo_power_system_history(
         A power system element
     it : int
         The iteration number
-    time_unit : TimeUnit
-        A time unit (hour, seconds, ect.)
+    current_time : Time
+        Current time
     save_dict : dict
         Dictionary with simulation results
 
@@ -334,24 +345,29 @@ def update_monte_carlo_power_system_history(
         "acc_p_load_shed": power_system.acc_p_load_shed,
         "acc_q_load_shed": power_system.acc_q_load_shed,
         "SAIFI": SAIFI(power_system),
-        "SAIDI": SAIDI(power_system, time_unit),
-        "CAIDI": CAIDI(power_system, time_unit),
-        "EENS": EENS(power_system),
+        "SAIDI": SAIDI(power_system),
+        "CAIDI": CAIDI(power_system),
+        "ASAI": ASAI(power_system, current_time),
+        "ASUI": ASUI(power_system, current_time),
+        "ENS": ENS(power_system),
         "EV_Index": EV_Index(power_system),
         "EV_Interruption": EV_Interruption(power_system),
-        "EV_Duration": EV_Duration(power_system, time_unit),
+        "EV_Duration": EV_Duration(power_system),
     }
     for state_var, value in network_state_dict.items():
         save_dict[power_system.name][state_var][it] = value
     save_dict = update_monte_carlo_child_network_history(
-        power_system, it, time_unit, save_dict
+        power_system, it, current_time, save_dict
     )
     save_dict = update_monte_carlo_comp_history(power_system, it, save_dict)
     return save_dict
 
 
 def update_monte_carlo_child_network_history(
-    power_system: PowerSystem, it: int, time_unit: TimeUnit, save_dict: dict
+    power_system: PowerSystem,
+    it: int,
+    current_time: Time,
+    save_dict: dict,
 ):
     """
     Updates the history dictionary for the child networks in the Monte Carlo simulation
@@ -362,8 +378,8 @@ def update_monte_carlo_child_network_history(
         A power system element
     it : int
         The iteration number
-    time_unit : TimeUnit
-        A time unit (hour, seconds, ect.)
+    current_time : Time
+        Current time
     save_dict : dict
         Dictionary with simulation results
 
@@ -378,12 +394,14 @@ def update_monte_carlo_child_network_history(
             "acc_p_load_shed": network.acc_p_load_shed,
             "acc_q_load_shed": network.acc_q_load_shed,
             "SAIFI": SAIFI(network),
-            "SAIDI": SAIDI(network, time_unit),
-            "CAIDI": CAIDI(network, time_unit),
-            "EENS": EENS(network),
+            "SAIDI": SAIDI(network),
+            "CAIDI": CAIDI(network),
+            "ASAI": ASAI(network, current_time),
+            "ASUI": ASUI(network, current_time),
+            "ENS": ENS(network),
             "EV_Index": EV_Index(network),
             "EV_Interruption": EV_Interruption(network),
-            "EV_Duration": EV_Duration(network, time_unit),
+            "EV_Duration": EV_Duration(network),
         }
         for state_var, value in network_state_dict.items():
             save_dict[network.name][state_var][it] = value
@@ -391,7 +409,9 @@ def update_monte_carlo_child_network_history(
 
 
 def update_monte_carlo_comp_history(
-    power_system: PowerSystem, it: int, save_dict: dict
+    power_system: PowerSystem,
+    it: int,
+    save_dict: dict,
 ):
     """
     Updates the component values for the system from the Monte Carlo simulation
@@ -426,7 +446,8 @@ def update_monte_carlo_comp_history(
 
 
 def merge_monte_carlo_history(
-    power_system: PowerSystem, time_unit: TimeUnit, iteration_dicts: list
+    power_system: PowerSystem,
+    iteration_dicts: list,
 ):
     """
     Merges the Monte Carlo history from all the iterations in the simulation
@@ -435,8 +456,6 @@ def merge_monte_carlo_history(
     ----------
     power_system : PowerSystem
         A power system element
-    time_unit : TimeUnit
-        A time unit (hour, seconds, ect.)
     iteration_dicts : list
         List containing information about all the iterations
 
@@ -447,29 +466,27 @@ def merge_monte_carlo_history(
 
     """
     save_dict = copy.deepcopy(iteration_dicts[0])
-    network_state_dict = {
-        "acc_p_load_shed": power_system.acc_p_load_shed,
-        "acc_q_load_shed": power_system.acc_q_load_shed,
-        "SAIFI": SAIFI(power_system),
-        "SAIDI": SAIDI(power_system, time_unit),
-        "CAIDI": CAIDI(power_system, time_unit),
-        "EENS": EENS(power_system),
-        "EV_Index": EV_Index(power_system),
-        "EV_Interruption": EV_Interruption(power_system),
-        "EV_Duration": EV_Duration(power_system, time_unit),
-    }
+    network_state_list = [
+        "acc_p_load_shed",
+        "acc_q_load_shed",
+        "SAIFI",
+        "SAIDI",
+        "CAIDI",
+        "ASAI",
+        "ASUI",
+        "ENS",
+        "EV_Index",
+        "EV_Interruption",
+        "EV_Duration",
+    ]
     for it_dict in iteration_dicts:
-        it = list(
-            it_dict[power_system.name][
-                list(network_state_dict.keys())[0]
-            ].keys()
-        )[0]
-        for state_var in network_state_dict.keys():
+        it = list(it_dict[power_system.name][network_state_list[0]].keys())[0]
+        for state_var in network_state_list:
             save_dict[power_system.name][state_var][it] = it_dict[
                 power_system.name
             ][state_var][it]
         save_dict = merge_monte_carlo_child_network_history(
-            power_system, it_dict, it, time_unit, save_dict
+            power_system, it_dict, it, save_dict
         )
         save_dict = merge_monte_carlo_comp_history(
             power_system, it_dict, it, save_dict
@@ -481,7 +498,6 @@ def merge_monte_carlo_child_network_history(
     power_system: PowerSystem,
     it_dict: dict,
     it: int,
-    time_unit: TimeUnit,
     save_dict: dict,
 ):
     """
@@ -495,8 +511,6 @@ def merge_monte_carlo_child_network_history(
         Dictionary with iteration results
     it : int
         Iteration number
-    time_unit : TimeUnit
-        Time unit
     save_dict : dict
         Dictionary with simulation results
 
@@ -507,18 +521,20 @@ def merge_monte_carlo_child_network_history(
 
     """
     for network in power_system.child_network_list:
-        network_state_dict = {
-            "acc_p_load_shed": network.acc_p_load_shed,
-            "acc_q_load_shed": network.acc_q_load_shed,
-            "SAIFI": SAIFI(network),
-            "SAIDI": SAIDI(network, time_unit),
-            "CAIDI": CAIDI(network, time_unit),
-            "EENS": EENS(network),
-            "EV_Index": EV_Index(network),
-            "EV_Interruption": EV_Interruption(network),
-            "EV_Duration": EV_Duration(network, time_unit),
-        }
-        for state_var in network_state_dict.keys():
+        network_state_list = [
+            "acc_p_load_shed",
+            "acc_q_load_shed",
+            "SAIFI",
+            "SAIDI",
+            "CAIDI",
+            "ASAI",
+            "ASUI",
+            "ENS",
+            "EV_Index",
+            "EV_Interruption",
+            "EV_Duration",
+        ]
+        for state_var in network_state_list:
             save_dict[network.name][state_var][it] = it_dict[network.name][
                 state_var
             ][it]
@@ -526,7 +542,10 @@ def merge_monte_carlo_child_network_history(
 
 
 def merge_monte_carlo_comp_history(
-    power_system: PowerSystem, it_dict: dict, it: int, save_dict: dict
+    power_system: PowerSystem,
+    it_dict: dict,
+    it: int,
+    save_dict: dict,
 ):
     """
     Initializes the lists used for history variables from the Monte Carlo simulation
@@ -549,15 +568,15 @@ def merge_monte_carlo_comp_history(
 
     """
     for bus in power_system.buses:
-        bus_state_dict = {
-            "acc_p_load_shed": bus.acc_p_load_shed,
-            "acc_q_load_shed": bus.acc_q_load_shed,
-            "avg_outage_time": bus.avg_outage_time,
-            "acc_outage_time": bus.acc_outage_time,
-            "interruption_fraction": bus.interruption_fraction,
-            "acc_interruptions": bus.acc_interruptions,
-        }
-        for state_var in bus_state_dict.keys():
+        bus_state_list = [
+            "acc_p_load_shed",
+            "acc_q_load_shed",
+            "avg_outage_time",
+            "acc_outage_time",
+            "interruption_fraction",
+            "acc_interruptions",
+        ]
+        for state_var in bus_state_list:
             save_dict[bus.name][state_var][it] = it_dict[bus.name][state_var][
                 it
             ]
