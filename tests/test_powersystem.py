@@ -86,7 +86,7 @@ def initialize_network(
     if n_sections >= 4:
         Disconnector("D4", L4, B4)
     if n_sections >= 5:
-        Disconnector("D5", L5, B5)
+        Disconnector("D5", L5, B3)
 
     CircuitBreaker("E1", L1)
 

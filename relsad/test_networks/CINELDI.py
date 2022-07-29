@@ -787,7 +787,7 @@ def initialize_network(
     )
     L3 = Line(
         name="L3",
-        fbus=B2,
+        fbus=B3,
         tbus=B4,
         r=0.7114,
         x=0.2351,

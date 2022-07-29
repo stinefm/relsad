@@ -585,7 +585,7 @@ def test_L2_fail():
     assert ps.get_comp("L3").connected is True
     assert ps.get_comp("L4").connected is True
     assert ps.get_comp("L5").connected is True
-    assert ps.get_comp("L6").connected is True
+    assert ps.get_comp("L6").connected is False
     assert ps.get_comp("L7").connected is True
     assert ps.get_comp("ML1").connected is True
     assert ps.get_comp("ML2").connected is True
@@ -601,8 +601,8 @@ def test_L2_fail():
     assert ps.get_comp("L4b").is_open is False
     assert ps.get_comp("L5a").is_open is False
     assert ps.get_comp("L5b").is_open is False
-    assert ps.get_comp("L6a").is_open is False
-    assert ps.get_comp("L6b").is_open is False
+    assert ps.get_comp("L6a").is_open is True
+    assert ps.get_comp("L6b").is_open is True
     assert ps.get_comp("E2").is_open is False
     assert ps.get_comp("L7a").is_open is False
     assert ps.get_comp("L7b").is_open is False
@@ -1266,7 +1266,7 @@ def test_L2_L1_fail():
     assert ps.get_comp("L3").connected is True
     assert ps.get_comp("L4").connected is True
     assert ps.get_comp("L5").connected is True
-    assert ps.get_comp("L6").connected is True
+    assert ps.get_comp("L6").connected is False
     assert ps.get_comp("L7").connected is True
     assert ps.get_comp("ML1").connected is True
     assert ps.get_comp("ML2").connected is True
@@ -1282,8 +1282,8 @@ def test_L2_L1_fail():
     assert ps.get_comp("L4b").is_open is False
     assert ps.get_comp("L5a").is_open is False
     assert ps.get_comp("L5b").is_open is False
-    assert ps.get_comp("L6a").is_open is False
-    assert ps.get_comp("L6b").is_open is False
+    assert ps.get_comp("L6a").is_open is True
+    assert ps.get_comp("L6b").is_open is True
     assert ps.get_comp("E2").is_open is False
     assert ps.get_comp("L7a").is_open is False
     assert ps.get_comp("L7b").is_open is False

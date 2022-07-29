@@ -106,6 +106,11 @@ class Disconnector(Component):
             )
         if bus is None:
             raise Exception("Disconnector must be connected to a Bus")
+        if bus not in [line.fbus, line.tbus]:
+            raise Exception(
+                "Disconnector must be connected to a base bus connected "
+                "to the line it is located on"
+            )
         if fail_rate < 0:
             raise Exception("The failure rate must be positive")
 
