@@ -2,8 +2,10 @@ import numpy as np
 from relsad.network.components import (
     Bus,
     Line,
+    ICTNode,
+    ICTLine,
 )
-from relsad.network.systems import Network
+from relsad.network.systems import PowerNetwork
 from .Transmission import Transmission
 from relsad.utils import (
     eq,
@@ -11,13 +13,13 @@ from relsad.utils import (
     INF,
 )
 from relsad.Time import Time
-from relsad.topology.paths import (
+from relsad.topology.sectioning import (
     create_sections,
     get_section_list,
 )
 
 
-class PowerSystem(Network):
+class PowerSystem(PowerNetwork):
     """
     Class defining a power system type
 
@@ -29,14 +31,14 @@ class PowerSystem(Network):
         Name of the power system
     slack : Bus
         Slack bus of the power system
-    p_load_shed : float
-        The active power load shed in the power system
-    acc_p_load_shed : float
-        The accumulated active power load shedding in the power system
-    q_load_shed : float
-        The reactive power load shed in the power system
-    acc_q_load_shed : float
-        The accumulated reactive power load shedding in the power system
+    p_energy_shed : float
+        The active power energy.shed in the power system
+    acc_p_energy_shed : float
+        The accumulated active power energy.shedding in the power system
+    q_energy_shed : float
+        The reactive power energy.shed in the power system
+    acc_q_energy_shed : float
+        The accumulated reactive power energy.shedding in the power system
     sub_systems : list
         List of all sub systems in the power system
     buses : list
@@ -47,6 +49,8 @@ class PowerSystem(Network):
         List of all batteries in the power system
     production : list
         List of all generation units in the power system
+    ict_nodes : list
+        List of all ICT nodes in the power system
     lines : list
         List of all lines in the power system
     sensors : list
@@ -57,6 +61,8 @@ class PowerSystem(Network):
         List of all disconnectors in the power system
     intelligent_switch : list
         List of all intelligent switches in the power system
+    ict_lines : list
+        List of all ICT lines in the power system
     controller : MainController
         The controller for the power system, either MainController or ManualMainController
     comp_list : list
@@ -75,13 +81,17 @@ class PowerSystem(Network):
     Methods
     ----------
     add_bus(bus)
-        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the power system
+        Adding a bus including elements on the bus (battery, generation unit, EV park) to the power system
     add_buses(buses)
         Adding buses to the power system
+    add_ict_node(ict_node)
+        Adding an ICT node to the power system
     add_line(line)
         Adding a line including elements on the line (sensor, circuit breaker, disconnector) to the power system
     add_lines(lines)
         Adding lines to the power system
+    add_ict_line(ict_line)
+        Adding an ICT line to the power system
     get_lines()
         Returns the lines in the power system
     get_comp(name)
@@ -124,8 +134,8 @@ class PowerSystem(Network):
         Returns the specified history variable from the Monte Carlo simulation
     get_history(attribute)
         Returns the specified history variable
-    reset_load_shed_variables()
-        Resets the load shed variables
+    reset_energy_shed_variables()
+        Resets the energy.shed variables
     verify_component_setup()
         Verifies the component setup in the power system
 
@@ -153,10 +163,10 @@ class PowerSystem(Network):
         # Load flow
         self.slack = None
         # Load shedding
-        self.p_load_shed = 0
-        self.acc_p_load_shed = 0
-        self.q_load_shed = 0
-        self.acc_q_load_shed = 0
+        self.p_energy_shed = 0
+        self.acc_p_energy_shed = 0
+        self.q_energy_shed = 0
+        self.acc_q_energy_shed = 0
         # Sub-systems
         self.sub_systems = list()
         # Components
@@ -164,11 +174,13 @@ class PowerSystem(Network):
         self.ev_parks = list()
         self.batteries = list()
         self.productions = list()
+        self.ict_nodes = list()
         self.lines = list()
         self.sensors = list()
         self.circuitbreakers = list()
         self.disconnectors = list()
         self.intelligent_switches = list()
+        self.ict_lines = list()
         self.controller = controller
         self.comp_list = list()
         self.comp_dict = dict()
@@ -199,7 +211,7 @@ class PowerSystem(Network):
 
     def add_bus(self, bus: Bus):
         """
-        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the power system
+        Adding a bus including elements on the bus (battery, generation unit, EV park) to the power system
 
         Parameters
         ----------
@@ -248,6 +260,26 @@ class PowerSystem(Network):
         """
         for bus in buses:
             self.add_bus(bus)
+
+    def add_ict_node(self, ict_node: ICTNode):
+        """
+        Adding an ICT node to the power system
+
+        Parameters
+        ----------
+        ict_node : ICTNode
+            An ICT node element
+
+        Returns
+        ----------
+        None
+
+        """
+        self.comp_dict[ict_node.name] = ict_node
+        self.comp_list.append(ict_node)
+        self.ict_nodes.append(ict_node)
+        self.ict_nodes = unique(self.ict_nodes)
+        self.comp_list = unique(self.comp_list)
 
     def add_line(self, line: Line):
         """
@@ -323,6 +355,26 @@ class PowerSystem(Network):
         for line in lines:
             self.add_line(line)
 
+    def add_ict_line(self, ict_line: ICTLine):
+        """
+        Adding an ICT line to the power system
+
+        Parameters
+        ----------
+        ict_line : ICTLine
+            An ICT line element
+
+        Returns
+        ----------
+        None
+
+        """
+        self.comp_dict[ict_line.name] = ict_line
+        self.comp_list.append(ict_line)
+        self.ict_lines.append(ict_line)
+        self.ict_lines = unique(self.ict_lines)
+        self.comp_list = unique(self.comp_list)
+
     def get_lines(self):
         """
         Returns the lines in the power system
@@ -384,7 +436,7 @@ class PowerSystem(Network):
 
         Parameters
         ----------
-        network : Network
+        network : PowerNetwork
             The child network of the power system
 
         Returns
@@ -542,6 +594,10 @@ class PowerSystem(Network):
             sensor.update_fail_status(dt)
         for intelligent_switch in self.intelligent_switches:
             intelligent_switch.update_fail_status(dt)
+        for ict_line in self.ict_lines:
+            ict_line.update_fail_status(dt)
+        for ict_node in self.ict_nodes:
+            ict_node.update_fail_status(dt)
         self.controller.update_fail_status(dt)
 
     def get_system_load(self):
@@ -729,9 +785,9 @@ class PowerSystem(Network):
         """
         return self.history[attribute]
 
-    def reset_load_shed_variables(self):
+    def reset_energy_shed_variables(self):
         """
-        Resets the load shed variables
+        Resets the energy.shed variables
 
         Parameters
         ----------
@@ -742,10 +798,10 @@ class PowerSystem(Network):
         None
 
         """
-        self.p_load_shed = 0
-        self.acc_p_load_shed = 0
-        self.q_load_shed = 0
-        self.acc_q_load_shed = 0
+        self.p_energy_shed = 0
+        self.acc_p_energy_shed = 0
+        self.q_energy_shed = 0
+        self.acc_q_energy_shed = 0
 
     def verify_component_setup(self):
         """

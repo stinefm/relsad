@@ -1,8 +1,8 @@
 from relsad.network.components import Bus, Line
-from .Network import Network
+from .PowerNetwork import PowerNetwork
 
 
-class Transmission(Network):
+class Transmission(PowerNetwork):
     """Class defining a transmission network type
 
     ...
@@ -23,14 +23,14 @@ class Transmission(Network):
         List with the sections in the transmission network
     ev_parks : list
         List with the EV parks in the transmission network
-    p_load_shed : float
-        The active power load shed in the transmission network
-    acc_p_load_shed : float
-        The accumulated active power load shedding in the transmission network
-    q_load_shed : float
-        The reactive power load shed in the transmission network
-    acc_q_load_shed : float
-        The accumulated reactive power load shedding in the transmission network
+    p_energy_shed : float
+        The active power energy.shed in the transmission network
+    acc_p_energy_shed : float
+        The accumulated active power energy.shedding in the transmission network
+    q_energy_shed : float
+        The reactive power energy.shed in the transmission network
+    acc_q_energy_shed : float
+        The accumulated reactive power energy.shedding in the transmission network
     history : dict
         Dictionary containing the history variables of the transmission network
     monte_carlo_history : dict
@@ -54,8 +54,8 @@ class Transmission(Network):
         Returns the specified history variable
     get_system_load()
         Returns the system load at the current time in MW and MVar
-    reset_load_shed_variables()
-        Resets the load shed variables
+    reset_energy_shed_variables()
+        Resets the energy.shed variables
 
     """
 
@@ -86,10 +86,10 @@ class Transmission(Network):
         trafo_bus.set_slack()
         parent_network.slack = trafo_bus
         # Load shedding
-        self.p_load_shed = 0
-        self.acc_p_load_shed = 0
-        self.q_load_shed = 0
-        self.acc_q_load_shed = 0
+        self.p_energy_shed = 0
+        self.acc_p_energy_shed = 0
+        self.q_energy_shed = 0
+        self.acc_q_energy_shed = 0
 
         ## History
         self.history: dict = {}
@@ -147,7 +147,7 @@ class Transmission(Network):
 
         Parameters
         ----------
-        network : Network
+        network : PowerNetwork
             A network
 
         Returns
@@ -243,9 +243,9 @@ class Transmission(Network):
             qload += q
         return pload, qload
 
-    def reset_load_shed_variables(self):
+    def reset_energy_shed_variables(self):
         """
-        Resets the load shed variables
+        Resets the energy.shed variables
 
         Parameters
         ----------
@@ -256,7 +256,7 @@ class Transmission(Network):
         None
 
         """
-        self.p_load_shed = 0
-        self.acc_p_load_shed = 0
-        self.q_load_shed = 0
-        self.acc_q_load_shed = 0
+        self.p_energy_shed = 0
+        self.acc_p_energy_shed = 0
+        self.q_energy_shed = 0
+        self.acc_q_energy_shed = 0

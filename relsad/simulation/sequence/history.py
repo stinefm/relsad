@@ -42,20 +42,20 @@ def update_history(
     """
     for network in power_system.child_network_list:
         for bus in network.buses:
-            network.p_load_shed += bus.p_load_shed_stack
-            network.q_load_shed += bus.q_load_shed_stack
-        power_system.p_load_shed += network.p_load_shed
-        power_system.q_load_shed += network.q_load_shed
-        network.acc_p_load_shed += network.p_load_shed
-        network.acc_q_load_shed += network.q_load_shed
-    power_system.acc_p_load_shed += power_system.p_load_shed
-    power_system.acc_q_load_shed += power_system.q_load_shed
+            network.p_energy_shed += bus.p_energy_shed_stack
+            network.q_energy_shed += bus.q_energy_shed_stack
+        power_system.p_energy_shed += network.p_energy_shed
+        power_system.q_energy_shed += network.q_energy_shed
+        network.acc_p_energy_shed += network.p_energy_shed
+        network.acc_q_energy_shed += network.q_energy_shed
+    power_system.acc_p_energy_shed += power_system.p_energy_shed
+    power_system.acc_q_energy_shed += power_system.q_energy_shed
     if save_flag:
         power_system_state_dict = {
-            "p_load_shed": power_system.p_load_shed,
-            "q_load_shed": power_system.p_load_shed,
-            "acc_p_load_shed": power_system.acc_p_load_shed,
-            "acc_q_load_shed": power_system.acc_q_load_shed,
+            "p_energy_shed": power_system.p_energy_shed,
+            "q_energy_shed": power_system.p_energy_shed,
+            "acc_p_energy_shed": power_system.acc_p_energy_shed,
+            "acc_q_energy_shed": power_system.acc_q_energy_shed,
             "p_load": power_system.get_system_load()[0],
             "q_load": power_system.get_system_load()[1],
         }
@@ -63,20 +63,20 @@ def update_history(
             power_system.history[state_var][curr_time] = value
         for network in power_system.child_network_list:
             network_state_dict = {
-                "p_load_shed": network.p_load_shed,
-                "q_load_shed": network.q_load_shed,
-                "acc_p_load_shed": network.acc_p_load_shed,
-                "acc_q_load_shed": network.acc_q_load_shed,
+                "p_energy_shed": network.p_energy_shed,
+                "q_energy_shed": network.q_energy_shed,
+                "acc_p_energy_shed": network.acc_p_energy_shed,
+                "acc_q_energy_shed": network.acc_q_energy_shed,
                 "p_load": network.get_system_load()[0],
                 "q_load": network.get_system_load()[1],
             }
             for state_var, value in network_state_dict.items():
                 network.history[state_var][curr_time] = value
-    power_system.p_load_shed = 0
-    power_system.q_load_shed = 0
+    power_system.p_energy_shed = 0
+    power_system.q_energy_shed = 0
     for network in power_system.child_network_list:
-        network.p_load_shed = 0
-        network.q_load_shed = 0
+        network.p_energy_shed = 0
+        network.q_energy_shed = 0
     for comp in power_system.comp_list:
         comp.update_history(prev_time, curr_time, save_flag)
     power_system.controller.update_history(prev_time, curr_time, save_flag)
@@ -351,16 +351,16 @@ def plot_bus_history(buses, save_dir: str):
         "qprod",
         "remaining_outage_time",
         "trafo_failed",
-        "p_load_shed_stack",
-        "q_load_shed_stack",
+        "p_energy_shed_stack",
+        "q_energy_shed_stack",
         "voang",
         "vomag",
     ]
     for state_var in whole_state_list:
         plot_history(buses, state_var, save_dir)
     last_state_list = [
-        "acc_p_load_shed",
-        "acc_q_load_shed",
+        "acc_p_energy_shed",
+        "acc_q_energy_shed",
         "avg_fail_rate",
         "avg_outage_time",
         "acc_outage_time",
@@ -393,12 +393,12 @@ def save_bus_history(buses, save_dir: str):
         "qprod",
         "remaining_outage_time",
         "trafo_failed",
-        "p_load_shed_stack",
-        "q_load_shed_stack",
+        "p_energy_shed_stack",
+        "q_energy_shed_stack",
         "voang",
         "vomag",
-        "acc_p_load_shed",
-        "acc_q_load_shed",
+        "acc_p_energy_shed",
+        "acc_q_energy_shed",
         "avg_fail_rate",
         "avg_outage_time",
         "acc_outage_time",
@@ -541,8 +541,8 @@ def plot_power_system_history(power_system: PowerSystem, save_dir: str):
 
     """
     whole_state_list = [
-        "p_load_shed",
-        "q_load_shed",
+        "p_energy_shed",
+        "q_energy_shed",
         "p_load",
         "q_load",
     ]
@@ -554,8 +554,8 @@ def plot_power_system_history(power_system: PowerSystem, save_dir: str):
         for state_var in whole_state_list:
             plot_history([network], state_var, network_save_dir)
     last_state_list = [
-        "acc_p_load_shed",
-        "acc_q_load_shed",
+        "acc_p_energy_shed",
+        "acc_q_energy_shed",
     ]
     power_system_save_dir = os.path.join(save_dir, power_system.name)
     for state_var in last_state_list:
@@ -585,10 +585,10 @@ def save_power_system_history(power_system: PowerSystem, save_dir: str):
 
     """
     whole_state_list = [
-        "p_load_shed",
-        "q_load_shed",
-        "acc_p_load_shed",
-        "acc_q_load_shed",
+        "p_energy_shed",
+        "q_energy_shed",
+        "acc_p_energy_shed",
+        "acc_q_energy_shed",
         "p_load",
         "q_load",
     ]
@@ -695,3 +695,107 @@ def save_system_controller_history(controllers, save_dir: str):
     ]
     for state_var in whole_state_list:
         save_history(controllers, state_var, save_dir)
+
+
+def plot_ict_line_history(lines, save_dir: str):
+    """
+    Plots the history of the ICT line
+
+    Parameters
+    ----------
+    lines : list
+        List of ICTLine elements
+    save_dir : str
+        The saving directory
+
+    Returns
+    ----------
+    None
+
+    """
+    whole_state_list = [
+        "remaining_outage_time",
+        "failed",
+    ]
+    for state_var in whole_state_list:
+        plot_history(lines, state_var, save_dir)
+
+
+def save_ict_line_history(lines, save_dir: str):
+    """
+    Saves the history of the ICT line
+
+    Parameters
+    ----------
+    lines : list
+        List of ICTLine elements
+    save_dir : str
+        The saving directory
+
+    Returns
+    ----------
+    None
+
+    """
+    whole_state_list = [
+        "remaining_outage_time",
+        "failed",
+    ]
+    for state_var in whole_state_list:
+        save_history(lines, state_var, save_dir)
+
+
+def plot_ict_node_history(nodes, save_dir: str):
+    """
+    Plots the history of the ICT node
+
+    Parameters
+    ----------
+    nodes : list
+        List of ICTNode elements
+    save_dir : str
+        The saving directory
+
+    Returns
+    ----------
+    None
+
+    """
+    whole_state_list = [
+        "remaining_outage_time",
+        "failed",
+        "avg_fail_rate",
+        "avg_outage_time",
+        "acc_outage_time",
+        "acc_interruptions",
+    ]
+    for state_var in whole_state_list:
+        plot_history(nodes, state_var, save_dir)
+
+
+def save_ict_node_history(nodes, save_dir: str):
+    """
+    Saves the history of the ICT node
+
+    Parameters
+    ----------
+    nodes : list
+        List of ICTNode elements
+    save_dir : str
+        The saving directory
+
+    Returns
+    ----------
+    None
+
+    """
+    whole_state_list = [
+        "remaining_outage_time",
+        "failed",
+        "avg_fail_rate",
+        "avg_outage_time",
+        "acc_outage_time",
+        "acc_interruptions",
+    ]
+    for state_var in whole_state_list:
+        save_history(nodes, state_var, save_dir)

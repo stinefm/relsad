@@ -1,10 +1,10 @@
 from relsad.network.components import Bus, Line, DistributionController
-from .Network import Network
+from .PowerNetwork import PowerNetwork
 from .PowerSystem import PowerSystem
 from relsad.utils import unique
 
 
-class Distribution(Network):
+class Distribution(PowerNetwork):
 
     """
     Class defining a distribution network type
@@ -21,7 +21,7 @@ class Distribution(Network):
         List containing the EV parks in the distribution network
     batteries : list
         List containing the batteries in the distribution network
-    porductions : list
+    productions : list
         List containing the generation units in the distribution network
     lines : list
         List containing the lines connected to the distribution network
@@ -39,21 +39,21 @@ class Distribution(Network):
         List containing the components in the distribution network
     comp_dict : dict
         Dictionary containing the components in the distribution network
-    parent_network : Network
+    parent_network : PowerNetwork
         The parent network of the distribution network
-    power_system : Network
-        Connects the distribution network to a power system ?
+    power_system : PowerNetwork
+        Connects the distribution network to a power system
     child_network_list : list
         List containing connected child networks to the distribution network
     failed_line : Bool
         Flag stating if the distribution network contains a failed line
-    p_load_shed : float
+    p_energy_shed : float
         Shedded active power load in the distribution network
-    acc_p_load_shed : float
+    acc_p_energy_shed : float
         The accumulated shedded active power load in the distribution network
-    q_load_shed : float
+    q_energy_shed : float
         Shedded reactive power load in the distribution network
-    acc_q_load_shed : float
+    acc_q_energy_shed : float
         The accumulated shedded reactive power load in the distribution network
     connected_line : Line
         Connects the distribution network to the transmission network, the line connecting the distribution network to the transmission network
@@ -73,7 +73,7 @@ class Distribution(Network):
     add_connected_line(connected_line)
         Sets the line connecting the distribution system to overlying network
     add_bus(bus)
-        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the distribution network
+        Adding a bus including elements on the bus (battery, generation unit, EV park) to the distribution network
     add_buses(buses)
         Adding buses to the distribution network
     add_line(line)
@@ -92,8 +92,8 @@ class Distribution(Network):
         Returns the specified history variable
     get_system_load()
         Returns the load in the distribution network at the current time in MW and MVar
-    reset_load_shed_variables()
-        Resets the load shed variables
+    reset_energy_shed_variables()
+        Resets the energy.shed variables
     """
 
     ## Visual attributes
@@ -102,7 +102,7 @@ class Distribution(Network):
     ## Counter
     counter = 0
 
-    def __init__(self, parent_network: Network, connected_line: Line):
+    def __init__(self, parent_network: PowerNetwork, connected_line: Line):
         Distribution.counter += 1
         self.name = "dist_network{:d}".format(Distribution.counter)
 
@@ -118,12 +118,12 @@ class Distribution(Network):
         self.intelligent_switches = list()
         self.controller = DistributionController(
             name=self.name + "_controller",
-            network=self,
+            power_network=self,
         )
         self.comp_list = list()
         self.comp_dict = dict()
 
-        # Network connections
+        # PowerNetwork connections
         self.parent_network = parent_network
         parent_network.add_child_network(self)
         if isinstance(parent_network, PowerSystem):
@@ -139,10 +139,10 @@ class Distribution(Network):
 
         self.failed_line = False
         # Load shedding
-        self.p_load_shed = 0
-        self.acc_p_load_shed = 0
-        self.q_load_shed = 0
-        self.acc_q_load_shed = 0
+        self.p_energy_shed = 0
+        self.acc_p_energy_shed = 0
+        self.q_energy_shed = 0
+        self.acc_q_energy_shed = 0
 
         self.connected_line = None
         if connected_line is not None:
@@ -217,7 +217,7 @@ class Distribution(Network):
 
     def add_bus(self, bus: Bus):
         """
-        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the distribution network
+        Adding a bus including elements on the bus (battery, generation unit, EV park) to the distribution network
 
         Parameters
         ----------
@@ -263,7 +263,7 @@ class Distribution(Network):
         # Add bus to the power system
         self.power_system.add_bus(bus)
 
-    def add_buses(self, buses: set):
+    def add_buses(self, buses: list):
         """
         Adding buses to the distribution network bus list
 
@@ -302,7 +302,7 @@ class Distribution(Network):
         self.lines.append(line)
         self.lines = unique(self.lines)
 
-        # Add components attached to bus to distribution network:
+        # Add components attached to line to distribution network:
 
         # Sensor
         if line.sensor:
@@ -335,7 +335,7 @@ class Distribution(Network):
         # Add line to power system
         self.power_system.add_line(line)
 
-    def add_lines(self, lines: set):
+    def add_lines(self, lines: list):
         """
         Adding lines to distribution network line list
 
@@ -390,7 +390,7 @@ class Distribution(Network):
 
         Parameters
         ----------
-        network : Network
+        network : PowerNetwork
             The child network of the distribution network
 
         Returns
@@ -458,9 +458,9 @@ class Distribution(Network):
             qload += q
         return pload, qload
 
-    def reset_load_shed_variables(self):
+    def reset_energy_shed_variables(self):
         """
-        Resets the load shed variables
+        Resets the energy.shed variables
 
         Parameters
         ----------
@@ -471,7 +471,7 @@ class Distribution(Network):
         None
 
         """
-        self.p_load_shed = 0
-        self.acc_p_load_shed = 0
-        self.q_load_shed = 0
-        self.acc_q_load_shed = 0
+        self.p_energy_shed = 0
+        self.acc_p_energy_shed = 0
+        self.q_energy_shed = 0
+        self.acc_q_energy_shed = 0

@@ -37,7 +37,7 @@ class Line(Component):
         List of disconnectors connected to the line
     circuitbreaker : Circuitbreaker
         Circuit breaker connected to the line
-    parent_network : Network
+    parent_network : PowerNetwork
         The parent network of the line
     section : Section
         The section the line belongs to
@@ -97,7 +97,7 @@ class Line(Component):
         Sets the fail status of the line to True and opens the connected disconnectors and the connected circuit breaker
     not_fail()
         Sets the fail status of the line to False and closes the connected disconnectors and connected circuit breaker
-    change_direciton()
+    change_direction()
         Changes the direction of the line
     update_fail_status(dt)
         Updates the fail status of the line
@@ -575,7 +575,7 @@ class Line(Component):
 
         Parameters
         ----------
-        network : Network
+        network : PowerNetwork
             The parent network of the line
 
         Returns

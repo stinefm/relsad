@@ -1,4 +1,3 @@
-from relsad.topology.paths import create_sections
 from relsad.network.components import (
     Bus,
     CircuitBreaker,

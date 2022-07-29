@@ -4,12 +4,12 @@ from relsad.network.components import (
     MicrogridController,
     MicrogridMode,
 )
-from .Network import Network
+from .PowerNetwork import PowerNetwork
 from .Distribution import Distribution
 from relsad.utils import unique
 
 
-class Microgrid(Network):
+class Microgrid(PowerNetwork):
     """
     Class defining a microgrid network type
 
@@ -45,7 +45,7 @@ class Microgrid(Network):
         List containing the components in the microgrid
     comp_dict : dict
         Dictionary containing the components in the microgrid
-    distribution_network : Network
+    distribution_network : PowerNetwork
         The distribution network the microgrid is connected to
     failed_line : Bool
         Boolean value stating whether or not the network includes a failed line
@@ -53,13 +53,13 @@ class Microgrid(Network):
         Line that connects the microgrid to the distribution network
     circuitbreaker : Circuitbreaker
         The circuitbreaker connected to the line
-    p_load_shed : float
+    p_energy_shed : float
         Shedded active power in the microgrid
-    acc_p_load_shed : float
+    acc_p_energy_shed : float
         The accumulated shedded active power in the microgrid
-    q_load_shed : float
+    q_energy_shed : float
         Shedded reactive power in the microgrid
-    acc_q_load_shed : float
+    acc_q_energy_shed : float
         The accumulated shedded reactive power in the microgrid
     sections : Section
         The sections in the microgrid
@@ -73,7 +73,7 @@ class Microgrid(Network):
     add_connected_line(connected_line, mode)
         Sets the line connecting the microgrid to overlying network
     add_bus(bus)
-        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the microgrid
+        Adding a bus including elements on the bus (battery, generation unit, EV park) to the microgrid
     add_buses(buses)
         Adding buses to the microgrid
     add_line(line)
@@ -96,8 +96,8 @@ class Microgrid(Network):
         Returns the specified history variable
     get_system_load()
         Returns the system load in the microgrid at the current time in MW and MVar
-    reset_load_shed_variables()
-        Resets the load shed variables
+    reset_energy_shed_variables()
+        Resets the energy.shed variables
 
     """
 
@@ -129,12 +129,12 @@ class Microgrid(Network):
         self.intelligent_switches = list()
         self.controller = MicrogridController(
             name=self.name + "_controller",
-            network=self,
+            power_network=self,
         )
         self.comp_list = list()
         self.comp_dict = dict()
 
-        # Network connections
+        # PowerNetwork connections
         self.distribution_network = distribution_network
         self.distribution_network.add_child_network(self)
         self.distribution_network.power_system.controller.add_microgrid_controller(
@@ -154,10 +154,10 @@ class Microgrid(Network):
         self.add_connected_line(connected_line, mode)
 
         # Load shedding
-        self.p_load_shed = 0
-        self.acc_p_load_shed = 0
-        self.q_load_shed = 0
-        self.acc_q_load_shed = 0
+        self.p_energy_shed = 0
+        self.acc_p_energy_shed = 0
+        self.q_energy_shed = 0
+        self.acc_q_energy_shed = 0
         # Sectioning
         self.sections = None
         ## History
@@ -232,7 +232,7 @@ class Microgrid(Network):
 
     def add_bus(self, bus: Bus):
         """
-        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the microgrid
+        Adding a bus including elements on the bus (battery, generation unit, EV park) to the microgrid
 
         Parameters
         ----------
@@ -526,9 +526,9 @@ class Microgrid(Network):
             qload += q
         return pload, qload
 
-    def reset_load_shed_variables(self):
+    def reset_energy_shed_variables(self):
         """
-        Resets the load shed variables
+        Resets the energy.shed variables
 
         Parameters
         ----------
@@ -539,7 +539,7 @@ class Microgrid(Network):
         None
 
         """
-        self.p_load_shed = 0
-        self.acc_p_load_shed = 0
-        self.q_load_shed = 0
-        self.acc_q_load_shed = 0
+        self.p_energy_shed = 0
+        self.acc_p_energy_shed = 0
+        self.q_energy_shed = 0
+        self.acc_q_energy_shed = 0

@@ -6,6 +6,7 @@ from .Controller import (
     Controller,
     ControllerState,
 )
+from .ICTNode import ICTNode
 from relsad.network.containers import SectionState
 from relsad.utils import (
     random_choice,
@@ -26,17 +27,17 @@ class MicrogridMode(Enum):
     ----------
     SURVIVAL : int
         The microgrid is in survival mode, it disconnects
-        from the parent network for the entire failure
+        from the parent power network for the entire failure
         duration
     FULL_SUPPORT : int
         The microgrid is in full support mode, it disconnects
-        from the parent network only during sectioning time.
-        When connected to the parent network, the microgrid
+        from the parent power network only during sectioning time.
+        When connected to the parent power network, the microgrid
         provides all the support it has available.
     LIMITED_SUPPORT : int
         The microgrid is in limited support mode, it disconnects
-        from the parent network only during sectioning time.
-        When connected to the parent network, the microgrid
+        from the parent power network only during sectioning time.
+        When connected to the parent power network, the microgrid
         provides only surplus support.
     """
 
@@ -55,6 +56,8 @@ class MicrogridController(Component, Controller):
     ----------
     name : string
         Name of the microgird controller
+    ict_node : ICTNode
+        The ICT node connected to the controller
     fail_rate : float
         The failure rate of the microgrid controller
     outage_time : float
@@ -67,9 +70,12 @@ class MicrogridController(Component, Controller):
         The sectioning time of the parent controller
     check_components : bool
     manual_sectioning_time : Time
-        The sectioning time of a passive microgrid without controller (or controller is failed)
-    network : Network
-        The network the controller belongs to
+        The sectioning time of a passive microgrid without
+        controller (or controller is failed)
+    power_network : PowerNetwork
+        The power network the controller belongs to
+    ict_network : ICTNetwork
+        The ICT network the controller belongs to
     sensors : list
         List of sensors associated with the microgrid
     failed_sections : list
@@ -82,16 +88,47 @@ class MicrogridController(Component, Controller):
     Methods
     ----------
     check_circuitbreaker(curr_time, dt)
+        Checks if the circuitbreaker in the distribution system is open.
+        If sectioning time is finished, disconnect failed sections and close the
+        circuitbreaker.
+    check_circuitbreaker_manually(curr_time, dt)
+        Checks if the circuitbreaker in the distribution system is open manually.
+        If sectioning time is finished, disconnect failed sections and close the
+        circuitbreaker.
     disconnect_failed_sections()
         Disconnects the failed sections in the microgrid
     check_sensors(curr_time, dt)
+        Loops through the sections connected to the controller determining which
+        sensors have failed. Performs actions according to the sensor status
+        in the respective section.
+        If a section was disconnected and no longer includes any failed sensor,
+        it is connected.
+        If a section was connected and now includes a failed sensor, it is disconnected.
+        The total sectioning time is summed from each section.
     run_control_loop(curr_time, dt)
+        System control check, determines if components have failed and performes
+        the required action
     check_lines_manually(curr_time)
+        Loops manually through the sections connected to the controller determining
+        which lines have failed. Performs actions according
+        to the line status in the respective section.
+
+        If a section was disconnected and no longer includes any failed
+        lines, it is connected.
+
+        If a section was connected and now includes a failed line,
+        it is disconnected.
+
+        The total sectioning time is summed from each section.
     run_manual_control_loop(curr_time, dt)
+        Manual system control check, determines if components have failed and
+        performes the required action.
     set_sectioning_time(sectioning_time)
-        Sets the sectioning time in the microgrid
+        Sets the sectiom time of the microgrid based on the max value
+        of the microgrid sectioning time and the sectioning time set by the
+        controller
     set_parent_sectioning_time(sectioning_time)
-        Sets the sectioning time of the parent network
+        Sets the sectioning time of the parent power network
     update_fail_status(dt)
         Updates the fail status
     update_history(prev_time, curr_time, save_flag)
@@ -111,13 +148,14 @@ class MicrogridController(Component, Controller):
     def __init__(
         self,
         name: str,
-        network,
+        power_network,
         fail_rate: float = 0,
         outage_time: Time = Time(1, TimeUnit.HOUR),
         state: ControllerState = ControllerState.OK,
     ):
 
         self.name = name
+        self.ict_node = None
         self.fail_rate = fail_rate
         self.outage_time = outage_time
         self.state = state
@@ -127,7 +165,8 @@ class MicrogridController(Component, Controller):
 
         self.manual_sectioning_time = None
 
-        self.network = network
+        self.power_network = power_network
+        self.ict_network = None
 
         self.sensors = []
 
@@ -156,7 +195,9 @@ class MicrogridController(Component, Controller):
 
     def check_circuitbreaker(self, curr_time: Time, dt: Time):
         """
-        Sets the controller state to software fail
+        Checks if the circuitbreaker in the distribution system is open.
+        If sectioning time is finished, disconnect failed sections and close the
+        circuitbreaker.
 
         Parameters
         ----------
@@ -170,20 +211,54 @@ class MicrogridController(Component, Controller):
         None
 
         """
-        if self.network.connected_line.circuitbreaker.is_open:
+        if self.power_network.connected_line.circuitbreaker.is_open:
             # If circuitbreaker in Microgrid with survival mode and parent Distribution
             # system has no failed lines
             if (
-                self.network.mode == MicrogridMode.SURVIVAL
-                and self.network.distribution_network.failed_line is True
+                self.power_network.mode == MicrogridMode.SURVIVAL
+                and self.power_network.distribution_network.failed_line is True
             ):
                 return
             elif self.sectioning_time <= Time(0):
                 self.disconnect_failed_sections()
-                if not self.network.connected_line.failed:
+                if not self.power_network.connected_line.failed:
                     # Sectioning time finished
-                    self.network.connected_line.circuitbreaker.close()
-                    self.network.connected_line.section.connect_manually()
+                    self.power_network.connected_line.circuitbreaker.close()
+                    self.power_network.connected_line.section.connect(dt, self)
+                    self.failed_sections = []
+                    
+    def check_circuitbreaker_manually(self, curr_time: Time, dt: Time):
+        """
+        Checks if the circuitbreaker in the distribution system is open manually.
+        If sectioning time is finished, disconnect failed sections and close the
+        circuitbreaker.
+
+        Parameters
+        ----------
+        curr_time : Time
+            The current time
+        dt : Time
+            The current time step
+
+        Returns
+        ----------
+        None
+
+        """
+        if self.power_network.connected_line.circuitbreaker.is_open:
+            # If circuitbreaker in Microgrid with survival mode and parent Distribution
+            # system has no failed lines
+            if (
+                self.power_network.mode == MicrogridMode.SURVIVAL
+                and self.power_network.distribution_network.failed_line is True
+            ):
+                return
+            elif self.sectioning_time <= Time(0):
+                self.disconnect_failed_sections()
+                if not self.power_network.connected_line.failed:
+                    # Sectioning time finished
+                    self.power_network.connected_line.circuitbreaker.close()
+                    self.power_network.connected_line.section.connect_manually()
                     self.failed_sections = []
 
     def disconnect_failed_sections(self):
@@ -204,7 +279,13 @@ class MicrogridController(Component, Controller):
 
     def check_sensors(self, curr_time: Time, dt: Time):
         """
-        Sets the controller state to software fail
+        Loops through the sections connected to the controller determining which
+        sensors have failed. Performs actions according to the sensor status
+        in the respective section.
+        If a section was disconnected and no longer includes any failed sensor,
+        it is connected.
+        If a section was connected and now includes a failed sensor, it is disconnected.
+        The total sectioning time is summed from each section.
 
         Parameters
         ----------
@@ -220,41 +301,96 @@ class MicrogridController(Component, Controller):
         """
         connected_sections = [
             x
-            for x in self.network.sections
+            for x in self.power_network.sections
             if x.state == SectionState.CONNECTED
         ]
         disconnected_sections = [
             x
-            for x in self.network.sections
+            for x in self.power_network.sections
             if x.state == SectionState.DISCONNECTED
         ]
         for section in disconnected_sections:
             sensors = unique([x.line.sensor for x in section.disconnectors])
             num_fails = 0
+            need_manual_attention = False
             for sensor in sensors:
-                repair_time, line_fail_status = sensor.get_line_fail_status(dt)
-                self.sectioning_time += repair_time
+                # If no ICT network
+                if self.ict_node is None:
+                    repair_time, line_fail_status = sensor.get_line_fail_status(dt)
+                    self.sectioning_time += repair_time
+                # If both components have ICT nodes
+                elif (
+                    self.ict_node is not None
+                    and sensor.ict_node is not None
+                ):
+                    # If the ICT nodes are connected to each other
+                    if is_connected(
+                        node_1=self.ict_node,
+                        node_2=sensor.ict_node,
+                        network=self.ict_network,
+                    ):
+                        repair_time, line_fail_status = sensor.get_line_fail_status(dt)
+                        self.sectioning_time += repair_time
+                    # If the ICT nodes are not connected to each other
+                    else:
+                        need_manual_attention = True
+                        line_fail_status = sensor.line.failed
+                # If no ICT node on sensor
+                else:
+                    need_manual_attention = True
+                    line_fail_status = sensor.line.failed
                 num_fails += 1 if line_fail_status else 0
+            if need_manual_attention is True:
+                self.sectioning_time += self.manual_sectioning_time
             if num_fails == 0:
-                section.connect(dt)
+                section.connect(dt, self)
                 if section in self.failed_sections:
                     self.failed_sections.remove(section)
+        # Loop connected sections
         for section in connected_sections:
             sensors = unique([x.line.sensor for x in section.disconnectors])
             num_fails = 0
+            need_manual_attention = False
+            # Loop sensors and count failed ones
             for sensor in sensors:
-                repair_time, line_fail_status = sensor.get_line_fail_status(dt)
-                self.sectioning_time += repair_time
+                # If no ICT network
+                if self.ict_node is None:
+                    repair_time, line_fail_status = sensor.get_line_fail_status(dt)
+                    self.sectioning_time += repair_time
+                # If both components have ICT nodes
+                elif (
+                    self.ict_node is not None
+                    and sensor.ict_node is not None
+                ):
+                    # If the ICT nodes are connected to each other
+                    if is_connected(
+                        node_1=self.ict_node,
+                        node_2=sensor.ict_node,
+                        network=self.ict_network,
+                    ):
+                        repair_time, line_fail_status = sensor.get_line_fail_status(dt)
+                        self.sectioning_time += repair_time
+                    # If the ICT nodes are not connected to each other
+                    else:
+                        need_manual_attention = True
+                        line_fail_status = sensor.line.failed
+                # If no ICT node on sensor
+                else:
+                    need_manual_attention = True
+                    line_fail_status = sensor.line.failed
                 num_fails += 1 if line_fail_status else 0
+            if need_manual_attention is True:
+                self.sectioning_time += self.manual_sectioning_time
             if num_fails > 0:
                 section.state = SectionState.DISCONNECTED
-                self.sectioning_time += section.get_disconnect_time(dt)
+                self.sectioning_time += section.get_disconnect_time(dt, self)
                 self.failed_sections.append(section)
                 self.failed_sections = unique(self.failed_sections)
 
     def run_control_loop(self, curr_time: Time, dt: Time):
         """
-        Sets the controller state to software fail
+        System control check, determines if components have failed and performes
+        the required action
 
         Parameters
         ----------
@@ -278,7 +414,7 @@ class MicrogridController(Component, Controller):
             self.parent_sectioning_time,
         )
         if (
-            self.network.connected_line.circuitbreaker.is_open
+            self.power_network.connected_line.circuitbreaker.is_open
             and self.sectioning_time <= Time(0)
         ):
             self.check_components = True
@@ -313,12 +449,12 @@ class MicrogridController(Component, Controller):
         """
         connected_sections = [
             x
-            for x in self.network.sections
+            for x in self.power_network.sections
             if x.state == SectionState.CONNECTED
         ]
         disconnected_sections = [
             x
-            for x in self.network.sections
+            for x in self.power_network.sections
             if x.state == SectionState.DISCONNECTED
         ]
         # Loop disconnected sections
@@ -339,7 +475,8 @@ class MicrogridController(Component, Controller):
 
     def run_manual_control_loop(self, curr_time: Time, dt: Time):
         """
-        Sets the controller state to software fail
+        Manual system control check, determines if components have failed and
+        performes the required action.
 
         Parameters
         ----------
@@ -363,18 +500,20 @@ class MicrogridController(Component, Controller):
             self.parent_sectioning_time,
         )
         if (
-            self.network.connected_line.circuitbreaker.is_open
+            self.power_network.connected_line.circuitbreaker.is_open
             and self.sectioning_time <= Time(0)
         ):
             self.check_components = True
         if self.check_components:
             self.check_lines_manually(curr_time)
             self.check_components = False
-        self.check_circuitbreaker(curr_time, dt)
+        self.check_circuitbreaker_manually(curr_time, dt)
 
     def set_sectioning_time(self, sectioning_time):
         """
-        Sets the sectioning time in the microgrid
+        Sets the sectiom time of the microgrid based on the max value
+        of the microgrid sectioning time and the sectioning time set by the
+        controller
 
         Parameters
         ----------
@@ -393,7 +532,7 @@ class MicrogridController(Component, Controller):
 
     def set_parent_sectioning_time(self, sectioning_time):
         """
-        Sets the sectioning time of the parent network
+        Sets the sectioning time of the parent power network
 
         Parameters
         ----------

@@ -1,5 +1,7 @@
 from enum import Enum
 from relsad.Time import Time
+from relsad.network.components import Controller
+from relsad.topology.ICT.dfs import is_connected
 
 
 class SectionState(Enum):
@@ -31,7 +33,7 @@ class Section:
         List of lines in the section
     disconnectors : list
         List of disconnectors in the section
-    parent : Network
+    parent : PowerNetwork
         The parent network for the section
     child_sections : list
         List of child sections
@@ -123,7 +125,7 @@ class Section:
         for child_section in self.child_sections:
             child_section.attach_to_lines()
 
-    def connect(self, dt: Time):
+    def connect(self, dt: Time, controller: Controller):
         """
         Connects the sections, connects the lines in the section and closes the disconnectors in the section
 
@@ -131,6 +133,8 @@ class Section:
         ----------
         dt : Time
             The current time step
+        controller : Controller
+            The power network controller
 
         Returns
         ----------
@@ -141,7 +145,31 @@ class Section:
         for line in self.lines:
             line.connect()
         for discon in self.disconnectors:
-            discon.intelligent_switch.close(dt)
+            # If no ICT network
+            if controller.ict_node is None:
+                discon.intelligent_switch.close(dt)
+            # If both components have ICT nodes
+            elif (
+                    controller.ict_node is not None and
+                    discon.intelligent_switch.ict_node is not None
+                ):
+                # If the ICT nodes are connected to each other
+                if is_connected(
+                    node_1=controller.ict_node, 
+                    node_2=discon.intelligent_switch.ict_node,
+                    network=controller.ict_network,
+                ):
+                    discon.intelligent_switch.close(dt)
+                # If the ICT nodes are not connected to each other
+                else:
+                    # Repair crew is assumed to be present repairing the line,
+                    # they close the disconnector manually
+                    discon.close()
+            # If no ICT node on intelligent switch
+            else:
+                # Repair crew is assumed to be present repairing the line,
+                # they close the disconnector manually
+                discon.close()
 
     def connect_manually(self):
         """
@@ -162,7 +190,7 @@ class Section:
         for discon in self.disconnectors:
             discon.close()
 
-    def get_disconnect_time(self, dt: Time):
+    def get_disconnect_time(self, dt: Time, controller: Controller):
         """
         Returns the total outage time (the time the section is disconnected) of the section
 
@@ -170,6 +198,8 @@ class Section:
         ----------
         dt : Time
             The current time step
+        controller : Controller
+            The power network controller
 
         Returns
         ----------
@@ -178,8 +208,31 @@ class Section:
 
         """
         sectioning_time = Time(0)
+        need_manual_attention = False
         for discon in self.disconnectors:
-            sectioning_time += discon.intelligent_switch.get_open_time(dt)
+            # If no ICT network
+            if controller.ict_node is None:
+                sectioning_time += discon.intelligent_switch.get_open_time(dt)
+            # If both components have ICT nodes
+            elif (
+                    controller.ict_node is not None and
+                    discon.intelligent_switch.ict_node is not None
+                ):
+                # If the ICT nodes are connected to each other
+                if is_connected(
+                    node_1=controller.ict_node, 
+                    node_2=discon.intelligent_switch.ict_node,
+                    network=controller.ict_network,
+                ):
+                    sectioning_time += discon.intelligent_switch.get_open_time(dt)
+                # If the ICT nodes are not connected to each other
+                else:
+                    need_manual_attention = True
+            # If no ICT node on intelligent switch
+            else:
+                need_manual_attention = True
+        if need_manual_attention is True:
+            sectioning_time += controller.manual_sectioning_time
         for line in self.lines:
             line.remaining_outage_time += sectioning_time
         return sectioning_time

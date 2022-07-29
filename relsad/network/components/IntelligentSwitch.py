@@ -7,6 +7,7 @@ from relsad.utils import (
     random_choice,
     convert_yearly_fail_rate,
 )
+from .ICTNode import ICTNode
 from relsad.Time import (
     Time,
     TimeUnit,
@@ -44,6 +45,8 @@ class IntelligentSwitch(Component):
         Name of the intelligent switch
     disconnector : Disconnector
         The disconnector the intelligent switch is connected to
+    ict_node : ICTNode
+        The ICT node connected to the intelligent switch
     fail_rate_per_year : float
         The failure rate per year for the intelligent switch
     manual_repair_time : Time
@@ -118,6 +121,7 @@ class IntelligentSwitch(Component):
         self,
         name: str,
         disconnector: Disconnector,
+        ict_node: ICTNode = None,
         fail_rate_per_year: float = 0.03,
         manual_repair_time: Time = Time(2, TimeUnit.HOUR),
         state: IntelligentSwitchState = IntelligentSwitchState.OK,
@@ -134,6 +138,7 @@ class IntelligentSwitch(Component):
         self.name = name
         self.disconnector = disconnector
         disconnector.intelligent_switch = self
+        self.ict_node = ict_node
         self.fail_rate_per_year = fail_rate_per_year
         self.remaining_repair_time = Time(0)
         self.manual_repair_time = manual_repair_time
@@ -308,7 +313,10 @@ class IntelligentSwitch(Component):
         None
 
         """
+        # Repair is started
         self.remaining_repair_time = self.manual_repair_time
+        # Repair crew is assumed to be present repairing the line,
+        # they close the disconnector manually
         self.disconnector.close()
         self.state = IntelligentSwitchState.REPAIR
 

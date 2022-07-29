@@ -19,7 +19,7 @@ from relsad.network.systems import (
 )
 
 from relsad.loadflow.ac import run_bfs_load_flow
-from relsad.load.shedding import shed_loads
+from relsad.energy.shedding import shed_energy
 from relsad.utils import eq
 from relsad.Time import (
     Time,
@@ -150,7 +150,7 @@ def initialize_network(
     return ps
 
 
-def test_load_shed_isolated_hour():
+def test_energy_shed_isolated_hour():
     ps = initialize_network(
         island_mode=True,
     )
@@ -212,27 +212,27 @@ def test_load_shed_isolated_hour():
     assert eq(np.degrees(B5.voang), -0.023686, tol=1e-6)
     assert eq(np.degrees(B6.voang), -0.022501, tol=1e-6)
 
-    shed_loads(
+    shed_energy(
         power_system=ps,
         dt=Time(1, TimeUnit.HOUR),
         alpha=1e-7,
     )
 
-    assert eq(B1.p_load_shed_stack, 0.0, tol=1e-6)
-    assert eq(B1.q_load_shed_stack, 0.0, tol=1e-6)
-    assert eq(B2.p_load_shed_stack, 0.05, tol=1e-6)
-    assert eq(B2.q_load_shed_stack, 0.0, tol=1e-6)
-    assert eq(B3.p_load_shed_stack, 0.04, tol=1e-6)
-    assert eq(B3.q_load_shed_stack, 0.0, tol=1e-6)
-    assert eq(B4.p_load_shed_stack, 0.03, tol=1e-6)
-    assert eq(B4.q_load_shed_stack, 0.0, tol=1e-6)
-    assert eq(B5.p_load_shed_stack, 0.02, tol=1e-6)
-    assert eq(B5.q_load_shed_stack, 0.0, tol=1e-6)
-    assert eq(B6.p_load_shed_stack, 0.05, tol=1e-6)
-    assert eq(B6.q_load_shed_stack, 0.0, tol=1e-6)
+    assert eq(B1.p_energy_shed_stack, 0.0, tol=1e-6)
+    assert eq(B1.q_energy_shed_stack, 0.0, tol=1e-6)
+    assert eq(B2.p_energy_shed_stack, 0.05, tol=1e-6)
+    assert eq(B2.q_energy_shed_stack, 0.0, tol=1e-6)
+    assert eq(B3.p_energy_shed_stack, 0.04, tol=1e-6)
+    assert eq(B3.q_energy_shed_stack, 0.0, tol=1e-6)
+    assert eq(B4.p_energy_shed_stack, 0.03, tol=1e-6)
+    assert eq(B4.q_energy_shed_stack, 0.0, tol=1e-6)
+    assert eq(B5.p_energy_shed_stack, 0.02, tol=1e-6)
+    assert eq(B5.q_energy_shed_stack, 0.0, tol=1e-6)
+    assert eq(B6.p_energy_shed_stack, 0.05, tol=1e-6)
+    assert eq(B6.q_energy_shed_stack, 0.0, tol=1e-6)
 
 
-def test_load_shed_isolated_half_hour():
+def test_energy_shed_isolated_half_hour():
     ps = initialize_network(
         island_mode=True,
     )
@@ -301,27 +301,27 @@ def test_load_shed_isolated_half_hour():
     assert eq(np.degrees(B5.voang), -0.023686, tol=1e-6)
     assert eq(np.degrees(B6.voang), -0.022501, tol=1e-6)
 
-    shed_loads(
+    shed_energy(
         power_system=ps,
         dt=Time(0.5, TimeUnit.HOUR),
         alpha=1e-7,
     )
 
-    assert eq(B1.p_load_shed_stack, 0.0, tol=1e-6)
-    assert eq(B1.q_load_shed_stack, 0.0, tol=1e-6)
-    assert eq(B2.p_load_shed_stack, 0.025, tol=1e-6)
-    assert eq(B2.q_load_shed_stack, 0.0, tol=1e-6)
-    assert eq(B3.p_load_shed_stack, 0.02, tol=1e-6)
-    assert eq(B3.q_load_shed_stack, 0.0, tol=1e-6)
-    assert eq(B4.p_load_shed_stack, 0.015, tol=1e-6)
-    assert eq(B4.q_load_shed_stack, 0.0, tol=1e-6)
-    assert eq(B5.p_load_shed_stack, 0.01, tol=1e-6)
-    assert eq(B5.q_load_shed_stack, 0.0, tol=1e-6)
-    assert eq(B6.p_load_shed_stack, 0.025, tol=1e-6)
-    assert eq(B6.q_load_shed_stack, 0.0, tol=1e-6)
+    assert eq(B1.p_energy_shed_stack, 0.0, tol=1e-6)
+    assert eq(B1.q_energy_shed_stack, 0.0, tol=1e-6)
+    assert eq(B2.p_energy_shed_stack, 0.025, tol=1e-6)
+    assert eq(B2.q_energy_shed_stack, 0.0, tol=1e-6)
+    assert eq(B3.p_energy_shed_stack, 0.02, tol=1e-6)
+    assert eq(B3.q_energy_shed_stack, 0.0, tol=1e-6)
+    assert eq(B4.p_energy_shed_stack, 0.015, tol=1e-6)
+    assert eq(B4.q_energy_shed_stack, 0.0, tol=1e-6)
+    assert eq(B5.p_energy_shed_stack, 0.01, tol=1e-6)
+    assert eq(B5.q_energy_shed_stack, 0.0, tol=1e-6)
+    assert eq(B6.p_energy_shed_stack, 0.025, tol=1e-6)
+    assert eq(B6.q_energy_shed_stack, 0.0, tol=1e-6)
 
 
-def test_load_shed_isolated_production_low():
+def test_energy_shed_isolated_production_low():
     pass
     # ps = initialize_network(
     #     island_mode=True,
@@ -389,27 +389,27 @@ def test_load_shed_isolated_production_low():
     # assert eq(np.degrees(B5.voang), -0.009472, tol=1e-6)
     # assert eq(np.degrees(B6.voang), -0.013025, tol=1e-6)
 
-    # shed_loads(
+    # shed_energy(
     #     power_system=ps,
     #     dt=Time(1, TimeUnit.HOUR),
     #     alpha=1e-7,
     # )
 
-    # print(B2.p_load_shed_stack)
-    # print(B3.p_load_shed_stack)
-    # print(B4.p_load_shed_stack)
-    # print(B5.p_load_shed_stack)
-    # print(B6.p_load_shed_stack)
+    # print(B2.p_energy_shed_stack)
+    # print(B3.p_energy_shed_stack)
+    # print(B4.p_energy_shed_stack)
+    # print(B5.p_energy_shed_stack)
+    # print(B6.p_energy_shed_stack)
 
-    # assert eq(B1.p_load_shed_stack, 0.0, tol=1e-6)
-    # assert eq(B1.q_load_shed_stack, 0.0, tol=1e-6)
-    # assert eq(B2.p_load_shed_stack, 0.5, tol=1e-6)
-    # assert eq(B2.q_load_shed_stack, 0.0, tol=1e-6)
-    # assert eq(B3.p_load_shed_stack, 0.04, tol=1e-6)
-    # assert eq(B3.q_load_shed_stack, 0.0, tol=1e-6)
-    # assert eq(B4.p_load_shed_stack, 0.03, tol=1e-6)
-    # assert eq(B4.q_load_shed_stack, 0.0, tol=1e-6)
-    # assert eq(B5.p_load_shed_stack, 0.02, tol=1e-6)
-    # assert eq(B5.q_load_shed_stack, 0.0, tol=1e-6)
-    # assert eq(B6.p_load_shed_stack, 0.0, tol=1e-6)
-    # assert eq(B6.q_load_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B1.p_energy_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B1.q_energy_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B2.p_energy_shed_stack, 0.5, tol=1e-6)
+    # assert eq(B2.q_energy_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B3.p_energy_shed_stack, 0.04, tol=1e-6)
+    # assert eq(B3.q_energy_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B4.p_energy_shed_stack, 0.03, tol=1e-6)
+    # assert eq(B4.q_energy_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B5.p_energy_shed_stack, 0.02, tol=1e-6)
+    # assert eq(B5.q_energy_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B6.p_energy_shed_stack, 0.0, tol=1e-6)
+    # assert eq(B6.q_energy_shed_stack, 0.0, tol=1e-6)

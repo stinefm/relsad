@@ -51,6 +51,7 @@ def run_simulation(
         fail_rate_trafo=fail_rate_trafo,
         ev_percentage=ev_percentage,
         ev_E_max=ev_E_max,
+        include_ICT=False,
     )
 
     ps = set_network_load_and_prod(
@@ -62,7 +63,7 @@ def run_simulation(
     sim = Simulation(ps, random_seed=random_seed)
 
     sim.run_monte_carlo(
-        iterations=2,
+        iterations=5,
         start_time=TimeStamp(
             year=2019,
             month=1,
@@ -81,7 +82,7 @@ def run_simulation(
         ),
         time_step=Time(5, TimeUnit.MINUTE),
         time_unit=TimeUnit.HOUR,
-        save_iterations=[],
+        save_iterations=[1, 2, 3, 4, 5],
         save_dir=save_dir,
         n_procs=10,
         debug=True,

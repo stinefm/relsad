@@ -5,6 +5,7 @@ from .Controller import (
     Controller,
     ControllerState,
 )
+from .ICTNode import ICTNode
 from relsad.utils import (
     random_choice,
     convert_yearly_fail_rate,
@@ -26,6 +27,8 @@ class MainController(Component, Controller):
     ----------
     name : string
         Name of the main controller
+    ict_node : ICTNode
+        The ICT node connected to the controller
     harware_fail_rate_per_year : float
         The failure rate per year for hardware failuers of the controller
     software_fail_rate_per_year : float
@@ -79,9 +82,13 @@ class MainController(Component, Controller):
     update_fail_status(dt)
         Updates the failure status of the controller based on the remaining outage time
     add_distribution_controller(controller)
-        Adds distribution controllers from connected distribution systems to a list and sets the sectioning time for the controller
+        Adds distribution controllers from connected distribution systems to a list and
+        sets the sectioning time for the controller. Assignes the
+        ICT node to the distribution system controller.
     add_microgrid_controller(controller)
-        Adds microgird controllers from connected microgrids to a list and sets the sectioning time for the controller
+        Adds microgird controllers from connected microgrids to a list and
+        sets the sectioning time for the controller. Assignes the
+        ICT node to the microgrid controller.
     run_control_loop(curr_time, dt)
         Runs the control loop for the distribution system controllers and the microgird controllers
     spread_sectioning_time_to_sub_controllers()
@@ -106,6 +113,7 @@ class MainController(Component, Controller):
     def __init__(
         self,
         name: str,
+        ict_node: ICTNode = None,
         hardware_fail_rate_per_year: float = 0.2,
         software_fail_rate_per_year: float = 12,
         p_fail_repair_new_signal: float = 1 - 0.95,
@@ -119,6 +127,7 @@ class MainController(Component, Controller):
     ):
 
         self.name = name
+        self.ict_node = ict_node
         self.hardware_fail_rate_per_year = hardware_fail_rate_per_year
         self.software_fail_rate_per_year = software_fail_rate_per_year
         self.p_fail_repair_new_signal = p_fail_repair_new_signal
@@ -320,7 +329,9 @@ class MainController(Component, Controller):
 
     def add_distribution_controller(self, controller):
         """
-        Adds distribution controllers from connected distribution systems to a list and sets the sectioning time for the controller
+        Adds distribution controllers from connected distribution systems to a list and
+        sets the sectioning time for the controller. Assignes the
+        ICT node to the distribution system controller.
 
         Parameters
         ----------
@@ -334,10 +345,15 @@ class MainController(Component, Controller):
         """
         self.distribution_controllers.append(controller)
         controller.manual_sectioning_time = self.manual_sectioning_time
+        controller.ict_node = self.ict_node
+        if self.ict_node is not None:
+            controller.ict_network = self.ict_node.parent_network
 
     def add_microgrid_controller(self, controller):
         """
-        Adds microgird controllers from connected microgrids to a list and sets the sectioning time for the controller
+        Adds microgird controllers from connected microgrids to a list and
+        sets the sectioning time for the controller. Assignes the
+        ICT node to the microgrid controller.
 
         Parameters
         ----------
@@ -351,6 +367,9 @@ class MainController(Component, Controller):
         """
         self.microgrid_controllers.append(controller)
         controller.manual_sectioning_time = self.manual_sectioning_time
+        controller.ict_node = self.ict_node
+        if self.ict_node is not None:
+            controller.ict_network = self.ict_node.parent_network
 
     def run_control_loop(self, curr_time: Time, dt: Time):
         """
@@ -393,10 +412,10 @@ class MainController(Component, Controller):
 
         """
         for controller in self.distribution_controllers:
-            if controller.network.connected_line.circuitbreaker.is_open:
+            if controller.power_network.connected_line.circuitbreaker.is_open:
                 controller.set_sectioning_time(self.sectioning_time)
         for controller in self.microgrid_controllers:
-            if controller.network.connected_line.circuitbreaker.is_open:
+            if controller.power_network.connected_line.circuitbreaker.is_open:
                 controller.set_sectioning_time(self.sectioning_time)
 
     def update_history(

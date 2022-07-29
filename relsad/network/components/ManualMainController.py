@@ -89,7 +89,8 @@ class ManualMainController(Component):
 
     def add_distribution_controller(self, controller):
         """
-        Adds distribution controllers from connected distribution systems to a list and sets the manual sectioning time for the controller
+        Adds distribution controllers from connected distribution systems to a list
+        and sets the manual sectioning time for the controller
 
         Parameters
         ----------

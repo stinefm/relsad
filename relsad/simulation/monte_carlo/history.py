@@ -23,6 +23,8 @@ from relsad.simulation.sequence.history import (
     save_sensor_history,
     save_network_controller_history,
     save_system_controller_history,
+    save_ict_line_history,
+    save_ict_node_history,
 )
 from relsad.reliability.indices import (
     SAIFI,
@@ -39,7 +41,7 @@ from relsad.reliability.indices import (
 
 def plot_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
     """
-    Plots the history of the load shedding in the power system
+    Plots the history of the energy.shedding in the power system
 
     Parameters
     ----------
@@ -54,8 +56,8 @@ def plot_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
 
     """
     network_state_list = [
-        "acc_p_load_shed",
-        "acc_q_load_shed",
+        "acc_p_energy_shed",
+        "acc_q_energy_shed",
         "SAIFI",
         "SAIDI",
         "CAIDI",
@@ -76,8 +78,8 @@ def plot_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
         for state_var in network_state_list:
             plot_monte_carlo_history([network], state_var, network_save_dir)
     bus_state_list = [
-        "acc_p_load_shed",
-        "acc_q_load_shed",
+        "acc_p_energy_shed",
+        "acc_q_energy_shed",
         "avg_outage_time",
         "acc_outage_time",
         "interruption_fraction",
@@ -93,7 +95,7 @@ def save_network_monte_carlo_history(
     power_system: PowerSystem, save_dir: str, save_dict: dict
 ):
     """
-    Saves the history of the load shedding in the power system
+    Saves the history of the energy.shedding in the power system
 
     Parameters
     ----------
@@ -112,8 +114,8 @@ def save_network_monte_carlo_history(
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
     network_state_list = [
-        "acc_p_load_shed",
-        "acc_q_load_shed",
+        "acc_p_energy_shed",
+        "acc_q_energy_shed",
         "SAIFI",
         "SAIDI",
         "CAIDI",
@@ -136,8 +138,8 @@ def save_network_monte_carlo_history(
                 save_dict, [network], state_var, network_save_dir
             )
     bus_state_list = [
-        "acc_p_load_shed",
-        "acc_q_load_shed",
+        "acc_p_energy_shed",
+        "acc_q_energy_shed",
         "avg_outage_time",
         "acc_outage_time",
         "interruption_fraction",
@@ -180,10 +182,10 @@ def initialize_history(power_system: PowerSystem):
 
     """
     network_state_list = [
-        "p_load_shed",
-        "q_load_shed",
-        "acc_p_load_shed",
-        "acc_q_load_shed",
+        "p_energy_shed",
+        "q_energy_shed",
+        "acc_p_energy_shed",
+        "acc_q_energy_shed",
         "p_load",
         "q_load",
     ]
@@ -211,8 +213,8 @@ def initialize_monte_carlo_history(power_system: PowerSystem):
 
     """
     network_state_list = [
-        "acc_p_load_shed",
-        "acc_q_load_shed",
+        "acc_p_energy_shed",
+        "acc_q_energy_shed",
         "SAIFI",
         "SAIDI",
         "CAIDI",
@@ -232,8 +234,8 @@ def initialize_monte_carlo_history(power_system: PowerSystem):
         for state_var in network_state_list:
             save_dict[network.name][state_var] = {}
     bus_state_list = [
-        "acc_p_load_shed",
-        "acc_q_load_shed",
+        "acc_p_energy_shed",
+        "acc_q_energy_shed",
         "avg_outage_time",
         "acc_outage_time",
         "interruption_fraction",
@@ -340,6 +342,16 @@ def save_iteration_history(power_system: PowerSystem, it: int, save_dir: str):
             os.path.join(save_dir, str(it), "main_controller"),
         )
 
+    if len(power_system.ict_lines) > 0:
+        save_ict_line_history(
+            power_system.ict_lines, os.path.join(save_dir, str(it), "ict_line")
+        )
+
+    if len(power_system.ict_nodes) > 0:
+        save_ict_node_history(
+            power_system.ict_nodes, os.path.join(save_dir, str(it), "ict_node")
+        )
+
 
 def update_monte_carlo_power_system_history(
     power_system: PowerSystem,
@@ -368,8 +380,8 @@ def update_monte_carlo_power_system_history(
 
     """
     network_state_dict = {
-        "acc_p_load_shed": power_system.acc_p_load_shed,
-        "acc_q_load_shed": power_system.acc_q_load_shed,
+        "acc_p_energy_shed": power_system.acc_p_energy_shed,
+        "acc_q_energy_shed": power_system.acc_q_energy_shed,
         "SAIFI": SAIFI(power_system),
         "SAIDI": SAIDI(power_system),
         "CAIDI": CAIDI(power_system),
@@ -417,8 +429,8 @@ def update_monte_carlo_child_network_history(
     """
     for network in power_system.child_network_list:
         network_state_dict = {
-            "acc_p_load_shed": network.acc_p_load_shed,
-            "acc_q_load_shed": network.acc_q_load_shed,
+            "acc_p_energy_shed": network.acc_p_energy_shed,
+            "acc_q_energy_shed": network.acc_q_energy_shed,
             "SAIFI": SAIFI(network),
             "SAIDI": SAIDI(network),
             "CAIDI": CAIDI(network),
@@ -459,8 +471,8 @@ def update_monte_carlo_comp_history(
     """
     for bus in power_system.buses:
         bus_state_dict = {
-            "acc_p_load_shed": bus.acc_p_load_shed,
-            "acc_q_load_shed": bus.acc_q_load_shed,
+            "acc_p_energy_shed": bus.acc_p_energy_shed,
+            "acc_q_energy_shed": bus.acc_q_energy_shed,
             "avg_outage_time": bus.avg_outage_time,
             "acc_outage_time": bus.acc_outage_time,
             "interruption_fraction": bus.interruption_fraction,
@@ -504,8 +516,8 @@ def merge_monte_carlo_history(
     """
     save_dict = copy.deepcopy(iteration_dicts[0])
     network_state_list = [
-        "acc_p_load_shed",
-        "acc_q_load_shed",
+        "acc_p_energy_shed",
+        "acc_q_energy_shed",
         "SAIFI",
         "SAIDI",
         "CAIDI",
@@ -559,8 +571,8 @@ def merge_monte_carlo_child_network_history(
     """
     for network in power_system.child_network_list:
         network_state_list = [
-            "acc_p_load_shed",
-            "acc_q_load_shed",
+            "acc_p_energy_shed",
+            "acc_q_energy_shed",
             "SAIFI",
             "SAIDI",
             "CAIDI",
@@ -606,8 +618,8 @@ def merge_monte_carlo_comp_history(
     """
     for bus in power_system.buses:
         bus_state_list = [
-            "acc_p_load_shed",
-            "acc_q_load_shed",
+            "acc_p_energy_shed",
+            "acc_q_energy_shed",
             "avg_outage_time",
             "acc_outage_time",
             "interruption_fraction",

@@ -12,9 +12,14 @@ np.set_printoptions(suppress=True, linewidth=np.nan)
 warnings.filterwarnings("ignore")
 
 # flake8: noqa: C901
-def shed_loads(power_system: PowerSystem, dt: Time, alpha: float = 1e-4):
+def shed_energy(
+    power_system: PowerSystem,
+    dt: Time,
+    alpha: float = 1e-4,
+):
     """
-    Sheds the unsupplied loads of the power system using a linear minimization
+    Sheds the unsupplied loads of the power system over the 
+    time period, dt, using a linear minimization
     problem solved with linear programming
 
     See :doc:`/theory/opt` for more details.
@@ -70,27 +75,39 @@ def shed_loads(power_system: PowerSystem, dt: Time, alpha: float = 1e-4):
     p_bounds, q_bounds = _gather_bounds(power_system, alpha)
     if sum(p_b) > alpha:
         # Shed active loads
-        _shed_active_loads(
-            c,
-            A,
-            p_b,
-            p_bounds,
-            buses,
-            lines,
-            alpha,
-            dt,
+        shedded_active_bus_loads = _shed_active_loads(
+            c=c,
+            A=A,
+            p_b=p_b,
+            p_bounds=p_bounds,
+            buses=buses,
+            lines=lines,
+            alpha=alpha,
+        )
+        # Shed active energy
+        _shed_active_energy(
+            buses=buses,
+            shedded_active_bus_loads=shedded_active_bus_loads,
+            alpha=alpha,
+            dt=dt,
         )
     if sum(q_b) > alpha:
         # Shed reactive loads
-        _shed_reactive_loads(
-            c,
-            A,
-            q_b,
-            q_bounds,
-            buses,
-            lines,
-            alpha,
-            dt,
+        shedded_reactive_bus_loads = _shed_reactive_loads(
+            c=c,
+            A=A,
+            q_b=q_b,
+            q_bounds=q_bounds,
+            buses=buses,
+            lines=lines,
+            alpha=alpha,
+        )
+        # Shed reactive energy
+        _shed_active_energy(
+            buses=buses,
+            shedded_active_bus_loads=shedded_active_bus_loads,
+            alpha=alpha,
+            dt=dt,
         )
 
 
@@ -168,7 +185,10 @@ def _get_generation_bounds(power_system: PowerSystem):
     return p_gen, q_gen
 
 
-def _gather_bounds(power_system, alpha):
+def _gather_bounds(
+    power_system: PowerSystem,
+    alpha: float,
+):
     """
     Returns the flow bounds between the components in the power system.
 
@@ -225,14 +245,13 @@ def _gather_bounds(power_system, alpha):
 
 
 def _shed_active_loads(
-    c,
-    A,
-    p_b,
-    p_bounds,
-    buses,
-    lines,
-    alpha,
-    dt: Time,
+    c: list,
+    A: list,
+    p_b: list,
+    p_bounds: list,
+    buses: list,
+    lines: list,
+    alpha: float,
 ):
     """
     Sheds active power load
@@ -258,7 +277,9 @@ def _shed_active_loads(
 
     Returns
     -------
-    None
+    active_shedded_bus_loads: list
+        The active shedded bus loads of the current
+        time increment
 
     """
     p_res = linprog(
@@ -268,7 +289,7 @@ def _shed_active_loads(
         bounds=p_bounds,
     )
     if not p_res.success:
-        print("Active load shed was not successful, verify the results:")
+        print("Active energy.shed was not successful, verify the results:")
         print("buses: ", buses)
         print("lines: ", lines)
         print("A: ", A)
@@ -286,23 +307,55 @@ def _shed_active_loads(
         )
         print(p_res)
     if p_res.fun > 0:
-        for i, bus in enumerate(buses):
-            bus.add_to_load_shed_stack(
-                p_res.x[i] if p_res.x[i] > alpha else 0,
-                0,
-                dt,
-            )
+        shedded_active_bus_loads = p_res.x
+    else:
+        shedded_active_bus_loads = None
+    return shedded_active_bus_loads
+
+
+def _shed_active_energy(
+    buses: list,
+    shedded_active_bus_loads: list,
+    alpha: float,
+    dt: Time,
+):
+    """
+    Sheds active energy
+
+    Parameters
+    ----------
+    buses : list
+        List containing buses
+    shedded_active_bus_loads : list
+        The shedded active bus loads of the current
+        time increment
+    alpha : float
+        Slack variable to cope with numerical noise
+    dt : Time
+        The current time step
+
+    Returns
+    -------
+    None
+
+    """
+    for i, bus in enumerate(buses):
+        bus.add_to_energy_shed_stack(
+            shedded_active_bus_loads[i]
+            if shedded_active_bus_loads[i] > alpha else 0,
+            0,
+            dt,
+        )
 
 
 def _shed_reactive_loads(
-    c,
-    A,
-    q_b,
-    q_bounds,
-    buses,
-    lines,
-    alpha,
-    dt: Time,
+    c: list,
+    A: list,
+    q_b: list,
+    q_bounds: list,
+    buses: list,
+    lines: list,
+    alpha: float,
 ):
     """
     Sheds reactive power load
@@ -328,7 +381,9 @@ def _shed_reactive_loads(
 
     Returns
     -------
-    None
+    shedded_reactive_bus_loads : list
+        The shedded reactive bus loads of the current
+        time increment
 
     """
     q_res = linprog(
@@ -338,7 +393,7 @@ def _shed_reactive_loads(
         bounds=q_bounds,
     )
     if not q_res.success:
-        print("Reactive load shed was not successful, verify the results:")
+        print("Reactive energy.shed was not successful, verify the results:")
         print("buses: ", buses)
         print("lines: ", lines)
         print("A: ", A)
@@ -356,9 +411,42 @@ def _shed_reactive_loads(
         )
         print(q_res)
     if q_res.fun > 0:
-        for i, bus in enumerate(buses):
-            bus.add_to_load_shed_stack(
-                0,
-                q_res.x[i] if q_res.x[i] > alpha else 0,
-                dt,
-            )
+        shedded_reactive_bus_loads = q_res.x
+    else:
+        shedded_reactive_bus_loads = None
+    return shedded_reactive_bus_loads
+
+
+def _shed_reactive_energy(
+    buses: list,
+    shedded_reactive_bus_loads: list,
+    alpha: float,
+    dt: Time,
+):
+    """
+    Sheds reactive energy
+
+    Parameters
+    ----------
+    buses : list
+        List containing buses
+    shedded_reactive_bus_loads : list
+        The shedded reactive bus loads of the current
+        time increment
+    alpha : float
+        Slack variable to cope with numerical noise
+    dt : Time
+        The current time step
+
+    Returns
+    -------
+    None
+
+    """
+    for i, bus in enumerate(buses):
+        bus.add_to_energy_shed_stack(
+            0,
+            shedded_reactive_bus_loads[i]
+            if shedded_reactive_bus_loads[i] > alpha else 0,
+            dt,
+        )

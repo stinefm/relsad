@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from relsad.network.components import Bus, Line
 
 
-class Network(ABC):
+class PowerNetwork(ABC):
 
     # Enforce bus-list as attribute
     buses: list = None

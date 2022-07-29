@@ -1,17 +1,17 @@
 import numpy as np
-from relsad.network.systems import Network
+from relsad.network.systems import PowerNetwork
 from relsad.utils import eq
 from relsad.Time import Time
 
 
-def SAIFI(network: Network):
+def SAIFI(network: PowerNetwork):
     """
     Returns the current SAIFI (System average interruption failure index)
 
     Parameters
     ----------
-    network : Network
-        A Network element
+    network : PowerNetwork
+        A PowerNetwork element
 
     Returns
     ----------
@@ -30,14 +30,14 @@ def SAIFI(network: Network):
     return saifi
 
 
-def SAIDI(network: Network):
+def SAIDI(network: PowerNetwork):
     """
     Returns the current SAIDI (System average interruption duration index)
 
     Parameters
     ----------
-    network : Network
-        A Network element
+    network : PowerNetwork
+        A PowerNetwork element
 
     Returns
     ----------
@@ -62,14 +62,14 @@ def SAIDI(network: Network):
     return saidi
 
 
-def CAIDI(network: Network):
+def CAIDI(network: PowerNetwork):
     """
     Returns the current CAIFI (Customer average interruption duration index)
 
     Parameters
     ----------
-    network : Network
-        A Network element
+    network : PowerNetwork
+        A PowerNetwork element
 
     Returns
     ----------
@@ -85,14 +85,14 @@ def CAIDI(network: Network):
     return caidi
 
 
-def ASUI(network: Network, current_time: Time):
+def ASUI(network: PowerNetwork, current_time: Time):
     """
     Returns the current ASUI (average service unavailability index)
 
     Parameters
     ----------
-    network : Network
-        A Network element
+    network : PowerNetwork
+        A PowerNetwork element
     current_time : Time
         Current time
 
@@ -106,14 +106,14 @@ def ASUI(network: Network, current_time: Time):
     return asui
 
 
-def ASAI(network: Network, current_time: Time):
+def ASAI(network: PowerNetwork, current_time: Time):
     """
     Returns the current ASAI (average service avaialbility index)
 
     Parameters
     ----------
-    network : Network
-        A Network element
+    network : PowerNetwork
+        A PowerNetwork element
     current_time : Time
         Current time
 
@@ -132,8 +132,8 @@ def ENS(network):
 
     Parameters
     ----------
-    network : Network
-        A Network element
+    network : PowerNetwork
+        A PowerNetwork element
 
     Returns
     ----------
@@ -141,27 +141,21 @@ def ENS(network):
         The ENS value
 
     """
-    dt = 1  # Time increment
-    sum_outage_time_x_load_shed = sum(
-        [dt * bus.acc_p_load_shed for bus in network.buses]
+    ens = sum(
+        [bus.acc_p_energy_shed for bus in network.buses]
     )
-    total_customers = sum([bus.n_customers for bus in network.buses])
-    if total_customers == 0:
-        ens = 0
-    else:
-        ens = sum_outage_time_x_load_shed / total_customers
     return ens
 
 
-def EV_Index(network: Network):
+def EV_Index(network: PowerNetwork):
     """
     Returns the current EV Index, which is the current power demand from
     all the EV parks in the system.
 
     Parameters
     ----------
-    network : Network
-        A Network element
+    network : PowerNetwork
+        A PowerNetwork element
 
     Returns
     ----------
@@ -174,15 +168,15 @@ def EV_Index(network: Network):
     return ev_index
 
 
-def EV_Interruption(network: Network):
+def EV_Interruption(network: PowerNetwork):
     """
     Returns the current EV Interruption. Reflects the average number of
     interruptions per EV car for grid support
 
     Parameters
     ----------
-    network : Network
-        A Network element
+    network : PowerNetwork
+        A PowerNetwork element
 
     Returns
     ----------
@@ -204,15 +198,15 @@ def EV_Interruption(network: Network):
     return ev_interruption
 
 
-def EV_Duration(network: Network):
+def EV_Duration(network: PowerNetwork):
     """
     Returns the current EV Duration. Reflects the average duration of an EV car
     interruption for grid support
 
     Parameters
     ----------
-    network : Network
-        A Network element
+    network : PowerNetwork
+        A PowerNetwork element
 
     Returns
     ----------

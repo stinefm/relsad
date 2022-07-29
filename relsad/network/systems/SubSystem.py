@@ -3,7 +3,6 @@ from relsad.network.components import (
     Bus,
     Line,
 )
-from relsad.network.systems import Network
 from .Transmission import Transmission
 from relsad.utils import (
     eq,
@@ -122,7 +121,7 @@ class SubSystem:
 
     def add_bus(self, bus: Bus):
         """
-        Adding a bus including elements on the bus (battery, generation unit, EV parkt) to the sub system
+        Adding a bus including elements on the bus (battery, generation unit, EV park) to the sub system
 
         Parameters
         ----------
@@ -230,7 +229,7 @@ class SubSystem:
 
         Parameters
         ----------
-        network : Network
+        network : PowerNetwork
             The child network of the sub system
 
         Returns

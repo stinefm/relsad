@@ -14,12 +14,15 @@ from relsad.network.components import (
     Sensor,
     IntelligentSwitch,
     MicrogridMode,
+    ICTNode,
+    ICTLine,
 )
 from relsad.network.systems import (
     PowerSystem,
     Transmission,
     Distribution,
     Microgrid,
+    ICTNetwork,
 )
 from relsad.Time import (
     Time,
@@ -36,11 +39,12 @@ from relsad.Table import Table
 
 def initialize_network(
     fail_rate_trafo: float = 0.007,
-    fail_rate_line: float = 0.7,
-    fail_rate_intelligent_switch: float = 1000,
+    fail_rate_line: float = 0.07,
+    fail_rate_intelligent_switch: float = 0.03,
     fail_rate_hardware: float = 0.2,
     fail_rate_software: float = 12,
     fail_rate_sensor: float = 0.023,
+    fail_rate_ict_line: float = 0.07,
     p_fail_repair_new_signal: float = 1 - 0.95,
     p_fail_repair_reboot: float = 1 - 0.9,
     outage_time_trafo: Time = Time(8, TimeUnit.HOUR),
@@ -54,6 +58,15 @@ def initialize_network(
     include_backup: bool = True,
     microgrid_mode: MicrogridMode = MicrogridMode.SURVIVAL,
     line_stat_dist: StatDist = StatDist(
+        stat_dist_type=StatDistType.TRUNCNORMAL,
+        parameters=NormalParameters(
+            loc=1.25,
+            scale=1,
+            min_val=0.5,
+            max_val=2,
+        ),
+    ),
+    ict_line_repair_time_stat_dist: StatDist = StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
         parameters=NormalParameters(
             loc=1.25,
@@ -131,8 +144,572 @@ def initialize_network(
         )
 
     if include_ICT:
+        
+        # Controller
+        ICTNController = ICTNode(
+            name="ICTNController",
+        )
+        # Sensors
+        ICTNSL1 = ICTNode(
+            name="ICTNSL1",
+        )
+        ICTNSL2 = ICTNode(
+            name="ICTNSL2",
+        )
+        ICTNSL3 = ICTNode(
+            name="ICTNSL3",
+        )
+        ICTNSL4 = ICTNode(
+            name="ICTNSL4",
+        )
+        ICTNSL5 = ICTNode(
+            name="ICTNSL5",
+        )
+        ict_nodes = [
+            ICTNController,
+            ICTNSL1,
+            ICTNSL2,
+            ICTNSL3,
+            ICTNSL4,
+            ICTNSL5,
+        ]
+        if include_backup:
+            ICTNSL6 = ICTNode(
+                name="ICTNSL6",
+            )
+            ict_nodes.append(ICTNSL6)
+
+        # Intelligent switch
+        ICTNISW1a = ICTNode(
+            name="ICTNISW1a",
+        )
+        ICTNISW1b = ICTNode(
+            name="ICTNISW1b",
+        )
+        ICTNISW1c = ICTNode(
+            name="ICTNISW1c",
+        )
+        ICTNISW2a = ICTNode(
+            name="ICTNISW2a",
+        )
+        ICTNISW2b = ICTNode(
+            name="ICTNISW2b",
+        )
+        ICTNISW3a = ICTNode(
+            name="ICTNISW3a",
+        )
+        ICTNISW3b = ICTNode(
+            name="ICTNISW3b",
+        )
+        ICTNISW4a = ICTNode(
+            name="ICTNISW4a",
+        )
+        ICTNISW4b = ICTNode(
+            name="ICTNISW4b",
+        )
+        ICTNISW5a = ICTNode(
+            name="ICTNISW5a",
+        )
+        ICTNISW5b = ICTNode(
+            name="ICTNISW5b",
+        )
+        ict_nodes.extend(
+            [
+                ICTNISW1a,
+                ICTNISW1b,
+                ICTNISW1c,
+                ICTNISW2a,
+                ICTNISW2b,
+                ICTNISW3a,
+                ICTNISW3b,
+                ICTNISW4a,
+                ICTNISW4b,
+                ICTNISW5a,
+                ICTNISW5b,
+            ]
+        )
+        if include_backup:
+            ICTNISW6a = ICTNode(
+                name="ICTNISW6a",
+            )
+            ICTNISW6b = ICTNode(
+                name="ICTNISW6b",
+            )
+            ict_nodes.extend(
+                [
+                    ICTNISW6a,
+                    ICTNISW6b,
+                ]
+            )
+
+        # Auxillary ICT nodes
+
+        ## Access nodes
+        ICTNA1 = ICTNode(
+            name="ICTNA1",
+        )
+        ICTNA2 = ICTNode(
+            name="ICTNA2",
+        )
+        ICTNA3 = ICTNode(
+            name="ICTNA3",
+        )
+        ICTNA4 = ICTNode(
+            name="ICTNA4",
+        )
+        ICTNA5 = ICTNode(
+            name="ICTNA5",
+        )
+        ICTNA6 = ICTNode(
+            name="ICTNA6",
+        )
+        ICTNA7 = ICTNode(
+            name="ICTNA7",
+        )
+        ICTNA8 = ICTNode(
+            name="ICTNA8",
+        )
+        ict_nodes.extend(
+            [
+                ICTNA1,
+                ICTNA2,
+                ICTNA3,
+                ICTNA4,
+                ICTNA5,
+                ICTNA6,
+                ICTNA7,
+                ICTNA8,
+            ]
+        )
+
+        ## Network nodes
+        ICTN1 = ICTNode(
+            name="ICTN1",
+        )
+        ICTN2 = ICTNode(
+            name="ICTN2",
+        )
+        ICTN3 = ICTNode(
+            name="ICTN3",
+        )
+        ICTN4 = ICTNode(
+            name="ICTN4",
+        )
+        ICTN5 = ICTNode(
+            name="ICTN5",
+        )
+        ICTN6 = ICTNode(
+            name="ICTN6",
+        )
+        ICTN7 = ICTNode(
+            name="ICTN7",
+        )
+        ICTN8 = ICTNode(
+            name="ICTN8",
+        )
+        ICTN9 = ICTNode(
+            name="ICTN9",
+        )
+        ICTN10 = ICTNode(
+            name="ICTN10",
+        )
+        ICTN11 = ICTNode(
+            name="ICTN11",
+        )
+        ICTN12 = ICTNode(
+            name="ICTN12",
+        )
+        ict_nodes.extend(
+            [
+                ICTN1,
+                ICTN2,
+                ICTN3,
+                ICTN4,
+                ICTN5,
+                ICTN6,
+                ICTN7,
+                ICTN8,
+                ICTN9,
+                ICTN10,
+                ICTN11,
+                ICTN12,
+            ]
+        )
+
+        ## Lines
+
+        ### Controller
+        ICTL1 = ICTLine(
+            name="ICTL1",
+            fnode=ICTNController,
+            tnode=ICTNA1,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        
+        ### Sensors
+        ICTL2 = ICTLine(
+            name="ICTL2",
+            fnode=ICTNSL1,
+            tnode=ICTNA2,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL3 = ICTLine(
+            name="ICTL3",
+            fnode=ICTNSL2,
+            tnode=ICTNA2,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL4 = ICTLine(
+            name="ICTL4",
+            fnode=ICTNSL3,
+            tnode=ICTNA5,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL5 = ICTLine(
+            name="ICTL5",
+            fnode=ICTNSL4,
+            tnode=ICTNA5,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL6 = ICTLine(
+            name="ICTL6",
+            fnode=ICTNSL5,
+            tnode=ICTNA6,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+
+        ### Intelligent switches
+        ICTL7 = ICTLine(
+            name="ICTL7",
+            fnode=ICTNISW1a,
+            tnode=ICTNA2,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL8 = ICTLine(
+            name="ICTL8",
+            fnode=ICTNISW1b,
+            tnode=ICTNA2,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL9 = ICTLine(
+            name="ICTL9",
+            fnode=ICTNISW1c,
+            tnode=ICTNA2,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL10 = ICTLine(
+            name="ICTL10",
+            fnode=ICTNISW2a,
+            tnode=ICTNA2,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL11 = ICTLine(
+            name="ICTL11",
+            fnode=ICTNISW2b,
+            tnode=ICTNA5,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL12 = ICTLine(
+            name="ICTL12",
+            fnode=ICTNISW3a,
+            tnode=ICTNA5,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL13 = ICTLine(
+            name="ICTL13",
+            fnode=ICTNISW3b,
+            tnode=ICTNA5,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL14 = ICTLine(
+            name="ICTL14",
+            fnode=ICTNISW4a,
+            tnode=ICTNA6,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL15 = ICTLine(
+            name="ICTL15",
+            fnode=ICTNISW4b,
+            tnode=ICTNA5,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL16 = ICTLine(
+            name="ICTL16",
+            fnode=ICTNISW5a,
+            tnode=ICTNA6,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL17 = ICTLine(
+            name="ICTL17",
+            fnode=ICTNISW5b,
+            tnode=ICTNA6,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ict_lines = [
+            ICTL1,
+            ICTL2,
+            ICTL3,
+            ICTL4,
+            ICTL5,
+            ICTL6,
+            ICTL7,
+            ICTL8,
+            ICTL9,
+            ICTL10,
+            ICTL11,
+            ICTL12,
+            ICTL13,
+            ICTL14,
+            ICTL15,
+            ICTL16,
+        ]
+        if include_backup:
+            ICTL18 = ICTLine(
+                name="ICTL18",
+                fnode=ICTNISW6a,
+                tnode=ICTNA6,
+                repair_time_dist=ict_line_repair_time_stat_dist,
+                fail_rate_per_year=fail_rate_ict_line,
+            )
+            ICTL19 = ICTLine(
+                name="ICTL19",
+                fnode=ICTNISW6b,
+                tnode=ICTNA6,
+                repair_time_dist=ict_line_repair_time_stat_dist,
+                fail_rate_per_year=fail_rate_ict_line,
+            )
+            ict_lines.extend(
+                [
+                    ICTL18,
+                    ICTL19,
+                ]
+            )
+
+        ### Access lines
+        ICTL20 = ICTLine(
+            name="ICTL20",
+            fnode=ICTNA1,
+            tnode=ICTNA2,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL21 = ICTLine(
+            name="ICTL21",
+            fnode=ICTNA2,
+            tnode=ICTNA3,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL22 = ICTLine(
+            name="ICTL22",
+            fnode=ICTNA1,
+            tnode=ICTNA4,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL23 = ICTLine(
+            name="ICTL23",
+            fnode=ICTNA5,
+            tnode=ICTNA6,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL24 = ICTLine(
+            name="ICTL24",
+            fnode=ICTNA6,
+            tnode=ICTNA7,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL25 = ICTLine(
+            name="ICTL25",
+            fnode=ICTNA5,
+            tnode=ICTNA8,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ict_lines.extend(
+            [
+                ICTL20,
+                ICTL21,
+                ICTL22,
+                ICTL23,
+                ICTL24,
+                ICTL25,
+            ]
+        )
+
+        ### Network lines
+        ICTL26 = ICTLine(
+            name="ICTL26",
+            fnode=ICTNA3,
+            tnode=ICTN1,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL27 = ICTLine(
+            name="ICTL27",
+            fnode=ICTN1,
+            tnode=ICTN2,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL28 = ICTLine(
+            name="ICTL28",
+            fnode=ICTN2,
+            tnode=ICTNA8,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL29 = ICTLine(
+            name="ICTL29",
+            fnode=ICTN2,
+            tnode=ICTN3,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL30 = ICTLine(
+            name="ICTL30",
+            fnode=ICTN2,
+            tnode=ICTN10,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL31 = ICTLine(
+            name="ICTL31",
+            fnode=ICTN3,
+            tnode=ICTN4,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL32 = ICTLine(
+            name="ICTL32",
+            fnode=ICTN4,
+            tnode=ICTN5,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL33 = ICTLine(
+            name="ICTL33",
+            fnode=ICTN4,
+            tnode=ICTN7,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL34 = ICTLine(
+            name="ICTL34",
+            fnode=ICTN4,
+            tnode=ICTN8,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL35 = ICTLine(
+            name="ICTL35",
+            fnode=ICTN4,
+            tnode=ICTN10,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL36 = ICTLine(
+            name="ICTL36",
+            fnode=ICTN5,
+            tnode=ICTN6,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL37 = ICTLine(
+            name="ICTL37",
+            fnode=ICTN5,
+            tnode=ICTNA7,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL38 = ICTLine(
+            name="ICTL38",
+            fnode=ICTN6,
+            tnode=ICTN7,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL39 = ICTLine(
+            name="ICTL39",
+            fnode=ICTN8,
+            tnode=ICTN9,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL40 = ICTLine(
+            name="ICTL40",
+            fnode=ICTN9,
+            tnode=ICTN10,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL41 = ICTLine(
+            name="ICTL41",
+            fnode=ICTN9,
+            tnode=ICTN11,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL42 = ICTLine(
+            name="ICTL42",
+            fnode=ICTN11,
+            tnode=ICTN12,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL43 = ICTLine(
+            name="ICTL43",
+            fnode=ICTN12,
+            tnode=ICTNA4,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ict_lines.extend(
+            [
+                ICTL26,
+                ICTL27,
+                ICTL28,
+                ICTL29,
+                ICTL30,
+                ICTL31,
+                ICTL32,
+                ICTL33,
+                ICTL34,
+                ICTL35,
+                ICTL36,
+                ICTL37,
+                ICTL38,
+                ICTL39,
+                ICTL40,
+                ICTL41,
+                ICTL42,
+                ICTL43,
+            ]
+        )
+
+    if include_ICT:
         C1 = MainController(
-            "C1",
+            name="C1",
+            ict_node=ICTNController,
             hardware_fail_rate_per_year=fail_rate_hardware,
             software_fail_rate_per_year=fail_rate_software,
             p_fail_repair_new_signal=p_fail_repair_new_signal,
@@ -145,6 +722,10 @@ def initialize_network(
         )
 
     ps = PowerSystem(C1)
+    if include_ICT:
+        ict_network = ICTNetwork(ps)
+        ict_network.add_nodes(ict_nodes)
+        ict_network.add_lines(ict_lines)
 
     ## Transmission network bus
     B1 = Bus(
@@ -269,6 +850,7 @@ def initialize_network(
         Sensor(
             name="SL1",
             line=L1,
+            ict_node=ICTNSL1,
             fail_rate_per_year=fail_rate_sensor,
             p_fail_repair_new_signal=p_fail_repair_new_signal,
             p_fail_repair_reboot=p_fail_repair_reboot,
@@ -276,6 +858,7 @@ def initialize_network(
         Sensor(
             name="SL2",
             line=L2,
+            ict_node=ICTNSL2,
             fail_rate_per_year=fail_rate_sensor,
             p_fail_repair_new_signal=p_fail_repair_new_signal,
             p_fail_repair_reboot=p_fail_repair_reboot,
@@ -283,6 +866,7 @@ def initialize_network(
         Sensor(
             name="SL3",
             line=L3,
+            ict_node=ICTNSL3,
             fail_rate_per_year=fail_rate_sensor,
             p_fail_repair_new_signal=p_fail_repair_new_signal,
             p_fail_repair_reboot=p_fail_repair_reboot,
@@ -290,6 +874,7 @@ def initialize_network(
         Sensor(
             name="SL4",
             line=L4,
+            ict_node=ICTNSL4,
             fail_rate_per_year=fail_rate_sensor,
             p_fail_repair_new_signal=p_fail_repair_new_signal,
             p_fail_repair_reboot=p_fail_repair_reboot,
@@ -297,6 +882,7 @@ def initialize_network(
         Sensor(
             name="SL5",
             line=L5,
+            ict_node=ICTNSL5,
             fail_rate_per_year=fail_rate_sensor,
             p_fail_repair_new_signal=p_fail_repair_new_signal,
             p_fail_repair_reboot=p_fail_repair_reboot,
@@ -306,6 +892,7 @@ def initialize_network(
             Sensor(
                 name="SL6",
                 line=L6,
+                ict_node=ICTNSL6,
                 fail_rate_per_year=fail_rate_sensor,
                 p_fail_repair_new_signal=p_fail_repair_new_signal,
                 p_fail_repair_reboot=p_fail_repair_reboot,
@@ -314,56 +901,67 @@ def initialize_network(
         IntelligentSwitch(
             name="RL1a",
             disconnector=DL1a,
+            ict_node=ICTNISW1a,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
             name="RL1b",
             disconnector=DL1b,
+            ict_node=ICTNISW1b,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
             name="RL1c",
             disconnector=DL1c,
+            ict_node=ICTNISW1c,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
             name="RL2a",
             disconnector=DL2a,
+            ict_node=ICTNISW2a,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
             name="RL2b",
             disconnector=DL2b,
+            ict_node=ICTNISW2b,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
             name="RL3a",
             disconnector=DL3a,
+            ict_node=ICTNISW3a,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
             name="RL3b",
             disconnector=DL3b,
+            ict_node=ICTNISW3b,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
             name="RL4a",
             disconnector=DL4a,
+            ict_node=ICTNISW4a,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
             name="RL4b",
             disconnector=DL4b,
+            ict_node=ICTNISW4b,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
             name="RL5a",
             disconnector=DL5a,
+            ict_node=ICTNISW5a,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
             name="RL5b",
             disconnector=DL5b,
+            ict_node=ICTNISW5b,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
 
@@ -371,11 +969,13 @@ def initialize_network(
             IntelligentSwitch(
                 name="RL6a",
                 disconnector=DL6a,
+                ict_node=ICTNISW6a,
                 fail_rate_per_year=fail_rate_intelligent_switch,
             )
             IntelligentSwitch(
                 name="RL6b",
                 disconnector=DL6b,
+                ict_node=ICTNISW6b,
                 fail_rate_per_year=fail_rate_intelligent_switch,
             )
 

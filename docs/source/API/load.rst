@@ -18,4 +18,4 @@ shedding
     :toctree: _autosummary
     :template: module.rst
 
-    relsad.load.shedding
+    relsad.energy.shedding

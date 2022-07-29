@@ -3,6 +3,7 @@ import matplotlib.lines as mlines
 import numpy as np
 from .Component import Component
 from .Line import Line
+from .ICTNode import ICTNode
 from relsad.utils import (
     random_choice,
     convert_yearly_fail_rate,
@@ -44,6 +45,8 @@ class Sensor(Component):
         Name of the sensor
     line : Line
         The line the sensor is connected to
+    ict_node : ICTNode
+        The ICT node connected to the sensor
     fail_rate_per_year : float
         The failure rate per year for the sensor
     p_fail_repair_new_signal : float
@@ -120,6 +123,7 @@ class Sensor(Component):
         self,
         name: str,
         line: Line,
+        ict_node: ICTNode = None,
         fail_rate_per_year: float = 0.023,
         p_fail_repair_new_signal: float = 1 - 0.95,
         p_fail_repair_reboot: float = 1 - 0.9,
@@ -146,6 +150,7 @@ class Sensor(Component):
         self.name = name
         self.line = line
         line.sensor = self
+        self.ict_node = ict_node
         self.fail_rate_per_year = fail_rate_per_year
         self.p_fail_repair_new_signal = p_fail_repair_new_signal
         self.p_fail_repair_reboot = p_fail_repair_reboot

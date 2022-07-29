@@ -5,12 +5,14 @@ from .Controller import (
     Controller,
     ControllerState,
 )
+from .ICTNode import ICTNode
 from relsad.network.containers import SectionState
 from relsad.utils import (
     random_choice,
     convert_yearly_fail_rate,
     unique,
 )
+from relsad.topology.ICT.dfs import is_connected
 from relsad.Time import (
     Time,
     TimeUnit,
@@ -24,90 +26,108 @@ class DistributionController(Component, Controller):
 
     ...
 
-        Attributes
-        ----------
-        name : string
-            Name of the controller
-        faile_rate : float
-            The failure rate of the distribution system controller
-        outage_time : float
-            The outage time of the distribution system controller
-        state : ControllerState
-            The state of the distribution system controller
-        sectioning_time : Time
-            The sectioning time of the system
-        check_components : bool
-            Flag used to communicate whether the fail status of the system
-            components should be checked during a control loop
-        manual_sectioning_time : Time
-            Sectioning time when performed manually
-        parent_controller : Controller
-            The parent controller of the distribution system controller
-        network : Network
-            Which network the distribution system controller is connected to
-        sensors : list
-            List of sensors included in the distribution system
-        failed_sections : list
-            List of failed sections in the distribution system
-        history : dict
-            Dictonary attribute that stores the historic variables
-        monte_carlo_history : dict
-            Dictonary containing the history variables from the Monte Carlo simulation
+    Attributes
+    ----------
+    name : string
+        Name of the controller
+    ict_node : ICTNode
+        The ICT node connected to the controller
+    fail_rate : float
+        The failure rate of the distribution system controller
+    outage_time : float
+        The outage time of the distribution system controller
+    state : ControllerState
+        The state of the distribution system controller
+    sectioning_time : Time
+        The sectioning time of the system
+    check_components : bool
+        Flag used to communicate whether the fail status of the system
+        components should be checked during a control loop
+    manual_sectioning_time : Time
+        Sectioning time when performed manually
+    parent_controller : Controller
+        The parent controller of the distribution system controller
+    power_network : PowerNetwork
+        The power network the controller is connected to
+    ict_network : ICTNetwork
+        The ICT network the controller belongs to
+    sensors : list
+        List of sensors included in the distribution system
+    failed_sections : list
+        List of failed sections in the distribution system
+    history : dict
+        Dictonary attribute that stores the historic variables
+    monte_carlo_history : dict
+        Dictonary containing the history variables from the Monte Carlo simulation
 
-        Methods
-        ----------
-        check_circuitbreaker(curr_time, dt)
-            Checks if the circuitbreaker in the distribution system is open.
-            If sectioning time is finished, disconnect failed sections and close the
-            circuitbreaker.
-        disconnect_failed_sections()
-            Disconnects the failed sections in the distribution system
-        check_sensors(curr_time, dt)
-            Loops through the sections connected to the controller determining which sensors have failed. Performs actions according to the sensor status in the respective section.
-            If a section was disconnected and no longer includes any failed sensor, it is connected.
-            If a section was connected and now includes a failed sensor, it is disconnected.
-            The total sectioning time is summed from each section.
-        run_control_loop(curr_time, dt)
-            System control check, determines if components have failed and performes the required action
-        check_lines_manually(curr_time)
-            Loops through the sections connected to the controller determining
-            which lines have failed manually. Performs actions according
-            to the line status in the respective section.
-            If a section was disconnected and no longer includes any failed lines, it is connected.
-            If a section was connected and now includes a failed line, it is disconnected.
-            The total sectioning time is summed from each section.
-        run_manual_control_loop(curr_time, dt)
-            Manual system control check, determines if components have failed and performes the required action.
-        set_sectioning_time(sectioning_time)
-            Sets the sectiom time of the distribuiton system based on the max value of the distribution sectioning time and the sectioning time set by the controller
-        spread_sectioning_time_to_children()
-            Gices the children network of the distribution system the same sectioning time
-        update_fail_status(dt)
-            Updated the fail status of the controller
-        update_history(prev_time, curr_time, save_flag)
-            Updates the history variables
-        get_history(attribute)
-            Returns the history variables of an attribute
-        add_random_instance(random_gen)
-            Adds global random seed
-        print_status()
-            Prints the status
-        reset_status(save_flag)
-            Resets and sets the status of the class parameters
-        initialize_history()
-            Initializes the history variables
+    Methods
+    ----------
+    check_circuitbreaker(curr_time, dt)
+        Checks if the circuitbreaker in the distribution system is open.
+        If sectioning time is finished, disconnect failed sections and close the
+        circuitbreaker.
+    check_circuitbreaker_manually(curr_time, dt)
+        Checks if the circuitbreaker in the distribution system is open manually.
+        If sectioning time is finished, disconnect failed sections and close the
+        circuitbreaker.
+    disconnect_failed_sections()
+        Disconnects the failed sections in the distribution system
+    check_sensors(curr_time, dt)
+        Loops through the sections connected to the controller determining which
+        sensors have failed. Performs actions according to the sensor status
+        in the respective section.
+        If a section was disconnected and no longer includes any failed sensor,
+        it is connected.
+        If a section was connected and now includes a failed sensor, it is disconnected.
+        The total sectioning time is summed from each section.
+    run_control_loop(curr_time, dt)
+        System control check, determines if components have failed and performes
+        the required action
+    check_lines_manually(curr_time)
+        Loops through the sections connected to the controller determining
+        which lines have failed manually. Performs actions according
+        to the line status in the respective section.
+        If a section was disconnected and no longer includes any failed lines,
+        it is connected.
+        If a section was connected and now includes a failed line, it is disconnected.
+        The total sectioning time is summed from each section.
+    run_manual_control_loop(curr_time, dt)
+        Manual system control check, determines if components have failed and
+        performes the required action.
+    set_sectioning_time(sectioning_time)
+        Sets the sectiom time of the distribuiton system based on the max value
+        of the distribution sectioning time and the sectioning time set by the
+        controller
+    spread_sectioning_time_to_children()
+        Gives the children power networks of the distribution system the same
+        sectioning time
+    update_fail_status(dt)
+        Updated the fail status of the controller
+    update_history(prev_time, curr_time, save_flag)
+        Updates the history variables
+    get_history(attribute)
+        Returns the history variables of an attribute
+    add_random_instance(random_gen)
+        Adds global random seed
+    print_status()
+        Prints the status
+    reset_status(save_flag)
+        Resets and sets the status of the class parameters
+    initialize_history()
+        Initializes the history variables
     """
 
     def __init__(
         self,
         name: str,
-        network,
+        power_network,
         fail_rate: float = 0,
         outage_time: Time = Time(1, TimeUnit.HOUR),
         state: ControllerState = ControllerState.OK,
     ):
 
         self.name = name
+        self.ict_node = None
         self.fail_rate = fail_rate
         self.outage_time = outage_time
         self.state = state
@@ -118,7 +138,8 @@ class DistributionController(Component, Controller):
 
         self.parent_controller = None
 
-        self.network = network
+        self.power_network = power_network
+        self.ict_network = None
 
         self.sensors = []
 
@@ -163,13 +184,40 @@ class DistributionController(Component, Controller):
         None
 
         """
-        if self.network.connected_line.circuitbreaker.is_open:
+        if self.power_network.connected_line.circuitbreaker.is_open:
             if self.sectioning_time <= Time(0):
                 self.disconnect_failed_sections()
-                if not self.network.connected_line.failed:
+                if not self.power_network.connected_line.failed:
                     # Sectioning time finished
-                    self.network.connected_line.circuitbreaker.close()
-                    self.network.connected_line.section.connect_manually()
+                    self.power_network.connected_line.circuitbreaker.close()
+                    self.power_network.connected_line.section.connect(dt, self)
+                    self.failed_sections = []
+
+    def check_circuitbreaker_manually(self, curr_time: Time, dt: Time):
+        """
+        Checks if the circuitbreaker in the distribution system is open manually.
+        If sectioning time is finished, disconnect failed sections and close the
+        circuitbreaker.
+
+        Parameters
+        ----------
+        curr_time : Time
+            The current time
+        dt : Time
+            The current time step
+
+        Returns
+        ----------
+        None
+
+        """
+        if self.power_network.connected_line.circuitbreaker.is_open:
+            if self.sectioning_time <= Time(0):
+                self.disconnect_failed_sections()
+                if not self.power_network.connected_line.failed:
+                    # Sectioning time finished
+                    self.power_network.connected_line.circuitbreaker.close()
+                    self.power_network.connected_line.section.connect_manually()
                     self.failed_sections = []
 
     def disconnect_failed_sections(self):
@@ -217,39 +265,91 @@ class DistributionController(Component, Controller):
         """
         connected_sections = [
             x
-            for x in self.network.sections
+            for x in self.power_network.sections
             if x.state == SectionState.CONNECTED
         ]
         disconnected_sections = [
             x
-            for x in self.network.sections
+            for x in self.power_network.sections
             if x.state == SectionState.DISCONNECTED
         ]
         # Loop disconnected sections
         for section in disconnected_sections:
             sensors = unique([x.line.sensor for x in section.disconnectors])
             num_fails = 0
+            need_manual_attention = False
             # Loop sensors and count failed ones
             for sensor in sensors:
-                repair_time, line_fail_status = sensor.get_line_fail_status(dt)
-                self.sectioning_time += repair_time
-                num_fails += 1 if line_fail_status else 0
+                # If no ICT network
+                if self.ict_node is None:
+                    repair_time, line_fail_status = sensor.get_line_fail_status(dt)
+                    self.sectioning_time += repair_time
+                # If both components have ICT nodes
+                elif (
+                    self.ict_node is not None
+                    and sensor.ict_node is not None
+                ):
+                    # If the ICT nodes are connected to each other
+                    if is_connected(
+                        node_1=self.ict_node,
+                        node_2=sensor.ict_node,
+                        network=self.ict_network,
+                    ):
+                        repair_time, line_fail_status = sensor.get_line_fail_status(dt)
+                        self.sectioning_time += repair_time
+                    # If the ICT nodes are not connected to each other
+                    else:
+                        need_manual_attention = True
+                        line_fail_status = sensor.line.failed
+                # If no ICT node on sensor
+                else:
+                    need_manual_attention = True
+                    line_fail_status = sensor.line.failed
+                num_fails += 1 if line_fail_status is True else 0
+            if need_manual_attention is True:
+                self.sectioning_time += self.manual_sectioning_time
             if num_fails == 0:
-                section.connect(dt)
+                section.connect(dt, self)
                 if section in self.failed_sections:
                     self.failed_sections.remove(section)
         # Loop connected sections
         for section in connected_sections:
             sensors = unique([x.line.sensor for x in section.disconnectors])
             num_fails = 0
+            need_manual_attention = False
             # Loop sensors and count failed ones
             for sensor in sensors:
-                repair_time, line_fail_status = sensor.get_line_fail_status(dt)
-                self.sectioning_time += repair_time
+                # If no ICT network
+                if self.ict_node is None:
+                    repair_time, line_fail_status = sensor.get_line_fail_status(dt)
+                    self.sectioning_time += repair_time
+                # If both components have ICT nodes
+                elif (
+                    self.ict_node is not None
+                    and sensor.ict_node is not None
+                ):
+                    # If the ICT nodes are connected to each other
+                    if is_connected(
+                        node_1=self.ict_node,
+                        node_2=sensor.ict_node,
+                        network=self.ict_network,
+                    ):
+                        repair_time, line_fail_status = sensor.get_line_fail_status(dt)
+                        self.sectioning_time += repair_time
+                    # If the ICT nodes are not connected to each other
+                    else:
+                        need_manual_attention = True
+                        line_fail_status = sensor.line.failed
+                # If no ICT node on sensor
+                else:
+                    need_manual_attention = True
+                    line_fail_status = sensor.line.failed
                 num_fails += 1 if line_fail_status else 0
+            if need_manual_attention is True:
+                self.sectioning_time += self.manual_sectioning_time
             if num_fails > 0:
                 section.state = SectionState.DISCONNECTED
-                self.sectioning_time += section.get_disconnect_time(dt)
+                self.sectioning_time += section.get_disconnect_time(dt, self)
                 self.failed_sections.append(section)
                 self.failed_sections = unique(self.failed_sections)
 
@@ -277,7 +377,7 @@ class DistributionController(Component, Controller):
             else Time(0)
         )
         if (
-            self.network.connected_line.circuitbreaker.is_open
+            self.power_network.connected_line.circuitbreaker.is_open
             and self.sectioning_time <= Time(0)
         ):
             # Failure occured in current time step
@@ -316,12 +416,12 @@ class DistributionController(Component, Controller):
         """
         connected_sections = [
             x
-            for x in self.network.sections
+            for x in self.power_network.sections
             if x.state == SectionState.CONNECTED
         ]
         disconnected_sections = [
             x
-            for x in self.network.sections
+            for x in self.power_network.sections
             if x.state == SectionState.DISCONNECTED
         ]
         # Loop disconnected sections
@@ -364,7 +464,7 @@ class DistributionController(Component, Controller):
             else Time(0)
         )
         if (
-            self.network.connected_line.circuitbreaker.is_open
+            self.power_network.connected_line.circuitbreaker.is_open
             and self.sectioning_time <= Time(0)
         ):
             # Failure occured in current time step
@@ -375,7 +475,7 @@ class DistributionController(Component, Controller):
             self.spread_sectioning_time_to_children()
             self.check_components = False
         # Check circuitbreaker status
-        self.check_circuitbreaker(curr_time, dt)
+        self.check_circuitbreaker_manually(curr_time, dt)
 
     def set_sectioning_time(self, sectioning_time):
         """
@@ -398,7 +498,7 @@ class DistributionController(Component, Controller):
 
     def spread_sectioning_time_to_children(self):
         """
-        Returns the children network of the distribution system the same sectioning time
+        Returns the children power network of the distribution system the same sectioning time
 
         Parameters
         ----------
@@ -409,9 +509,9 @@ class DistributionController(Component, Controller):
         None
 
         """
-        for child_network in self.network.child_network_list:
+        for child_network in self.power_network.child_network_list:
             if (
-                child_network.controller.network.connected_line.circuitbreaker.is_open
+                child_network.controller.power_network.connected_line.circuitbreaker.is_open
             ):
                 child_network.controller.set_parent_sectioning_time(
                     self.sectioning_time

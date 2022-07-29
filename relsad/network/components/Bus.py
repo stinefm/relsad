@@ -58,7 +58,7 @@ class Bus(Component):
         List of neighbor buses
     connected_lines : List
         List of connected lines
-    parent_network : Network
+    parent_network : PowerNetwork
         Parent network of the bus
     p_load_downstream : float
         Active accumulated power load at node
@@ -95,7 +95,7 @@ class Bus(Component):
     repair_time_dist : StatDist
         The repair time of the transformer at the bus [hours/fault]
     remaining_outage_time : Time
-        The remaining outage time of the line
+        The remaining outage time of the bus
     acc_outage_time : Time
         The accumulated outage time of the transformer at the bus
     avg_outage_time : Time
@@ -168,16 +168,16 @@ class Bus(Component):
         Returns the specificed interruption cost related to Cost of Energy Not Supplied at the bus
     shed_load(dt)
         Sheds load at the bus and resets the load. The shedded load is added to a stack for the bus
-    clear_load_shed_stack()
-        Resets the load shed stack for the bus
+    clear_energy_shed_stack()
+        Resets the energy.shed stack for the bus
     add_random_instance(random_gen)
         Adds global random seed
     get_avg_fail_rate(curr_time)
         Returns the average failure rate of the transformer at the bus
-    reset_status(save_falg)
+    reset_status(save_flag)
         Resets and sets the status of the class parameters
-    add_to_load_shed_stack(p_load, q_load, dt)
-        Adds the shedded load to the load shed stack at the bus
+    add_to_energy_shed_stack(p_load, q_load, dt)
+        Adds the shedded load to the energy.shed stack at the bus
     reset_load_flow_data()
         Resets the variables used in the load flow analysis
     get_monte_carlo_history(attribute)
@@ -658,10 +658,10 @@ class Bus(Component):
         self.history["qprod"] = {}
         self.history["remaining_outage_time"] = {}
         self.history["trafo_failed"] = {}
-        self.history["p_load_shed_stack"] = {}
-        self.history["acc_p_load_shed"] = {}
-        self.history["q_load_shed_stack"] = {}
-        self.history["acc_q_load_shed"] = {}
+        self.history["p_energy_shed_stack"] = {}
+        self.history["acc_p_energy_shed"] = {}
+        self.history["q_energy_shed_stack"] = {}
+        self.history["acc_q_energy_shed"] = {}
         self.history["voang"] = {}
         self.history["vomag"] = {}
         self.history["avg_fail_rate"] = {}
@@ -690,18 +690,18 @@ class Bus(Component):
         None
 
         """
-        # Update accumulated load shed for bus
-        self.acc_p_load_shed += self.p_load_shed_stack
-        self.acc_q_load_shed += self.q_load_shed_stack
+        # Update accumulated energy.shed for bus
+        self.acc_p_energy_shed += self.p_energy_shed_stack
+        self.acc_q_energy_shed += self.q_energy_shed_stack
         dt = curr_time - prev_time if prev_time is not None else curr_time
-        self.acc_outage_time += dt if self.p_load_shed_stack > 0 else Time(0)
+        self.acc_outage_time += dt if self.p_energy_shed_stack > 0 else Time(0)
         self.avg_outage_time = Time(
             self.acc_outage_time / curr_time, curr_time.unit
         )
         self.avg_fail_rate = self.get_avg_fail_rate(curr_time)
         # Accumulate fraction of interupted customers
         self.interruption_fraction = (
-            self.p_load_shed_stack / (self.pload * dt.get_hours())
+            self.p_energy_shed_stack / (self.pload * dt.get_hours())
             if self.pload != 0
             else 0
         )
@@ -727,14 +727,14 @@ class Bus(Component):
                 curr_time
             ] = self.remaining_outage_time.get_unit_quantity(curr_time.unit)
             self.history["trafo_failed"][curr_time] = self.trafo_failed
-            self.history["p_load_shed_stack"][
+            self.history["p_energy_shed_stack"][
                 curr_time
-            ] = self.p_load_shed_stack
-            self.history["acc_p_load_shed"][curr_time] = self.acc_p_load_shed
-            self.history["q_load_shed_stack"][
+            ] = self.p_energy_shed_stack
+            self.history["acc_p_energy_shed"][curr_time] = self.acc_p_energy_shed
+            self.history["q_energy_shed_stack"][
                 curr_time
-            ] = self.q_load_shed_stack
-            self.history["acc_q_load_shed"][curr_time] = self.acc_q_load_shed
+            ] = self.q_energy_shed_stack
+            self.history["acc_q_energy_shed"][curr_time] = self.acc_q_energy_shed
             self.history["voang"][curr_time] = self.voang
             self.history["vomag"][curr_time] = self.vomag
             self.history["avg_fail_rate"][
@@ -756,7 +756,7 @@ class Bus(Component):
             self.history["acc_interruptions"][
                 curr_time
             ] = self.acc_interruptions
-        self.clear_load_shed_stack()
+        self.clear_energy_shed_stack()
 
     def get_history(self, attribute: str):
         """
@@ -820,16 +820,16 @@ class Bus(Component):
         None
 
         """
-        self.add_to_load_shed_stack(
+        self.add_to_energy_shed_stack(
             self.pload,  # MW
             self.qload,  # MW
             dt,
         )
         self.reset_load()
 
-    def clear_load_shed_stack(self):
+    def clear_energy_shed_stack(self):
         """
-        Resets the load shed stack for the bus
+        Resets the energy.shed stack for the bus
 
         Parameters
         ----------
@@ -840,8 +840,8 @@ class Bus(Component):
         None
 
         """
-        self.p_load_shed_stack = 0
-        self.q_load_shed_stack = 0
+        self.p_energy_shed_stack = 0
+        self.q_energy_shed_stack = 0
 
     def add_random_instance(self, random_gen):
         """
@@ -899,10 +899,10 @@ class Bus(Component):
         self.acc_outage_time = Time(0)
         self.reset_load_and_prod_attributes()
         self.cost = 0  # cost
-        self.clear_load_shed_stack()
-        # Accumulated load shed for bus
-        self.acc_p_load_shed = 0
-        self.acc_q_load_shed = 0
+        self.clear_energy_shed_stack()
+        # Accumulated energy.shed for bus
+        self.acc_p_energy_shed = 0
+        self.acc_q_energy_shed = 0
         self.num_consecutive_interruptions = 0
         self.interruption_fraction = 0
         self.curr_interruptions = 0
@@ -910,9 +910,9 @@ class Bus(Component):
         if save_flag:
             self.initialize_history()
 
-    def add_to_load_shed_stack(self, p_load: float, q_load: float, dt: Time):
+    def add_to_energy_shed_stack(self, p_load: float, q_load: float, dt: Time):
         """
-        Adds the shedded load to the load shed stack at the bus
+        Adds the shedded load to the energy.shed stack at the bus
 
         Parameters
         ----------
@@ -928,8 +928,8 @@ class Bus(Component):
         None
 
         """
-        self.p_load_shed_stack += p_load * dt.get_hours()  # MWh
-        self.q_load_shed_stack += q_load * dt.get_hours()  # MWh
+        self.p_energy_shed_stack += p_load * dt.get_hours()  # MWh
+        self.q_energy_shed_stack += q_load * dt.get_hours()  # MWh
 
     def reset_load_flow_data(self):
         """

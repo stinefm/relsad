@@ -1,9 +1,9 @@
 import numpy as np
-from relsad.topology.paths import configure_bfs_load_flow_setup
-from relsad.network.systems.Network import Network
+from relsad.topology.load_flow.bfs import configure_bfs_load_flow_setup
+from relsad.network.systems.PowerNetwork import PowerNetwork
 
 
-def run_bfs_load_flow(network: Network, maxit: int = 5):
+def run_bfs_load_flow(network: PowerNetwork, maxit: int = 5):
     """
     Solves the load flow with a specified number of iterations
     The two first septs are to set up additions topology information and to build the main structure
@@ -13,7 +13,7 @@ def run_bfs_load_flow(network: Network, maxit: int = 5):
 
     Parameters
     ----------
-    network : Network
+    network : PowerNetwork
         The analyzed network
     maxit : int
         The number of iterations

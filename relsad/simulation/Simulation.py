@@ -4,7 +4,7 @@ import numpy as np
 from numpy.random import SeedSequence
 from multiprocessing import Pool
 from relsad.network.systems import (
-    Network,
+    PowerNetwork,
     PowerSystem,
     Transmission,
 )
@@ -14,7 +14,7 @@ from relsad.simulation.system_config import (
     update_sub_system_slack,
     reset_system,
 )
-from relsad.load.shedding import shed_loads
+from relsad.energy.shedding import shed_energy
 from relsad.simulation.sequence.history import update_history
 from relsad.simulation.monte_carlo.history import (
     initialize_history,
@@ -87,14 +87,14 @@ class Simulation:
             comp.add_random_instance(random_instance)
         self.power_system.controller.add_random_instance(random_instance)
 
-    def run_load_flow(self, network: Network):
+    def run_load_flow(self, network: PowerNetwork):
         """
         Runs load flow of a network
 
         Parameters
         ----------
-        network : Network
-            A Network element
+        network : PowerNetwork
+            A PowerNetwork element
 
         Returns
         ----------
@@ -163,7 +163,7 @@ class Simulation:
                 if sub_system.slack is not None:
                     self.run_load_flow(sub_system)
                 ## Shed load
-                shed_loads(sub_system, dt)
+                shed_energy(sub_system, dt)
             ## Log results
             update_history(self.power_system, prev_time, curr_time, save_flag)
         else:

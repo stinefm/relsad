@@ -104,7 +104,7 @@ def test_connect():
 
     dt = Time(1, TimeUnit.HOUR)
 
-    section.connect(dt)
+    section.connect(dt, ps.controller)
 
     assert ps.get_comp("L1").connected is True
     assert ps.get_comp("L2").connected is True

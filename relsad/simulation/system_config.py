@@ -13,7 +13,7 @@ from relsad.utils import (
     subtract,
 )
 from relsad.Time import Time
-from relsad.topology.paths import find_backup_lines_between_sub_systems
+from relsad.topology.sub_systems import find_backup_lines_between_sub_systems
 from relsad.simulation.monte_carlo.history import initialize_history
 
 
@@ -345,9 +345,9 @@ def reset_system(power_system: PowerSystem, save_flag: bool):
     None
 
     """
-    power_system.reset_load_shed_variables()
+    power_system.reset_energy_shed_variables()
     for network in power_system.child_network_list:
-        network.reset_load_shed_variables()
+        network.reset_energy_shed_variables()
     initialize_history(power_system)
 
     for comp in power_system.comp_list:
