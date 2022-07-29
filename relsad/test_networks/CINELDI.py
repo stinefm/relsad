@@ -832,7 +832,7 @@ def initialize_network(
     DL1c = Disconnector("L1c", L1, B2)
     DL2a = Disconnector("L2a", L2, B2)
     DL2b = Disconnector("L2b", L2, B3)
-    DL3a = Disconnector("L3a", L3, B2)
+    DL3a = Disconnector("L3a", L3, B3)
     DL3b = Disconnector("L3b", L3, B4)
     DL4a = Disconnector("L4a", L4, B4)
     DL4b = Disconnector("L4b", L4, B5)
