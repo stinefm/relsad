@@ -25,3 +25,5 @@ components
     relsad.network.components.Production.Production
     relsad.network.components.Sensor.Sensor
     relsad.network.components.Sensor.SensorState
+    relsad.network.components.ICTLine.ICTLine
+    relsad.network.components.ICTNode.ICTNode
