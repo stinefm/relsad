@@ -199,11 +199,6 @@ class SubSystem:
             self.comp_list.append(c_b)
             self.circuitbreakers.append(c_b)
             self.circuitbreakers = unique(self.circuitbreakers)
-            for discon in c_b.disconnectors:
-                self.comp_dict[discon.name] = discon
-                self.comp_list.append(discon)
-                self.disconnectors.append(discon)
-                self.disconnectors = unique(self.disconnectors)
         self.comp_list = unique(self.comp_list)
 
     def add_lines(self, lines: list):

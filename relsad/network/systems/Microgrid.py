@@ -214,19 +214,6 @@ class Microgrid(PowerNetwork):
         self.comp_dict[self.circuitbreaker.name] = self.circuitbreaker
         self.comp_list.append(self.circuitbreaker)
 
-        # Disconnector
-        for discon in self.circuitbreaker.disconnectors:
-            self.comp_dict[discon.name] = discon
-
-            # Intelligent switch
-            if discon.intelligent_switch:
-                self.comp_dict[
-                    discon.intelligent_switch.name
-                ] = discon.intelligent_switch
-                self.comp_list.append(discon.intelligent_switch)
-                self.intelligent_switches.append(discon.intelligent_switch)
-                self.intelligent_switches = unique(self.intelligent_switches)
-
         # Line
         self.add_line(connected_line)
 

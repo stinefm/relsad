@@ -1101,9 +1101,8 @@ def initialize_network(
     E1 = CircuitBreaker("E1", L1)
     E2 = CircuitBreaker("E2", L67)
 
-    Disconnector("L1a", L1, B1, E1)
-    Disconnector("L1b", L1, B2, E1)
-    Disconnector("L1c", L1, B2)
+    Disconnector("L1a", L1, B1)
+    Disconnector("L1b", L1, B2)
     Disconnector("L2a", L2, B2)
     Disconnector("L2b", L2, B3)
     Disconnector("L3a", L3, B3)
@@ -1243,9 +1242,8 @@ def initialize_network(
     Disconnector("L66b", L66, B67)
 
     # Microgrid:
-    Disconnector("L67a", L67, B16, E2)
-    Disconnector("L67b", L67, B68, E2)
-    Disconnector("L67c", L67, B68)
+    Disconnector("L67a", L67, B16)
+    Disconnector("L67b", L67, B68)
     Disconnector("L68a", L68, B68)
     Disconnector("L68b", L68, B69)
     Disconnector("ML3a", ML3, B68)

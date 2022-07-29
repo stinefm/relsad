@@ -300,9 +300,8 @@ def initialize_network(
 
     E1 = CircuitBreaker("E1", L1)
 
-    DL1a = Disconnector("L1a", L1, B1, E1)
-    DL1b = Disconnector("L1b", L1, B2, E1)
-    DL1c = Disconnector("L1c", L1, B2)
+    DL1a = Disconnector("L1a", L1, B1)
+    DL1b = Disconnector("L1b", L1, B2)
     DL2a = Disconnector("L2a", L2, B2)
     DL2b = Disconnector("L2b", L2, B3)
     DL3a = Disconnector("L3a", L3, B3)
@@ -380,9 +379,8 @@ def initialize_network(
 
         E2 = CircuitBreaker("E2", L11)
 
-        DL11a = Disconnector("L11a", L11, B6, E2)
-        DL11b = Disconnector("L11b", L11, M1, E2)
-        DL11c = Disconnector("L11c", L11, M1)
+        DL11a = Disconnector("L11a", L11, B6)
+        DL11b = Disconnector("L11b", L11, M1)
         DML1a = Disconnector("ML1a", ML1, M1)
         DML1b = Disconnector("ML1b", ML1, M2)
         DML2a = Disconnector("ML2a", ML2, M1)

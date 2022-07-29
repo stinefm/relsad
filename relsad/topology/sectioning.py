@@ -59,11 +59,7 @@ def create_downstream_sections(
         lines = unique(
             itertools.chain.from_iterable(get_downstream_lines(curr_line))
         )
-        disconnectors = (
-            curr_line.disconnectors + curr_line.circuitbreaker.disconnectors
-            if curr_line.circuitbreaker is not None
-            else curr_line.disconnectors
-        )
+        disconnectors = curr_line.disconnectors
         parent_section = Section(None, lines, disconnectors)
         parent_section = create_downstream_sections(curr_line, parent_section)
     else:
@@ -179,14 +175,7 @@ def refine_sections(
     if len(parent_section.lines) == 1:
         if len(parent_section.lines[0].disconnectors) > 0:
             # Single line parent section with disconnector(s)
-            # Adds circuitbreaker disconnectors if line
-            # contains circuitbreaker
-            parent_section.disconnectors = (
-                parent_section.lines[0].disconnectors
-                + parent_section.lines[0].circuitbreaker.disconnectors
-                if parent_section.lines[0].circuitbreaker is not None
-                else parent_section.lines[0].disconnectors
-            )
+            parent_section.disconnectors = parent_section.lines[0].disconnectors
     return parent_section
 
 

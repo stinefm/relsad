@@ -501,9 +501,8 @@ def initialize_network():
 
     E1 = CircuitBreaker("E1", L1)
 
-    Disconnector("L1a", L1, B1, E1)
-    Disconnector("L1b", L1, B2, E1)
-    Disconnector("L1c", L1, B2)
+    Disconnector("L1a", L1, B1)
+    Disconnector("L1b", L1, B2)
     Disconnector("L2a", L2, B2)
     Disconnector("L2b", L2, B3)
     Disconnector("L3a", L3, B3)

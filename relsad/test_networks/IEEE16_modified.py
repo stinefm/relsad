@@ -338,9 +338,8 @@ def initialize_network(
     E1 = CircuitBreaker(name="E1", line=L1)
     E2 = CircuitBreaker(name="E2", line=ML1)
 
-    Disconnector(name="L1a", line=L1, bus=B1, circuitbreaker=E1)
-    Disconnector(name="L1b", line=L1, bus=B2, circuitbreaker=E1)
-    Disconnector(name="L1c", line=L1, bus=B2)
+    Disconnector(name="L1a", line=L1, bus=B1)
+    Disconnector(name="L1b", line=L1, bus=B2)
     Disconnector(name="L2a", line=L2, bus=B2)
     Disconnector(name="L2b", line=L2, bus=B3)
     Disconnector(name="L3a", line=L3, bus=B3)
@@ -372,9 +371,8 @@ def initialize_network(
 
     # Microgrid:
 
-    Disconnector(name="ML1a", line=ML1, bus=B13, circuitbreaker=E2)
-    Disconnector(name="ML1b", line=ML1, bus=BM1, circuitbreaker=E2)
-    Disconnector(name="ML1c", line=ML1, bus=BM1)
+    Disconnector(name="ML1a", line=ML1, bus=B13)
+    Disconnector(name="ML1b", line=ML1, bus=BM1)
     Disconnector(name="ML2a", line=ML2, bus=BM1)
     Disconnector(name="ML2b", line=ML2, bus=BM2)
     Disconnector(name="ML3a", line=ML3, bus=BM1)

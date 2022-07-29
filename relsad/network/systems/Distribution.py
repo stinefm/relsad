@@ -201,17 +201,6 @@ class Distribution(PowerNetwork):
         self.comp_dict[c_b.name] = c_b
         self.comp_list.append(c_b)
 
-        # Disconnectors
-        for discon in c_b.disconnectors:
-            self.comp_dict[discon.name] = discon
-            if discon.intelligent_switch is not None:
-                self.comp_dict[
-                    discon.intelligent_switch.name
-                ] = discon.intelligent_switch
-                self.comp_list.append(discon.intelligent_switch)
-                self.intelligent_switches.append(discon.intelligent_switch)
-                self.intelligent_switches = unique(self.intelligent_switches)
-
         # Line
         self.add_line(connected_line)
 

@@ -1,7 +1,6 @@
 from .Component import Component
 from .Line import Line
 from .Bus import Bus
-from .Circuitbreaker import CircuitBreaker
 import matplotlib.lines as mlines
 import numpy as np
 from relsad.Time import (
@@ -35,8 +34,6 @@ class Disconnector(Component):
             The time of the previous time step
         line : Line
             The line the disconnecor is connected to
-        circuitbreaker : Circuitbreaker
-            The circuit breaker the disconnector is connected to if any
         base_bus : Bus
             Wich bus the disconnector is closes to (for setting coordinates)
         intelligent_switch : IntelligentSwitch
@@ -91,7 +88,6 @@ class Disconnector(Component):
         name: str,
         line: Line,
         bus: Bus,
-        circuitbreaker: CircuitBreaker = None,
         is_open: bool = False,
         fail_rate: float = 0.014,
         outage_time: Time = Time(1, TimeUnit.HOUR),
@@ -122,7 +118,6 @@ class Disconnector(Component):
         self.outage_time = outage_time
         self.prev_open_time = Time(0)
         self.line = line
-        self.circuitbreaker = circuitbreaker
 
         ## Set coordinate
         self.base_bus = bus
@@ -131,19 +126,12 @@ class Disconnector(Component):
         if bus == line.tbus:
             dx *= -1
             dy *= -1
-        if self.circuitbreaker is None:
-            line.disconnectors.append(self)
-            self.coordinate = [
-                self.base_bus.coordinate[0] + dx / 4,
-                self.base_bus.coordinate[1] + dy / 4,
-            ]
-        else:
-            self.circuitbreaker.disconnectors.append(self)
-            # line.disconnectors.append(self)
-            self.coordinate = [
-                circuitbreaker.coordinate[0] - dx / 10,
-                circuitbreaker.coordinate[1] - dy / 10,
-            ]
+
+        line.disconnectors.append(self)
+        self.coordinate = [
+            self.base_bus.coordinate[0] + dx / 4,
+            self.base_bus.coordinate[1] + dy / 4,
+        ]
 
         ## Communication
         self.intelligent_switch = None

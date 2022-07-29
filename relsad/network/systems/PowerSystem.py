@@ -322,20 +322,6 @@ class PowerSystem(PowerNetwork):
             self.comp_list.append(c_b)
             self.circuitbreakers.append(c_b)
             self.circuitbreakers = unique(self.circuitbreakers)
-            for discon in c_b.disconnectors:
-                self.comp_dict[discon.name] = discon
-                self.comp_list.append(discon)
-                self.disconnectors.append(discon)
-                self.disconnectors = unique(self.disconnectors)
-                if discon.intelligent_switch:
-                    self.comp_dict[
-                        discon.intelligent_switch.name
-                    ] = discon.intelligent_switch
-                    self.comp_list.append(discon.intelligent_switch)
-                    self.intelligent_switches.append(discon.intelligent_switch)
-                    self.intelligent_switches = unique(
-                        self.intelligent_switches
-                    )
         self.comp_list = unique(self.comp_list)
 
     def add_lines(self, lines: list):

@@ -36,17 +36,15 @@ class CircuitBreaker(Component):
             The initial state of the circuit breaker
         failed : bool
             True if the circuit breaker is in a failed state, False if not
-        disconnectors : list
-            List over which disconnectors that are connected to the circuit breaker
         history : dict
             Dictonary attribute that stores the historic variables
 
         Methods
         ----------
         close()
-            Closes the circuit breaker and the disconnectors connected to the circuit breaker
+            Closes the circuit breaker and the disconnectors connected to the host line
         open()
-            Opens the circuit breaker and the disconnectors connected to the circuit breaker
+            Opens the circuit breaker and the disconnectors connected to the host line
         update_fail_status(dt)
             Updates the failure status of the circuit breaker
         initialize_history()
@@ -117,7 +115,7 @@ class CircuitBreaker(Component):
         self.fail_rate = fail_rate
         self.outage_time = outage_time
         self.line = line
-        self.disconnectors = list()
+
         # Add this circuitbreaker to parent line
         self.line.circuitbreaker = self
 
@@ -156,12 +154,14 @@ class CircuitBreaker(Component):
         """
         self.is_open = False
         self.color = "black"
-        for discon in self.disconnectors + self.line.disconnectors:
+        for discon in self.line.disconnectors:
             if (
                 discon.is_open
                 and self.line.section.state == SectionState.CONNECTED
             ):
                 discon.close()
+        if not self.line.connected:
+            self.line.connect()
 
     def open(self):
         """
@@ -178,9 +178,11 @@ class CircuitBreaker(Component):
         """
         self.is_open = True
         self.color = "white"
-        for discon in unique(self.line.disconnectors + self.disconnectors):
+        for discon in self.line.disconnectors:
             if not discon.is_open:
                 discon.open()
+        if self.line.connected:
+            self.line.disconnect()
 
     def update_fail_status(self, dt: Time):
         """

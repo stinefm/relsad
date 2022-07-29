@@ -49,7 +49,6 @@ def test_B2_trafo_fail():
     assert ps.get_comp("E1").is_open is False
     assert ps.get_comp("L1a").is_open is False
     assert ps.get_comp("L1b").is_open is False
-    assert ps.get_comp("L1c").is_open is False
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -63,7 +62,6 @@ def test_B2_trafo_fail():
     assert ps.get_comp("E2").is_open is False
     assert ps.get_comp("L7a").is_open is False
     assert ps.get_comp("L7b").is_open is False
-    assert ps.get_comp("L7c").is_open is False
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -102,7 +100,6 @@ def test_B3_trafo_fail():
     assert ps.get_comp("E1").is_open is False
     assert ps.get_comp("L1a").is_open is False
     assert ps.get_comp("L1b").is_open is False
-    assert ps.get_comp("L1c").is_open is False
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -116,7 +113,6 @@ def test_B3_trafo_fail():
     assert ps.get_comp("E2").is_open is False
     assert ps.get_comp("L7a").is_open is False
     assert ps.get_comp("L7b").is_open is False
-    assert ps.get_comp("L7c").is_open is False
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -155,7 +151,6 @@ def test_B4_trafo_fail():
     assert ps.get_comp("E1").is_open is False
     assert ps.get_comp("L1a").is_open is False
     assert ps.get_comp("L1b").is_open is False
-    assert ps.get_comp("L1c").is_open is False
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -169,7 +164,6 @@ def test_B4_trafo_fail():
     assert ps.get_comp("E2").is_open is False
     assert ps.get_comp("L7a").is_open is False
     assert ps.get_comp("L7b").is_open is False
-    assert ps.get_comp("L7c").is_open is False
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -208,7 +202,6 @@ def test_B5_trafo_fail():
     assert ps.get_comp("E1").is_open is False
     assert ps.get_comp("L1a").is_open is False
     assert ps.get_comp("L1b").is_open is False
-    assert ps.get_comp("L1c").is_open is False
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -222,7 +215,6 @@ def test_B5_trafo_fail():
     assert ps.get_comp("E2").is_open is False
     assert ps.get_comp("L7a").is_open is False
     assert ps.get_comp("L7b").is_open is False
-    assert ps.get_comp("L7c").is_open is False
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -261,7 +253,6 @@ def test_B6_trafo_fail():
     assert ps.get_comp("E1").is_open is False
     assert ps.get_comp("L1a").is_open is False
     assert ps.get_comp("L1b").is_open is False
-    assert ps.get_comp("L1c").is_open is False
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -275,7 +266,6 @@ def test_B6_trafo_fail():
     assert ps.get_comp("E2").is_open is False
     assert ps.get_comp("L7a").is_open is False
     assert ps.get_comp("L7b").is_open is False
-    assert ps.get_comp("L7c").is_open is False
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -314,7 +304,6 @@ def test_M1_trafo_fail():
     assert ps.get_comp("E1").is_open is False
     assert ps.get_comp("L1a").is_open is False
     assert ps.get_comp("L1b").is_open is False
-    assert ps.get_comp("L1c").is_open is False
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -328,7 +317,6 @@ def test_M1_trafo_fail():
     assert ps.get_comp("E2").is_open is False
     assert ps.get_comp("L7a").is_open is False
     assert ps.get_comp("L7b").is_open is False
-    assert ps.get_comp("L7c").is_open is False
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -367,7 +355,6 @@ def test_M2_trafo_fail():
     assert ps.get_comp("E1").is_open is False
     assert ps.get_comp("L1a").is_open is False
     assert ps.get_comp("L1b").is_open is False
-    assert ps.get_comp("L1c").is_open is False
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -381,7 +368,6 @@ def test_M2_trafo_fail():
     assert ps.get_comp("E2").is_open is False
     assert ps.get_comp("L7a").is_open is False
     assert ps.get_comp("L7b").is_open is False
-    assert ps.get_comp("L7c").is_open is False
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -420,7 +406,6 @@ def test_M3_trafo_fail():
     assert ps.get_comp("E1").is_open is False
     assert ps.get_comp("L1a").is_open is False
     assert ps.get_comp("L1b").is_open is False
-    assert ps.get_comp("L1c").is_open is False
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -434,7 +419,6 @@ def test_M3_trafo_fail():
     assert ps.get_comp("E2").is_open is False
     assert ps.get_comp("L7a").is_open is False
     assert ps.get_comp("L7b").is_open is False
-    assert ps.get_comp("L7c").is_open is False
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -473,7 +457,6 @@ def test_L1_fail():
     assert ps.get_comp("E1").is_open is True
     assert ps.get_comp("L1a").is_open is True
     assert ps.get_comp("L1b").is_open is True
-    assert ps.get_comp("L1c").is_open is True
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -487,7 +470,6 @@ def test_L1_fail():
     assert ps.get_comp("E2").is_open is True
     assert ps.get_comp("L7a").is_open is True
     assert ps.get_comp("L7b").is_open is True
-    assert ps.get_comp("L7c").is_open is True
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -526,7 +508,6 @@ def test_L2_fail():
     assert ps.get_comp("E1").is_open is True
     assert ps.get_comp("L1a").is_open is True
     assert ps.get_comp("L1b").is_open is True
-    assert ps.get_comp("L1c").is_open is True
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -540,7 +521,6 @@ def test_L2_fail():
     assert ps.get_comp("E2").is_open is True
     assert ps.get_comp("L7a").is_open is True
     assert ps.get_comp("L7b").is_open is True
-    assert ps.get_comp("L7c").is_open is True
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -579,7 +559,6 @@ def test_L3_fail():
     assert ps.get_comp("E1").is_open is True
     assert ps.get_comp("L1a").is_open is True
     assert ps.get_comp("L1b").is_open is True
-    assert ps.get_comp("L1c").is_open is True
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -593,7 +572,6 @@ def test_L3_fail():
     assert ps.get_comp("E2").is_open is True
     assert ps.get_comp("L7a").is_open is True
     assert ps.get_comp("L7b").is_open is True
-    assert ps.get_comp("L7c").is_open is True
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -632,7 +610,6 @@ def test_L4_fail():
     assert ps.get_comp("E1").is_open is True
     assert ps.get_comp("L1a").is_open is True
     assert ps.get_comp("L1b").is_open is True
-    assert ps.get_comp("L1c").is_open is True
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -646,7 +623,6 @@ def test_L4_fail():
     assert ps.get_comp("E2").is_open is True
     assert ps.get_comp("L7a").is_open is True
     assert ps.get_comp("L7b").is_open is True
-    assert ps.get_comp("L7c").is_open is True
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -685,7 +661,6 @@ def test_L5_fail():
     assert ps.get_comp("E1").is_open is True
     assert ps.get_comp("L1a").is_open is True
     assert ps.get_comp("L1b").is_open is True
-    assert ps.get_comp("L1c").is_open is True
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -699,7 +674,6 @@ def test_L5_fail():
     assert ps.get_comp("E2").is_open is True
     assert ps.get_comp("L7a").is_open is True
     assert ps.get_comp("L7b").is_open is True
-    assert ps.get_comp("L7c").is_open is True
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -738,7 +712,6 @@ def test_L6_fail():
     assert ps.get_comp("E1").is_open is False
     assert ps.get_comp("L1a").is_open is False
     assert ps.get_comp("L1b").is_open is False
-    assert ps.get_comp("L1c").is_open is False
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -752,7 +725,6 @@ def test_L6_fail():
     assert ps.get_comp("E2").is_open is False
     assert ps.get_comp("L7a").is_open is False
     assert ps.get_comp("L7b").is_open is False
-    assert ps.get_comp("L7c").is_open is False
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -791,7 +763,6 @@ def test_L7_fail():
     assert ps.get_comp("E1").is_open is False
     assert ps.get_comp("L1a").is_open is False
     assert ps.get_comp("L1b").is_open is False
-    assert ps.get_comp("L1c").is_open is False
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -805,7 +776,6 @@ def test_L7_fail():
     assert ps.get_comp("E2").is_open is True
     assert ps.get_comp("L7a").is_open is True
     assert ps.get_comp("L7b").is_open is True
-    assert ps.get_comp("L7c").is_open is True
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -844,7 +814,6 @@ def test_ML1_fail():
     assert ps.get_comp("E1").is_open is False
     assert ps.get_comp("L1a").is_open is False
     assert ps.get_comp("L1b").is_open is False
-    assert ps.get_comp("L1c").is_open is False
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -858,7 +827,6 @@ def test_ML1_fail():
     assert ps.get_comp("E2").is_open is True
     assert ps.get_comp("L7a").is_open is True
     assert ps.get_comp("L7b").is_open is True
-    assert ps.get_comp("L7c").is_open is True
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -899,7 +867,6 @@ def test_ML2_fail():
     assert ps.get_comp("E1").is_open is False
     assert ps.get_comp("L1a").is_open is False
     assert ps.get_comp("L1b").is_open is False
-    assert ps.get_comp("L1c").is_open is False
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -913,7 +880,6 @@ def test_ML2_fail():
     assert ps.get_comp("E2").is_open is True
     assert ps.get_comp("L7a").is_open is True
     assert ps.get_comp("L7b").is_open is True
-    assert ps.get_comp("L7c").is_open is True
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -953,7 +919,6 @@ def test_L2_and_L3_fail():
     assert ps.get_comp("E1").is_open is True
     assert ps.get_comp("L1a").is_open is True
     assert ps.get_comp("L1b").is_open is True
-    assert ps.get_comp("L1c").is_open is True
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -967,7 +932,6 @@ def test_L2_and_L3_fail():
     assert ps.get_comp("E2").is_open is True
     assert ps.get_comp("L7a").is_open is True
     assert ps.get_comp("L7b").is_open is True
-    assert ps.get_comp("L7c").is_open is True
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False
@@ -1009,7 +973,6 @@ def test_L3_and_L5_fail():
     assert ps.get_comp("E1").is_open is True
     assert ps.get_comp("L1a").is_open is True
     assert ps.get_comp("L1b").is_open is True
-    assert ps.get_comp("L1c").is_open is True
     assert ps.get_comp("L2a").is_open is False
     assert ps.get_comp("L2b").is_open is False
     assert ps.get_comp("L3a").is_open is False
@@ -1023,7 +986,6 @@ def test_L3_and_L5_fail():
     assert ps.get_comp("E2").is_open is True
     assert ps.get_comp("L7a").is_open is True
     assert ps.get_comp("L7b").is_open is True
-    assert ps.get_comp("L7c").is_open is True
     assert ps.get_comp("ML1a").is_open is False
     assert ps.get_comp("ML1b").is_open is False
     assert ps.get_comp("ML2a").is_open is False

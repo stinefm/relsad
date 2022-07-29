@@ -186,9 +186,6 @@ def initialize_network(
         ICTNISW1b = ICTNode(
             name="ICTNISW1b",
         )
-        ICTNISW1c = ICTNode(
-            name="ICTNISW1c",
-        )
         ICTNISW2a = ICTNode(
             name="ICTNISW2a",
         )
@@ -217,7 +214,6 @@ def initialize_network(
             [
                 ICTNISW1a,
                 ICTNISW1b,
-                ICTNISW1c,
                 ICTNISW2a,
                 ICTNISW2b,
                 ICTNISW3a,
@@ -401,62 +397,48 @@ def initialize_network(
         )
         ICTL9 = ICTLine(
             name="ICTL9",
-            fnode=ICTNISW1c,
-            tnode=ICTNA2,
+            fnode=ICTNISW2b,
+            tnode=ICTNA5,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
         ICTL10 = ICTLine(
             name="ICTL10",
-            fnode=ICTNISW2a,
-            tnode=ICTNA2,
+            fnode=ICTNISW3a,
+            tnode=ICTNA5,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
         ICTL11 = ICTLine(
             name="ICTL11",
-            fnode=ICTNISW2b,
+            fnode=ICTNISW3b,
             tnode=ICTNA5,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
         ICTL12 = ICTLine(
             name="ICTL12",
-            fnode=ICTNISW3a,
-            tnode=ICTNA5,
+            fnode=ICTNISW4a,
+            tnode=ICTNA6,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
         ICTL13 = ICTLine(
             name="ICTL13",
-            fnode=ICTNISW3b,
+            fnode=ICTNISW4b,
             tnode=ICTNA5,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
         ICTL14 = ICTLine(
             name="ICTL14",
-            fnode=ICTNISW4a,
+            fnode=ICTNISW5a,
             tnode=ICTNA6,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
         ICTL15 = ICTLine(
             name="ICTL15",
-            fnode=ICTNISW4b,
-            tnode=ICTNA5,
-            repair_time_dist=ict_line_repair_time_stat_dist,
-            fail_rate_per_year=fail_rate_ict_line,
-        )
-        ICTL16 = ICTLine(
-            name="ICTL16",
-            fnode=ICTNISW5a,
-            tnode=ICTNA6,
-            repair_time_dist=ict_line_repair_time_stat_dist,
-            fail_rate_per_year=fail_rate_ict_line,
-        )
-        ICTL17 = ICTLine(
-            name="ICTL17",
             fnode=ICTNISW5b,
             tnode=ICTNA6,
             repair_time_dist=ict_line_repair_time_stat_dist,
@@ -478,18 +460,17 @@ def initialize_network(
             ICTL13,
             ICTL14,
             ICTL15,
-            ICTL16,
         ]
         if include_backup:
-            ICTL18 = ICTLine(
-                name="ICTL18",
+            ICTL16 = ICTLine(
+                name="ICTL16",
                 fnode=ICTNISW6a,
                 tnode=ICTNA6,
                 repair_time_dist=ict_line_repair_time_stat_dist,
                 fail_rate_per_year=fail_rate_ict_line,
             )
-            ICTL19 = ICTLine(
-                name="ICTL19",
+            ICTL17 = ICTLine(
+                name="ICTL17",
                 fnode=ICTNISW6b,
                 tnode=ICTNA6,
                 repair_time_dist=ict_line_repair_time_stat_dist,
@@ -497,49 +478,49 @@ def initialize_network(
             )
             ict_lines.extend(
                 [
-                    ICTL18,
-                    ICTL19,
+                    ICTL16,
+                    ICTL17,
                 ]
             )
 
         ### Access lines
-        ICTL20 = ICTLine(
-            name="ICTL20",
+        ICTL18 = ICTLine(
+            name="ICTL18",
             fnode=ICTNA1,
             tnode=ICTNA2,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
-        ICTL21 = ICTLine(
-            name="ICTL21",
+        ICTL19 = ICTLine(
+            name="ICTL19",
             fnode=ICTNA2,
             tnode=ICTNA3,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
-        ICTL22 = ICTLine(
-            name="ICTL22",
+        ICTL20 = ICTLine(
+            name="ICTL20",
             fnode=ICTNA1,
             tnode=ICTNA4,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
-        ICTL23 = ICTLine(
-            name="ICTL23",
+        ICTL21 = ICTLine(
+            name="ICTL21",
             fnode=ICTNA5,
             tnode=ICTNA6,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
-        ICTL24 = ICTLine(
-            name="ICTL24",
+        ICTL22 = ICTLine(
+            name="ICTL22",
             fnode=ICTNA6,
             tnode=ICTNA7,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
-        ICTL25 = ICTLine(
-            name="ICTL25",
+        ICTL23 = ICTLine(
+            name="ICTL23",
             fnode=ICTNA5,
             tnode=ICTNA8,
             repair_time_dist=ict_line_repair_time_stat_dist,
@@ -547,137 +528,137 @@ def initialize_network(
         )
         ict_lines.extend(
             [
+                ICTL18,
+                ICTL19,
                 ICTL20,
                 ICTL21,
                 ICTL22,
                 ICTL23,
-                ICTL24,
-                ICTL25,
             ]
         )
 
         ### Network lines
-        ICTL26 = ICTLine(
-            name="ICTL26",
+        ICTL24 = ICTLine(
+            name="ICTL24",
             fnode=ICTNA3,
             tnode=ICTN1,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
-        ICTL27 = ICTLine(
-            name="ICTL27",
+        ICTL25 = ICTLine(
+            name="ICTL25",
             fnode=ICTN1,
             tnode=ICTN2,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL26 = ICTLine(
+            name="ICTL26",
+            fnode=ICTN2,
+            tnode=ICTNA8,
+            repair_time_dist=ict_line_repair_time_stat_dist,
+            fail_rate_per_year=fail_rate_ict_line,
+        )
+        ICTL27 = ICTLine(
+            name="ICTL27",
+            fnode=ICTN2,
+            tnode=ICTN3,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
         ICTL28 = ICTLine(
             name="ICTL28",
             fnode=ICTN2,
-            tnode=ICTNA8,
+            tnode=ICTN10,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
         ICTL29 = ICTLine(
             name="ICTL29",
-            fnode=ICTN2,
-            tnode=ICTN3,
+            fnode=ICTN3,
+            tnode=ICTN4,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
         ICTL30 = ICTLine(
             name="ICTL30",
-            fnode=ICTN2,
-            tnode=ICTN10,
+            fnode=ICTN4,
+            tnode=ICTN5,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
         ICTL31 = ICTLine(
             name="ICTL31",
-            fnode=ICTN3,
-            tnode=ICTN4,
+            fnode=ICTN4,
+            tnode=ICTN7,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
         ICTL32 = ICTLine(
             name="ICTL32",
             fnode=ICTN4,
-            tnode=ICTN5,
+            tnode=ICTN8,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
         ICTL33 = ICTLine(
             name="ICTL33",
             fnode=ICTN4,
-            tnode=ICTN7,
+            tnode=ICTN10,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
         ICTL34 = ICTLine(
             name="ICTL34",
-            fnode=ICTN4,
-            tnode=ICTN8,
-            repair_time_dist=ict_line_repair_time_stat_dist,
-            fail_rate_per_year=fail_rate_ict_line,
-        )
-        ICTL35 = ICTLine(
-            name="ICTL35",
-            fnode=ICTN4,
-            tnode=ICTN10,
-            repair_time_dist=ict_line_repair_time_stat_dist,
-            fail_rate_per_year=fail_rate_ict_line,
-        )
-        ICTL36 = ICTLine(
-            name="ICTL36",
             fnode=ICTN5,
             tnode=ICTN6,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
-        ICTL37 = ICTLine(
-            name="ICTL37",
+        ICTL35 = ICTLine(
+            name="ICTL35",
             fnode=ICTN5,
             tnode=ICTNA7,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
-        ICTL38 = ICTLine(
-            name="ICTL38",
+        ICTL36 = ICTLine(
+            name="ICTL36",
             fnode=ICTN6,
             tnode=ICTN7,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
-        ICTL39 = ICTLine(
-            name="ICTL39",
+        ICTL37 = ICTLine(
+            name="ICTL37",
             fnode=ICTN8,
             tnode=ICTN9,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
-        ICTL40 = ICTLine(
-            name="ICTL40",
+        ICTL38 = ICTLine(
+            name="ICTL38",
             fnode=ICTN9,
             tnode=ICTN10,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
-        ICTL41 = ICTLine(
-            name="ICTL41",
+        ICTL39 = ICTLine(
+            name="ICTL39",
             fnode=ICTN9,
             tnode=ICTN11,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
-        ICTL42 = ICTLine(
-            name="ICTL42",
+        ICTL40 = ICTLine(
+            name="ICTL40",
             fnode=ICTN11,
             tnode=ICTN12,
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
-        ICTL43 = ICTLine(
-            name="ICTL43",
+        ICTL41 = ICTLine(
+            name="ICTL41",
             fnode=ICTN12,
             tnode=ICTNA4,
             repair_time_dist=ict_line_repair_time_stat_dist,
@@ -685,6 +666,8 @@ def initialize_network(
         )
         ict_lines.extend(
             [
+                ICTL24,
+                ICTL25,
                 ICTL26,
                 ICTL27,
                 ICTL28,
@@ -701,8 +684,6 @@ def initialize_network(
                 ICTL39,
                 ICTL40,
                 ICTL41,
-                ICTL42,
-                ICTL43,
             ]
         )
 
@@ -827,9 +808,8 @@ def initialize_network(
 
     E1 = CircuitBreaker("E1", L1)
 
-    DL1a = Disconnector("L1a", L1, B1, E1)
-    DL1b = Disconnector("L1b", L1, B2, E1)
-    DL1c = Disconnector("L1c", L1, B2)
+    DL1a = Disconnector("L1a", L1, B1)
+    DL1b = Disconnector("L1b", L1, B2)
     DL2a = Disconnector("L2a", L2, B2)
     DL2b = Disconnector("L2b", L2, B3)
     DL3a = Disconnector("L3a", L3, B3)
@@ -908,12 +888,6 @@ def initialize_network(
             name="RL1b",
             disconnector=DL1b,
             ict_node=ICTNISW1b,
-            fail_rate_per_year=fail_rate_intelligent_switch,
-        )
-        IntelligentSwitch(
-            name="RL1c",
-            disconnector=DL1c,
-            ict_node=ICTNISW1c,
             fail_rate_per_year=fail_rate_intelligent_switch,
         )
         IntelligentSwitch(
@@ -1050,16 +1024,9 @@ def initialize_network(
             name="L7a",
             line=L7,
             bus=B2,
-            circuitbreaker=E2,
         )
         DL7b = Disconnector(
             name="L7b",
-            line=L7,
-            bus=M1,
-            circuitbreaker=E2,
-        )
-        DL7c = Disconnector(
-            name="L7c",
             line=L7,
             bus=M1,
         )
@@ -1116,11 +1083,6 @@ def initialize_network(
             IntelligentSwitch(
                 name="RL7b",
                 disconnector=DL7b,
-                fail_rate_per_year=fail_rate_intelligent_switch,
-            )
-            IntelligentSwitch(
-                name="RL7c",
-                disconnector=DL7c,
                 fail_rate_per_year=fail_rate_intelligent_switch,
             )
 
