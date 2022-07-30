@@ -201,7 +201,9 @@ Creating circuit breaker::
         line=L1,
         )
 
-Creating disconnectors, here we add several disconnectors for each line. Lines can contain from 0 up to 2 disconnectors alone. If a circuit breaker is placed on a line, the line may contain 3 disconnectors:: 
+Creating disconnectors::
+    
+Disconnectors can be added to the lines in the system. A line can have zero, one or two disconnectors connected. In this example, e we add several disconnectors for each line. If a circuit breaker is placed on a line, can also have two disconnectors:: 
 
     DL1a = Disconnector(
         name="L1a", 
