@@ -22,7 +22,11 @@ from relsad.Time import (
 )
 
 
-def initialize_network(include_ICT: bool = False):
+def initialize_network(
+    include_ICT: bool = False,
+    circuitbreaker_placement: str = "L1",
+    disconnector_placement: str = "L1_B1",
+):
 
     if include_ICT:
         C1 = MainController(name="C1")
@@ -77,17 +81,41 @@ def initialize_network(include_ICT: bool = False):
         x=x,
     )
 
-    D1 = Disconnector("D1", L1, B1)
+    if disconnector_placement == "L1_B1":
+        D1 = Disconnector("D1", L1, B1)
+    elif disconnector_placement == "L2_B2":
+        D1 = Disconnector("D1", L2, B2)
+    elif disconnector_placement == "L3_B3":
+        D1 = Disconnector("D1", L3, B3)
+    elif disconnector_placement == "L4_B4":
+        D1 = Disconnector("D1", L4, B4)
+    elif disconnector_placement == "L5_B3":
+        D1 = Disconnector("D1", L5, B3)
+    else:
+        raise Exception("Invalid placement of disconnector")
 
     if include_ICT:
         IntelligentSwitch("ISW1", D1)
 
-    CircuitBreaker("E1", L1)
+    if circuitbreaker_placement == "L1":
+        connected_line = L1
+    elif circuitbreaker_placement == "L2":
+        connected_line = L2
+    elif circuitbreaker_placement == "L3":
+        connected_line = L3
+    elif circuitbreaker_placement == "L4":
+        connected_line = L4
+    elif circuitbreaker_placement == "L5":
+        connected_line = L5
+    else:
+        raise Exception("Invalid placement of circuitbreaker")
+
+    CircuitBreaker("E1", connected_line)
 
     tn = Transmission(ps, trafo_bus=B1)
-    dn = Distribution(parent_network=tn, connected_line=L1)
+    dn = Distribution(parent_network=tn, connected_line=connected_line)
     dn.add_buses([B2, B3, B4, B5, B6])
-    dn.add_lines([L2, L3, L4, L5])
+    dn.add_lines(list(set([L1, L2, L3, L4, L5]) - set([connected_line])))
     return ps
 
 
@@ -95,9 +123,9 @@ def test_connect():
     ps = initialize_network(include_ICT=True)
 
     section = Section(
-        parent=ps,
+        parent_section=None,
         lines=ps.lines,
-        disconnectors=ps.disconnectors,
+        switches=ps.disconnectors + ps.circuitbreakers,
     )
 
     ps.get_comp("ISW1").state = IntelligentSwitchState.OK
@@ -118,9 +146,9 @@ def test_connect_manually():
     ps = initialize_network(include_ICT=False)
 
     section = Section(
-        parent=ps,
+        parent_section=None,
         lines=ps.lines,
-        disconnectors=ps.disconnectors,
+        switches=ps.disconnectors + ps.circuitbreakers,
     )
 
     section.connect_manually()
@@ -137,9 +165,9 @@ def test_disconnect():
     ps = initialize_network(include_ICT=False)
 
     section = Section(
-        parent=ps,
+        parent_section=None,
         lines=ps.lines,
-        disconnectors=ps.disconnectors,
+        switches=ps.disconnectors + ps.circuitbreakers,
     )
 
     section.disconnect()
@@ -150,3 +178,161 @@ def test_disconnect():
     assert ps.get_comp("L4").connected is False
     assert ps.get_comp("L5").connected is False
     assert ps.get_comp("D1").is_open is True
+
+
+def test_sectioning_cb_L1():
+    ps = initialize_network(
+        include_ICT=True,
+        circuitbreaker_placement="L1",
+    )
+
+    ps.create_sections()
+
+    dist_network = ps.child_network_list[1]
+
+    assert ps.get_comp("L1") in dist_network.sections[0].lines
+    assert ps.get_comp("L2") in dist_network.sections[0].lines
+    assert ps.get_comp("L3") in dist_network.sections[0].lines
+    assert ps.get_comp("L4") in dist_network.sections[0].lines
+    assert ps.get_comp("L5") in dist_network.sections[0].lines
+
+
+def test_sectioning_cb_L2():
+    ps = initialize_network(
+        include_ICT=True,
+        circuitbreaker_placement="L2",
+    )
+
+    ps.create_sections()
+
+    dist_network = ps.child_network_list[1]
+
+    assert ps.get_comp("L2") in dist_network.sections[0].lines
+    assert ps.get_comp("L3") in dist_network.sections[0].lines
+    assert ps.get_comp("L4") in dist_network.sections[0].lines
+    assert ps.get_comp("L5") in dist_network.sections[0].lines
+
+
+def test_sectioning_cb_L3():
+    ps = initialize_network(
+        include_ICT=True,
+        circuitbreaker_placement="L3",
+    )
+
+    ps.create_sections()
+
+    dist_network = ps.child_network_list[1]
+
+    assert ps.get_comp("L3") in dist_network.sections[0].lines
+    assert ps.get_comp("L4") in dist_network.sections[0].lines
+
+
+def test_sectioning_cb_L4():
+    ps = initialize_network(
+        include_ICT=True,
+        circuitbreaker_placement="L4",
+    )
+
+    ps.create_sections()
+
+    dist_network = ps.child_network_list[1]
+
+    assert ps.get_comp("L4") in dist_network.sections[0].lines
+
+
+def test_sectioning_cb_L5():
+    ps = initialize_network(
+        include_ICT=True,
+        circuitbreaker_placement="L5",
+    )
+
+    ps.create_sections()
+
+    dist_network = ps.child_network_list[1]
+
+    assert ps.get_comp("L5") in dist_network.sections[0].lines
+
+
+def test_sectioning_discon_L1_B1():
+    ps = initialize_network(
+        include_ICT=True,
+        disconnector_placement="L1_B1",
+    )
+
+    ps.create_sections()
+
+    dist_network = ps.child_network_list[1]
+
+    assert ps.get_comp("L1") in dist_network.sections[0].lines
+    assert ps.get_comp("L2") in dist_network.sections[0].lines
+    assert ps.get_comp("L3") in dist_network.sections[0].lines
+    assert ps.get_comp("L4") in dist_network.sections[0].lines
+    assert ps.get_comp("L5") in dist_network.sections[0].lines
+
+
+def test_sectioning_discon_L2_B2():
+    ps = initialize_network(
+        include_ICT=True,
+        disconnector_placement="L2_B2",
+    )
+
+    ps.create_sections()
+
+    dist_network = ps.child_network_list[1]
+
+    assert ps.get_comp("L1") in dist_network.sections[0].lines
+    assert ps.get_comp("L2") in dist_network.sections[1].lines
+    assert ps.get_comp("L3") in dist_network.sections[1].lines
+    assert ps.get_comp("L4") in dist_network.sections[1].lines
+    assert ps.get_comp("L5") in dist_network.sections[1].lines
+
+
+def test_sectioning_discon_L3_B3():
+    ps = initialize_network(
+        include_ICT=True,
+        disconnector_placement="L3_B3",
+    )
+
+    ps.create_sections()
+
+    dist_network = ps.child_network_list[1]
+
+    assert ps.get_comp("L1") in dist_network.sections[0].lines
+    assert ps.get_comp("L2") in dist_network.sections[0].lines
+    assert ps.get_comp("L3") in dist_network.sections[1].lines
+    assert ps.get_comp("L4") in dist_network.sections[1].lines
+    assert ps.get_comp("L5") in dist_network.sections[0].lines
+
+
+def test_sectioning_discon_L4_B4():
+    ps = initialize_network(
+        include_ICT=True,
+        disconnector_placement="L4_B4",
+    )
+
+    ps.create_sections()
+
+    dist_network = ps.child_network_list[1]
+
+    assert ps.get_comp("L1") in dist_network.sections[0].lines
+    assert ps.get_comp("L2") in dist_network.sections[0].lines
+    assert ps.get_comp("L3") in dist_network.sections[0].lines
+    assert ps.get_comp("L4") in dist_network.sections[1].lines
+    assert ps.get_comp("L5") in dist_network.sections[0].lines
+
+
+def test_sectioning_discon_L5_B3():
+    ps = initialize_network(
+        include_ICT=True,
+        disconnector_placement="L5_B3",
+    )
+
+    ps.create_sections()
+
+    dist_network = ps.child_network_list[1]
+
+    assert ps.get_comp("L1") in dist_network.sections[0].lines
+    assert ps.get_comp("L2") in dist_network.sections[0].lines
+    assert ps.get_comp("L3") in dist_network.sections[0].lines
+    assert ps.get_comp("L4") in dist_network.sections[0].lines
+    assert ps.get_comp("L5") in dist_network.sections[1].lines

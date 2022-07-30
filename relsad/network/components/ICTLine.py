@@ -111,9 +111,7 @@ class ICTLine(Component):
         if repair_time_dist is None:
             raise Exception("The line must have a repair time distribution")
         if fail_rate_per_year < 0:
-            raise Exception(
-                "The failure rate per year must be positive"
-            )
+            raise Exception("The failure rate per year must be positive")
 
         ## Informative attributes
         self.name = name

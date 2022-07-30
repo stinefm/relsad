@@ -19,7 +19,7 @@ from .Controller import (
     Controller,
     ControllerState,
 )
-from .Circuitbreaker import CircuitBreaker
+from .CircuitBreaker import CircuitBreaker
 from .Disconnector import Disconnector
 from .DistributionController import DistributionController
 from .EVPark import EVPark

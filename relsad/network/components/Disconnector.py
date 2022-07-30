@@ -1,4 +1,5 @@
 from .Component import Component
+from .Switch import Switch
 from .Line import Line
 from .Bus import Bus
 import matplotlib.lines as mlines
@@ -9,7 +10,7 @@ from relsad.Time import (
 )
 
 
-class Disconnector(Component):
+class Disconnector(Component, Switch):
 
     """
     Common base class for disconnectors

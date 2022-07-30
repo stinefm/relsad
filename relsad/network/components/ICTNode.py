@@ -267,7 +267,8 @@ class ICTNode(Component):
         """
         print(
             "name: {:3s}, failed={}".format(
-                self.name, self.failed,
+                self.name,
+                self.failed,
             )
         )
 
@@ -438,7 +439,6 @@ class ICTNode(Component):
         """
         return self.monte_carlo_history[attribute]
 
-
     def get_neighbor_nodes(self):
         """
         Returns the neighboring nodes of the node
@@ -460,4 +460,3 @@ class ICTNode(Component):
                         neighbor_nodes.append(node)
 
         return neighbor_nodes
-

@@ -282,20 +282,23 @@ class DistributionController(Component, Controller):
             for sensor in sensors:
                 # If no ICT network
                 if self.ict_node is None:
-                    repair_time, line_fail_status = sensor.get_line_fail_status(dt)
+                    (
+                        repair_time,
+                        line_fail_status,
+                    ) = sensor.get_line_fail_status(dt)
                     self.sectioning_time += repair_time
                 # If both components have ICT nodes
-                elif (
-                    self.ict_node is not None
-                    and sensor.ict_node is not None
-                ):
+                elif self.ict_node is not None and sensor.ict_node is not None:
                     # If the ICT nodes are connected to each other
                     if is_connected(
                         node_1=self.ict_node,
                         node_2=sensor.ict_node,
                         network=self.ict_network,
                     ):
-                        repair_time, line_fail_status = sensor.get_line_fail_status(dt)
+                        (
+                            repair_time,
+                            line_fail_status,
+                        ) = sensor.get_line_fail_status(dt)
                         self.sectioning_time += repair_time
                     # If the ICT nodes are not connected to each other
                     else:
@@ -321,20 +324,23 @@ class DistributionController(Component, Controller):
             for sensor in sensors:
                 # If no ICT network
                 if self.ict_node is None:
-                    repair_time, line_fail_status = sensor.get_line_fail_status(dt)
+                    (
+                        repair_time,
+                        line_fail_status,
+                    ) = sensor.get_line_fail_status(dt)
                     self.sectioning_time += repair_time
                 # If both components have ICT nodes
-                elif (
-                    self.ict_node is not None
-                    and sensor.ict_node is not None
-                ):
+                elif self.ict_node is not None and sensor.ict_node is not None:
                     # If the ICT nodes are connected to each other
                     if is_connected(
                         node_1=self.ict_node,
                         node_2=sensor.ict_node,
                         network=self.ict_network,
                     ):
-                        repair_time, line_fail_status = sensor.get_line_fail_status(dt)
+                        (
+                            repair_time,
+                            line_fail_status,
+                        ) = sensor.get_line_fail_status(dt)
                         self.sectioning_time += repair_time
                     # If the ICT nodes are not connected to each other
                     else:

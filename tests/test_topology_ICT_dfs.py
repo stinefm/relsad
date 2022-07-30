@@ -47,12 +47,8 @@ def test_is_connected_1():
     power_system = PowerSystem(controller=controller)
     network = ICTNetwork(power_system=power_system)
 
-    network.add_nodes(
-        [n1, n2, n3, n4, n5, n6]
-    )
-    network.add_lines(
-        [l1, l2, l3, l4, l5]
-    )
+    network.add_nodes([n1, n2, n3, n4, n5, n6])
+    network.add_lines([l1, l2, l3, l4, l5])
 
     assert is_connected(n1, n2, network) is True
     assert is_connected(n1, n3, network) is True
@@ -108,12 +104,8 @@ def test_is_connected_2():
     power_system = PowerSystem(controller=controller)
     network = ICTNetwork(power_system=power_system)
 
-    network.add_nodes(
-        [n1, n2, n3, n4, n5, n6]
-    )
-    network.add_lines(
-        [l1, l2, l3, l4, l5]
-    )
+    network.add_nodes([n1, n2, n3, n4, n5, n6])
+    network.add_lines([l1, l2, l3, l4, l5])
 
     l2.disconnect()
 

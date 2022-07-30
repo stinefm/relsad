@@ -1,6 +1,9 @@
 from enum import Enum
 from relsad.Time import Time
-from relsad.network.components import Controller
+from relsad.network.components import (
+    Controller,
+    Disconnector,
+)
 from relsad.topology.ICT.dfs import is_connected
 
 
@@ -11,9 +14,9 @@ class SectionState(Enum):
     Attributes
     ----------
     CONNECTED : int
-        The section is connected to its parent network
-    CONNECTED : int
-        The section is disconnected from its parent network
+        The section is connected to its parent power network
+    DISCONNECTED : int
+        The section is disconnected from its parent power network
     """
 
     CONNECTED = 1
@@ -31,10 +34,10 @@ class Section:
     ----------
     lines : list
         List of lines in the section
-    disconnectors : list
-        List of disconnectors in the section
-    parent : PowerNetwork
-        The parent network for the section
+    switches : list
+        List of switches in the section
+    parent_section: Section
+        The parent section for the section
     child_sections : list
         List of child sections
     state : SectionState
@@ -47,13 +50,17 @@ class Section:
     attach_to_lines
         Adds lines to section and child section
     connect(dt)
-        Connects the sections, connects the lines in the section and closes the disconnectors in the section
+        Connects the sections, connects the lines in the section and closes
+        the switches in the section
     connect_manually()
-        Connects the sections, connects the lines in the section and closes the disconnectors in the section. Used when no ICT
+        Connects the sections, connects the lines in the section and closes
+        the switches in the section. Used when no ICT
     get_disconnect_time(dt)
-        Returns the total outage time (the time the section is disconnected) of the section
+        Returns the total outage time (the time the section is disconnected)
+        of the section
     disconnect()
-        Disconnects the section, the lines in the section, and opens the disconnectors in the section
+        Disconnects the section, the lines in the section, and opens
+        the switches in the section
 
 
 
@@ -62,16 +69,21 @@ class Section:
     __slots__ = (
         "rank",
         "lines",
-        "disconnectors",
-        "parent",
+        "switches",
+        "parent_section",
         "child_sections",
         "state",
     )
 
-    def __init__(self, parent, lines, disconnectors):
+    def __init__(
+        self,
+        parent_section,
+        lines: list,
+        switches: list,
+    ):
         self.lines = lines
-        self.disconnectors = disconnectors
-        self.parent = parent
+        self.switches = switches
+        self.parent_section = parent_section
         self.child_sections = []
         self.state = SectionState.CONNECTED
 
@@ -127,7 +139,8 @@ class Section:
 
     def connect(self, dt: Time, controller: Controller):
         """
-        Connects the sections, connects the lines in the section and closes the disconnectors in the section
+        Connects the sections, connects the lines in the section and closes
+        the switches in the section
 
         Parameters
         ----------
@@ -144,36 +157,40 @@ class Section:
         self.state = SectionState.CONNECTED
         for line in self.lines:
             line.connect()
-        for discon in self.disconnectors:
+        for switch in self.switches:
+            # Skip if switch is a CircuitBreaker
+            if not isinstance(switch, type(Disconnector)):
+                break
             # If no ICT network
             if controller.ict_node is None:
-                discon.intelligent_switch.close(dt)
+                switch.intelligent_switch.close(dt)
             # If both components have ICT nodes
             elif (
-                    controller.ict_node is not None and
-                    discon.intelligent_switch.ict_node is not None
-                ):
+                controller.ict_node is not None
+                and switch.intelligent_switch.ict_node is not None
+            ):
                 # If the ICT nodes are connected to each other
                 if is_connected(
-                    node_1=controller.ict_node, 
-                    node_2=discon.intelligent_switch.ict_node,
+                    node_1=controller.ict_node,
+                    node_2=switch.intelligent_switch.ict_node,
                     network=controller.ict_network,
                 ):
-                    discon.intelligent_switch.close(dt)
+                    switch.intelligent_switch.close(dt)
                 # If the ICT nodes are not connected to each other
                 else:
                     # Repair crew is assumed to be present repairing the line,
-                    # they close the disconnector manually
-                    discon.close()
+                    # they close the switch manually
+                    switch.close()
             # If no ICT node on intelligent switch
             else:
                 # Repair crew is assumed to be present repairing the line,
-                # they close the disconnector manually
-                discon.close()
+                # they close the switch manually
+                switch.close()
 
     def connect_manually(self):
         """
-        Connects the sections, connects the lines in the section and closes the disconnectors in the section. Used when no ICT
+        Connects the sections, connects the lines in the section and closes
+        the switches in the section. Used when no ICT
 
         Parameters
         ----------
@@ -187,12 +204,13 @@ class Section:
         self.state = SectionState.CONNECTED
         for line in self.lines:
             line.connect()
-        for discon in self.disconnectors:
-            discon.close()
+        for switch in self.switches:
+            switch.close()
 
     def get_disconnect_time(self, dt: Time, controller: Controller):
         """
-        Returns the total outage time (the time the section is disconnected) of the section
+        Returns the total outage time (the time the section is disconnected)
+        of the section
 
         Parameters
         ----------
@@ -209,22 +227,27 @@ class Section:
         """
         sectioning_time = Time(0)
         need_manual_attention = False
-        for discon in self.disconnectors:
+        for switch in self.switches:
+            # Skip if switch is a CircuitBreaker
+            if not isinstance(switch, type(Disconnector)):
+                break
             # If no ICT network
             if controller.ict_node is None:
-                sectioning_time += discon.intelligent_switch.get_open_time(dt)
+                sectioning_time += switch.intelligent_switch.get_open_time(dt)
             # If both components have ICT nodes
             elif (
-                    controller.ict_node is not None and
-                    discon.intelligent_switch.ict_node is not None
-                ):
+                controller.ict_node is not None
+                and switch.intelligent_switch.ict_node is not None
+            ):
                 # If the ICT nodes are connected to each other
                 if is_connected(
-                    node_1=controller.ict_node, 
-                    node_2=discon.intelligent_switch.ict_node,
+                    node_1=controller.ict_node,
+                    node_2=switch.intelligent_switch.ict_node,
                     network=controller.ict_network,
                 ):
-                    sectioning_time += discon.intelligent_switch.get_open_time(dt)
+                    sectioning_time += switch.intelligent_switch.get_open_time(
+                        dt
+                    )
                 # If the ICT nodes are not connected to each other
                 else:
                     need_manual_attention = True
@@ -239,7 +262,8 @@ class Section:
 
     def disconnect(self):
         """
-        Disconnects the section, the lines in the section, and opens the disconnectors in the section
+        Disconnects the section, the lines in the section, and opens
+        the switches in the section
 
         Parameters
         ----------
@@ -253,5 +277,5 @@ class Section:
         self.state = SectionState.DISCONNECTED
         for line in self.lines:
             line.disconnect()
-        for discon in self.disconnectors:
-            discon.open()
+        for switch in self.switches:
+            switch.open()

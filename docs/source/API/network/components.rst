@@ -9,7 +9,7 @@ components
     relsad.network.components.Battery.BatteryType
     relsad.network.components.Battery.BatteryState
     relsad.network.components.Bus.Bus
-    relsad.network.components.Circuitbreaker.Circuitbreaker
+    relsad.network.components.CircuitBreaker.CircuitBreaker
     relsad.network.components.Component.Component
     relsad.network.components.Controller.Controller
     relsad.network.components.Controller.ControllerState
@@ -25,5 +25,6 @@ components
     relsad.network.components.Production.Production
     relsad.network.components.Sensor.Sensor
     relsad.network.components.Sensor.SensorState
+    relsad.network.components.Switch.Switch
     relsad.network.components.ICTLine.ICTLine
     relsad.network.components.ICTNode.ICTNode

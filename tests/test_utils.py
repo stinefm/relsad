@@ -9,6 +9,7 @@ from relsad.Time import (
     TimeUnit,
 )
 
+
 def test_eq():
     assert eq(1.0e-6, 1.1e-6, tol=1e-6)
 
@@ -29,25 +30,26 @@ def test_interpolate():
     assert max(interpolated_data) == 5e-3
     assert min(interpolated_data) == 5e-3
 
+
 def test_convert_yearly_fail_rate():
     assert eq(
         convert_yearly_fail_rate(
             fail_rate_per_year=0.07,
             dt=Time(1, TimeUnit.HOUR),
         ),
-        0.07/8760
+        0.07 / 8760,
     )
     assert eq(
         convert_yearly_fail_rate(
             fail_rate_per_year=0.07,
             dt=Time(1, TimeUnit.MINUTE),
         ),
-        0.07/8760/60
+        0.07 / 8760 / 60,
     )
     assert eq(
         convert_yearly_fail_rate(
             fail_rate_per_year=0.07,
             dt=Time(1, TimeUnit.SECOND),
         ),
-        0.07/8760/60/60
+        0.07 / 8760 / 60 / 60,
     )

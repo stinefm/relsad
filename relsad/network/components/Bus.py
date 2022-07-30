@@ -730,11 +730,15 @@ class Bus(Component):
             self.history["p_energy_shed_stack"][
                 curr_time
             ] = self.p_energy_shed_stack
-            self.history["acc_p_energy_shed"][curr_time] = self.acc_p_energy_shed
+            self.history["acc_p_energy_shed"][
+                curr_time
+            ] = self.acc_p_energy_shed
             self.history["q_energy_shed_stack"][
                 curr_time
             ] = self.q_energy_shed_stack
-            self.history["acc_q_energy_shed"][curr_time] = self.acc_q_energy_shed
+            self.history["acc_q_energy_shed"][
+                curr_time
+            ] = self.acc_q_energy_shed
             self.history["voang"][curr_time] = self.voang
             self.history["vomag"][curr_time] = self.vomag
             self.history["avg_fail_rate"][

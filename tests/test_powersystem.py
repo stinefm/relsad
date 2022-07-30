@@ -121,7 +121,7 @@ def test_create_sections_1():
     assert ps.get_comp("L3") in distribution.sections[0].lines
     assert ps.get_comp("L4") in distribution.sections[0].lines
     assert ps.get_comp("L5") in distribution.sections[0].lines
-    assert ps.get_comp("D1") in distribution.sections[0].disconnectors
+    assert ps.get_comp("D1") in distribution.sections[0].switches
 
 
 def test_create_sections_2():
@@ -141,8 +141,8 @@ def test_create_sections_2():
     assert ps.get_comp("L3") in distribution.sections[1].lines
     assert ps.get_comp("L4") in distribution.sections[1].lines
     assert ps.get_comp("L5") in distribution.sections[1].lines
-    assert ps.get_comp("D1") in distribution.sections[0].disconnectors
-    assert ps.get_comp("D2") in distribution.sections[1].disconnectors
+    assert ps.get_comp("D1") in distribution.sections[0].switches
+    assert ps.get_comp("D2") in distribution.sections[1].switches
 
 
 def test_create_sections_3():
@@ -162,9 +162,9 @@ def test_create_sections_3():
     assert ps.get_comp("L3") in distribution.sections[2].lines
     assert ps.get_comp("L4") in distribution.sections[2].lines
     assert ps.get_comp("L5") in distribution.sections[1].lines
-    assert ps.get_comp("D1") in distribution.sections[0].disconnectors
-    assert ps.get_comp("D2") in distribution.sections[1].disconnectors
-    assert ps.get_comp("D3") in distribution.sections[2].disconnectors
+    assert ps.get_comp("D1") in distribution.sections[0].switches
+    assert ps.get_comp("D2") in distribution.sections[1].switches
+    assert ps.get_comp("D3") in distribution.sections[2].switches
 
 
 def test_create_sections_4():
@@ -184,10 +184,10 @@ def test_create_sections_4():
     assert ps.get_comp("L3") in distribution.sections[2].lines
     assert ps.get_comp("L4") in distribution.sections[3].lines
     assert ps.get_comp("L5") in distribution.sections[1].lines
-    assert ps.get_comp("D1") in distribution.sections[0].disconnectors
-    assert ps.get_comp("D2") in distribution.sections[1].disconnectors
-    assert ps.get_comp("D3") in distribution.sections[2].disconnectors
-    assert ps.get_comp("D4") in distribution.sections[3].disconnectors
+    assert ps.get_comp("D1") in distribution.sections[0].switches
+    assert ps.get_comp("D2") in distribution.sections[1].switches
+    assert ps.get_comp("D3") in distribution.sections[2].switches
+    assert ps.get_comp("D4") in distribution.sections[3].switches
 
 
 def test_create_sections_5():
@@ -207,11 +207,11 @@ def test_create_sections_5():
     assert ps.get_comp("L3") in distribution.sections[2].lines
     assert ps.get_comp("L4") in distribution.sections[4].lines
     assert ps.get_comp("L5") in distribution.sections[3].lines
-    assert ps.get_comp("D1") in distribution.sections[0].disconnectors
-    assert ps.get_comp("D2") in distribution.sections[1].disconnectors
-    assert ps.get_comp("D3") in distribution.sections[2].disconnectors
-    assert ps.get_comp("D4") in distribution.sections[4].disconnectors
-    assert ps.get_comp("D5") in distribution.sections[3].disconnectors
+    assert ps.get_comp("D1") in distribution.sections[0].switches
+    assert ps.get_comp("D2") in distribution.sections[1].switches
+    assert ps.get_comp("D3") in distribution.sections[2].switches
+    assert ps.get_comp("D4") in distribution.sections[4].switches
+    assert ps.get_comp("D5") in distribution.sections[3].switches
 
 
 def test_system_load_balance_active_load():

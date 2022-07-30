@@ -1,4 +1,5 @@
 from .Component import Component
+from .Switch import Switch
 from .Line import Line
 import matplotlib.lines as mlines
 import numpy as np
@@ -11,7 +12,7 @@ from relsad.Time import (
 )
 
 
-class CircuitBreaker(Component):
+class CircuitBreaker(Component, Switch):
 
     """
     Common base class for circuit breakers
@@ -126,7 +127,7 @@ class CircuitBreaker(Component):
         return self.name
 
     def __repr__(self):
-        return f"Circuitbreaker(name={self.name})"
+        return f"CircuitBreaker(name={self.name})"
 
     def __eq__(self, other):
         if hasattr(other, "name"):

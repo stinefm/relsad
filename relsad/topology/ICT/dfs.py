@@ -3,6 +3,7 @@ from relsad.network.components import (
     ICTLine,
 )
 
+
 def is_connected(
     node_1: ICTNode,
     node_2: ICTNode,

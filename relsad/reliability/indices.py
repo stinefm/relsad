@@ -141,9 +141,7 @@ def ENS(network):
         The ENS value
 
     """
-    ens = sum(
-        [bus.acc_p_energy_shed for bus in network.buses]
-    )
+    ens = sum([bus.acc_p_energy_shed for bus in network.buses])
     return ens
 
 

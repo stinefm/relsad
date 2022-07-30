@@ -51,7 +51,7 @@ class Microgrid(PowerNetwork):
         Boolean value stating whether or not the network includes a failed line
     connected_line : Line
         Line that connects the microgrid to the distribution network
-    circuitbreaker : Circuitbreaker
+    circuitbreaker : CircuitBreaker
         The circuitbreaker connected to the line
     p_energy_shed : float
         Shedded active power in the microgrid
@@ -201,7 +201,7 @@ class Microgrid(PowerNetwork):
         # Add the components attached to the line
         # to the microgrid:
 
-        # Circuitbreaker
+        # CircuitBreaker
         self.circuitbreaker = connected_line.circuitbreaker
         self.circuitbreaker.mode = mode
         if self.circuitbreaker is None:

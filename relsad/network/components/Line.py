@@ -35,7 +35,7 @@ class Line(Component):
         Receiving bus
     disconnectors : list
         List of disconnectors connected to the line
-    circuitbreaker : Circuitbreaker
+    circuitbreaker : CircuitBreaker
         Circuit breaker connected to the line
     parent_network : PowerNetwork
         The parent network of the line
@@ -123,6 +123,8 @@ class Line(Component):
         Resets and sets the status of the class parameters
     reset_load_flow_data()
         Resets the variables used in the load flow analysis
+    get_switches()
+        Returns the switches on the line
     """
     lineCount = 0
 
@@ -706,6 +708,27 @@ class Line(Component):
         """
         self.ploss = 0
         self.qloss = 0
+
+    def get_switches(self):
+        """
+        Returns the switches on the line
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        switches
+            The switches on the line
+
+        """
+        switches = (
+            self.disconnectors + [self.circuitbreaker]
+            if self.circuitbreaker is not None
+            else self.disconnectors
+        )
+        return switches
 
 
 if __name__ == "__main__":

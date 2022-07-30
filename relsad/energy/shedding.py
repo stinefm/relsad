@@ -18,7 +18,7 @@ def shed_energy(
     alpha: float = 1e-4,
 ):
     """
-    Sheds the unsupplied loads of the power system over the 
+    Sheds the unsupplied loads of the power system over the
     time period, dt, using a linear minimization
     problem solved with linear programming
 
@@ -342,7 +342,8 @@ def _shed_active_energy(
     for i, bus in enumerate(buses):
         bus.add_to_energy_shed_stack(
             shedded_active_bus_loads[i]
-            if shedded_active_bus_loads[i] > alpha else 0,
+            if shedded_active_bus_loads[i] > alpha
+            else 0,
             0,
             dt,
         )
@@ -447,6 +448,7 @@ def _shed_reactive_energy(
         bus.add_to_energy_shed_stack(
             0,
             shedded_reactive_bus_loads[i]
-            if shedded_reactive_bus_loads[i] > alpha else 0,
+            if shedded_reactive_bus_loads[i] > alpha
+            else 0,
             dt,
         )

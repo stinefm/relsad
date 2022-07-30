@@ -189,7 +189,7 @@ class Distribution(PowerNetwork):
         # Add the components attached to the line
         # to the distribution system:
 
-        # Circuitbreaker
+        # CircuitBreaker
         c_b = connected_line.circuitbreaker
         if self.connected_line.circuitbreaker is None:
             raise Exception(

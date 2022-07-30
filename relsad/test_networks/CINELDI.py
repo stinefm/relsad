@@ -144,7 +144,7 @@ def initialize_network(
         )
 
     if include_ICT:
-        
+
         # Controller
         ICTNController = ICTNode(
             name="ICTNController",
@@ -342,7 +342,7 @@ def initialize_network(
             repair_time_dist=ict_line_repair_time_stat_dist,
             fail_rate_per_year=fail_rate_ict_line,
         )
-        
+
         ### Sensors
         ICTL2 = ICTLine(
             name="ICTL2",
