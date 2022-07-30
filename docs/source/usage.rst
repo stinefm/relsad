@@ -196,25 +196,74 @@ Creating lines::
 
 Creating circuit breaker::
 
-    E1 = CircuitBreaker(name="E1", line=L1)
+    E1 = CircuitBreaker(
+        name="E1",
+        line=L1,
+        )
 
 Creating disconnectors, here we add several disconnectors for each line. Lines can contain from 0 up to 2 disconnectors alone. If a circuit breaker is placed on a line, the line may contain 3 disconnectors:: 
 
-    DL1a = Disconnector(name="L1a", line=L1, bus=B1, circuitbreaker=E1)
-    DL1b = Disconnector(name="L1b", line=L1, bus=B2, circuitbreaker=E1)
-    DL1c = Disconnector(name="L1c", line=L1, bus=B2)
-    DL2a = Disconnector(name="L2a", line=L2, bus=B2)
-    DL2b = Disconnector(name="L2b", line=L2, bus=B3)
-    DL3a = Disconnector(name="L3a", line=L3, bus=B3)
-    DL3b = Disconnector(name="L3b", line=L3, bus=B4)
-    DL4a = Disconnector(name="L4a", line=L4, bus=B4)
-    DL4b = Disconnector(name="L4b", line=L4, bus=B5)
-    DL5a = Disconnector(name="L5a", line=L5, bus=B3)
-    DL5b = Disconnector(name="L5b", line=L5, bus=B6)
+    DL1a = Disconnector(
+        name="L1a", 
+        line=L1, bus=B1,
+        )
+    DL1b = Disconnector(
+        name="L1b",
+        line=L1,
+        bus=B2,
+        )
+    DL2a = Disconnector(
+        name="L2a",
+        line=L2,
+        bus=B2,
+        )
+    DL2b = Disconnector(
+        name="L2b",
+        line=L2,
+        bus=B3,
+        )
+    DL3a = Disconnector(
+        name="L3a",
+        line=L3,
+        bus=B3,
+        )
+    DL3b = Disconnector(
+        name="L3b",
+        line=L3,
+        bus=B4,
+        )
+    DL4a = Disconnector(
+        name="L4a",
+        line=L4,
+        bus=B4,
+        )
+    DL4b = Disconnector(
+        name="L4b",
+        line=L4,
+        bus=B5,
+        )
+    DL5a = Disconnector(
+        name="L5a",
+        line=L5,
+        bus=B3,
+        )
+    DL5b = Disconnector(
+        name="L5b",
+        line=L5,
+        bus=B6,
+        )
 
     # For backup line
-    DL6a = Disconnector(name="L6a", line=L6, bus=B4)
-    DL6b = Disconnector(name="L6b", line=L6, bus=B6)
+    DL6a = Disconnector(
+        name="L6a",
+        line=L6,
+        bus=B4,
+        )
+    DL6b = Disconnector(
+        name="L6b",
+        line=L6,
+        bus=B6,
+        )
 
 """"""""""""""""""""""""
 Add networks
@@ -223,11 +272,17 @@ Add networks
 After creating the components in the network, the components need to be added to their associated networks and the associated networks must be added to the power system. 
 First, the bus connecting to the overlying network (often transmission network) is added. In this case the overlying network is a transmission network, which is created by::
     
-    tn = Transmission(parent_network=ps, trafo_bus=B1)
+    tn = Transmission(
+        parent_network=ps,
+        trafo_bus=B1,
+        )
 
 The distribution network contains the rest of the components, and links to the transmission network with line L1. This is done by the following code snippet:: 
 
-    dn = Distribution(parent_network=tn, connected_line=L1)
+    dn = Distribution(
+        parent_network=tn,
+        connected_line=L1,
+        )
     dn.add_buses(
         [B2, B3, B4, B5, B6]
     )
@@ -282,11 +337,17 @@ Then the generation units need to be created::
 
     # A generation unit:
 
-    P1 = Production(name="P1", bus=B3)
+    P1 = Production(
+        name="P1",
+        bus=B3,
+        )
 
     # A battery:
 
-    B1 = Battery(name="B1", bus=B6)
+    B1 = Battery(
+        name="B1",
+        bus=B6,
+        )
 
 .....................................
 Network with electrical vehicles and vehicle-to-grid
@@ -400,16 +461,9 @@ Then the components in the microgrid can be created::
         name="ML1a",
         line=ML1,
         bus=B2,
-        circuitbreaker=E2,
     )
     DML1b = Disconnector(
         name="ML1b",
-        line=ML1,
-        bus=M1,
-        circuitbreaker=E2,
-    )
-    DML1c = Disconnector(
-        name="ML1c",
         line=ML1,
         bus=M1,
     )
@@ -451,7 +505,10 @@ Islanded networks (microgrids)
 
 For evaluating islanded networks or microgrids, the network should be created without an overlying network connection::
 
-    dn = Distribution(parent_network=ps, connected_line=None)
+    dn = Distribution(
+        parent_network=ps,
+        connected_line=None,
+        )
     dn.add_buses(
         [B1, B2, B3, B4, B5, B6]
     )
@@ -480,15 +537,26 @@ In addition, different failure rates and repair times for the controller can be 
 
 The intelligent switch is added to disconnectors::
 
-    Isw1 = IntelligentSwitch(name="Isw1", disconnector=DL2a)
+    Isw1 = IntelligentSwitch(
+        name="Isw1",
+        disconnector=DL2a,
+        )
 
 A failure rate for the intelligent switch can also be added to the component. There can only be one intelligent switch on each disconnector. 
 
 A sensor can be added on a line::
 
-    S1 = Sensor(name="S1", line=L2)
+    S1 = Sensor(
+        name="S1",
+        line=L2,
+        )
 
 Failure rates and repair time of the sensor can be added to the component. There can only be on sensor on each line. 
+
+.....................................
+Creation of ICT networks
+.....................................
+
 
 
 .....................................
@@ -561,3 +629,5 @@ Finally, to run a simulation the user must specify:
         save_dir=save_dir,
         n_procs=number_processes, 
     )
+
+
