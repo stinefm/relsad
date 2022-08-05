@@ -111,22 +111,6 @@ def plot_topology(
                 text_size=text_size,
             )
             legends["Circuit breaker"] = CircuitBreaker.handle
-            for discon in line.circuitbreaker.disconnectors:
-                _plot_disconnector(
-                    ax=ax,
-                    discon=discon,
-                    text=disconnector_text,
-                    text_size=text_size,
-                )
-                legends["Disconnector"] = Disconnector.handle
-                if discon.intelligent_switch:
-                    _plot_intelligent_switch(
-                        ax=ax,
-                        discon=discon,
-                        text=intelligent_switch_text,
-                        text_size=text_size,
-                    )
-                    legends["Intelligent switch"] = IntelligentSwitch.handle
         for discon in line.disconnectors:
             _plot_disconnector(
                 ax=ax,
@@ -192,17 +176,34 @@ def _plot_line(
     None
 
     """
+    dx_fraction = 0.1
+
+    x1, y1 = line.fbus.coordinate
+    x2, y2 = line.tbus.coordinate
+
+    linestyle = ":" if line.is_backup else line.linestyle
     ax.plot(
-        [line.fbus.coordinate[0], line.tbus.coordinate[0]],
-        [line.fbus.coordinate[1], line.tbus.coordinate[1]],
+        [x1, x2],
+        [y1, y2],
         color=line.color,
-        linestyle=line.linestyle,
+        linestyle=linestyle,
         zorder=2,
     )
     if text:
+        dx = x2 - x1
+        dy = y2 - y1
+        x = (x1 + x2) / 2
+        y = (y1 + y2) / 2
+        if dx == 0 and dy != 0:
+            x += dy * dx_fraction
+        elif dx != 0 and dy == 0:
+            y += dx * dx_fraction
+        else:
+            x += dx * dx_fraction
+            y -= dy * dx_fraction
         ax.text(
-            (line.fbus.coordinate[0] + line.tbus.coordinate[0]) / 2,
-            (line.fbus.coordinate[1] + line.tbus.coordinate[1]) / 2 + 0.1,
+            x,
+            y,
             line.name,
             ha="center",
             va="center",
@@ -236,9 +237,11 @@ def _plot_circuitbreaker(
 
     """
     cb = line.circuitbreaker
+    x, y = cb.coordinate
+
     ax.plot(
-        cb.coordinate[0],
-        cb.coordinate[1],
+        x,
+        y,
         marker=cb.marker,
         markeredgewidth=cb.handle.get_markeredgewidth(),
         markersize=cb.size,
@@ -249,8 +252,8 @@ def _plot_circuitbreaker(
     )
     if text:
         ax.text(
-            cb.coordinate[0],
-            cb.coordinate[1] - 0.2,
+            x,
+            y - 0.2,
             cb.name,
             ha="center",
             va="center",
@@ -283,9 +286,10 @@ def _plot_disconnector(
     None
 
     """
+    x, y = discon.coordinate
     ax.plot(
-        discon.coordinate[0],
-        discon.coordinate[1],
+        x,
+        y,
         marker=discon.marker,
         markeredgewidth=discon.handle.get_markeredgewidth(),
         markersize=discon.size,
@@ -296,8 +300,8 @@ def _plot_disconnector(
     )
     if text:
         ax.text(
-            discon.coordinate[0],
-            discon.coordinate[1] - 0.2,
+            x,
+            y - 0.2,
             discon.name,
             ha="center",
             va="center",
@@ -330,9 +334,10 @@ def _plot_intelligent_switch(
     None
 
     """
+    x, y = discon.coordinate
     ax.plot(
-        discon.coordinate[0],
-        discon.coordinate[1],
+        x,
+        y,
         marker=discon.intelligent_switch.marker,
         markeredgewidth=discon.intelligent_switch.handle.get_markeredgewidth(),
         markersize=discon.intelligent_switch.size,
@@ -342,8 +347,8 @@ def _plot_intelligent_switch(
     )
     if text:
         ax.text(
-            discon.coordinate[0],
-            discon.coordinate[1] - 0.2,
+            x,
+            y - 0.2,
             discon.intelligent_switch.name,
             ha="center",
             va="center",
@@ -376,9 +381,15 @@ def _plot_sensor(
     None
 
     """
+    x1, y1 = line.fbus.coordinate
+    x2, y2 = line.tbus.coordinate
+
+    x = (x1 + x2) / 2
+    y = (y1 + y2) / 2
+
     ax.plot(
-        (line.fbus.coordinate[0] + line.tbus.coordinate[0]) / 2,
-        (line.fbus.coordinate[1] + line.tbus.coordinate[1]) / 2,
+        x,
+        y,
         marker=line.sensor.marker,
         markeredgewidth=line.sensor.handle.get_markeredgewidth(),
         markersize=line.sensor.size,
@@ -388,8 +399,8 @@ def _plot_sensor(
     )
     if text:
         ax.text(
-            (line.fbus.coordinate[0] + line.tbus.coordinate[0]) / 2,
-            (line.fbus.coordinate[1] + line.tbus.coordinate[1]) / 2 - 0.2,
+            x,
+            y + 0.2,
             line.sensor.name,
             ha="center",
             va="center",
@@ -402,7 +413,7 @@ def _plot_bus(
     bus: Bus,
     text: bool = False,
     text_size: int = 8,
-    text_dx: tuple = (0, -0.1),
+    text_dx: tuple = (0, 0),
 ):
     """
     Plot circuitbreakers
@@ -417,15 +428,18 @@ def _plot_bus(
         Flag determining if bus name will be plotted
     text_size : int
         The size of the text in the plot
+    text_dx : tuple
+        The distance from the text to the center point
 
     Returns
     ----------
     None
 
     """
+    x, y = bus.coordinate
     ax.plot(
-        bus.coordinate[0],
-        bus.coordinate[1],
+        x,
+        y,
         marker=bus.marker,
         markeredgewidth=bus.handle.get_markeredgewidth(),
         markersize=bus.size,
@@ -436,8 +450,8 @@ def _plot_bus(
     )
     if text:
         ax.text(
-            bus.coordinate[0] + text_dx[0],
-            bus.coordinate[1] + text_dx[1],
+            x + text_dx[0],
+            y + text_dx[1],
             bus.name,
             ha="center",
             va="center",
@@ -445,8 +459,8 @@ def _plot_bus(
         )
     if bus.ev_park is not None:
         ax.plot(
-            bus.coordinate[0],
-            bus.coordinate[1],
+            x,
+            y,
             marker=bus.ev_park.marker,
             markeredgewidth=bus.ev_park.handle.get_markeredgewidth(),
             markersize=bus.ev_park.size,
