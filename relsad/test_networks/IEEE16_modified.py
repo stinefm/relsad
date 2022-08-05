@@ -335,8 +335,8 @@ def initialize_network(
         repair_time_dist=line_stat_dist,
     )
 
-    E1 = CircuitBreaker(name="E1", line=L1)
-    E2 = CircuitBreaker(name="E2", line=ML1)
+    CircuitBreaker(name="E1", line=L1)
+    CircuitBreaker(name="E2", line=ML1)
 
     Disconnector(name="L1a", line=L1, bus=B1)
     Disconnector(name="L1b", line=L1, bus=B2)

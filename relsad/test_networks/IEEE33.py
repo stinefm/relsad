@@ -619,7 +619,7 @@ def initialize_network(
         fail_rate_density_per_year=fail_rate_line,
     )
 
-    E1 = CircuitBreaker("E1", L1)
+    CircuitBreaker("E1", L1)
 
     DL1a = Disconnector("L1a", L1, B1)
     DL1b = Disconnector("L1b", L1, B2)
@@ -998,7 +998,7 @@ def initialize_network(
             fail_rate_density_per_year=fail_rate_line,
         )
 
-        E2 = CircuitBreaker("E2", ML1)
+        CircuitBreaker("E2", ML1)
 
         DML1a = Disconnector("ML1a", ML1, B33)
         DML1b = Disconnector("ML1b", ML1, BM1)
@@ -1054,7 +1054,6 @@ def initialize_network(
 
         IntelligentSwitch("ISwL1a", DL1a)
         IntelligentSwitch("ISwL1b", DL1b)
-        IntelligentSwitch("ISwL1c", DL1c)
         IntelligentSwitch("ISwL2a", DL2a)
         IntelligentSwitch("ISwL2b", DL2b)
         IntelligentSwitch("ISwL3a", DL3a)
@@ -1139,7 +1138,6 @@ def initialize_network(
 
             IntelligentSwitch("ISwML1a", DML1a)
             IntelligentSwitch("ISwML1b", DML1b)
-            IntelligentSwitch("ISwML1c", DML1c)
             IntelligentSwitch("ISwML2a", DML2a)
             IntelligentSwitch("ISwML2b", DML2b)
             IntelligentSwitch("ISwML3a", DML3a)

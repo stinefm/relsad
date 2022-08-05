@@ -1098,8 +1098,8 @@ def initialize_network(
     #     capacity=3,
     # )
 
-    E1 = CircuitBreaker("E1", L1)
-    E2 = CircuitBreaker("E2", L67)
+    CircuitBreaker("E1", L1)
+    CircuitBreaker("E2", L67)
 
     Disconnector("L1a", L1, B1)
     Disconnector("L1b", L1, B2)
