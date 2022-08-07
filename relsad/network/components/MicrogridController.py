@@ -311,7 +311,12 @@ class MicrogridController(Component, Controller):
             if x.state == SectionState.DISCONNECTED
         ]
         for section in disconnected_sections:
-            sensors = unique([x.line.sensor for x in section.disconnectors])
+            sensors = unique(
+                [
+                    switch.line.sensor
+                    for switch in section.switches
+                ]
+            )
             num_fails = 0
             need_manual_attention = False
             for sensor in sensors:
@@ -352,7 +357,12 @@ class MicrogridController(Component, Controller):
                     self.failed_sections.remove(section)
         # Loop connected sections
         for section in connected_sections:
-            sensors = unique([x.line.sensor for x in section.disconnectors])
+            sensors = unique(
+                [
+                    switch.line.sensor
+                    for switch in section.switches
+                ]
+            )
             num_fails = 0
             need_manual_attention = False
             # Loop sensors and count failed ones

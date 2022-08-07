@@ -22,7 +22,7 @@ from relsad.Time import (
 class DistributionController(Component, Controller):
 
     """
-    Common base class for disconnectors
+    Common base class for distribution controllers
 
     ...
 
@@ -275,7 +275,12 @@ class DistributionController(Component, Controller):
         ]
         # Loop disconnected sections
         for section in disconnected_sections:
-            sensors = unique([x.line.sensor for x in section.disconnectors])
+            sensors = unique(
+                [
+                    switch.line.sensor
+                    for switch in section.switches
+                ]
+            )
             num_fails = 0
             need_manual_attention = False
             # Loop sensors and count failed ones
@@ -317,7 +322,12 @@ class DistributionController(Component, Controller):
                     self.failed_sections.remove(section)
         # Loop connected sections
         for section in connected_sections:
-            sensors = unique([x.line.sensor for x in section.disconnectors])
+            sensors = unique(
+                [
+                    switch.line.sensor
+                    for switch in section.switches
+                ]
+            )
             num_fails = 0
             need_manual_attention = False
             # Loop sensors and count failed ones
