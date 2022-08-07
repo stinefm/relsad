@@ -49,11 +49,10 @@ def SAIDI(network: PowerNetwork):
         [
             bus.acc_outage_time.get_hours() * bus.n_customers
             for bus in network.buses
-            if bus.acc_interruptions > 0
         ]
     )
     total_customers = sum(
-        [bus.n_customers for bus in network.buses if bus.acc_interruptions > 0]
+        [bus.n_customers for bus in network.buses]
     )
     if total_customers == 0:
         saidi = 0
