@@ -84,13 +84,14 @@ def shed_energy(
             lines=lines,
             alpha=alpha,
         )
-        # Shed active energy
-        _shed_active_energy(
-            buses=buses,
-            shedded_active_bus_loads=shedded_active_bus_loads,
-            alpha=alpha,
-            dt=dt,
-        )
+        if shedded_active_bus_loads is not None:
+            # Shed active energy
+            _shed_active_energy(
+                buses=buses,
+                shedded_active_bus_loads=shedded_active_bus_loads,
+                alpha=alpha,
+                dt=dt,
+            )
     if sum(q_b) > alpha:
         # Shed reactive loads
         shedded_reactive_bus_loads = _shed_reactive_loads(
@@ -102,13 +103,14 @@ def shed_energy(
             lines=lines,
             alpha=alpha,
         )
-        # Shed reactive energy
-        _shed_active_energy(
-            buses=buses,
-            shedded_active_bus_loads=shedded_active_bus_loads,
-            alpha=alpha,
-            dt=dt,
-        )
+        if shedded_reactive_bus_loads is not None:
+            # Shed reactive energy
+            _shed_reactive_energy(
+                buses=buses,
+                shedded_reactive_bus_loads=shedded_reactive_bus_loads,
+                alpha=alpha,
+                dt=dt,
+            )
 
 
 def _build_A_matrix(power_system: PowerSystem):
