@@ -1117,7 +1117,7 @@ def test_L2_L1_fail():
         include_ICT=False,
         microgrid_mode=MicrogridMode.LIMITED_SUPPORT,
         fail_rate_line=0,
-        line_stat_dist=StatDist(
+        line_repair_time_stat_dist=StatDist(
             stat_dist_type=StatDistType.UNIFORM_FLOAT,
             parameters=UniformParameters(
                 min_val=2,

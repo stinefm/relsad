@@ -28,6 +28,7 @@ def set_network_load_and_prod(
 ):
 
     # Fetching bus-objects
+    B2 = power_system.get_comp("B2")
     B3 = power_system.get_comp("B3")
     B4 = power_system.get_comp("B4")
     B5 = power_system.get_comp("B5")
@@ -64,9 +65,19 @@ def set_network_load_and_prod(
         B=17.5 * 1000,
     )
 
+    industry = CostFunction(
+        A=132.6 - 92.5,
+        B=92.5,
+    )
+
     household = CostFunction(
         A=8.8,
         B=14.7,
+    )
+
+    B2.add_load_data(
+        pload_data=load_industry2,
+        cost_function=industry,
     )
 
     for bus in [B3, B4, B5]:
