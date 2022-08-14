@@ -452,16 +452,15 @@ class Simulation:
         if debug:
             it_dicts = []
             for it in range(1, iterations + 1):
-                save_flag = it in save_iterations
                 it_dicts.append(
                     self.run_iteration(
-                        it,
-                        start_time,
-                        time_array,
-                        time_unit,
-                        save_dir,
-                        save_flag,
-                        child_seeds[it - 1],
+                        it=it,
+                        start_time=start_time,
+                        time_array=time_array,
+                        time_unit=time_unit,
+                        save_dir=save_dir,
+                        save_flag=it in save_iterations,
+                        random_seed=child_seeds[it - 1],
                     )
                 )
         else:

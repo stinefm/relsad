@@ -66,12 +66,15 @@ def plot_topology(
 
     text_size = kwargs["text_size"] if "text_size" in kwargs else 6
 
+    ncol = kwargs["ncol"] if "ncol" in kwargs else None
+
     # Clear used keyword arguments
     kwargs.pop("left", None)
     kwargs.pop("right", None)
     kwargs.pop("bottom", None)
     kwargs.pop("top", None)
     kwargs.pop("text_size", None)
+    kwargs.pop("ncol", None)
 
     fig, ax = plt.subplots(**kwargs)
 
@@ -139,11 +142,12 @@ def plot_topology(
     plt.figlegend(
         legends.values(),
         legends.keys(),
-        ncol=len(legends),
+        ncol=ncol if ncol is not None else len(legends),
         loc="upper center",
         bbox_to_anchor=(left + (right - left) / 2, 0.978),
         frameon=False,
         prop={"size": 8},
+        handleheight=3,
     )
 
     plt.axis("off")
