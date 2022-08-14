@@ -2,6 +2,9 @@ import os
 from relsad.network.systems import (
     PowerSystem,
 )
+from relsad.network.components import (
+    MainController,
+)
 from relsad.results.storage import (
     save_history,
 )
@@ -15,14 +18,14 @@ from relsad.Time import (
 )
 
 
-def update_history(
+def update_sequence_history(
     power_system: PowerSystem,
     prev_time: Time,
     curr_time: Time,
     save_flag: bool,
 ):
     """
-    Updates the history variables in the power system
+    Updates the sequence history variables in the power system
 
     Parameters
     ----------
@@ -799,3 +802,123 @@ def save_ict_node_history(nodes, save_dir: str):
     ]
     for state_var in whole_state_list:
         save_history(nodes, state_var, save_dir)
+
+
+def initialize_sequence_history(power_system: PowerSystem):
+    """
+    Initializes the lists used for sequence history variables
+
+    Parameters
+    ----------
+    power_system : PowerSystem
+        A power system element
+
+    Returns
+    ----------
+    None
+
+    """
+    network_state_list = [
+        "p_energy_shed",
+        "q_energy_shed",
+        "acc_p_energy_shed",
+        "acc_q_energy_shed",
+        "p_load",
+        "q_load",
+    ]
+    for state_var in network_state_list:
+        power_system.history[state_var] = {}
+    for network in power_system.child_network_list:
+        for state_var in network_state_list:
+            network.history[state_var] = {}
+    power_system.controller.initialize_history()
+
+
+def save_sequence_history(
+    power_system: PowerSystem,
+    save_dir: str,
+):
+    """
+    Saves the history from an sequence
+
+    Parameters
+    ----------
+    power_system : PowerSystem
+        A power system element
+    save_dir : str
+        The saving path
+
+    Returns
+    ----------
+    None
+
+    """
+    if not os.path.isdir(save_dir):
+        os.makedirs(save_dir)
+    save_power_system_history(
+        power_system,
+        os.path.join(save_dir),
+    )
+    save_bus_history(power_system.buses, os.path.join(save_dir, "bus"))
+    if len(power_system.ev_parks) > 0:
+        save_ev_park_history(
+            power_system.ev_parks, os.path.join(save_dir, "ev_parks")
+        )
+    if len(power_system.batteries) > 0:
+        save_battery_history(
+            power_system.batteries, os.path.join(save_dir, "battery")
+        )
+    save_line_history(
+        power_system.lines,
+        os.path.join(save_dir, "line"),
+    )
+    if len(power_system.circuitbreakers) > 0:
+        save_circuitbreaker_history(
+            power_system.circuitbreakers,
+            os.path.join(save_dir, "circuitbreaker"),
+        )
+    if len(power_system.disconnectors) > 0:
+        save_disconnector_history(
+            power_system.disconnectors,
+            os.path.join(save_dir, "disconnector"),
+        )
+
+    if len(power_system.intelligent_switches) > 0:
+        save_intelligent_switch_history(
+            power_system.intelligent_switches,
+            os.path.join(save_dir, "intelligent_switch"),
+        )
+
+    if len(power_system.sensors) > 0:
+        save_sensor_history(
+            power_system.sensors,
+            os.path.join(save_dir, "sensor"),
+        )
+
+    if len(power_system.controller.distribution_controllers) > 0:
+        save_network_controller_history(
+            power_system.controller.distribution_controllers,
+            os.path.join(save_dir, "distribution_controllers"),
+        )
+
+    if len(power_system.controller.microgrid_controllers) > 0:
+        save_network_controller_history(
+            power_system.controller.microgrid_controllers,
+            os.path.join(save_dir, "microgrid_controllers"),
+        )
+
+    if isinstance(power_system.controller, MainController):
+        save_system_controller_history(
+            [power_system.controller],
+            os.path.join(save_dir, "main_controller"),
+        )
+
+    if len(power_system.ict_lines) > 0:
+        save_ict_line_history(
+            power_system.ict_lines, os.path.join(save_dir, "ict_line")
+        )
+
+    if len(power_system.ict_nodes) > 0:
+        save_ict_node_history(
+            power_system.ict_nodes, os.path.join(save_dir, "ict_node")
+        )

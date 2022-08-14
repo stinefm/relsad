@@ -148,6 +148,7 @@ class DistributionController(Component, Controller):
         ## History
         self.history = {}
         self.monte_carlo_history = {}
+        self.initialize_history()
 
     def __str__(self):
         return self.name
@@ -276,10 +277,7 @@ class DistributionController(Component, Controller):
         # Loop disconnected sections
         for section in disconnected_sections:
             sensors = unique(
-                [
-                    switch.line.sensor
-                    for switch in section.switches
-                ]
+                [switch.line.sensor for switch in section.switches]
             )
             num_fails = 0
             need_manual_attention = False
@@ -323,10 +321,7 @@ class DistributionController(Component, Controller):
         # Loop connected sections
         for section in connected_sections:
             sensors = unique(
-                [
-                    switch.line.sensor
-                    for switch in section.switches
-                ]
+                [switch.line.sensor for switch in section.switches]
             )
             num_fails = 0
             need_manual_attention = False

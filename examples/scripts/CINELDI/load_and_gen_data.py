@@ -269,7 +269,11 @@ def pv_power(
 if __name__ == "__main__":
 
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    temp_profiles, wind_profiles, solar_profiles = weather_generation_data()
+    temp_profiles, wind_profiles, solar_profiles = weather_generation_data(
+        path=os.path.join(
+            os.pardir, os.pardir, "data", "weather_data_rygge.csv"
+        ),
+    )
 
     wind = wind_power(wind_profiles)
     PV = pv_power(temp_profiles, solar_profiles)
@@ -286,7 +290,12 @@ if __name__ == "__main__":
         load_industry2,
         load_trade,
         load_office,
-    ) = load_data(temp_profiles)
+    ) = load_data(
+        temp=temp_profiles,
+        path=os.path.join(
+            os.pardir, os.pardir, "data", "load_profiles_fasit.csv"
+        ),
+    )
 
     fig2, ax2 = plt.subplots()
     ax2.plot(load_house.flatten(), label="house")

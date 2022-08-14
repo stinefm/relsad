@@ -12,17 +12,20 @@ from relsad.loadflow.ac import run_bfs_load_flow
 from relsad.simulation.system_config import (
     find_sub_systems,
     update_sub_system_slack,
+    prepare_system,
     reset_system,
 )
 from relsad.energy.shedding import shed_energy
-from relsad.simulation.sequence.history import update_history
+from relsad.simulation.sequence.history import (
+    initialize_sequence_history,
+    update_sequence_history,
+    save_sequence_history,
+)
 from relsad.simulation.monte_carlo.history import (
-    initialize_history,
     initialize_monte_carlo_history,
     merge_monte_carlo_history,
     update_monte_carlo_power_system_history,
     save_network_monte_carlo_history,
-    save_iteration_history,
 )
 from relsad.Time import (
     Time,
@@ -56,8 +59,10 @@ class Simulation:
         Runs power system at current state for on time increment
     run_sequence(start_time, time_array, time_unit, save_flag)
         Runs power system for a sequence of increments
+    run_sequential(start_time, stop_time, time_step, time_unit, save_dir, save_flag)
+        Runs a sequential simulation with the power system
     run_iteration(it, start_time, time_array, time_unit, save_dir, save_iterations, random_seed)
-        Runs power system for an iteration
+        Runs a sequential iteration with the power system
     run_monte_carlo(iterations, start_time, stop_time, time_step, time_unit, save_iterations, save_dir, n_procs, debug)
         Runs Monte Carlo simulation of the power system
     """
@@ -109,7 +114,7 @@ class Simulation:
         start_time: TimeStamp,
         prev_time: Time,
         curr_time: Time,
-        save_flag: bool,
+        save_flag: bool = True,
     ):
         """
         Runs power system at current state for one time increment
@@ -135,42 +140,68 @@ class Simulation:
         ## Time step
         dt = curr_time - prev_time if prev_time is not None else curr_time
         ## Set loads
-        self.power_system.set_load_and_cost(inc_idx)
+        self.power_system.set_load_and_cost(inc_idx=inc_idx)
         ## Set productions
-        self.power_system.set_prod(inc_idx)
+        self.power_system.set_prod(inc_idx=inc_idx)
         ## Set fail status
-        self.power_system.update_fail_status(dt)
+        self.power_system.update_fail_status(dt=dt)
         ## Run control loop
-        self.power_system.controller.run_control_loop(curr_time, dt)
+        self.power_system.controller.run_control_loop(
+            curr_time=curr_time,
+            dt=dt,
+        )
         if (
             self.power_system.failed_comp()
             or not self.power_system.full_batteries()
         ):
             self.fail_duration += dt
             ## Find sub systems
-            find_sub_systems(self.power_system, curr_time)
-            update_sub_system_slack(self.power_system)
+            find_sub_systems(
+                p_s=self.power_system,
+                curr_time=curr_time,
+            )
+            update_sub_system_slack(p_s=self.power_system)
             ## Load flow
             for sub_system in self.power_system.sub_systems:
                 ## Update batteries and history
-                sub_system.update_batteries(self.fail_duration, dt)
+                sub_system.update_batteries(
+                    fail_duration=self.fail_duration,
+                    dt=dt,
+                )
                 ## Update EV parks
                 sub_system.update_ev_parks(
-                    self.fail_duration, dt, start_time, curr_time
+                    fail_duration=self.fail_duration,
+                    dt=dt,
+                    start_time=start_time,
+                    curr_time=curr_time,
                 )
                 ## Run load flow
                 sub_system.reset_load_flow_data()
                 if sub_system.slack is not None:
-                    self.run_load_flow(sub_system)
+                    self.run_load_flow(network=sub_system)
                 ## Shed load
-                shed_energy(sub_system, dt)
+                shed_energy(
+                    power_system=sub_system,
+                    dt=dt,
+                )
             ## Log results
-            update_history(self.power_system, prev_time, curr_time, save_flag)
+            update_sequence_history(
+                power_system=self.power_system,
+                prev_time=prev_time,
+                curr_time=curr_time,
+                save_flag=save_flag,
+            )
+            self.power_system.reset_load_flow_data()
         else:
             if self.fail_duration > Time(0):
-                update_history(
-                    self.power_system, prev_time, curr_time, save_flag
+                ## Log results
+                update_sequence_history(
+                    power_system=self.power_system,
+                    prev_time=prev_time,
+                    curr_time=curr_time,
+                    save_flag=save_flag,
                 )
+                ## Reset fail duration
                 self.fail_duration = Time(0)
 
     def run_sequence(
@@ -178,21 +209,22 @@ class Simulation:
         start_time: TimeStamp,
         time_array: np.ndarray,
         time_unit: TimeUnit,
-        save_flag: bool,
+        save_dir: str = "results",
+        save_flag: bool = True,
     ):
         """
         Runs power system for a sequence of increments
 
         Parameters
         ----------
-        inc_inx : int
-            Increment index
         start_time : TimeStamp
             The start time of the simulation/iteration
         time_array : np.ndarray
             Time array
         time_unit : TimeUnit
             Time unit
+        save_dir : str
+            The saving directory
         save_flag : bool
             Indicates if saving is on or off
 
@@ -201,6 +233,9 @@ class Simulation:
         None
 
         """
+        # Initialize sequence history variables
+        initialize_sequence_history(power_system=self.power_system)
+
         prev_time = Time(0, unit=time_unit)
         curr_time = Time(0, unit=time_unit)
         for inc_idx, time_quantity in enumerate(time_array):
@@ -214,14 +249,81 @@ class Simulation:
             )
             prev_time = copy.deepcopy(curr_time)
 
+        if save_flag is True:
+            # Save sequence history
+            save_sequence_history(
+                power_system=self.power_system,
+                save_dir=save_dir,
+            )
+
+    def run_sequential(
+        self,
+        start_time: TimeStamp,
+        stop_time: TimeStamp,
+        time_step: Time,
+        time_unit: TimeUnit,
+        save_dir: str = "results",
+        save_flag: bool = True,
+    ):
+        """
+        Runs sequential simulation of the power system
+
+        Parameters
+        ----------
+        start_time : TimeStamp
+            The start time of the simulation/iteration
+        stop_time : TimeStamp
+            The stop time of the simulation/iteration
+        time_step : Time
+            A time step (1 hour, 2 hours, ect.)
+        time_unit : TimeUnit
+            A time unit (hour, seconds, ect.)
+        save_dir : str
+            The saving directory
+        save_flag : bool
+            Flag for saving the simulation results
+
+        Returns
+        ----------
+        None
+
+        """
+        # Initialize random seed
+        ss = SeedSequence(self.random_seed)
+        random_seed = ss.spawn(1)[0]
+
+        # Initiate random instance
+        random_instance = np.random.default_rng(random_seed)
+
+        # Distribute random instance to power system components
+        self.distribute_random_instance(random_instance)
+
+        # Prepare power system for simulation
+        time_array = prepare_system(
+            power_system=self.power_system,
+            start_time=start_time,
+            stop_time=stop_time,
+            time_step=time_step,
+            time_unit=time_unit,
+        )
+
+        # Run sequence
+        self.run_sequence(
+            start_time=start_time,
+            time_array=time_array,
+            time_unit=time_unit,
+            save_dir=save_dir,
+            save_flag=save_flag,
+        )
+
     def run_iteration(
         self,
         it: int,
         start_time: TimeStamp,
-        time_array: np.ndarray,
+        time_array: np.array,
         time_unit: TimeUnit,
         save_dir: str,
-        save_iterations: list,
+        save_flag: bool,
         random_seed: int,
     ):
         """
@@ -230,17 +332,19 @@ class Simulation:
         Parameters
         ----------
         it : int
-            Iteration numver
+            Iteration number
         start_time : TimeStamp
             The start time of the simulation/iteration
-        time_array : np.ndarray
-            Time array
+        stop_time : TimeStamp
+            The stop time of the simulation/iteration
+        time_array : np.array
+            A time step (1 hour, 2 hours, ect.)
         time_unit : TimeUnit
             A time unit (hour, seconds, ect.)
         save_dir: str
             The saving directory
-        save_iterations : list
-            List of iterations where the sequence results will be saved
+        save_flag : bool
+            Flag for saving the iteration results
         random_seed : int
             Random seed number
 
@@ -263,23 +367,28 @@ class Simulation:
         save_dict = initialize_monte_carlo_history(self.power_system)
 
         # Print current iteration
-        print("it: {}".format(it), flush=True)
+        print(f"it: {it}", flush=True)
 
         # Reset power system
-        save_flag = it in save_iterations
         reset_system(self.power_system, save_flag)
 
         # Run iteration sequence
-        self.run_sequence(start_time, time_array, time_unit, save_flag)
+        self.run_sequence(
+            start_time=start_time,
+            time_array=time_array,
+            time_unit=time_unit,
+            save_dir=os.path.join(save_dir, str(it)),
+            save_flag=save_flag,
+        )
 
         # Update monte carlo history variables
         sim_duration = Time(time_array[-1], time_unit)
         save_dict = update_monte_carlo_power_system_history(
-            self.power_system, it, sim_duration, save_dict
+            power_system=self.power_system,
+            it=it,
+            current_time=sim_duration,
+            save_dict=save_dict,
         )
-        if save_flag:
-            # Save iteration history
-            save_iteration_history(self.power_system, it, save_dir)
         return save_dict
 
     def run_monte_carlo(
@@ -293,6 +402,7 @@ class Simulation:
         save_dir: str = "results",
         n_procs: int = 1,
         debug: bool = False,
+        save_flag: bool = True,
     ):
         """
         Runs Monte Carlo simulation of the power system
@@ -317,6 +427,8 @@ class Simulation:
             Number of processors
         debug : bool
             Indicates if debug mode is on or off
+        save_flag : bool
+            Flag for saving the simulation results
 
         Returns
         ----------
@@ -327,29 +439,20 @@ class Simulation:
         ss = SeedSequence(self.random_seed)
         child_seeds = ss.spawn(iterations)
 
-        # Create power system sections
-        self.power_system.create_sections()
-
-        # Set up time increments based on defined period
-        increments = int((stop_time - start_time) / time_step)
-        sim_duration = increments * time_step.get_unit_quantity(time_unit)
-        time_array = np.arange(
-            stop=sim_duration,
-            step=time_step.get_unit_quantity(time_unit),
+        # Prepare power system for simulation
+        time_array = prepare_system(
+            power_system=self.power_system,
+            start_time=start_time,
+            stop_time=stop_time,
+            time_step=time_step,
+            time_unit=time_unit,
         )
-        time_array_indices = np.arange(increments)
-
-        # Prepare load and production data
-        self.power_system.prepare_load_data(time_array_indices)
-        self.power_system.prepare_prod_data(time_array_indices)
-
-        # Initialize history variables
-        initialize_history(self.power_system)
 
         # Run iterations
         if debug:
             it_dicts = []
             for it in range(1, iterations + 1):
+                save_flag = it in save_iterations
                 it_dicts.append(
                     self.run_iteration(
                         it,
@@ -357,7 +460,7 @@ class Simulation:
                         time_array,
                         time_unit,
                         save_dir,
-                        save_iterations,
+                        save_flag,
                         child_seeds[it - 1],
                     )
                 )
@@ -372,21 +475,22 @@ class Simulation:
                             time_array,
                             time_unit,
                             save_dir,
-                            save_iterations,
+                            it in save_iterations,
                             child_seeds[it - 1],
                         ]
                         for it in range(1, iterations + 1)
                     ],
                 )
 
-        # Merge monte carlo history variables from iterations
-        save_dict = merge_monte_carlo_history(
-            self.power_system,
-            it_dicts,
-        )
-        # Save monte carlo history variables
-        save_network_monte_carlo_history(
-            self.power_system,
-            os.path.join(save_dir, "monte_carlo"),
-            save_dict,
-        )
+        if save_flag is True:
+            # Merge monte carlo history variables from iterations
+            save_dict = merge_monte_carlo_history(
+                self.power_system,
+                it_dicts,
+            )
+            # Save monte carlo history variables
+            save_network_monte_carlo_history(
+                self.power_system,
+                os.path.join(save_dir, "monte_carlo"),
+                save_dict,
+            )

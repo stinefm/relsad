@@ -1,9 +1,9 @@
+import numpy as np
 from relsad.network.systems import (
     PowerSystem,
     SubSystem,
     Transmission,
 )
-from relsad.network.containers import SectionState
 from relsad.network.components import (
     Bus,
     MicrogridMode,
@@ -12,9 +12,12 @@ from relsad.utils import (
     unique,
     subtract,
 )
-from relsad.Time import Time
+from relsad.Time import (
+    Time,
+    TimeUnit,
+    TimeStamp,
+)
 from relsad.topology.sub_systems import find_backup_lines_between_sub_systems
-from relsad.simulation.monte_carlo.history import initialize_history
 
 
 def find_sub_systems(p_s: PowerSystem, curr_time: Time):
@@ -35,11 +38,11 @@ def find_sub_systems(p_s: PowerSystem, curr_time: Time):
 
     """
 
-    p_s.sub_systems = list()
+    p_s.sub_systems = []
     # Will only include connected lines
     active_lines = [line for line in p_s.lines if line.connected]
-    used_buses = list()
-    used_lines = list()
+    used_buses = []
+    used_lines = []
     sub_system = SubSystem()
 
     while not (len(used_buses) + len(used_lines)) == (
@@ -194,7 +197,8 @@ def add_bus(
 
 def update_backup_lines_between_sub_systems(p_s: PowerSystem, curr_time: Time):
     """
-    Function that updates the backup lines between the sub systems of the power system if they exist and are not failed
+    Function that updates the backup lines between the sub systems
+    of the power system if they exist and are not failed
 
     Parameters
     ----------
@@ -284,7 +288,7 @@ def set_slack(p_s: PowerSystem, sub_system: SubSystem):
     ## Transmission network slack buses in sub_system
     for bus in sub_system.buses:
         for child_network in p_s.child_network_list:
-            if type(child_network) == Transmission:
+            if isinstance(child_network, Transmission):
                 if bus == child_network.get_trafo_bus():
                     bus.set_slack()
                     sub_system.slack = bus
@@ -329,6 +333,58 @@ def set_slack(p_s: PowerSystem, sub_system: SubSystem):
     return False
 
 
+def prepare_system(
+    power_system: PowerSystem,
+    start_time: TimeStamp,
+    stop_time: TimeStamp,
+    time_step: Time,
+    time_unit: TimeUnit,
+):
+    """
+    Prepares the power system for a simulation by:
+     - Creating system sections based on switches
+     - Defining the simulation time increments
+     - Interpolating load and production data based on
+       the time increments
+
+    Parameters
+    ----------
+    p_s : PowerSystem
+        A PowerSystem element
+    start_time : TimeStamp
+        The start time of the simulation/iteration
+    stop_time : TimeStamp
+        The stop time of the simulation/iteration
+    time_step : Time
+        A time step (1 hour, 2 hours, ect.)
+    time_unit : TimeUnit
+        A time unit (hour, seconds, ect.)
+
+    Returns
+    ----------
+    time_array:
+        Array containing the time increments of the simulation
+
+    """
+    # Create power system sections
+    power_system.create_sections()
+
+    # Set up time increments based on defined period
+    increments = int((stop_time - start_time) / time_step)
+    sim_duration = increments * time_step.get_unit_quantity(time_unit)
+    time_array = np.arange(
+        stop=sim_duration,
+        step=time_step.get_unit_quantity(time_unit),
+    )
+    time_array_indices = np.arange(increments)
+
+    # Prepare load and production data
+    power_system.prepare_load_data(time_array_indices)
+    power_system.prepare_prod_data(time_array_indices)
+
+    return time_array
+
+
 def reset_system(power_system: PowerSystem, save_flag: bool):
     """
     Resets the power system
@@ -348,7 +404,6 @@ def reset_system(power_system: PowerSystem, save_flag: bool):
     power_system.reset_energy_shed_variables()
     for network in power_system.child_network_list:
         network.reset_energy_shed_variables()
-    initialize_history(power_system)
 
     for comp in power_system.comp_list:
         comp.reset_status(save_flag)

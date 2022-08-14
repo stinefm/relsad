@@ -229,6 +229,7 @@ class Battery(Component):
 
         ## History
         self.history = {}
+        self.initialize_history()
 
     def __str__(self):
         return self.name

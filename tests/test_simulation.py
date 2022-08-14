@@ -10,19 +10,19 @@ from relsad.network.components import (
     MainController,
     ManualMainController,
 )
-
 from relsad.network.systems import (
     Distribution,
     PowerSystem,
     Transmission,
-    Microgrid,
 )
-
 from relsad.loadflow.ac import run_bfs_load_flow
+from relsad.load.bus import CostFunction
+from relsad.simulation import Simulation
 from relsad.utils import eq
 from relsad.Time import (
     Time,
     TimeUnit,
+    TimeStamp,
 )
 
 
@@ -116,20 +116,91 @@ def initialize_network():
     dn = Distribution(parent_network=tn, connected_line=L1)
     dn.add_buses([B2, B3, B4, B5, B6])
     dn.add_lines([L2, L3, L4, L5])
+
+    load_household = np.ones(2) * 0.005
+    load_industry2 = np.ones(2) * 0.2
+    load_office = np.ones(2) * 0.1
+
+    industry = CostFunction(
+        A=132.6 - 92.5,
+        B=92.5,
+    )
+
+    household = CostFunction(
+        A=8.8,
+        B=14.7,
+    )
+
+    B2.add_load_data(
+        pload_data=load_industry2,
+        cost_function=industry,
+    )
+
+    for bus in [B3, B4, B5]:
+        bus.add_load_data(
+            pload_data=load_household,
+            cost_function=household,
+        )
+
+    B6.add_load_data(
+        pload_data=load_office,
+        cost_function=household,
+    )
     return ps
 
 
-def test_run_increment():
-    pass
+def test_run_sequential():
+    ps = initialize_network()
 
+    sim = Simulation(ps, random_seed=0)
 
-def test_run_sequence():
-    pass
-
-
-def test_run_iteration():
-    pass
+    sim.run_sequential(
+        start_time=TimeStamp(
+            year=2019,
+            month=1,
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+        ),
+        stop_time=TimeStamp(
+            year=2019,
+            month=1,
+            day=1,
+            hour=6,
+            minute=0,
+            second=0,
+        ),
+        time_step=Time(1, TimeUnit.HOUR),
+        time_unit=TimeUnit.HOUR,
+        save_flag=False,
+    )
 
 
 def test_run_monte_carlo():
-    pass
+    ps = initialize_network()
+
+    sim = Simulation(ps, random_seed=0)
+
+    sim.run_monte_carlo(
+        iterations=5,
+        start_time=TimeStamp(
+            year=2019,
+            month=1,
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+        ),
+        stop_time=TimeStamp(
+            year=2019,
+            month=1,
+            day=1,
+            hour=6,
+            minute=0,
+            second=0,
+        ),
+        time_step=Time(1, TimeUnit.HOUR),
+        time_unit=TimeUnit.HOUR,
+        save_flag=False,
+    )

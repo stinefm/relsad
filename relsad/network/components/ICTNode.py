@@ -154,8 +154,7 @@ class ICTNode(Component):
         ## History
         self.history = {}
         self.monte_carlo_history = {}
-
-        self.reset_status(save_flag=True)
+        self.initialize_history()
 
     def __str__(self):
         return self.name

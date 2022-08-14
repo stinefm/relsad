@@ -147,6 +147,7 @@ class IntelligentSwitch(Component):
         ## History
         self.history = {}
         self.monte_carlo_history = {}
+        self.initialize_history()
 
     def __str__(self):
         return self.name

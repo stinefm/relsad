@@ -34,32 +34,18 @@ class Bus(Component):
         Number of customers connected to that bus
     coordinate : list
         Coordinate of the bus
-    ZIP : list
-        List showing the ZIP load model
     s_ref : float
         Apperent power reference [MVa]
-    is_slack : bool
-        Tells if the given bus is a slack bus or not
+    cost : float
+        The energy shedding cost of the bus
     cost_functions : list
         List of power load cost functions
     pload_data : list
         List of active power load data
     qload_data : list
         List of reactive power load data
-    toline : Line
-        Tells which line that is going into the bus
-    fromline : Line
-        Tells which line that is going out of the bus
-    toline_list : list
-        List of lines going into the bus
-    fromline_list : list
-        List of lines going from the bus
-    nextbus : List
-        List of neighbor buses
-    connected_lines : List
-        List of connected lines
-    parent_network : PowerNetwork
-        Parent network of the bus
+    ZIP : list
+        List showing the ZIP load model
     p_load_downstream : float
         Active accumulated power load at node
     q_load_downstream : float
@@ -88,38 +74,69 @@ class Bus(Component):
         The active generated power at the bus in pu
     qprod_pu : float
         The reactive generated power at the bus in pu
+    is_slack : bool
+        Tells if the given bus is a slack bus or not
+    toline : Line
+        Tells which line that is going into the bus
+    fromline : Line
+        Tells which line that is going out of the bus
+    toline_list : list
+        List of lines going into the bus
+    fromline_list : list
+        List of lines going from the bus
+    nextbus : List
+        List of neighbor buses
+    connected_lines : List
+        List of connected lines
+    parent_network : PowerNetwork
+        Parent network of the bus
     fail_rate_per_year : float
         The failure rate per year for the transformer at the bus
-    trafo_failed : bool
-        Failure status of the transformer
     repair_time_dist : StatDist
         The repair time of the transformer at the bus [hours/fault]
-    remaining_outage_time : Time
-        The remaining outage time of the bus
+    p_energy_shed_stack : float
+        The amount of shedded active energy at the bus
+        in the current sequence
+    q_energy_shed_stack : float
+        The amount of shedded reactive energy at the bus
+        in the current sequence
+    acc_p_energy_shed : float
+        The accumulated amount of shedded active energy at the bus
+        for the entire simulation
+    acc_q_energy_shed : float
+        The accumulated amount of shedded reactive energy at the bus
+        for the entire simulation
     acc_outage_time : Time
         The accumulated outage time of the transformer at the bus
-    avg_outage_time : Time
-        The average outage time of the transformer at the bus
+        for the entire simulation
     avg_fail_rate : float
         The average failure rate of the transformer at the bus
+        for the entire simulation
+    avg_outage_time : Time
+        The average outage time of the transformer at the bus
+        for the entire simulation
     num_consecutive_interruptions : float
-        Number of consecutive interruptions a bus experiences
+        The current number of consecutive interruptions the bus experiences
     interruption_fraction : float
-        The interruption fraction of the bus
+        The current fraction of interruption experienced by the bus
     curr_interruptions : float
-        Current interruption duration a bus experiences
+        Current number of interruptions experienced by the bus
     acc_interruptions : float
-        Accumulated interruption duration a bus experiences
+        Accumulated number of interruptions experienced by the bus
+    trafo_failed : bool
+        Failure status of the transformer
+    remaining_outage_time : Time
+        The remaining outage time of the bus
     prod : Production
-        Production class element at the bus
+        The Production unit at the bus
     ev_park : EVPark
-        EVPark class element at the bus
+        The EVPark at the bus
     battery : Battery
-        Battery class element at the bus
+        The Battery unit at the bus
     history : dict
-        Dictonary attribute that stores the historic variables
+        Dictonary that stores the sequential simulation history variables
     monte_carlo_history : dict
-        Dictonary attribute that stores the historic variables from the Monte Carlo simulation
+        Dictonary that stores the Monte Carlo simulation history variables
 
 
     Methods
@@ -224,6 +241,7 @@ class Bus(Component):
 
         ## Power flow attributes
         self.s_ref = s_ref
+        self.cost = 0  # cost
         self.cost_functions = []
         self.pload_data = []
         self.qload_data = []
@@ -256,6 +274,10 @@ class Bus(Component):
         ## Reliabilility attributes
         self.fail_rate_per_year = fail_rate_per_year  # failures per year
         self.repair_time_dist = repair_time_dist
+        self.p_energy_shed_stack = 0
+        self.q_energy_shed_stack = 0
+        self.acc_p_energy_shed = 0
+        self.acc_q_energy_shed = 0
         self.acc_outage_time = Time(0)
         self.avg_fail_rate = 0
         self.avg_outage_time = Time(0)
@@ -276,8 +298,7 @@ class Bus(Component):
         ## History
         self.history = {}
         self.monte_carlo_history = {}
-
-        self.reset_status(save_flag=True)
+        self.initialize_history()
 
     def __str__(self):
         return self.name

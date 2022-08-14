@@ -51,9 +51,7 @@ def SAIDI(network: PowerNetwork):
             for bus in network.buses
         ]
     )
-    total_customers = sum(
-        [bus.n_customers for bus in network.buses]
-    )
+    total_customers = sum([bus.n_customers for bus in network.buses])
     if total_customers == 0:
         saidi = 0
     else:

@@ -1,9 +1,7 @@
-import numpy as np
 from relsad.network.components import (
     Bus,
     Line,
 )
-from .Transmission import Transmission
 from relsad.utils import (
     eq,
     unique,
@@ -14,6 +12,7 @@ from relsad.Time import (
     TimeUnit,
     TimeStamp,
 )
+from .Transmission import Transmission
 
 
 class SubSystem:
@@ -311,7 +310,13 @@ class SubSystem:
         hour_of_day = start_time.get_hour_of_day(curr_time)
         p, q = self.get_system_load_balance()
         for ev_park in self.ev_parks:
-            p, q = ev_park.update(p, q, fail_duration, dt, hour_of_day)
+            p, q = ev_park.update(
+                p=p,
+                q=q,
+                fail_duration=fail_duration,
+                dt=dt,
+                hour_of_day=hour_of_day,
+            )
 
     def reset_load_flow_data(self):
         """

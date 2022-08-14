@@ -6,17 +6,20 @@ from relsad.network.components import (
     ICTLine,
 )
 from relsad.network.systems import PowerNetwork
-from .Transmission import Transmission
 from relsad.utils import (
     eq,
     unique,
     INF,
 )
-from relsad.Time import Time
+from relsad.Time import (
+    Time,
+    TimeStamp,
+)
 from relsad.topology.sectioning import (
     create_sections,
     get_section_list,
 )
+from .Transmission import Transmission
 
 
 class PowerSystem(PowerNetwork):
@@ -81,13 +84,15 @@ class PowerSystem(PowerNetwork):
     Methods
     ----------
     add_bus(bus)
-        Adding a bus including elements on the bus (battery, generation unit, EV park) to the power system
+        Adding a bus including elements on the bus
+        (battery, generation unit, EV park) to the power system
     add_buses(buses)
         Adding buses to the power system
     add_ict_node(ict_node)
         Adding an ICT node to the power system
     add_line(line)
-        Adding a line including elements on the line (sensor, circuit breaker, disconnector) to the power system
+        Adding a line including elements on the line
+        (sensor, circuit breaker, disconnector) to the power system
     add_lines(lines)
         Adding lines to the power system
     add_ict_line(ict_line)
@@ -110,7 +115,7 @@ class PowerSystem(PowerNetwork):
         Returns the load balance of the system in MW and MVar
     update_batteries(fail_duration, dt)
         Updates the batteries in the power system
-    update_ev_parks(fail_duration, dt)
+    update_ev_parks(fail_duration, dt, start_time, curr_time)
         Updates the EV parks in the power system
     update_fail_status(dt)
         Updates the failure status for each component that can fail in the power system
@@ -121,7 +126,8 @@ class PowerSystem(PowerNetwork):
     prepare_prod_data(time_indices)
         Prepares the production data for the production components in the power system
     set_load_and_cost(inc_idx)
-        Sets the bus load and cost in MW based on load and cost profiles in the current increment for the power system
+        Sets the bus load and cost in MW based on load and cost profiles
+        in the current increment for the power system
     set_prod(inc_idx)
         Sets the generation (generation units, batteries, EV parks) at the buses in the power system
     failes_comp()
@@ -534,7 +540,13 @@ class PowerSystem(PowerNetwork):
         for battery in self.batteries:
             p, q = battery.update(p, q, fail_duration, dt)
 
-    def update_ev_parks(self, fail_duration: Time, dt: Time):
+    def update_ev_parks(
+        self,
+        fail_duration: Time,
+        dt: Time,
+        start_time: TimeStamp,
+        curr_time: Time,
+    ):
         """
         Updates the EV parks in the power system
 
@@ -544,15 +556,26 @@ class PowerSystem(PowerNetwork):
             The failure duration
         dt : Time
             The current time step
+        start_time : TimeStamp
+            Start time
+        curr_time : Time
+            The current time
 
         Returns
         ----------
         None
 
         """
+        hour_of_day = start_time.get_hour_of_day(curr_time)
         p, q = self.get_system_load_balance()
         for ev_park in self.ev_parks:
-            p, q = ev_park.update(p, q, fail_duration, dt)
+            p, q = ev_park.update(
+                p=p,
+                q=q,
+                fail_duration=fail_duration,
+                dt=dt,
+                hour_of_day=hour_of_day,
+            )
 
     def update_fail_status(self, dt: Time):
         """
