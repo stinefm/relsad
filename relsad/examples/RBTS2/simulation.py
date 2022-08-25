@@ -20,6 +20,22 @@ from relsad.examples.RBTS2.load_and_prod import set_network_load_and_prod
 def run_simulation(
     random_seed: int = 2837314,
     iterations: int = 2,
+    start_time: TimeStamp = TimeStamp(
+        year=2019,
+        month=1,
+        day=1,
+        hour=0,
+        minute=0,
+        second=0,
+    ),
+    stop_time: TimeStamp = TimeStamp(
+        year=2020,
+        month=1,
+        day=1,
+        hour=0,
+        minute=0,
+        second=0,
+    ),
     save_iterations: list = [1, 2],
     save_flag: bool = True,
     save_dir: str = "results",
@@ -39,22 +55,8 @@ def run_simulation(
 
     sim.run_monte_carlo(
         iterations=iterations,
-        start_time=TimeStamp(
-            year=2019,
-            month=1,
-            day=1,
-            hour=0,
-            minute=0,
-            second=0,
-        ),
-        stop_time=TimeStamp(
-            year=2020,
-            month=1,
-            day=1,
-            hour=0,
-            minute=0,
-            second=0,
-        ),
+        start_time=start_time,
+        stop_time=stop_time,
         time_step=Time(5, TimeUnit.MINUTE),
         time_unit=TimeUnit.HOUR,
         save_iterations=save_iterations,

@@ -217,7 +217,7 @@ class DistributionController(Component, Controller):
                 self.disconnect_failed_sections()
                 if (
                     not self.power_network.connected_line.failed
-                    and not self.power_network.connected_line in
+                    and self.power_network.connected_line not in
                     [line for section in self.failed_sections for line in section.lines]
                 ):
                     # Sectioning time finished

@@ -222,7 +222,11 @@ class MicrogridController(Component, Controller):
                 return
             elif self.sectioning_time <= Time(0):
                 self.disconnect_failed_sections()
-                if not self.power_network.connected_line.failed:
+                if (
+                    not self.power_network.connected_line.failed
+                    and self.power_network.connected_line not in
+                    [line for section in self.failed_sections for line in section.lines]
+                ):
                     # Sectioning time finished
                     self.power_network.connected_line.circuitbreaker.close()
                     self.power_network.connected_line.section.connect(dt, self)
