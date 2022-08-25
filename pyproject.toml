@@ -2,6 +2,10 @@
 name = "relsad"
 version = "0.0.1"
 description = "A package that facilitates reliability investigations in power systems"
+readme = "README.rst"
+repository = "https://github.com/stinefm/relsad"
+homepage = "https://github.com/stinefm/relsad"
+documentation = "https://relsad.readthedocs.io/"
 authors = ["Stine Fleischer Myhre"]
 license = "MIT"
 

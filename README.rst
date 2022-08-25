@@ -22,9 +22,9 @@ include investigating how:
 1. The introduction of microgrids with active production
 affects the customers in the distribution network and vice versa 
 2. Vehicle-to-grid strategies might mitigate load peaks and
-   improve the distribution network reliability
+improve the distribution network reliability
 3. The reliability of the ICT network impacts the
-   distribution network reliability
+distribution network reliability
 
 Examples using well known test networks are included.
 
@@ -36,13 +36,16 @@ Install using:
 
 .. code-block:: console
 
-    $ python setup.py install
+    $ pip install --upgrade pip
+    $ pip install relsad
 
 Install in developer mode using:
 
 .. code-block:: console
 
-    $ python setup.py develop
+    $ pip install --upgrade pip
+    $ pip install poetry
+    $ poetry install
 
 .....................................
 Features
