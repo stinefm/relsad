@@ -209,7 +209,6 @@ class Simulation:
         start_time: TimeStamp,
         time_array: np.ndarray,
         time_unit: TimeUnit,
-        save_dir: str = "results",
         save_flag: bool = True,
     ):
         """
@@ -223,8 +222,6 @@ class Simulation:
             Time array
         time_unit : TimeUnit
             Time unit
-        save_dir : str
-            The saving directory
         save_flag : bool
             Indicates if saving is on or off
 
@@ -233,9 +230,6 @@ class Simulation:
         None
 
         """
-        # Initialize sequence history variables
-        initialize_sequence_history(power_system=self.power_system)
-
         prev_time = Time(0, unit=time_unit)
         curr_time = Time(0, unit=time_unit)
         for inc_idx, time_quantity in enumerate(time_array):
@@ -249,12 +243,6 @@ class Simulation:
             )
             prev_time = copy.deepcopy(curr_time)
 
-        if save_flag is True:
-            # Save sequence history
-            save_sequence_history(
-                power_system=self.power_system,
-                save_dir=save_dir,
-            )
 
     def run_sequential(
         self,
@@ -307,14 +295,23 @@ class Simulation:
             time_unit=time_unit,
         )
 
+        # Initialize sequence history variables
+        initialize_sequence_history(power_system=self.power_system)
+
         # Run sequence
         self.run_sequence(
             start_time=start_time,
             time_array=time_array,
             time_unit=time_unit,
-            save_dir=save_dir,
             save_flag=save_flag,
         )
+
+        if save_flag is True:
+            # Save sequence history
+            save_sequence_history(
+                power_system=self.power_system,
+                save_dir=save_dir,
+            )
 
     def run_iteration(
         self,
@@ -372,14 +369,23 @@ class Simulation:
         # Reset power system
         reset_system(self.power_system, save_flag)
 
+        # Initialize sequence history variables
+        initialize_sequence_history(power_system=self.power_system)
+
         # Run iteration sequence
         self.run_sequence(
             start_time=start_time,
             time_array=time_array,
             time_unit=time_unit,
-            save_dir=os.path.join(save_dir, str(it)),
             save_flag=save_flag,
         )
+
+        if save_flag is True:
+            # Save sequence history
+            save_sequence_history(
+                power_system=self.power_system,
+                save_dir=save_dir,
+            )
 
         # Update monte carlo history variables
         sim_duration = Time(time_array[-1], time_unit)
@@ -459,7 +465,10 @@ class Simulation:
                         time_array=time_array,
                         time_unit=time_unit,
                         save_dir=save_dir,
-                        save_flag=it in save_iterations,
+                        save_flag=(
+                            it in save_iterations and
+                            save_flag is True
+                        ),
                         random_seed=child_seeds[it - 1],
                     )
                 )
@@ -474,7 +483,10 @@ class Simulation:
                             time_array,
                             time_unit,
                             save_dir,
-                            it in save_iterations,
+                            (
+                                it in save_iterations and
+                                save_flag is True
+                            ),
                             child_seeds[it - 1],
                         ]
                         for it in range(1, iterations + 1)

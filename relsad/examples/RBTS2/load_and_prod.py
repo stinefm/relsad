@@ -9,7 +9,7 @@ from relsad.Time import (
     TimeStamp,
 )
 
-from load_and_gen_data import (
+from relsad.examples.load.load_and_gen_data import (
     weather_generation_data,
     load_data,
     wind_power,

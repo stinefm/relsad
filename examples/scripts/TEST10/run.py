@@ -9,8 +9,7 @@ from relsad.StatDist import (
     NormalParameters,
 )
 
-from simulation import run_simulation
-
+# Set path to file path
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 run_simulation(
@@ -28,7 +27,7 @@ run_simulation(
     include_ev=True,
     v2g_flag=True,
     include_backup=True,
-    line_stat_dist=StatDist(
+    line_repair_time_stat_dist=StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
         parameters=NormalParameters(
             loc=1.25,

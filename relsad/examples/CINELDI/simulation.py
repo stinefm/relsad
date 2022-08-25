@@ -1,6 +1,6 @@
 import time
 import os
-from relsad.test_networks.CINELDI import initialize_network
+from relsad.examples.CINELDI.network import initialize_network
 from relsad.simulation import Simulation
 from relsad.load.bus import CostFunction
 from relsad.StatDist import (
@@ -14,7 +14,7 @@ from relsad.Time import (
     TimeUnit,
     TimeStamp,
 )
-from load_and_prod import set_network_load_and_prod
+from relsad.examples.CINELDI.load_and_prod import set_network_load_and_prod
 
 
 def run_simulation(
@@ -22,7 +22,7 @@ def run_simulation(
     include_production=True,
     include_ev: bool = True,
     v2g_flag: bool = True,
-    line_stat_dist: StatDist = StatDist(
+    line_repair_time_stat_dist: StatDist = StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
         parameters=NormalParameters(
             loc=1,
@@ -36,7 +36,17 @@ def run_simulation(
     ev_percentage: float = 0.46,
     ev_E_max: float = 0.07,
     random_seed: int = 2837314,
+    iterations: int = 2,
+    save_iterations: list = [1, 2],
+    data_dir: str = os.path.join(
+        os.pardir,
+        "load",
+        "data",
+    ),
+    save_flag: bool = True,
     save_dir: str = "results",
+    n_procs: int = 1,
+    debug: bool = True,
 ):
 
     start = time.time()
@@ -46,7 +56,7 @@ def run_simulation(
         include_production=include_production,
         include_ev=include_ev,
         v2g_flag=v2g_flag,
-        line_stat_dist=line_stat_dist,
+        line_repair_time_stat_dist=line_repair_time_stat_dist,
         fail_rate_line=fail_rate_line,  # fails per year
         fail_rate_trafo=fail_rate_trafo,
         ev_percentage=ev_percentage,
@@ -58,12 +68,13 @@ def run_simulation(
         power_system=ps,
         include_microgrid=include_microgrid,
         include_production=include_production,
+        data_dir=data_dir,
     )
 
     sim = Simulation(ps, random_seed=random_seed)
 
     sim.run_monte_carlo(
-        iterations=5,
+        iterations=iterations,
         start_time=TimeStamp(
             year=2019,
             month=1,
@@ -82,10 +93,11 @@ def run_simulation(
         ),
         time_step=Time(5, TimeUnit.MINUTE),
         time_unit=TimeUnit.HOUR,
-        save_iterations=[1, 2, 3, 4, 5],
+        save_iterations=save_iterations,
         save_dir=save_dir,
-        n_procs=10,
-        debug=True,
+        save_flag=save_flag,
+        n_procs=n_procs,
+        debug=debug,
     )
 
     end = time.time()

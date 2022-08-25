@@ -16,7 +16,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 run_simulation(
     include_ev=True,
     v2g_flag=True,
-    line_stat_dist=StatDist(
+    line_repair_time_stat_dist=StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
         parameters=NormalParameters(
             loc=1,

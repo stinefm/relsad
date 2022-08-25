@@ -2,7 +2,31 @@
 RELSAD
 #################################################
 
-A Python package for reliability assessment of modern distribution systems.
+`RELSAD` -- RELiability tool for Smart and Active Distribution networks, is a Python-based
+reliability assessment tool that aims to function as a foundation for reliability
+calculation of modern distribution systems. 
+The tool uses Monte Carlo simulation and stochastic variation to simulate the
+reliability of a distribution system. The package supports user-selected time
+increment steps over a user-defined time period. In the tool, active components
+such as microgrids, wind power, solar power, batteries, and electrical vehicles
+are implemented. To evaluate smart power systems, ICT components such as
+automated switches, sensors, and control system for the power grid are also implemented.
+In addition to component implementation, in order to evaluate the reliability of such
+complex systems, the complexity, dependencies within a system, and interdependencies
+between systems and components are accounted for. 
+
+The tool can be used in modern distribution network development to evaluate
+the influence of active components on the network reliability. Relevant use cases
+include investigating how:
+
+1. The introduction of microgrids with active production
+affects the customers in the distribution network and vice versa 
+2. Vehicle-to-grid strategies might mitigate load peaks and
+   improve the distribution network reliability
+3. The reliability of the ICT network impacts the
+   distribution network reliability
+
+Examples using well known test networks are included.
 
 .....................................
 Installation
@@ -24,9 +48,8 @@ Install in developer mode using:
 Features
 .....................................
 
-- Reliability analysis
-- Load flow
-- Monte Carlo simulation
+- Monte Carlo simulation based reliability analysis of active distribution networks
+- Sequential simulation of the network behavoir with user defined loading and failure evolution
 
 .....................................
 Dependencies

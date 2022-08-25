@@ -1,4 +1,4 @@
-from relsad.test_networks.CINELDI import initialize_network
+from relsad.examples.CINELDI.network import initialize_network
 from relsad.simulation.system_config import find_sub_systems
 from relsad.network.components import (
     MicrogridMode,

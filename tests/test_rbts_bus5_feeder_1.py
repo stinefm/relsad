@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 from relsad.utils import (
     eq,
@@ -25,6 +26,12 @@ from relsad.StatDist import (
     StatDist,
     StatDistType,
     UniformParameters,
+)
+from numpy.random import SeedSequence
+from relsad.simulation.system_config import prepare_system
+from relsad.simulation.sequence.history import (
+    initialize_sequence_history,
+    save_sequence_history,
 )
 
 
@@ -264,3 +271,78 @@ def test_fail_L8():
         time_unit=TimeUnit.HOUR,
         save_flag=False,
     )
+
+def test_fail_L8_L3():
+    ps = network(fail_rate_line=0)
+
+
+    sim = Simulation(ps)
+
+    start_time = TimeStamp(
+        year=2019,
+        month=1,
+        day=1,
+        hour=0,
+        minute=0,
+        second=0,
+    )
+    stop_time = TimeStamp(
+        year=2019,
+        month=1,
+        day=1,
+        hour=8,
+        minute=0,
+        second=0,
+    )
+    time_step = Time(1, TimeUnit.HOUR)
+    time_unit = TimeUnit.HOUR
+    save_dir = "results"
+    save_flag = False
+
+    # Initialize random seed
+    ss = SeedSequence(sim.random_seed)
+    random_seed = ss.spawn(1)[0]
+
+    # Initiate random instance
+    random_instance = np.random.default_rng(random_seed)
+
+    # Distribute random instance to power system components
+    sim.distribute_random_instance(random_instance)
+
+    # Prepare power system for simulation
+    time_array = prepare_system(
+        power_system=sim.power_system,
+        start_time=start_time,
+        stop_time=stop_time,
+        time_step=time_step,
+        time_unit=time_unit,
+    )
+
+    # Initialize sequence history variables
+    initialize_sequence_history(power_system=sim.power_system)
+
+    # Run sequence
+    prev_time = Time(0, unit=time_unit)
+    curr_time = Time(0, unit=time_unit)
+    for inc_idx, time_quantity in enumerate(time_array):
+        if curr_time == Time(0, unit=time_unit):
+            ps.get_comp("L8").fail(dt=Time(1, TimeUnit.HOUR))
+        elif curr_time == Time(2, unit=time_unit):
+            ps.get_comp("L3").fail(dt=Time(1, TimeUnit.HOUR))
+        curr_time = Time(time_quantity, unit=time_unit)
+        sim.run_increment(
+            inc_idx,
+            start_time,
+            prev_time,
+            curr_time,
+            save_flag,
+        )
+        prev_time = copy.deepcopy(curr_time)
+
+    if save_flag is True:
+        # Save sequence history
+        save_sequence_history(
+            power_system=sim.power_system,
+            save_dir=save_dir,
+        )
+

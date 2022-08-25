@@ -1,6 +1,6 @@
 import time
 import os
-from relsad.test_networks.IEEE16_modified import initialize_network
+from relsad.examples.IEEE16_modified.network import initialize_network
 from relsad.simulation import Simulation
 from relsad.load.bus import CostFunction
 from relsad.network.components import MicrogridMode
@@ -15,14 +15,14 @@ from relsad.Time import (
     TimeUnit,
     TimeStamp,
 )
-from load_and_prod import set_network_load_and_prod
+from relsad.examples.IEEE16_modified.load_and_prod import set_network_load_and_prod
 
 
 def run_simulation(
     fail_rate_trafo: float = 0.007,
     fail_rate_line: float = 0.7,
     microgrid_mode: MicrogridMode = MicrogridMode.SURVIVAL,
-    line_stat_dist: StatDist = StatDist(
+    line_repair_time_stat_dist: StatDist = StatDist(
         stat_dist_type=StatDistType.TRUNCNORMAL,
         parameters=NormalParameters(
             loc=1.25,
@@ -32,7 +32,17 @@ def run_simulation(
         ),
     ),
     random_seed: int = 2837314,
+    iterations: int = 2,
+    save_iterations: list = [1, 2],
+    data_dir: str = os.path.join(
+        os.pardir,
+        "load",
+        "data",
+    ),
+    save_flag: bool = True,
     save_dir: str = "results",
+    n_procs: int = 1,
+    debug: bool = True,
 ):
 
     start = time.time()
@@ -41,17 +51,18 @@ def run_simulation(
         fail_rate_line=fail_rate_line,
         fail_rate_trafo=fail_rate_trafo,
         microgrid_mode=microgrid_mode,
-        line_stat_dist=line_stat_dist,
+        line_repair_time_stat_dist=line_repair_time_stat_dist,
     )
 
     ps = set_network_load_and_prod(
         power_system=ps,
+        data_dir=data_dir,
     )
 
     sim = Simulation(ps, random_seed=random_seed)
 
     sim.run_monte_carlo(
-        iterations=2,
+        iterations=iterations,
         start_time=TimeStamp(
             year=2019,
             month=1,
@@ -70,10 +81,11 @@ def run_simulation(
         ),
         time_step=Time(5, TimeUnit.MINUTE),
         time_unit=TimeUnit.HOUR,
-        save_iterations=[],
+        save_iterations=save_iterations,
         save_dir=save_dir,
-        n_procs=10,
-        debug=True,
+        n_procs=n_procs,
+        debug=debug,
+        save_flag=save_flag,
     )
 
     end = time.time()

@@ -1,6 +1,6 @@
 import time
 import os
-from relsad.test_networks.RBTS2 import initialize_network
+from relsad.examples.RBTS2.network import initialize_network
 from relsad.simulation import Simulation
 from relsad.load.bus import CostFunction
 from relsad.StatDist import (
@@ -14,12 +14,17 @@ from relsad.Time import (
     TimeUnit,
     TimeStamp,
 )
-from load_and_prod import set_network_load_and_prod
+from relsad.examples.RBTS2.load_and_prod import set_network_load_and_prod
 
 
 def run_simulation(
     random_seed: int = 2837314,
+    iterations: int = 2,
+    save_iterations: list = [1, 2],
+    save_flag: bool = True,
     save_dir: str = "results",
+    n_procs: int = 1,
+    debug: bool = True,
 ):
 
     start = time.time()
@@ -33,7 +38,7 @@ def run_simulation(
     sim = Simulation(ps, random_seed=random_seed)
 
     sim.run_monte_carlo(
-        iterations=2,
+        iterations=iterations,
         start_time=TimeStamp(
             year=2019,
             month=1,
@@ -52,10 +57,11 @@ def run_simulation(
         ),
         time_step=Time(5, TimeUnit.MINUTE),
         time_unit=TimeUnit.HOUR,
-        save_iterations=[],
+        save_iterations=save_iterations,
         save_dir=save_dir,
-        n_procs=10,
-        debug=True,
+        save_flag=save_flag,
+        n_procs=n_procs,
+        debug=debug,
     )
 
     end = time.time()

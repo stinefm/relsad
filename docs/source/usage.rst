@@ -522,7 +522,17 @@ For evaluating islanded networks or microgrids, the network should be created wi
 Network with ICT
 .....................................
 
-For including ICT, the ICT components need to be imported:: 
+"""""""""""""""""""
+Without ICT network
+"""""""""""""""""""
+
+This section illustrated basic usage of the ICT features implemented in RELSAD.
+First, inclusion of ICT components without an ICT network is shown. In this case,
+the communication between the ICT components is considered to be ideal, without
+any probability of failing.
+
+
+For including ICT components, the ICT components need to be imported:: 
 
     from relsad.network.components import (
         MainController, 
@@ -555,9 +565,70 @@ A sensor can be added on a line::
 
 Failure rates and repair time of the sensor can be added to the component. There can only be on sensor on each line. 
 
-.....................................
-Creation of ICT networks
-.....................................
+
+"""""""""""""""""""
+With ICT network
+"""""""""""""""""""
+
+Second, inclusion of ICT components with an ICT network is shown. In this case,
+the communication between the ICT components might fail leading to potential
+downtime.
+
+For including an ICT network, the following must be imported:: 
+
+    from relsad.network.systems import ICTNetwork
+    from relsad.network.components import (
+        ICTNode, 
+        ICTLine,
+    )
+
+To add the ICT network, ICT nodes and ICT lines must be defined and added to
+a ICT network::
+
+    # ICT nodes
+    ICTNC1 = ICTNode(
+        name="ICTNC1",
+    )
+    ICTNISW1 = ICTNode(
+        name="ICTNISW1",
+    )
+    ICTNS1 = ICTNode(
+        name="ICTNS1",
+    )
+
+    # ICT lines
+    ICTL1 = ICTLine(
+        name="ICTL1",
+        fnode=ICTNC1,
+        tnode=ICTNISW1,
+    )
+    ICTL2 = ICTLine(
+        name="ICTL2",
+        fnode=ICTNC1,
+        tnode=ICTNS1,
+    )
+    ICTL3 = ICTLine(
+        name="ICTL3",
+        fnode=ICTNS1,
+        tnode=ICTNISWS1,
+    )
+
+    # ICT network
+    ict_network = ICTNetwork(ps)
+    ict_network.add_nodes(
+        [
+            ICTNC1,
+            ICTNISW1,
+            ICTNS1,
+        ]
+    )
+    ict_network.add_lines(
+        [
+            ICTL1,
+            ICTL2,
+            ICTL3,
+        ]
+    )
 
 
 

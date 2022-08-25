@@ -6,7 +6,7 @@ from relsad.Time import (
     TimeUnit,
     TimeStamp,
 )
-from load_and_gen_data import (
+from relsad.examples.load.load_and_gen_data import (
     weather_generation_data,
     load_data,
     wind_power,
@@ -17,7 +17,7 @@ from load_and_gen_data import (
 def set_network_load_and_prod(
     power_system: PowerSystem,
     include_microgrid: bool = False,
-    data_path=os.path.join(
+    data_dir=os.path.join(
         os.pardir,
         os.pardir,
         "data",
@@ -61,7 +61,7 @@ def set_network_load_and_prod(
     # Fetching battery and production objects
 
     temp_profiles, wind_profiles, solar_profiles = weather_generation_data(
-        path=os.path.join(data_path, "weather_data_rygge.csv"),
+        path=os.path.join(data_dir, "weather_data_rygge.csv"),
     )
 
     wind = wind_power(wind_profiles)
@@ -76,7 +76,7 @@ def set_network_load_and_prod(
         load_office,
     ) = load_data(
         temp_profiles,
-        path=os.path.join(data_path, "load_profiles_fasit.csv"),
+        path=os.path.join(data_dir, "load_profiles_fasit.csv"),
     )
 
     farm = CostFunction(
