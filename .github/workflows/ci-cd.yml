@@ -59,16 +59,16 @@ jobs:
       run: poetry build
 
     - name: rename package
-      run: python -c "import datetime; \
-                       import glob; \
-                       import os; \
-                       file = glob.glob('dist/*.whl')[0]; \
+      run: python -c "import datetime \
+                       import glob \
+                       import os \
+                       file = glob.glob('dist/*.whl')[0] \
                        new_file = file.replace( \
                           '.whl', \
                           '_'+str( \
                               datetime.datetime.now() \
                               .strftime('%Y%m%d_%H-%M-%S') \
-                          )+'.whl'); \
+                          )+'.whl') \
                         os.rename(file, new_file)"
 
     - name: Publish to TestPyPI
