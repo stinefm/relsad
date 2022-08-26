@@ -1,6 +1,7 @@
 import numpy as np
-from relsad.topology.load_flow.bfs import configure_bfs_load_flow_setup
+
 from relsad.network.systems.PowerNetwork import PowerNetwork
+from relsad.topology.load_flow.bfs import configure_bfs_load_flow_setup
 
 
 def run_bfs_load_flow(network: PowerNetwork, maxit: int = 5):
@@ -92,13 +93,13 @@ def accumulate_load(topology_list):
                 # Estimate the losses of the branch
                 to_line.ploss = (
                     to_line.r_pu
-                    * (pto ** 2 + qto ** 2)
-                    / parent_bus.vomag ** 2
+                    * (pto**2 + qto**2)
+                    / parent_bus.vomag**2
                 )
                 to_line.qloss = (
                     to_line.x_pu
-                    * (pto ** 2 + qto ** 2)
-                    / parent_bus.vomag ** 2
+                    * (pto**2 + qto**2)
+                    / parent_bus.vomag**2
                 )
                 p_loss += to_line.ploss
                 q_loss += to_line.qloss
@@ -134,16 +135,16 @@ def calc_bus_voltage_sensitivity_single_phase(fbus, tbus, tline, branch: list):
 
     """
 
-    vk2 = fbus.vomag ** 2
+    vk2 = fbus.vomag**2
     # Find the accumulated loads and losses flowing on the branch
     tpload = branch[0].p_load_downstream + branch[0].p_loss_downstream
     tqload = branch[0].q_load_downstream + branch[0].q_loss_downstream
     # Voltage calculation
     term2 = 2 * (tpload * tline.r_pu + tqload * tline.x_pu)
     term3 = (
-        (tpload ** 2 + tqload ** 2)
-        * (tline.r_pu ** 2 + tline.x_pu ** 2)
-        / fbus.vomag ** 2
+        (tpload**2 + tqload**2)
+        * (tline.r_pu**2 + tline.x_pu**2)
+        / fbus.vomag**2
     )
     # Update the bus voltage magnitude on the down-stream bus
     tbus.vomag = np.sqrt(vk2 - term2 + term3)
@@ -213,9 +214,9 @@ def get_load(bus):
     relative_qload = bus.qload_pu - bus.qprod_pu
 
     p_load_corr = relative_pload * (
-        bus.ZIP[0] * bus.vomag ** 2 + bus.ZIP[1] * bus.vomag + bus.ZIP[2]
+        bus.ZIP[0] * bus.vomag**2 + bus.ZIP[1] * bus.vomag + bus.ZIP[2]
     )
     q_load_corr = relative_qload * (
-        bus.ZIP[0] * bus.vomag ** 2 + bus.ZIP[1] * bus.vomag + bus.ZIP[2]
+        bus.ZIP[0] * bus.vomag**2 + bus.ZIP[1] * bus.vomag + bus.ZIP[2]
     )
     return p_load_corr, q_load_corr

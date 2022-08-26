@@ -1,6 +1,7 @@
 import itertools
+
 from relsad.network.systems import SubSystem
-from relsad.utils import unique, intersection
+from relsad.utils import intersection, unique
 
 
 def find_backup_lines_between_sub_systems(

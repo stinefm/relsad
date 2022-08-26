@@ -1,4 +1,5 @@
 import itertools
+
 from relsad.network.components import Line
 from relsad.network.containers import Section
 from relsad.utils import unique

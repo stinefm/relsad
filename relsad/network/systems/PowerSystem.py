@@ -1,24 +1,11 @@
 import numpy as np
-from relsad.network.components import (
-    Bus,
-    Line,
-    ICTNode,
-    ICTLine,
-)
-from relsad.network.systems import PowerNetwork
-from relsad.utils import (
-    eq,
-    unique,
-    INF,
-)
-from relsad.Time import (
-    Time,
-    TimeStamp,
-)
-from relsad.topology.sectioning import (
-    create_sections,
-    get_section_list,
-)
+
+from relsad.network.components import Bus, ICTLine, ICTNode, Line
+from relsad.Time import Time, TimeStamp
+from relsad.topology.sectioning import create_sections, get_section_list
+from relsad.utils import INF, eq, unique
+
+from .PowerNetwork import PowerNetwork
 from .Transmission import Transmission
 
 

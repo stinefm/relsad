@@ -1,30 +1,22 @@
 from relsad.network.components import (
-    Bus,
-    Line,
-    Disconnector,
-    CircuitBreaker,
     Battery,
-    Production,
-    MicrogridMode,
+    Bus,
+    CircuitBreaker,
+    Disconnector,
+    Line,
     ManualMainController,
+    MicrogridMode,
+    Production,
 )
 from relsad.network.systems import (
-    PowerSystem,
-    Transmission,
     Distribution,
     Microgrid,
+    PowerSystem,
+    Transmission,
 )
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
-
-from relsad.StatDist import (
-    StatDist,
-    StatDistType,
-    NormalParameters,
-)
+from relsad.StatDist import NormalParameters, StatDist, StatDistType
 from relsad.Table import Table
+from relsad.Time import Time, TimeUnit
 from relsad.visualization.plotting import plot_topology
 
 

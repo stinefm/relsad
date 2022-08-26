@@ -1,8 +1,10 @@
 import numpy as np
-from .Component import Component
-from .Bus import Bus
+
 from relsad.Time import Time
 from relsad.utils import interpolate
+
+from .Bus import Bus
+from .Component import Component
 
 
 class Production(Component):

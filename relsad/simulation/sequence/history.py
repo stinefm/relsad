@@ -1,21 +1,10 @@
 import os
-from relsad.network.systems import (
-    PowerSystem,
-)
-from relsad.network.components import (
-    MainController,
-)
-from relsad.results.storage import (
-    save_history,
-)
-from relsad.visualization.plotting import (
-    plot_history,
-    plot_history_last_state,
-)
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
+
+from relsad.network.components import MainController
+from relsad.network.systems import PowerSystem
+from relsad.results.storage import save_history
+from relsad.Time import Time, TimeUnit
+from relsad.visualization.plotting import plot_history, plot_history_last_state
 
 
 def update_sequence_history(

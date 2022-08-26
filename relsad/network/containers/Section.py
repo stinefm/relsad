@@ -1,9 +1,7 @@
 from enum import Enum
+
+from relsad.network.components import Controller, Disconnector
 from relsad.Time import Time
-from relsad.network.components import (
-    Controller,
-    Disconnector,
-)
 from relsad.topology.ICT.dfs import is_connected
 
 

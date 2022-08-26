@@ -5,22 +5,10 @@ from relsad.network.components import (
     Line,
     ManualMainController,
 )
-from relsad.network.systems import (
-    Distribution,
-    PowerSystem,
-    Transmission,
-)
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
-
-from relsad.StatDist import (
-    StatDist,
-    StatDistType,
-    NormalParameters,
-)
+from relsad.network.systems import Distribution, PowerSystem, Transmission
+from relsad.StatDist import NormalParameters, StatDist, StatDistType
 from relsad.Table import Table
+from relsad.Time import Time, TimeUnit
 from relsad.visualization.plotting import plot_topology
 
 

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 from relsad.network.components import Bus, Line
 
 

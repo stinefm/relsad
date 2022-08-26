@@ -1,23 +1,16 @@
 from enum import Enum
+
 import matplotlib.lines as mlines
 import numpy as np
-from .Component import Component
-from .Controller import (
-    Controller,
-    ControllerState,
-)
-from .ICTNode import ICTNode
+
 from relsad.network.containers import SectionState
-from relsad.utils import (
-    random_choice,
-    convert_yearly_fail_rate,
-    unique,
-)
+from relsad.Time import Time, TimeUnit
 from relsad.topology.ICT.dfs import is_connected
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
+from relsad.utils import convert_yearly_fail_rate, random_choice, unique
+
+from .Component import Component
+from .Controller import Controller, ControllerState
+from .ICTNode import ICTNode
 
 
 class MicrogridMode(Enum):
@@ -224,8 +217,12 @@ class MicrogridController(Component, Controller):
                 self.disconnect_failed_sections()
                 if (
                     not self.power_network.connected_line.failed
-                    and self.power_network.connected_line not in
-                    [line for section in self.failed_sections for line in section.lines]
+                    and self.power_network.connected_line
+                    not in [
+                        line
+                        for section in self.failed_sections
+                        for line in section.lines
+                    ]
                 ):
                     # Sectioning time finished
                     self.power_network.connected_line.circuitbreaker.close()

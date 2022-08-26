@@ -1,37 +1,31 @@
-import os
 import copy
+import os
+from multiprocessing import Pool
+
 import numpy as np
 from numpy.random import SeedSequence
-from multiprocessing import Pool
-from relsad.network.systems import (
-    PowerNetwork,
-    PowerSystem,
-    Transmission,
-)
-from relsad.loadflow.ac import run_bfs_load_flow
-from relsad.simulation.system_config import (
-    find_sub_systems,
-    update_sub_system_slack,
-    prepare_system,
-    reset_system,
-)
+
 from relsad.energy.shedding import shed_energy
-from relsad.simulation.sequence.history import (
-    initialize_sequence_history,
-    update_sequence_history,
-    save_sequence_history,
-)
+from relsad.loadflow.ac import run_bfs_load_flow
+from relsad.network.systems import PowerNetwork, PowerSystem, Transmission
 from relsad.simulation.monte_carlo.history import (
     initialize_monte_carlo_history,
     merge_monte_carlo_history,
-    update_monte_carlo_power_system_history,
     save_network_monte_carlo_history,
+    update_monte_carlo_power_system_history,
 )
-from relsad.Time import (
-    Time,
-    TimeUnit,
-    TimeStamp,
+from relsad.simulation.sequence.history import (
+    initialize_sequence_history,
+    save_sequence_history,
+    update_sequence_history,
 )
+from relsad.simulation.system_config import (
+    find_sub_systems,
+    prepare_system,
+    reset_system,
+    update_sub_system_slack,
+)
+from relsad.Time import Time, TimeStamp, TimeUnit
 
 
 class Simulation:
@@ -242,7 +236,6 @@ class Simulation:
                 save_flag,
             )
             prev_time = copy.deepcopy(curr_time)
-
 
     def run_sequential(
         self,
@@ -466,8 +459,7 @@ class Simulation:
                         time_unit=time_unit,
                         save_dir=save_dir,
                         save_flag=(
-                            it in save_iterations and
-                            save_flag is True
+                            it in save_iterations and save_flag is True
                         ),
                         random_seed=child_seeds[it - 1],
                     )
@@ -483,10 +475,7 @@ class Simulation:
                             time_array,
                             time_unit,
                             save_dir,
-                            (
-                                it in save_iterations and
-                                save_flag is True
-                            ),
+                            (it in save_iterations and save_flag is True),
                             child_seeds[it - 1],
                         ]
                         for it in range(1, iterations + 1)

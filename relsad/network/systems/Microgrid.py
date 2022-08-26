@@ -4,9 +4,10 @@ from relsad.network.components import (
     MicrogridController,
     MicrogridMode,
 )
-from .PowerNetwork import PowerNetwork
-from .Distribution import Distribution
 from relsad.utils import unique
+
+from .Distribution import Distribution
+from .PowerNetwork import PowerNetwork
 
 
 class Microgrid(PowerNetwork):

@@ -8,10 +8,10 @@ Network types
 
 """
 
+from .Distribution import Distribution
+from .ICTNetwork import ICTNetwork
+from .Microgrid import Microgrid
 from .PowerNetwork import PowerNetwork
 from .PowerSystem import PowerSystem
-from .Transmission import Transmission
-from .Distribution import Distribution
-from .Microgrid import Microgrid
 from .SubSystem import SubSystem
-from .ICTNetwork import ICTNetwork
+from .Transmission import Transmission

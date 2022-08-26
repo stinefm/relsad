@@ -1,17 +1,7 @@
-from relsad.network.components import (
-    Bus,
-    Line,
-)
-from relsad.utils import (
-    eq,
-    unique,
-    INF,
-)
-from relsad.Time import (
-    Time,
-    TimeUnit,
-    TimeStamp,
-)
+from relsad.network.components import Bus, Line
+from relsad.Time import Time, TimeStamp, TimeUnit
+from relsad.utils import INF, eq, unique
+
 from .Transmission import Transmission
 
 

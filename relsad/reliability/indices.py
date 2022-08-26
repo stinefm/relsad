@@ -1,7 +1,8 @@
 import numpy as np
+
 from relsad.network.systems import PowerNetwork
-from relsad.utils import eq
 from relsad.Time import Time
+from relsad.utils import eq
 
 
 def SAIFI(network: PowerNetwork):

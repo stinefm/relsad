@@ -1,36 +1,29 @@
 import numpy as np
+
 from relsad.network.components import (
+    Battery,
     Bus,
     CircuitBreaker,
     Disconnector,
-    Line,
-    Battery,
     EVPark,
-    Production,
+    IntelligentSwitch,
+    Line,
     MainController,
     ManualMainController,
-    Sensor,
-    IntelligentSwitch,
     MicrogridMode,
+    Production,
+    Sensor,
 )
 from relsad.network.systems import (
     Distribution,
+    Microgrid,
     PowerSystem,
     Transmission,
-    Microgrid,
 )
-from relsad.visualization.plotting import plot_topology
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
-
-from relsad.StatDist import (
-    StatDist,
-    StatDistType,
-    NormalParameters,
-)
+from relsad.StatDist import NormalParameters, StatDist, StatDistType
 from relsad.Table import Table
+from relsad.Time import Time, TimeUnit
+from relsad.visualization.plotting import plot_topology
 
 
 def initialize_network(

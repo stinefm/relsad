@@ -1,15 +1,9 @@
 import os
 import sys
-from relsad.network.components import (
-    MicrogridMode,
-)
-from relsad.StatDist import (
-    StatDist,
-    StatDistType,
-    NormalParameters,
-)
 
-from simulation import run_simulation
+from relsad.examples.CINELDI.simulation import run_simulation
+from relsad.network.components import MicrogridMode
+from relsad.StatDist import NormalParameters, StatDist, StatDistType
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -30,5 +24,13 @@ run_simulation(
     ev_percentage=0.61,
     ev_E_max=0.07,
     random_seed=2837314,
+    data_dir=os.path.join(
+        os.pardir,
+        os.pardir,
+        "relsad",
+        "examples",
+        "load",
+        "data",
+    ),
     save_dir="results",
 )

@@ -1,17 +1,14 @@
 from enum import Enum
+
 import matplotlib.lines as mlines
 import numpy as np
+
+from relsad.Time import Time, TimeUnit
+from relsad.utils import convert_yearly_fail_rate, random_choice
+
 from .Component import Component
-from .Line import Line
 from .ICTNode import ICTNode
-from relsad.utils import (
-    random_choice,
-    convert_yearly_fail_rate,
-)
-from relsad.Time import (
-    TimeUnit,
-    Time,
-)
+from .Line import Line
 
 
 class SensorState(Enum):
@@ -105,7 +102,7 @@ class Sensor(Component):
     ## Visual attributes
     color = "rosybrown"
     marker = "s"
-    size = 2 ** 2
+    size = 2**2
     handle = mlines.Line2D(
         [],
         [],

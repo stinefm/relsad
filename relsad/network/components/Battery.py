@@ -1,14 +1,14 @@
 from enum import Enum
 from numbers import Number
-from .Component import Component
-from .Bus import Bus
-from .MicrogridController import MicrogridMode
+
 import numpy as np
+
+from relsad.Time import Time, TimeUnit
 from relsad.utils import INF
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
+
+from .Bus import Bus
+from .Component import Component
+from .MicrogridController import MicrogridMode
 
 
 class BatteryType(Enum):

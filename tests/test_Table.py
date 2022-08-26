@@ -1,4 +1,5 @@
 import numpy as np
+
 from relsad.Table import Table
 
 

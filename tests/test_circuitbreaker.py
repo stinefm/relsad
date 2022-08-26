@@ -1,9 +1,6 @@
-from relsad.network.components import Bus, CircuitBreaker, Line, Disconnector
+from relsad.network.components import Bus, CircuitBreaker, Disconnector, Line
+from relsad.Time import Time, TimeUnit
 from relsad.utils import eq
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
 
 
 def test_close():

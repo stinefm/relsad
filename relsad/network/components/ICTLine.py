@@ -1,20 +1,12 @@
 import matplotlib.lines as mlines
 import numpy as np
+
+from relsad.StatDist import StatDist, StatDistType, UniformParameters
+from relsad.Time import Time, TimeUnit
+from relsad.utils import convert_yearly_fail_rate, random_choice
+
 from .Component import Component
 from .ICTNode import ICTNode
-from relsad.utils import (
-    random_choice,
-    convert_yearly_fail_rate,
-)
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
-from relsad.StatDist import (
-    StatDist,
-    StatDistType,
-    UniformParameters,
-)
 
 
 class ICTLine(Component):

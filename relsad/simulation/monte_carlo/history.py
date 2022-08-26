@@ -1,24 +1,21 @@
-import os
 import copy
-from relsad.Time import Time
-from relsad.network.systems import (
-    PowerSystem,
-)
-from relsad.visualization.plotting import (
-    plot_monte_carlo_history,
-)
-from relsad.results.storage import save_monte_carlo_history_from_dict
+import os
+
+from relsad.network.systems import PowerSystem
 from relsad.reliability.indices import (
-    SAIFI,
-    SAIDI,
-    CAIDI,
     ASAI,
     ASUI,
+    CAIDI,
     ENS,
+    SAIDI,
+    SAIFI,
+    EV_Duration,
     EV_Index,
     EV_Interruption,
-    EV_Duration,
 )
+from relsad.results.storage import save_monte_carlo_history_from_dict
+from relsad.Time import Time
+from relsad.visualization.plotting import plot_monte_carlo_history
 
 
 def plot_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):

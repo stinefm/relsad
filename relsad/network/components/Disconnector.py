@@ -1,13 +1,12 @@
-from .Component import Component
-from .Switch import Switch
-from .Line import Line
-from .Bus import Bus
 import matplotlib.lines as mlines
 import numpy as np
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
+
+from relsad.Time import Time, TimeUnit
+
+from .Bus import Bus
+from .Component import Component
+from .Line import Line
+from .Switch import Switch
 
 
 class Disconnector(Component, Switch):
@@ -69,7 +68,7 @@ class Disconnector(Component, Switch):
     color = "black"
     edgecolor = "black"
     marker = "o"
-    size = 2 ** 2
+    size = 2**2
     handle = mlines.Line2D(
         [],
         [],

@@ -1,8 +1,4 @@
-from relsad.Time import (
-    Time,
-    TimeUnit,
-    TimeStamp,
-)
+from relsad.Time import Time, TimeStamp, TimeUnit
 from relsad.utils import eq
 
 

@@ -1,19 +1,12 @@
 import matplotlib.lines as mlines
 import numpy as np
+
+from relsad.Time import Time, TimeUnit
+from relsad.utils import convert_yearly_fail_rate, random_choice
+
 from .Component import Component
-from .Controller import (
-    Controller,
-    ControllerState,
-)
+from .Controller import Controller, ControllerState
 from .ICTNode import ICTNode
-from relsad.utils import (
-    random_choice,
-    convert_yearly_fail_rate,
-)
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
 
 
 class MainController(Component, Controller):

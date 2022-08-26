@@ -1,9 +1,7 @@
-from relsad.network.components import (
-    ICTNode,
-    ICTLine,
-)
-from .PowerSystem import PowerSystem
+from relsad.network.components import ICTLine, ICTNode
 from relsad.utils import unique
+
+from .PowerSystem import PowerSystem
 
 
 class ICTNetwork:

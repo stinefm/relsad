@@ -63,3 +63,4 @@ ignore = "E203, W503"
 
 [tool.isort]
 profile = "black"
+skip = ["relsad/network/systems/__init__.py"]

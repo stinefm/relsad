@@ -1,19 +1,15 @@
 import os
 import sys
-from relsad.network.systems import PowerSystem
-from relsad.load.bus import CostFunction
-from relsad.Time import (
-    Time,
-    TimeUnit,
-    TimeStamp,
-)
 
 from relsad.examples.load.load_and_gen_data import (
-    weather_generation_data,
     load_data,
-    wind_power,
     pv_power,
+    weather_generation_data,
+    wind_power,
 )
+from relsad.load.bus import CostFunction
+from relsad.network.systems import PowerSystem
+from relsad.Time import Time, TimeStamp, TimeUnit
 
 
 def set_network_load_and_prod(

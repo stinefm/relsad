@@ -1,9 +1,11 @@
-from enum import Enum
 from collections import namedtuple
-from scipy import stats
-import numpy as np
+from enum import Enum
+
 import matplotlib.pyplot as plt
+import numpy as np
 import scipy.special as sps
+from scipy import stats
+
 from relsad.utils import get_random_instance
 
 
@@ -178,7 +180,7 @@ class StatDist:
                 np.exp(-x / self.parameters.scale)
                 / (
                     sps.gamma(self.parameters.shape)
-                    * self.parameters.scale ** self.parameters.shape
+                    * self.parameters.scale**self.parameters.shape
                 )
             )
 

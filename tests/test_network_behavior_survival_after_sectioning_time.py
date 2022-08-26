@@ -1,12 +1,7 @@
 from relsad.examples.CINELDI.network import initialize_network
+from relsad.network.components import MicrogridMode
 from relsad.simulation.system_config import find_sub_systems
-from relsad.network.components import (
-    MicrogridMode,
-)
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
+from relsad.Time import Time, TimeUnit
 
 
 class MyError(Exception):

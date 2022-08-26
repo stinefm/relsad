@@ -1,7 +1,4 @@
-from relsad.network.components import (
-    ICTNode,
-    ICTLine,
-)
+from relsad.network.components import ICTLine, ICTNode
 
 
 def is_connected(

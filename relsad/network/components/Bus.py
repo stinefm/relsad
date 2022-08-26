@@ -1,23 +1,12 @@
 import matplotlib.lines as mlines
 import numpy as np
-from .Component import Component
-from relsad.utils import (
-    random_choice,
-    convert_yearly_fail_rate,
-    interpolate,
-)
 
 from relsad.load.bus import CostFunction
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
+from relsad.StatDist import StatDist, StatDistType, UniformParameters
+from relsad.Time import Time, TimeUnit
+from relsad.utils import convert_yearly_fail_rate, interpolate, random_choice
 
-from relsad.StatDist import (
-    StatDist,
-    StatDistType,
-    UniformParameters,
-)
+from .Component import Component
 
 
 class Bus(Component):
@@ -203,7 +192,7 @@ class Bus(Component):
 
     ## Visual attributes
     marker = "|"
-    size = 4 ** 2
+    size = 4**2
     handle = mlines.Line2D(
         [],
         [],

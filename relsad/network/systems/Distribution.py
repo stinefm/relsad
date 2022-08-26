@@ -1,7 +1,8 @@
-from relsad.network.components import Bus, Line, DistributionController
+from relsad.network.components import Bus, DistributionController, Line
+from relsad.utils import unique
+
 from .PowerNetwork import PowerNetwork
 from .PowerSystem import PowerSystem
-from relsad.utils import unique
 
 
 class Distribution(PowerNetwork):

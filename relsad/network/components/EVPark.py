@@ -1,17 +1,13 @@
 import matplotlib.lines as mlines
-from .Component import Component
-from .Bus import Bus
-from .Battery import (
-    Battery,
-    BatteryType,
-)
-from .MicrogridController import MicrogridMode
 import numpy as np
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
+
 from relsad.Table import Table
+from relsad.Time import Time, TimeUnit
+
+from .Battery import Battery, BatteryType
+from .Bus import Bus
+from .Component import Component
+from .MicrogridController import MicrogridMode
 
 
 class EVPark(Component):
@@ -110,7 +106,7 @@ class EVPark(Component):
 
     ## Visual attributes
     marker = "x"
-    size = 3 ** 2
+    size = 3**2
     handle = mlines.Line2D(
         [],
         [],

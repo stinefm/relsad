@@ -1,38 +1,25 @@
 import copy
+
 import numpy as np
-from relsad.utils import (
-    eq,
-)
-from relsad.simulation import Simulation
+from numpy.random import SeedSequence
+
 from relsad.network.components import (
     Bus,
-    Line,
-    Disconnector,
     CircuitBreaker,
+    Disconnector,
+    Line,
     ManualMainController,
 )
-from relsad.network.systems import (
-    PowerSystem,
-    Transmission,
-    Distribution,
-)
-from relsad.Time import (
-    Time,
-    TimeUnit,
-    TimeStamp,
-)
-
-from relsad.StatDist import (
-    StatDist,
-    StatDistType,
-    UniformParameters,
-)
-from numpy.random import SeedSequence
-from relsad.simulation.system_config import prepare_system
+from relsad.network.systems import Distribution, PowerSystem, Transmission
+from relsad.simulation import Simulation
 from relsad.simulation.sequence.history import (
     initialize_sequence_history,
     save_sequence_history,
 )
+from relsad.simulation.system_config import prepare_system
+from relsad.StatDist import StatDist, StatDistType, UniformParameters
+from relsad.Time import Time, TimeStamp, TimeUnit
+from relsad.utils import eq
 
 
 def network(
@@ -272,9 +259,9 @@ def test_fail_L8():
         save_flag=False,
     )
 
+
 def test_fail_L8_L3():
     ps = network(fail_rate_line=0)
-
 
     sim = Simulation(ps)
 
@@ -345,4 +332,3 @@ def test_fail_L8_L3():
             power_system=sim.power_system,
             save_dir=save_dir,
         )
-

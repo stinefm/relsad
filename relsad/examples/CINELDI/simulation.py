@@ -1,20 +1,17 @@
-import time
 import os
+import time
+
+from relsad.examples.CINELDI.load_and_prod import set_network_load_and_prod
 from relsad.examples.CINELDI.network import initialize_network
-from relsad.simulation import Simulation
 from relsad.load.bus import CostFunction
+from relsad.simulation import Simulation
 from relsad.StatDist import (
+    GammaParameters,
+    NormalParameters,
     StatDist,
     StatDistType,
-    NormalParameters,
-    GammaParameters,
 )
-from relsad.Time import (
-    Time,
-    TimeUnit,
-    TimeStamp,
-)
-from relsad.examples.CINELDI.load_and_prod import set_network_load_and_prod
+from relsad.Time import Time, TimeStamp, TimeUnit
 
 
 def run_simulation(

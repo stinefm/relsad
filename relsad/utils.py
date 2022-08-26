@@ -3,6 +3,7 @@ This module contains package utils
 """
 
 import numpy as np
+
 from .Time import Time
 
 # Numerical value used as "infinite", choose it based on system values

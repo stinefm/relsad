@@ -1,22 +1,20 @@
+import numpy as np
+
 from relsad.network.components import (
     Bus,
-    Line,
-    Disconnector,
     CircuitBreaker,
+    Disconnector,
+    Line,
     ManualMainController,
 )
 from relsad.network.systems import (
-    PowerSystem,
     Distribution,
-    Transmission,
     Microgrid,
+    PowerSystem,
+    Transmission,
 )
+from relsad.Time import Time, TimeUnit
 from relsad.utils import eq
-import numpy as np
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
 
 
 def initialize_network():

@@ -1,33 +1,19 @@
 from relsad.network.components import (
-    Bus,
-    Line,
-    Disconnector,
-    CircuitBreaker,
     Battery,
-    Production,
-    ManualMainController,
-    Sensor,
+    Bus,
+    CircuitBreaker,
+    Disconnector,
     IntelligentSwitch,
+    Line,
+    ManualMainController,
+    Production,
+    Sensor,
 )
-from relsad.network.systems import (
-    Distribution,
-    PowerSystem,
-    Transmission,
-)
-
-from relsad.visualization.plotting import plot_topology
-
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
-
-from relsad.StatDist import (
-    StatDist,
-    StatDistType,
-    NormalParameters,
-)
+from relsad.network.systems import Distribution, PowerSystem, Transmission
+from relsad.StatDist import NormalParameters, StatDist, StatDistType
 from relsad.Table import Table
+from relsad.Time import Time, TimeUnit
+from relsad.visualization.plotting import plot_topology
 
 
 def initialize_network():

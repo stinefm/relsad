@@ -1,20 +1,12 @@
 import matplotlib.lines as mlines
 import numpy as np
-from .Component import Component
+
+from relsad.StatDist import StatDist, StatDistType, UniformParameters
+from relsad.Time import Time, TimeUnit
+from relsad.utils import convert_yearly_fail_rate, random_choice
+
 from .Bus import Bus
-from relsad.utils import (
-    random_choice,
-    convert_yearly_fail_rate,
-)
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
-from relsad.StatDist import (
-    StatDist,
-    StatDistType,
-    UniformParameters,
-)
+from .Component import Component
 
 
 class Line(Component):
@@ -209,7 +201,7 @@ class Line(Component):
         ##  Power flow attributes
         self.s_ref = s_ref
         self.v_ref = v_ref
-        self.r_ref = v_ref ** 2 / s_ref
+        self.r_ref = v_ref**2 / s_ref
         self.r = r
         self.x = x
         self.r_pu = r / self.r_ref

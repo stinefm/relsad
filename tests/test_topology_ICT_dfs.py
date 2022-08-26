@@ -1,13 +1,6 @@
+from relsad.network.components import ICTLine, ICTNode, MainController
+from relsad.network.systems import ICTNetwork, PowerSystem
 from relsad.topology.ICT.dfs import is_connected
-from relsad.network.components import (
-    ICTNode,
-    ICTLine,
-    MainController,
-)
-from relsad.network.systems import (
-    PowerSystem,
-    ICTNetwork,
-)
 
 
 def test_is_connected_1():

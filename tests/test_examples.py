@@ -1,10 +1,13 @@
 import os
-from relsad.Time import TimeStamp
+
 from relsad.examples.CINELDI.simulation import run_simulation as run_cineldi
+from relsad.examples.IEEE16_modified.simulation import (
+    run_simulation as run_ieee16_modified,
+)
 from relsad.examples.IEEE33.simulation import run_simulation as run_ieee33
-from relsad.examples.IEEE16_modified.simulation import run_simulation as run_ieee16_modified
 from relsad.examples.RBTS2.simulation import run_simulation as run_rbts2
 from relsad.examples.TEST10.simulation import run_simulation as run_test10
+from relsad.Time import TimeStamp
 
 
 def test_run_cineldi():

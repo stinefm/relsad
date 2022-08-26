@@ -1,10 +1,8 @@
-from relsad.network.components import Bus, Line
-from relsad.utils import eq
 import numpy as np
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
+
+from relsad.network.components import Bus, Line
+from relsad.Time import Time, TimeUnit
+from relsad.utils import eq
 
 
 def test_disconnect():

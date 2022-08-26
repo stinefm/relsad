@@ -1,21 +1,18 @@
-import time
 import os
+import time
+
+from relsad.examples.IEEE33.load_and_prod import set_network_load_and_prod
 from relsad.examples.IEEE33.network import initialize_network
 from relsad.network.components import MicrogridMode
-from relsad.visualization.plotting import plot_topology
 from relsad.simulation import Simulation
-from relsad.Time import (
-    Time,
-    TimeUnit,
-    TimeStamp,
-)
 from relsad.StatDist import (
+    GammaParameters,
+    NormalParameters,
     StatDist,
     StatDistType,
-    NormalParameters,
-    GammaParameters,
 )
-from relsad.examples.IEEE33.load_and_prod import set_network_load_and_prod
+from relsad.Time import Time, TimeStamp, TimeUnit
+from relsad.visualization.plotting import plot_topology
 
 
 def run_simulation(

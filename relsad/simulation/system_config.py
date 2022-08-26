@@ -1,23 +1,10 @@
 import numpy as np
-from relsad.network.systems import (
-    PowerSystem,
-    SubSystem,
-    Transmission,
-)
-from relsad.network.components import (
-    Bus,
-    MicrogridMode,
-)
-from relsad.utils import (
-    unique,
-    subtract,
-)
-from relsad.Time import (
-    Time,
-    TimeUnit,
-    TimeStamp,
-)
+
+from relsad.network.components import Bus, MicrogridMode
+from relsad.network.systems import PowerSystem, SubSystem, Transmission
+from relsad.Time import Time, TimeStamp, TimeUnit
 from relsad.topology.sub_systems import find_backup_lines_between_sub_systems
+from relsad.utils import subtract, unique
 
 
 def find_sub_systems(p_s: PowerSystem, curr_time: Time):

@@ -1,13 +1,6 @@
-from relsad.network.components import (
-    Bus,
-    Battery,
-    BatteryState,
-)
+from relsad.network.components import Battery, BatteryState, Bus
+from relsad.Time import Time, TimeUnit
 from relsad.utils import eq
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
 
 
 def test_charge_from_min():

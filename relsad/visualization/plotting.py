@@ -1,16 +1,18 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
 from relsad.network.components import (
     Bus,
-    Line,
-    Disconnector,
     CircuitBreaker,
-    IntelligentSwitch,
-    Sensor,
+    Disconnector,
     EVPark,
+    IntelligentSwitch,
+    Line,
+    Sensor,
 )
-import os
 
 
 def plot_topology(

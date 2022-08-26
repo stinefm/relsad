@@ -1,11 +1,9 @@
-from relsad.network.components import Bus, Battery, Production
-from relsad.utils import eq
-from relsad.load.bus import CostFunction
 import numpy as np
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
+
+from relsad.load.bus import CostFunction
+from relsad.network.components import Battery, Bus, Production
+from relsad.Time import Time, TimeUnit
+from relsad.utils import eq
 
 
 def test_add_load():

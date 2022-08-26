@@ -1,13 +1,7 @@
 import numpy as np
-from relsad.utils import (
-    eq,
-    interpolate,
-    convert_yearly_fail_rate,
-)
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
+
+from relsad.Time import Time, TimeUnit
+from relsad.utils import convert_yearly_fail_rate, eq, interpolate
 
 
 def test_eq():

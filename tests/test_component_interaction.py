@@ -1,29 +1,25 @@
 import numpy as np
+
+from relsad.loadflow.ac import run_bfs_load_flow
 from relsad.network.components import (
+    Battery,
     Bus,
     CircuitBreaker,
     Disconnector,
-    Line,
-    Battery,
     EVPark,
-    Production,
+    Line,
     MainController,
     ManualMainController,
+    Production,
 )
-
 from relsad.network.systems import (
     Distribution,
+    Microgrid,
     PowerSystem,
     Transmission,
-    Microgrid,
 )
-
-from relsad.loadflow.ac import run_bfs_load_flow
+from relsad.Time import Time, TimeUnit
 from relsad.utils import eq
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
 
 
 def initialize_network(

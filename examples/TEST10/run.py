@@ -1,13 +1,9 @@
 import os
 import sys
-from relsad.network.components import (
-    MicrogridMode,
-)
-from relsad.StatDist import (
-    StatDist,
-    StatDistType,
-    NormalParameters,
-)
+
+from relsad.examples.TEST10.simulation import run_simulation
+from relsad.network.components import MicrogridMode
+from relsad.StatDist import NormalParameters, StatDist, StatDistType
 
 # Set path to file path
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -37,5 +33,13 @@ run_simulation(
         ),
     ),
     random_seed=2837314,
+    data_dir=os.path.join(
+        os.pardir,
+        os.pardir,
+        "relsad",
+        "examples",
+        "load",
+        "data",
+    ),
     save_dir="results",
 )

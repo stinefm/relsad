@@ -1,15 +1,13 @@
-from .Component import Component
-from .Switch import Switch
-from .Line import Line
 import matplotlib.lines as mlines
 import numpy as np
+
 from relsad.network.containers import SectionState
+from relsad.Time import Time, TimeUnit
 from relsad.utils import unique
 
-from relsad.Time import (
-    Time,
-    TimeUnit,
-)
+from .Component import Component
+from .Line import Line
+from .Switch import Switch
 
 
 class CircuitBreaker(Component, Switch):
@@ -68,7 +66,7 @@ class CircuitBreaker(Component, Switch):
     color = "black"
     edgecolor = "black"
     marker = "s"
-    size = 3 ** 2
+    size = 3**2
     handle = mlines.Line2D(
         [],
         [],
