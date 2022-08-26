@@ -28,7 +28,11 @@ include investigating how:
 
 Examples using well known test networks are included.
 
-.. include:: docs/source/installation.rst
+============
+Installation
+============
+
+See https://relsad.readthedocs.io/en/latest/installation.html.
 
 ========
 Features

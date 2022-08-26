@@ -9,6 +9,7 @@ To get started, check out the sections below:
     :maxdepth: 2
     :caption: Contents:
 
+    installation
     usage
     ../../CONTRIBUTING
     ../../CONDUCT
