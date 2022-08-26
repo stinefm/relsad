@@ -57,3 +57,9 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.flake8]
+ignore = "E203, W503"
+
+[tool.isort]
+profile = "black"
