@@ -66,11 +66,11 @@ jobs:
         import os; \
         file = glob.glob('dist/*.whl')[0]; \
         new_file = file.replace( \
-        '.whl', \
-        '_'+str( \
+        'py3', \
+        'py3-'+str( \
         datetime.datetime.now() \
         .strftime('%Y%m%d_%H-%M-%S') \
-        )+'.whl'); \
+        )); \
         os.rename(file, new_file)" \
 
     - name: Publish to TestPyPI
