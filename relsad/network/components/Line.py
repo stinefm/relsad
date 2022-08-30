@@ -623,16 +623,17 @@ class Line(Component):
 
         """
         if save_flag:
+            time = curr_time.get_unit_quantity(curr_time.unit)
             p_from, q_from, p_to, q_to = self.get_line_load()
-            self.history["p_from"][curr_time] = p_from * self.s_ref
-            self.history["q_from"][curr_time] = q_from * self.s_ref
-            self.history["p_to"][curr_time] = p_to * self.s_ref
-            self.history["q_to"][curr_time] = q_to * self.s_ref
+            self.history["p_from"][time] = p_from * self.s_ref
+            self.history["q_from"][time] = q_from * self.s_ref
+            self.history["p_to"][time] = p_to * self.s_ref
+            self.history["q_to"][time] = q_to * self.s_ref
             self.history["remaining_outage_time"][
-                curr_time
+                time
             ] = self.remaining_outage_time.get_unit_quantity(curr_time.unit)
-            self.history["failed"][curr_time] = self.failed
-            self.history["line_loading"][curr_time] = self.get_line_loading()
+            self.history["failed"][time] = self.failed
+            self.history["line_loading"][time] = self.get_line_loading()
 
     def get_history(self, attribute: str):
         """

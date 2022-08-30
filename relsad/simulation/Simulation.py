@@ -6,20 +6,16 @@ import numpy as np
 from numpy.random import SeedSequence
 
 from relsad.energy.shedding import shed_energy
-from relsad.loadflow.ac import run_bfs_load_flow
-from relsad.network.systems import PowerNetwork, PowerSystem, Transmission
-from relsad.simulation.monte_carlo.history import (
+from relsad.loadflow.ac.bfs import run_bfs_load_flow
+from relsad.network.systems import PowerNetwork, PowerSystem
+from .monte_carlo.history import (
     initialize_monte_carlo_history,
     merge_monte_carlo_history,
     save_network_monte_carlo_history,
     update_monte_carlo_power_system_history,
 )
-from relsad.simulation.sequence.history import (
-    initialize_sequence_history,
-    save_sequence_history,
-    update_sequence_history,
-)
-from relsad.simulation.system_config import (
+from .sequence.history import save_sequence_history
+from .system_config import (
     find_sub_systems,
     prepare_system,
     reset_system,
@@ -179,8 +175,7 @@ class Simulation:
                     dt=dt,
                 )
             ## Log results
-            update_sequence_history(
-                power_system=self.power_system,
+            self.power_system.update_sequence_history(
                 prev_time=prev_time,
                 curr_time=curr_time,
                 save_flag=save_flag,
@@ -189,8 +184,7 @@ class Simulation:
         else:
             if self.fail_duration > Time(0):
                 ## Log results
-                update_sequence_history(
-                    power_system=self.power_system,
+                self.power_system.update_sequence_history(
                     prev_time=prev_time,
                     curr_time=curr_time,
                     save_flag=save_flag,
@@ -203,6 +197,7 @@ class Simulation:
         start_time: TimeStamp,
         time_array: np.ndarray,
         time_unit: TimeUnit,
+        callback: callable = None,
         save_flag: bool = True,
     ):
         """
@@ -216,6 +211,11 @@ class Simulation:
             Time array
         time_unit : TimeUnit
             Time unit
+        callback : callable, optional
+            A callback function that allows for user-defined
+            behavior. The callback function is called at the start
+            of every increment. The callback function must contain
+            the following arguments: prev_time, curr_time
         save_flag : bool
             Indicates if saving is on or off
 
@@ -228,6 +228,11 @@ class Simulation:
         curr_time = Time(0, unit=time_unit)
         for inc_idx, time_quantity in enumerate(time_array):
             curr_time = Time(time_quantity, unit=time_unit)
+            if callback is not None:
+                callback(
+                    prev_time=prev_time,
+                    curr_time=curr_time,
+                )
             self.run_increment(
                 inc_idx,
                 start_time,
@@ -243,6 +248,7 @@ class Simulation:
         stop_time: TimeStamp,
         time_step: Time,
         time_unit: TimeUnit,
+        callback: callable = None,
         save_dir: str = "results",
         save_flag: bool = True,
     ):
@@ -259,6 +265,11 @@ class Simulation:
             A time step (1 hour, 2 hours, ect.)
         time_unit : TimeUnit
             A time unit (hour, seconds, ect.)
+        callback : callable, optional
+            A callback function that allows for user-defined
+            behavior. The callback function is called at the start
+            of every increment. The callback function must contain
+            the following arguments: prev_time, curr_time
         save_dir : str
             The saving directory
         save_flag : bool
@@ -269,6 +280,8 @@ class Simulation:
         None
 
         """
+        if callback is not None and not callable(callback):
+            raise Exception("The callback argument must be callable")
         # Initialize random seed
         ss = SeedSequence(self.random_seed)
         random_seed = ss.spawn(1)[0]
@@ -289,13 +302,14 @@ class Simulation:
         )
 
         # Initialize sequence history variables
-        initialize_sequence_history(power_system=self.power_system)
+        self.power_system.initialize_sequence_history()
 
         # Run sequence
         self.run_sequence(
             start_time=start_time,
             time_array=time_array,
             time_unit=time_unit,
+            callback=callback,
             save_flag=save_flag,
         )
 
@@ -303,7 +317,11 @@ class Simulation:
             # Save sequence history
             save_sequence_history(
                 power_system=self.power_system,
-                save_dir=save_dir,
+                time_unit=time_unit,
+                save_dir=os.path.join(
+                    save_dir,
+                    "sequence",
+                ),
             )
 
     def run_iteration(
@@ -363,7 +381,7 @@ class Simulation:
         reset_system(self.power_system, save_flag)
 
         # Initialize sequence history variables
-        initialize_sequence_history(power_system=self.power_system)
+        self.power_system.initialize_sequence_history()
 
         # Run iteration sequence
         self.run_sequence(
@@ -377,7 +395,12 @@ class Simulation:
             # Save sequence history
             save_sequence_history(
                 power_system=self.power_system,
-                save_dir=save_dir,
+                time_unit=time_unit,
+                save_dir=os.path.join(
+                    save_dir,
+                    "sequence",
+                    str(it),
+                ),
             )
 
         # Update monte carlo history variables
@@ -485,12 +508,12 @@ class Simulation:
         if save_flag is True:
             # Merge monte carlo history variables from iterations
             save_dict = merge_monte_carlo_history(
-                self.power_system,
-                it_dicts,
+                power_system=self.power_system,
+                iteration_dicts=it_dicts,
             )
             # Save monte carlo history variables
             save_network_monte_carlo_history(
-                self.power_system,
-                os.path.join(save_dir, "monte_carlo"),
-                save_dict,
+                power_system=self.power_system,
+                save_dir=os.path.join(save_dir, "monte_carlo"),
+                save_dict=save_dict,
             )

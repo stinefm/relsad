@@ -65,13 +65,7 @@ Ready to contribute? Here's how to set up `relsad` for local development.
     $ git clone git@github.com:your_name_here/relsad.git
 
 3. Install your local copy (it is recommended to do this with a virtual environment). The method of installation will depend on the packaging library being used.
-   For example, if `setuptools` is being used (a setup.py file is present), install relsad with:
-
-   .. code-block:: console
-
-       $ python setup.py install
-
-   If `poetry` is being used (poetry.lock and pyproject.toml files are present), install relsad with:
+Install relsad with:
 
    .. code-block:: console
 
@@ -81,8 +75,7 @@ Ready to contribute? Here's how to set up `relsad` for local development.
 
     $ git checkout -b name-of-your-bugfix-or-feature
 
-5. When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.
-   For example, if the package uses the poetry package management library, black and flake8 formatting style and pytest for testing::
+5. When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.::
 
     $ poetry run black relsad examples
     $ poetry run flake8 relsad examples

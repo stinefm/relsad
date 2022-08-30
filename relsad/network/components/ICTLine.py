@@ -392,10 +392,11 @@ class ICTLine(Component):
 
         """
         if save_flag:
+            time = curr_time.get_unit_quantity(curr_time.unit)
             self.history["remaining_outage_time"][
-                curr_time
+                time
             ] = self.remaining_outage_time.get_unit_quantity(curr_time.unit)
-            self.history["failed"][curr_time] = self.failed
+            self.history["failed"][time] = self.failed
 
     def get_history(self, attribute: str):
         """

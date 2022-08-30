@@ -383,10 +383,11 @@ class IntelligentSwitch(Component):
 
         """
         if save_flag:
+            time = curr_time.get_unit_quantity(curr_time.unit)
             self.history["remaining_repair_time"][
-                curr_time
+                time
             ] = self.remaining_repair_time.get_unit_quantity(curr_time.unit)
-            self.history["state"][curr_time] = self.state.value
+            self.history["state"][time] = self.state.value
 
     def get_history(self, attribute: str):
         """

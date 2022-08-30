@@ -464,31 +464,32 @@ class EVPark(Component):
             self.curr_interruption_duration = Time(0)
             self.num_consecutive_interruptions = 0
         if save_flag:
-            self.history["SOC"][curr_time] = self.get_SOC()
-            self.history["ev_index"][curr_time] = self.get_ev_index()
-            self.history["demand"][curr_time] = self.curr_p_demand
-            self.history["charge"][curr_time] = self.curr_p_charge
-            self.history["num_cars"][curr_time] = self.num_cars
+            time = curr_time.get_unit_quantity(curr_time.unit)
+            self.history["SOC"][time] = self.get_SOC()
+            self.history["ev_index"][time] = self.get_ev_index()
+            self.history["demand"][time] = self.curr_p_demand
+            self.history["charge"][time] = self.curr_p_charge
+            self.history["num_cars"][time] = self.num_cars
             self.history["available_num_cars"][
-                curr_time
+                time
             ] = self.available_num_cars
             self.history["park_interruption_fraction"][
-                curr_time
+                time
             ] = self.park_interruption_fraction
             self.history["acc_num_interruptions"][
-                curr_time
+                time
             ] = self.acc_num_interruptions
             self.history["acc_exp_interruptions"][
-                curr_time
+                time
             ] = self.acc_exp_interruptions
             self.history["acc_exp_car_interruptions"][
-                curr_time
+                time
             ] = self.acc_exp_car_interruptions
             self.history["acc_interruption_duration"][
-                curr_time
+                time
             ] = self.acc_interruption_duration.get_hours()
             self.history["acc_available_num_cars"][
-                curr_time
+                time
             ] = self.acc_available_num_cars
 
     def get_history(self, attribute: str):

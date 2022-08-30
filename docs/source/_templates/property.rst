@@ -1,6 +1,6 @@
 :orphan:
 
-{{ fullname }}
+{{ name }}
 {{ underline }}
 
 .. currentmodule:: {{ module }}

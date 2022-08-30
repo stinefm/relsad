@@ -236,7 +236,8 @@ class CircuitBreaker(Component, Switch):
 
         """
         if save_flag:
-            self.history["is_open"][curr_time] = self.is_open
+            time = curr_time.get_unit_quantity(curr_time.unit)
+            self.history["is_open"][time] = self.is_open
 
     def get_history(self, attribute: str):
         """

@@ -1,6 +1,9 @@
 class CostFunction:
     """
-    Class defining a cost function
+    Class defining a linear energy shedding
+    cost function for a bus on the form
+
+    cost = A + B * active_energy_shedded
 
     ...
 

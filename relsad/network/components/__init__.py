@@ -25,3 +25,8 @@ from .ManualMainController import ManualMainController
 from .MicrogridController import MicrogridController, MicrogridMode
 from .Production import Production
 from .Sensor import Sensor, SensorState
+
+__all__ = []
+for v in dir():
+    if not v.startswith("__") and v != "relsad":
+        __all__.append(v)

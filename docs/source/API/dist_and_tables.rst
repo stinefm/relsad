@@ -8,13 +8,9 @@ StatDist
 
 .. autosummary::
     :toctree: _autosummary
-    :template: class.rst
+    :template: module.rst
 
-    relsad.StatDist.StatDist
-    relsad.StatDist.StatDistType
-    relsad.StatDist.UniformParameters
-    relsad.StatDist.NormalParameters
-    relsad.StatDist.GammaParameters
+    relsad.StatDist
 
 
 '''''
@@ -23,6 +19,6 @@ Table
 
 .. autosummary::
     :toctree: _autosummary
-    :template: class.rst
+    :template: module.rst
 
-    relsad.Table.Table
+    relsad.Table

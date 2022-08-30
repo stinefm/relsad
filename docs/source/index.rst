@@ -1,22 +1,27 @@
-Welcome to relsad's documentation!
-===========================================================
+=======================================================================
+`RELSAD` -- RELiability tool for Smart and Active Distribution networks
+=======================================================================
 
-To get started, check out the sections below:
+Welcome the the documentation of `RELSAD`. Here you can find the information
+you need to install, use and participate in the further development of
+the tool. 
 
-.. include:: ../../README
+The `installation`-page describes the various ways of installing `RELSAD`. 
+For usage examples and tutorials, visit the `usage`-page. Information
+about the background of many of the implemented feature in `RELSAD`
+are covered in the `backgroud`-page. The `input data`-page describes
+a way of preparing load profiles and distributed generation data for 
+usage in `RELSAD`. Finally, the API is presented in the `API`-page.
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :caption: Contents:
 
     installation
-    usage
-    ../../CONTRIBUTING
-    ../../CONDUCT
-    ../../CHANGELOG
-    theory
-    data
-    API
+    usage/main
+    background/main
+    input_data/main
+    API/main
     references
 
 Indices and tables

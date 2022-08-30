@@ -4,7 +4,12 @@ import numpy as np
 from relsad.load.bus import CostFunction
 from relsad.StatDist import StatDist, StatDistType, UniformParameters
 from relsad.Time import Time, TimeUnit
-from relsad.utils import convert_yearly_fail_rate, interpolate, random_choice
+from relsad.utils import (
+    convert_yearly_fail_rate,
+    interpolate,
+    random_choice,
+    eq,
+)
 
 from .Component import Component
 
@@ -705,14 +710,18 @@ class Bus(Component):
         self.acc_q_energy_shed += self.q_energy_shed_stack
         dt = curr_time - prev_time if prev_time is not None else curr_time
         self.acc_outage_time += dt if self.p_energy_shed_stack > 0 else Time(0)
-        self.avg_outage_time = Time(
-            self.acc_outage_time / curr_time, curr_time.unit
+        self.avg_outage_time = (
+            Time(
+                self.acc_outage_time / curr_time, curr_time.unit
+            )
+            if curr_time != Time(0, curr_time.unit)
+            else Time(0, curr_time.unit)
         )
         self.avg_fail_rate = self.get_avg_fail_rate(curr_time)
         # Accumulate fraction of interupted customers
         self.interruption_fraction = (
             self.p_energy_shed_stack / (self.pload * dt.get_hours())
-            if self.pload != 0
+            if not eq(self.pload, 0) and dt.get_hours() > 0
             else 0
         )
 
@@ -729,46 +738,47 @@ class Bus(Component):
             self.num_consecutive_interruptions = 0
 
         if save_flag:
-            self.history["pload"][curr_time] = self.pload
-            self.history["qload"][curr_time] = self.qload
-            self.history["pprod"][curr_time] = self.pprod
-            self.history["qprod"][curr_time] = self.qprod
+            time = curr_time.get_unit_quantity(curr_time.unit)
+            self.history["pload"][time] = self.pload
+            self.history["qload"][time] = self.qload
+            self.history["pprod"][time] = self.pprod
+            self.history["qprod"][time] = self.qprod
             self.history["remaining_outage_time"][
-                curr_time
+                time
             ] = self.remaining_outage_time.get_unit_quantity(curr_time.unit)
-            self.history["trafo_failed"][curr_time] = self.trafo_failed
+            self.history["trafo_failed"][time] = self.trafo_failed
             self.history["p_energy_shed_stack"][
-                curr_time
+                time
             ] = self.p_energy_shed_stack
             self.history["acc_p_energy_shed"][
-                curr_time
+                time
             ] = self.acc_p_energy_shed
             self.history["q_energy_shed_stack"][
-                curr_time
+                time
             ] = self.q_energy_shed_stack
             self.history["acc_q_energy_shed"][
-                curr_time
+                time
             ] = self.acc_q_energy_shed
-            self.history["voang"][curr_time] = self.voang
-            self.history["vomag"][curr_time] = self.vomag
+            self.history["voang"][time] = self.voang
+            self.history["vomag"][time] = self.vomag
             self.history["avg_fail_rate"][
-                curr_time
+                time
             ] = self.avg_fail_rate  # Average failure rate (lamda_s)
             self.history["avg_outage_time"][
-                curr_time
+                time
             ] = self.avg_outage_time.get_unit_quantity(
                 curr_time.unit
             )  # Average outage time (r_s)
             self.history["acc_outage_time"][
-                curr_time
+                time
             ] = self.acc_outage_time.get_unit_quantity(
                 curr_time.unit
             )  # Accumulated outage time
             self.history["interruption_fraction"][
-                curr_time
+                time
             ] = self.interruption_fraction
             self.history["acc_interruptions"][
-                curr_time
+                time
             ] = self.acc_interruptions
         self.clear_energy_shed_stack()
 
@@ -891,7 +901,11 @@ class Bus(Component):
         if self.parent_network is not None:
             for line in self.parent_network.get_lines():
                 fail_rate += line.fail_rate_per_year
-        avg_fail_rate = fail_rate / curr_time.get_years()
+        avg_fail_rate = (
+            fail_rate / curr_time.get_years()
+            if curr_time.get_years() > 0
+            else 0
+        )
         return avg_fail_rate
 
     def reset_status(self, save_flag: bool):

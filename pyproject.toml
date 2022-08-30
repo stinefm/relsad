@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "relsad"
 version = "0.0.2"
-description = "A package that facilitates reliability investigations in power systems"
+description = "A package that facilitates reliability investigations of power systems"
 readme = "README.rst"
 repository = "https://github.com/stinefm/relsad"
 homepage = "https://github.com/stinefm/relsad"
@@ -11,27 +11,31 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
-pre-commit = "^2.12.0"
-black = "^20.8b1"
-flake8 = "^3.9.0"
 matplotlib = "^3.5.1"
 scipy = "^1.8.0"
 pandas = "^1.4.1"
-sphinxcontrib-bibtex = "^2.4.2"
-sphinx-book-theme = "^0.3.2"
 
 [tool.poetry.dev-dependencies]
-Sphinx = "^3.5.2"
+Sphinx = ">=3.5.2,<5"
 sphinxcontrib-napoleon = "^0.7"
+sphinxcontrib-bibtex = "^2.4.2"
+sphinx-book-theme = "^0.3.2"
 pytest = "^7.1.1"
 pytest-cov = "^3.0.0"
+black = "^20.8b1"
+flake8 = "^3.9.0"
+pre-commit = "^2.12.0"
+python-semantic-release = "^7.31.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.semantic_release]
-version_variable = "pyproject.toml:version" # version location
+version_variable = [
+    "pyproject.toml:version",
+    "relsad/__init__.py",
+]                                           # version location
 branch = "main"                             # branch to make releases of
 changelog_file = "CHANGELOG.rst"            # changelog file
 build_command = "poetry build"              # build dists

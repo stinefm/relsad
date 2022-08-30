@@ -315,25 +315,26 @@ class ICTNode(Component):
             self.num_consecutive_interruptions = 0
 
         if save_flag:
+            time = curr_time.get_unit_quantity(curr_time.unit)
             self.history["remaining_outage_time"][
-                curr_time
+                time
             ] = self.remaining_outage_time.get_unit_quantity(curr_time.unit)
-            self.history["failed"][curr_time] = self.failed
+            self.history["failed"][time] = self.failed
             self.history["avg_fail_rate"][
-                curr_time
+                time
             ] = self.avg_fail_rate  # Average failure rate (lamda_s)
             self.history["avg_outage_time"][
-                curr_time
+                time
             ] = self.avg_outage_time.get_unit_quantity(
                 curr_time.unit
             )  # Average outage time (r_s)
             self.history["acc_outage_time"][
-                curr_time
+                time
             ] = self.acc_outage_time.get_unit_quantity(
                 curr_time.unit
             )  # Accumulated outage time
             self.history["acc_interruptions"][
-                curr_time
+                time
             ] = self.acc_interruptions
 
     def get_history(self, attribute: str):

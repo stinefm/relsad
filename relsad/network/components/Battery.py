@@ -526,10 +526,11 @@ class Battery(Component):
 
         """
         if save_flag:
-            self.history["SOC"][curr_time] = self.SOC
-            self.history["SOC_min"][curr_time] = self.SOC_min
+            time = curr_time.get_unit_quantity(curr_time.unit)
+            self.history["SOC"][time] = self.SOC
+            self.history["SOC_min"][time] = self.SOC_min
             self.history["remaining_survival_time"][
-                curr_time
+                time
             ] = self.remaining_survival_time.get_unit_quantity(curr_time.unit)
 
     def get_history(self, attribute: str):

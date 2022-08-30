@@ -12,10 +12,7 @@ from relsad.network.components import (
 )
 from relsad.network.systems import Distribution, PowerSystem, Transmission
 from relsad.simulation import Simulation
-from relsad.simulation.sequence.history import (
-    initialize_sequence_history,
-    save_sequence_history,
-)
+from relsad.simulation.sequence.history import save_sequence_history
 from relsad.simulation.system_config import prepare_system
 from relsad.StatDist import StatDist, StatDistType, UniformParameters
 from relsad.Time import Time, TimeStamp, TimeUnit
@@ -306,7 +303,7 @@ def test_fail_L8_L3():
     )
 
     # Initialize sequence history variables
-    initialize_sequence_history(power_system=sim.power_system)
+    sim.power_system.initialize_sequence_history()
 
     # Run sequence
     prev_time = Time(0, unit=time_unit)
@@ -330,5 +327,42 @@ def test_fail_L8_L3():
         # Save sequence history
         save_sequence_history(
             power_system=sim.power_system,
+            time_unit=time_unit,
             save_dir=save_dir,
         )
+
+def test_fail_L8_L3_callback():
+    ps = network(fail_rate_line=0)
+
+    sim = Simulation(ps)
+
+    time_unit = TimeUnit.HOUR
+
+    def callback(prev_time, curr_time):
+        if curr_time == Time(0, unit=time_unit):
+            ps.get_comp("L8").fail(dt=Time(1, TimeUnit.HOUR))
+        elif curr_time == Time(2, unit=time_unit):
+            ps.get_comp("L3").fail(dt=Time(1, TimeUnit.HOUR))
+
+    sim.run_sequential(
+        start_time=TimeStamp(
+            year=2019,
+            month=1,
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+        ),
+        stop_time=TimeStamp(
+            year=2019,
+            month=1,
+            day=1,
+            hour=6,
+            minute=0,
+            second=0,
+        ),
+        time_step=Time(1, TimeUnit.HOUR),
+        time_unit=time_unit,
+        callback=callback,
+        save_flag=False,
+    )

@@ -1,8 +1,10 @@
+===========
 reliability
 ===========
 
+-------
 indices
-=======
+-------
 
 .. autosummary::
     :toctree: _autosummary

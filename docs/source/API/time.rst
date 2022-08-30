@@ -12,6 +12,16 @@ Time
 
     relsad.Time.Time
 
+''''''''
+TimeUnit
+''''''''
+
+.. autosummary::
+    :toctree: _autosummary
+    :template: class.rst
+
+    relsad.Time.TimeUnit
+
 
 '''''''''
 TimeStamp

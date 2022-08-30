@@ -71,7 +71,9 @@ def plot_network_monte_carlo_history(power_system: PowerSystem, save_dir: str):
 
 
 def save_network_monte_carlo_history(
-    power_system: PowerSystem, save_dir: str, save_dict: dict
+    power_system: PowerSystem,
+    save_dir: str,
+    save_dict: dict,
 ):
     """
     Saves the history of the energy.shedding in the power system
@@ -329,8 +331,8 @@ def update_monte_carlo_comp_history(
         bus_state_dict = {
             "acc_p_energy_shed": bus.acc_p_energy_shed,
             "acc_q_energy_shed": bus.acc_q_energy_shed,
-            "avg_outage_time": bus.avg_outage_time,
-            "acc_outage_time": bus.acc_outage_time,
+            "avg_outage_time": bus.avg_outage_time.get_hours(),
+            "acc_outage_time": bus.acc_outage_time.get_hours(),
             "interruption_fraction": bus.interruption_fraction,
             "acc_interruptions": bus.acc_interruptions,
         }

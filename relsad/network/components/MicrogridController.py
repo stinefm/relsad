@@ -595,8 +595,9 @@ class MicrogridController(Component, Controller):
 
         """
         if save_flag:
+            time = curr_time.get_unit_quantity(curr_time.unit)
             self.history["sectioning_time"][
-                curr_time
+                time
             ] = self.sectioning_time.get_unit_quantity(curr_time.unit)
 
     def get_history(self, attribute: str):

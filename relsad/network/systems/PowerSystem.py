@@ -764,6 +764,98 @@ class PowerSystem(PowerNetwork):
         """
         return self.monte_carlo_history[attribute]
 
+    def initialize_sequence_history(self):
+        """
+        Initializes the lists used for sequence history variables
+    
+        Parameters
+        ----------
+        None
+    
+        Returns
+        ----------
+        None
+    
+        """
+        network_state_list = [
+            "p_energy_shed",
+            "q_energy_shed",
+            "acc_p_energy_shed",
+            "acc_q_energy_shed",
+            "p_load",
+            "q_load",
+        ]
+        for state_var in network_state_list:
+            self.history[state_var] = {}
+        for network in self.child_network_list:
+            for state_var in network_state_list:
+                network.history[state_var] = {}
+        self.controller.initialize_history()
+
+    def update_sequence_history(
+        self,
+        prev_time: Time,
+        curr_time: Time,
+        save_flag: bool,
+    ):
+        """
+        Updates the sequence history variables of the power system
+
+        Parameters
+        ----------
+        prev_time : Time
+            The previous time
+        curr_time : Time
+            The current time
+        save_flag : bool
+            Indicates if saving is on/off
+
+        Returns
+        ----------
+        None
+
+        """
+        for network in self.child_network_list:
+            for bus in network.buses:
+                network.p_energy_shed += bus.p_energy_shed_stack
+                network.q_energy_shed += bus.q_energy_shed_stack
+            self.p_energy_shed += network.p_energy_shed
+            self.q_energy_shed += network.q_energy_shed
+            network.acc_p_energy_shed += network.p_energy_shed
+            network.acc_q_energy_shed += network.q_energy_shed
+        self.acc_p_energy_shed += self.p_energy_shed
+        self.acc_q_energy_shed += self.q_energy_shed
+        if save_flag:
+            self_state_dict = {
+                "p_energy_shed": self.p_energy_shed,
+                "q_energy_shed": self.p_energy_shed,
+                "acc_p_energy_shed": self.acc_p_energy_shed,
+                "acc_q_energy_shed": self.acc_q_energy_shed,
+                "p_load": self.get_system_load()[0],
+                "q_load": self.get_system_load()[1],
+            }
+            for state_var, value in self_state_dict.items():
+                self.history[state_var][curr_time] = value
+            for network in self.child_network_list:
+                network_state_dict = {
+                    "p_energy_shed": network.p_energy_shed,
+                    "q_energy_shed": network.q_energy_shed,
+                    "acc_p_energy_shed": network.acc_p_energy_shed,
+                    "acc_q_energy_shed": network.acc_q_energy_shed,
+                    "p_load": network.get_system_load()[0],
+                    "q_load": network.get_system_load()[1],
+                }
+                for state_var, value in network_state_dict.items():
+                    network.history[state_var][curr_time] = value
+        self.p_energy_shed = 0
+        self.q_energy_shed = 0
+        for network in self.child_network_list:
+            network.p_energy_shed = 0
+            network.q_energy_shed = 0
+        for comp in self.comp_list:
+            comp.update_history(prev_time, curr_time, save_flag)
+        self.controller.update_history(prev_time, curr_time, save_flag)
+
     def get_history(self, attribute):
         """
         Returns the specified history variable

@@ -256,6 +256,8 @@ class Time:
     def __truediv__(self, other):
         if not isinstance(other, self.__class__):
             raise Exception("Wrong type")
+        if other.get_hours() == 0:
+            raise Exception("Other time is zero")
         return self.get_hours() / other.get_hours()
 
     def get_seconds(self):

@@ -4,6 +4,7 @@
 Installation
 ============
 
+--------------
 Stable release
 --------------
 
@@ -23,6 +24,7 @@ you through the process.
 .. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
 
 
+------------
 From sources
 ------------
 
@@ -53,3 +55,14 @@ Install relsad with:
 
 .. _Github repo: https://github.com/stinefm/relsad
 .. _tarball: https://github.com/stinefm/relsad/tarball/master
+
+
+----------------
+Test the package
+----------------
+
+If you installed relsad from source, you should run the tests to validate the installation. This is done by calling pytest from the repo:
+
+.. code-block:: console
+
+    $ poetry run pytest

@@ -49,6 +49,8 @@ extensions = [
 napoleon_numpy_docstring = True
 
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
+autosummary_imported_members = True
+autosummary_ignore_module_all = False
 
 # Citation
 bibtex_bibfiles = ["references.bib"]
@@ -143,7 +145,7 @@ latex_documents = [
     (
         master_doc,
         "relsad.tex",
-        u"relsad Documentation",
+        u"`RELSAD`",
         u"Stine Fleischer Myhre",
         "manual",
     ),
@@ -154,7 +156,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "relsad", u"relsad Documentation", [author], 1)]
+man_pages = [(master_doc, "relsad", u"RELSAD Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output ----------------------------------------
@@ -166,10 +168,10 @@ texinfo_documents = [
     (
         master_doc,
         "relsad",
-        u"relsad Documentation",
+        u"RELSAD Documentation",
         author,
         "relsad",
-        "One line description of project.",
+        "A package that facilitates reliability investigations of power systems.",
         "Miscellaneous",
     ),
 ]

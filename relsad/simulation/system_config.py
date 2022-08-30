@@ -360,6 +360,7 @@ def prepare_system(
     increments = int((stop_time - start_time) / time_step)
     sim_duration = increments * time_step.get_unit_quantity(time_unit)
     time_array = np.arange(
+        start=time_step.get_unit_quantity(time_unit),
         stop=sim_duration,
         step=time_step.get_unit_quantity(time_unit),
     )
