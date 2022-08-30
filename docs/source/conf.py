@@ -17,9 +17,9 @@
 # relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 #
-# import relsad
 import os
 import sys
+import relsad
 
 sys.path.insert(0, os.path.abspath(os.path.join('..', '..')))
 
@@ -72,7 +72,7 @@ master_doc = "index"
 # the built documents.
 #
 # The short X.Y version.
-# version = relsad.__version__
+version = relsad.__version__
 # The full version, including alpha/beta/rc tags.
 # release = relsad.__version__
 

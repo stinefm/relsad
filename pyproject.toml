@@ -34,7 +34,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.semantic_release]
 version_variable = [
     "pyproject.toml:version",
-    "relsad/__init__.py",
+    "relsad/__init__.py:__version__",
 ]                                           # version location
 branch = "main"                             # branch to make releases of
 changelog_file = "CHANGELOG.rst"            # changelog file
