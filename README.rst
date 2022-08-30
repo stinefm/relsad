@@ -71,11 +71,6 @@ Contributors
 
 We welcome and recognize all contributions. You can see a list of current contributors in the [contributors tab](https://github.com/stinefm/relsad/graphs/contributors).
 
-.. include:: CONTRIBUTING.rst
-
-.. include:: CONDUCT.rst
-
-.. include:: CHANGELOG.rst
 
 ====
 Help
