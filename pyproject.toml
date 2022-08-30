@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "relsad"
-version = "0.0.2"
+version = "0.1.0"
 description = "A package that facilitates reliability investigations of power systems"
 readme = "README.rst"
 repository = "https://github.com/stinefm/relsad"
@@ -36,6 +36,7 @@ version_variable = [
     "pyproject.toml:version",
     "relsad/__init__.py:__version__",
 ]                                           # version location
+version_source = "tag"
 branch = "main"                             # branch to make releases of
 changelog_file = "CHANGELOG.rst"            # changelog file
 build_command = "poetry build"              # build dists
