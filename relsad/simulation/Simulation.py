@@ -1,4 +1,5 @@
 import copy
+from enum import Enum
 import os
 from multiprocessing import Pool
 
@@ -9,10 +10,8 @@ from relsad.energy.shedding import shed_energy
 from relsad.loadflow.ac.bfs import run_bfs_load_flow
 from relsad.network.systems import PowerNetwork, PowerSystem
 from .monte_carlo.history import (
-    initialize_monte_carlo_history,
     merge_monte_carlo_history,
     save_network_monte_carlo_history,
-    update_monte_carlo_power_system_history,
 )
 from .sequence.history import save_sequence_history
 from .system_config import (
@@ -215,7 +214,7 @@ class Simulation:
             A callback function that allows for user-defined
             behavior. The callback function is called at the start
             of every increment. The callback function must contain
-            the following arguments: prev_time, curr_time
+            the following arguments: ps, prev_time, curr_time
         save_flag : bool
             Indicates if saving is on or off
 
@@ -230,6 +229,7 @@ class Simulation:
             curr_time = Time(time_quantity, unit=time_unit)
             if callback is not None:
                 callback(
+                    ps=self.power_system,
                     prev_time=prev_time,
                     curr_time=curr_time,
                 )
@@ -269,7 +269,7 @@ class Simulation:
             A callback function that allows for user-defined
             behavior. The callback function is called at the start
             of every increment. The callback function must contain
-            the following arguments: prev_time, curr_time
+            the following arguments: ps, prev_time, curr_time
         save_dir : str
             The saving directory
         save_flag : bool
@@ -282,6 +282,7 @@ class Simulation:
         """
         if callback is not None and not callable(callback):
             raise Exception("The callback argument must be callable")
+
         # Initialize random seed
         ss = SeedSequence(self.random_seed)
         random_seed = ss.spawn(1)[0]
@@ -333,6 +334,7 @@ class Simulation:
         save_dir: str,
         save_flag: bool,
         random_seed: int,
+        callback: callable = None,
     ):
         """
         Runs power system for an iteration
@@ -355,6 +357,11 @@ class Simulation:
             Flag for saving the iteration results
         random_seed : int
             Random seed number
+        callback : callable, optional
+            A callback function that allows for user-defined
+            behavior. The callback function is called at the start
+            of every increment. The callback function must contain
+            the following arguments: prev_time, curr_time
 
         Returns
         ----------
@@ -372,7 +379,7 @@ class Simulation:
         self.distribute_random_instance(random_instance)
 
         # Initialize monte carlo history variables
-        save_dict = initialize_monte_carlo_history(self.power_system)
+        save_dict = self.power_system.initialize_monte_carlo_history()
 
         # Print current iteration
         print(f"it: {it}", flush=True)
@@ -388,6 +395,7 @@ class Simulation:
             start_time=start_time,
             time_array=time_array,
             time_unit=time_unit,
+            callback=callback,
             save_flag=save_flag,
         )
 
@@ -405,8 +413,7 @@ class Simulation:
 
         # Update monte carlo history variables
         sim_duration = Time(time_array[-1], time_unit)
-        save_dict = update_monte_carlo_power_system_history(
-            power_system=self.power_system,
+        save_dict = self.power_system.update_monte_carlo_history(
             it=it,
             current_time=sim_duration,
             save_dict=save_dict,
@@ -420,6 +427,7 @@ class Simulation:
         stop_time: TimeStamp,
         time_step: Time,
         time_unit: TimeUnit,
+        callback: callable = None,
         save_iterations: list = [],
         save_dir: str = "results",
         n_procs: int = 1,
@@ -441,6 +449,11 @@ class Simulation:
             A time step (1 hour, 2 hours, ect.)
         time_unit : TimeUnit
             A time unit (hour, seconds, ect.)
+        callback : callable, optional
+            A callback function that allows for user-defined
+            behavior. The callback function is called at the start
+            of every increment. The callback function must contain
+            the following arguments: prev_time, curr_time
         save_iterations : list
             List of iterations where the sequence results will be saved
         save_dir : str
@@ -457,6 +470,9 @@ class Simulation:
         None
 
         """
+        if callback is not None and not callable(callback):
+            raise Exception("The callback argument must be callable")
+
         # Initialize random seeds
         ss = SeedSequence(self.random_seed)
         child_seeds = ss.spawn(iterations)
@@ -485,6 +501,7 @@ class Simulation:
                             it in save_iterations and save_flag is True
                         ),
                         random_seed=child_seeds[it - 1],
+                        callback=callback,
                     )
                 )
         else:
@@ -500,6 +517,7 @@ class Simulation:
                             save_dir,
                             (it in save_iterations and save_flag is True),
                             child_seeds[it - 1],
+                            callback,
                         ]
                         for it in range(1, iterations + 1)
                     ],
