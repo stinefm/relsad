@@ -679,6 +679,7 @@ Finally, to run a Monte Carlo simulation the user must specify:
 * Simulation stop time, `stop_time`
 * Time step, `time_step`
 * Time unit presented in results, `time_unit`
+* A callback function, `callback`
 * List of Monte Carlo iterations to save, `save_iterations`
 * Saving directory for results, `save_dir`
 * Number of processes, `n_procs`
@@ -705,11 +706,15 @@ Finally, to run a Monte Carlo simulation the user must specify:
         ),
         time_step=Time(1, TimeUnit.Hour), 
         time_unit=TimeUnit.Hour,
+        callback=None,
         save_iterations=save_iterations, 
         save_dir=save_dir,
         n_procs=number_processes, 
     )
 
+The callback argument allows the user to specify events on an incremental basis.
+It is useful of you want to investigate how a given set of events impact the
+system reliability for varying repair time etc.
 
 The results from the simulation are found in the specified `save_dir`.
 They include system reliability indices as well as bus information.
@@ -769,5 +774,9 @@ Here we used the callback function to specify that line "L2" will fail at
 the start of the simulation, while line "L3" will fail after two hours.
 The callback function enables easy customization and implementation of 
 scenarios of interest.
+
+To run a deterministic sequential simulation the user must remember to
+set all failure rates to zero and all repair times to constant values.
+Otherwise, the simulation will exhibit a stochastic behavior.
 
 The results from the simulation are found in the specified `save_dir`.
