@@ -331,18 +331,20 @@ def test_fail_L8_L3():
             save_dir=save_dir,
         )
 
+def callback(ps, prev_time, curr_time):
+    dt = curr_time - prev_time
+    if curr_time == Time(0, unit=dt.unit):
+        ps.get_comp("L8").fail(dt)
+    elif curr_time == Time(2, unit=dt.unit):
+        ps.get_comp("L3").fail(dt)
+
+
 def test_fail_L8_L3_callback():
     ps = network(fail_rate_line=0)
 
     sim = Simulation(ps)
 
     time_unit = TimeUnit.HOUR
-
-    def callback(prev_time, curr_time):
-        if curr_time == Time(0, unit=time_unit):
-            ps.get_comp("L8").fail(dt=Time(1, TimeUnit.HOUR))
-        elif curr_time == Time(2, unit=time_unit):
-            ps.get_comp("L3").fail(dt=Time(1, TimeUnit.HOUR))
 
     sim.run_sequential(
         start_time=TimeStamp(
