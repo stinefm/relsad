@@ -1,8 +1,4 @@
-import os
-
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 
 from relsad.network.components import (
     Bus,
@@ -12,14 +8,16 @@ from relsad.network.components import (
     IntelligentSwitch,
     Line,
     Sensor,
+    ICTNode,
+    ICTLine,
 )
-
-from relsad.Time import TimeUnit
 
 
 def plot_topology(
     buses: list,
     lines: list,
+    ict_nodes: list = None,
+    ict_lines: list = None,
     bus_text: bool = True,
     line_text: bool = False,
     circuitbreaker_text: bool = False,
@@ -137,11 +135,30 @@ def plot_topology(
         if line.sensor:
             _plot_sensor(
                 ax=ax,
-                line=line,
+                sensor=line.sensor,
                 text=sensor_text,
                 text_size=text_size,
             )
             legends["Sensor"] = Sensor.handle
+    if ict_nodes is not None:
+        for ict_node in ict_nodes:
+            _plot_ict_node(
+                ax=ax,
+                ict_node=ict_node,
+                text=False,
+                text_size=text_size,
+                text_dx=text_dx,
+            )
+            legends["ICT node"] = ICTNode.handle
+    if ict_lines is not None:
+        for ict_line in ict_lines:
+            _plot_ict_line(
+                ax=ax,
+                ict_line=ict_line,
+                text=False,
+                text_size=text_size,
+            )
+            legends["ICT line"] = ICTLine.handle
 
     plt.figlegend(
         legends.values(),
@@ -159,6 +176,68 @@ def plot_topology(
     return fig
 
 
+def _plot_bus(
+    ax: plt.axis,
+    bus: Bus,
+    text: bool = False,
+    text_size: int = 8,
+    text_dx: tuple = (0, 0),
+):
+    """
+    Plot bus
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Plot axis
+    bus : Bus
+        Bus element
+    text : bool
+        Flag determining if bus name will be plotted
+    text_size : int
+        The size of the text in the plot
+    text_dx : tuple
+        The distance from the text to the center point
+
+    Returns
+    ----------
+    None
+
+    """
+    x, y = bus.coordinate
+    ax.plot(
+        x,
+        y,
+        marker=bus.marker,
+        markeredgewidth=bus.handle.get_markeredgewidth(),
+        markersize=bus.size,
+        linestyle="None",
+        color=bus.color,
+        clip_on=False,
+        zorder=3,
+    )
+    if text:
+        ax.text(
+            x + text_dx[0],
+            y + text_dx[1],
+            bus.name,
+            ha="center",
+            va="center",
+            size=text_size,
+        )
+    if bus.ev_park is not None:
+        ax.plot(
+            x,
+            y,
+            marker=bus.ev_park.marker,
+            markeredgewidth=bus.ev_park.handle.get_markeredgewidth(),
+            markersize=bus.ev_park.size,
+            linestyle="None",
+            color=bus.color,
+            clip_on=False,
+            zorder=3,
+        )
+
 def _plot_line(
     ax: plt.axis,
     line: Line,
@@ -166,7 +245,7 @@ def _plot_line(
     text_size: int = 8,
 ):
     """
-    Plot lines
+    Plot line
 
     Parameters
     ----------
@@ -366,7 +445,7 @@ def _plot_intelligent_switch(
 
 def _plot_sensor(
     ax: plt.axis,
-    line: Line,
+    sensor: Sensor,
     text: bool = False,
     text_size: int = 8,
 ):
@@ -377,7 +456,7 @@ def _plot_sensor(
     ----------
     ax : matplotlib.axes.Axes
         Plot axis
-    line : Line
+    sensor : Sensor
         A Line element
     text : bool
         Flag determining if sensor name will be plotted
@@ -389,49 +468,44 @@ def _plot_sensor(
     None
 
     """
-    x1, y1 = line.fbus.coordinate
-    x2, y2 = line.tbus.coordinate
-
-    x = (x1 + x2) / 2
-    y = (y1 + y2) / 2
+    x, y = sensor.coordinate
 
     ax.plot(
         x,
         y,
-        marker=line.sensor.marker,
-        markeredgewidth=line.sensor.handle.get_markeredgewidth(),
-        markersize=line.sensor.size,
+        marker=sensor.marker,
+        markeredgewidth=sensor.handle.get_markeredgewidth(),
+        markersize=sensor.size,
         linestyle="None",
-        color=line.sensor.color,
+        color=sensor.color,
         zorder=3,
     )
     if text:
         ax.text(
             x,
             y + 0.2,
-            line.sensor.name,
+            sensor.name,
             ha="center",
             va="center",
             size=text_size,
         )
 
-
-def _plot_bus(
+def _plot_ict_node(
     ax: plt.axis,
-    bus: Bus,
+    ict_node: ICTNode,
     text: bool = False,
     text_size: int = 8,
     text_dx: tuple = (0, 0),
 ):
     """
-    Plot circuitbreakers
+    Plot ICT node
 
     Parameters
     ----------
     ax : matplotlib.axes.Axes
         Plot axis
-    bus : Bus
-        Bus element
+    ict_node : ICTNode
+        ICTNode element
     text : bool
         Flag determining if bus name will be plotted
     text_size : int
@@ -444,15 +518,15 @@ def _plot_bus(
     None
 
     """
-    x, y = bus.coordinate
+    x, y = ict_node.coordinate
     ax.plot(
         x,
         y,
-        marker=bus.marker,
-        markeredgewidth=bus.handle.get_markeredgewidth(),
-        markersize=bus.size,
+        marker=ict_node.marker,
+        markeredgewidth=ict_node.handle.get_markeredgewidth(),
+        markersize=ict_node.size,
         linestyle="None",
-        color=bus.color,
+        color=ict_node.color,
         clip_on=False,
         zorder=3,
     )
@@ -460,20 +534,67 @@ def _plot_bus(
         ax.text(
             x + text_dx[0],
             y + text_dx[1],
-            bus.name,
+            ict_node.name,
             ha="center",
             va="center",
             size=text_size,
         )
-    if bus.ev_park is not None:
-        ax.plot(
+
+
+def _plot_ict_line(
+    ax: plt.axis,
+    ict_line: ICTLine,
+    text: bool = False,
+    text_size: int = 8,
+):
+    """
+    Plot ICT line
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Plot axis
+    ict_line : ICTLine
+        An ICTLine element
+    text : bool
+        Flag determining if line name will be plotted
+    text_size : int
+        The size of the text in the plot
+
+    Returns
+    ----------
+    None
+
+    """
+    dx_fraction = 0.1
+
+    x1, y1 = ict_line.fnode.coordinate
+    x2, y2 = ict_line.tnode.coordinate
+
+    ax.plot(
+        [x1, x2],
+        [y1, y2],
+        color=ict_line.color,
+        linestyle=ict_line.linestyle,
+        zorder=2,
+    )
+    if text:
+        dx = x2 - x1
+        dy = y2 - y1
+        x = (x1 + x2) / 2
+        y = (y1 + y2) / 2
+        if dx == 0 and dy != 0:
+            x += dy * dx_fraction
+        elif dx != 0 and dy == 0:
+            y += dx * dx_fraction
+        else:
+            x += dx * dx_fraction
+            y -= dy * dx_fraction
+        ax.text(
             x,
             y,
-            marker=bus.ev_park.marker,
-            markeredgewidth=bus.ev_park.handle.get_markeredgewidth(),
-            markersize=bus.ev_park.size,
-            linestyle="None",
-            color=bus.color,
-            clip_on=False,
-            zorder=3,
+            ict_line.name,
+            ha="center",
+            va="center",
+            size=text_size,
         )
