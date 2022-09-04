@@ -1,6 +1,17 @@
 import numpy as np
 
 from relsad.network.components import Bus, ICTLine, ICTNode, Line
+from relsad.reliability.indices import (
+    ASAI,
+    ASUI,
+    CAIDI,
+    ENS,
+    SAIDI,
+    SAIFI,
+    EV_Duration,
+    EV_Index,
+    EV_Interruption,
+)
 from relsad.Time import Time, TimeStamp
 from relsad.topology.sectioning import create_sections, get_section_list
 from relsad.utils import INF, eq, unique
@@ -105,26 +116,47 @@ class PowerSystem(PowerNetwork):
     update_ev_parks(fail_duration, dt, start_time, curr_time)
         Updates the EV parks in the power system
     update_fail_status(dt)
-        Updates the failure status for each component that can fail in the power system
+        Updates the failure status for each component that
+        can fail in the power system
     get_system_load()
         Returns the system load at the current time in MW and MVar
     prepare_load_data(time_indices)
         Prepares the load data for the buses in the power system
     prepare_prod_data(time_indices)
-        Prepares the production data for the production components in the power system
+        Prepares the production data for the production components
+        in the power system
     set_load_and_cost(inc_idx)
         Sets the bus load and cost in MW based on load and cost profiles
         in the current increment for the power system
     set_prod(inc_idx)
-        Sets the generation (generation units, batteries, EV parks) at the buses in the power system
+        Sets the generation (generation units, batteries, EV parks)
+        at the buses in the power system
     failes_comp()
-        Returns True if the power system contains a failed compoent, False otherwise
+        Returns True if the power system contains a
+        failed compoent, False otherwise
     full_batteries()
-        Returns True if the batteries in the power system are full, and False otherwise
+        Returns True if the batteries in the power system
+        are full, and False otherwise
     reset_load_flow_data()
         Resets the variables used in the load flow analysis
     get_monte_carlo_history(attribute)
-        Returns the specified history variable from the Monte Carlo simulation
+        Returns the specified history variable
+        from the Monte Carlo simulation
+    initialize_sequence_history()
+        Initializes the dictionaries used for sequence history variables
+    update_sequence_history()
+        Updates the sequence history variables of the power system
+    initialize_monte_carlo_history()
+        Initializes the lists used for history variable
+        from the Monte Carlo simulation
+    update_monte_carlo_history()
+        Updates the history dictionary from the Monte Carlo simulation
+    update_monte_carlo_child_network_history()
+        Updates the history dictionary for the child networks
+        in the Monte Carlo simulation
+    update_monte_carlo_comp_history()
+        Updates the component values for the system
+        from the Monte Carlo simulation
     get_history(attribute)
         Returns the specified history variable
     reset_energy_shed_variables()
@@ -161,24 +193,24 @@ class PowerSystem(PowerNetwork):
         self.q_energy_shed = 0
         self.acc_q_energy_shed = 0
         # Sub-systems
-        self.sub_systems = list()
+        self.sub_systems: list = []
         # Components
-        self.buses = list()
-        self.ev_parks = list()
-        self.batteries = list()
-        self.productions = list()
-        self.ict_nodes = list()
-        self.lines = list()
-        self.sensors = list()
-        self.circuitbreakers = list()
-        self.disconnectors = list()
-        self.intelligent_switches = list()
-        self.ict_lines = list()
+        self.buses: list = []
+        self.ev_parks: list = []
+        self.batteries: list = []
+        self.productions: list = []
+        self.ict_nodes: list = []
+        self.lines: list = []
+        self.sensors: list = []
+        self.circuitbreakers: list = []
+        self.disconnectors: list = []
+        self.intelligent_switches: list = []
+        self.ict_lines: list = []
         self.controller = controller
-        self.comp_list = list()
-        self.comp_dict = dict()
+        self.comp_list: list = []
+        self.comp_dict: dict = {}
         ## Child networks
-        self.child_network_list: list = list()
+        self.child_network_list: list = []
         ## History
         self.history: dict = {}
         self.monte_carlo_history: dict = {}
@@ -204,7 +236,8 @@ class PowerSystem(PowerNetwork):
 
     def add_bus(self, bus: Bus):
         """
-        Adding a bus including elements on the bus (battery, generation unit, EV park) to the power system
+        Adding a bus including elements on the bus
+        (battery, generation unit, EV park) to the power system
 
         Parameters
         ----------
@@ -276,7 +309,8 @@ class PowerSystem(PowerNetwork):
 
     def add_line(self, line: Line):
         """
-        Adding a line including elements on the line (sensor, circuit breaker, disconnector) to the power system
+        Adding a line including elements on the line
+        (sensor, circuit breaker, disconnector) to the power system
 
         Parameters
         ----------
@@ -566,7 +600,8 @@ class PowerSystem(PowerNetwork):
 
     def update_fail_status(self, dt: Time):
         """
-        Updates the failure status for each component that can fail in the power system
+        Updates the failure status for each component that
+        can fail in the power system
 
         Parameters
         ----------
@@ -638,7 +673,8 @@ class PowerSystem(PowerNetwork):
 
     def prepare_prod_data(self, time_indices: np.ndarray):
         """
-        Prepares the production data for the production components in the power system
+        Prepares the production data for the production components
+        in the power system
 
         Parameters
         ----------
@@ -655,7 +691,8 @@ class PowerSystem(PowerNetwork):
 
     def set_load_and_cost(self, inc_idx: int):
         """
-        Sets the bus load and cost in MW based on load and cost profiles in the current increment for the power system
+        Sets the bus load and cost in MW based on load and cost profiles
+        in the current increment for the power system
 
         Parameters
         ----------
@@ -672,7 +709,8 @@ class PowerSystem(PowerNetwork):
 
     def set_prod(self, inc_idx: int):
         """
-        Sets the generation (generation units, batteries, EV parks) at the buses in the power system
+        Sets the generation (generation units, batteries, EV parks)
+        at the buses in the power system
 
         Parameters
         ----------
@@ -694,7 +732,8 @@ class PowerSystem(PowerNetwork):
 
     def failed_comp(self):
         """
-        Returns True if the power system contains a failed component, and False otherwise
+        Returns True if the power system contains a
+        failed component, False otherwise
 
         Parameters
         ----------
@@ -706,12 +745,13 @@ class PowerSystem(PowerNetwork):
 
         """
         return any(
-            [True if bus.trafo_failed else False for bus in self.buses]
-        ) or any([True if line.failed else False for line in self.lines])
+            bus.trafo_failed for bus in self.buses
+        ) or any(line.failed for line in self.lines)
 
     def full_batteries(self):
         """
-        Returns True if the batteries in the power system are full, and False otherwise
+        Returns True if the batteries in the power system
+        are full, and False otherwise
 
         Parameters
         ----------
@@ -723,10 +763,8 @@ class PowerSystem(PowerNetwork):
 
         """
         return all(
-            [
-                True if eq(battery.SOC, battery.SOC_max) else False
-                for battery in self.batteries
-            ]
+            eq(battery.SOC, battery.SOC_max)
+            for battery in self.batteries
         )
 
     def reset_load_flow_data(self):
@@ -766,7 +804,7 @@ class PowerSystem(PowerNetwork):
 
     def initialize_sequence_history(self):
         """
-        Initializes the lists used for sequence history variables
+        Initializes the dictionaries used for sequence history variables
     
         Parameters
         ----------
@@ -784,6 +822,15 @@ class PowerSystem(PowerNetwork):
             "acc_q_energy_shed",
             "p_load",
             "q_load",
+            "SAIFI",
+            "SAIDI",
+            "CAIDI",
+            "ASAI",
+            "ASUI",
+            "ENS",
+            "EV_Index",
+            "EV_Interruption",
+            "EV_Duration",
         ]
         for state_var in network_state_list:
             self.history[state_var] = {}
@@ -815,6 +862,10 @@ class PowerSystem(PowerNetwork):
         None
 
         """
+        time = curr_time.get_unit_quantity(curr_time.unit)
+        for comp in self.comp_list:
+            comp.update_history(prev_time, curr_time, save_flag)
+        self.controller.update_history(prev_time, curr_time, save_flag)
         for network in self.child_network_list:
             for bus in network.buses:
                 network.p_energy_shed += bus.p_energy_shed_stack
@@ -833,9 +884,18 @@ class PowerSystem(PowerNetwork):
                 "acc_q_energy_shed": self.acc_q_energy_shed,
                 "p_load": self.get_system_load()[0],
                 "q_load": self.get_system_load()[1],
+                "SAIFI": SAIFI(self),
+                "SAIDI": SAIDI(self),
+                "CAIDI": CAIDI(self),
+                "ASAI": ASAI(self, curr_time),
+                "ASUI": ASUI(self, curr_time),
+                "ENS": ENS(self),
+                "EV_Index": EV_Index(self),
+                "EV_Interruption": EV_Interruption(self),
+                "EV_Duration": EV_Duration(self),
             }
             for state_var, value in self_state_dict.items():
-                self.history[state_var][curr_time] = value
+                self.history[state_var][time] = value
             for network in self.child_network_list:
                 network_state_dict = {
                     "p_energy_shed": network.p_energy_shed,
@@ -844,17 +904,219 @@ class PowerSystem(PowerNetwork):
                     "acc_q_energy_shed": network.acc_q_energy_shed,
                     "p_load": network.get_system_load()[0],
                     "q_load": network.get_system_load()[1],
+                    "SAIFI": SAIFI(network),
+                    "SAIDI": SAIDI(network),
+                    "CAIDI": CAIDI(network),
+                    "ASAI": ASAI(network, curr_time),
+                    "ASUI": ASUI(network, curr_time),
+                    "ENS": ENS(network),
+                    "EV_Index": EV_Index(network),
+                    "EV_Interruption": EV_Interruption(network),
+                    "EV_Duration": EV_Duration(network),
                 }
                 for state_var, value in network_state_dict.items():
-                    network.history[state_var][curr_time] = value
+                    network.history[state_var][time] = value
         self.p_energy_shed = 0
         self.q_energy_shed = 0
         for network in self.child_network_list:
             network.p_energy_shed = 0
             network.q_energy_shed = 0
-        for comp in self.comp_list:
-            comp.update_history(prev_time, curr_time, save_flag)
-        self.controller.update_history(prev_time, curr_time, save_flag)
+
+    def initialize_monte_carlo_history(self):
+        """
+        Initializes the lists used for history variables
+        from the Monte Carlo simulation
+    
+        Parameters
+        ----------
+        None
+    
+        Returns
+        ----------
+        save_dict : dict
+            Dictionary with simulation results
+    
+        """
+        network_state_list = [
+            "acc_p_energy_shed",
+            "acc_q_energy_shed",
+            "SAIFI",
+            "SAIDI",
+            "CAIDI",
+            "ASAI",
+            "ASUI",
+            "ENS",
+            "EV_Index",
+            "EV_Interruption",
+            "EV_Duration",
+        ]
+        save_dict = {}
+        save_dict[self.name] = {}
+        for state_var in network_state_list:
+            save_dict[self.name][state_var] = {}
+        for network in self.child_network_list:
+            save_dict[network.name] = {}
+            for state_var in network_state_list:
+                save_dict[network.name][state_var] = {}
+        bus_state_list = [
+            "acc_p_energy_shed",
+            "acc_q_energy_shed",
+            "avg_outage_time",
+            "acc_outage_time",
+            "interruption_fraction",
+            "acc_interruptions",
+        ]
+        ev_park_state_list = [
+            "acc_num_interruptions",
+            "acc_exp_interruptions",
+            "acc_exp_car_interruptions",
+            "acc_interruption_duration",
+            "acc_available_num_cars",
+            "num_cars",
+        ]
+        for bus in self.buses:
+            save_dict[bus.name] = {}
+            for state_var in bus_state_list:
+                save_dict[bus.name][state_var] = {}
+            if bus.ev_park is not None:
+                save_dict[bus.ev_park.name] = {}
+                for state_var in ev_park_state_list:
+                    save_dict[bus.ev_park.name][state_var] = {}
+        return save_dict
+
+    def update_monte_carlo_history(
+        self,
+        it: int,
+        current_time: Time,
+        save_dict: dict,
+    ):
+        """
+        Updates the history dictionary from the Monte Carlo simulation
+    
+        Parameters
+        ----------
+        it : int
+            The iteration number
+        current_time : Time
+            Current time
+        save_dict : dict
+            Dictionary with simulation results
+    
+        Returns
+        ----------
+        save_dict : dict
+            Dictionary with simulation results
+    
+        """
+        network_state_dict = {
+            "acc_p_energy_shed": self.acc_p_energy_shed,
+            "acc_q_energy_shed": self.acc_q_energy_shed,
+            "SAIFI": SAIFI(self),
+            "SAIDI": SAIDI(self),
+            "CAIDI": CAIDI(self),
+            "ASAI": ASAI(self, current_time),
+            "ASUI": ASUI(self, current_time),
+            "ENS": ENS(self),
+            "EV_Index": EV_Index(self),
+            "EV_Interruption": EV_Interruption(self),
+            "EV_Duration": EV_Duration(self),
+        }
+        for state_var, value in network_state_dict.items():
+            save_dict[self.name][state_var][it] = value
+        save_dict = self.update_monte_carlo_child_network_history(
+            it, current_time, save_dict
+        )
+        save_dict = self.update_monte_carlo_comp_history(it, save_dict)
+        return save_dict
+    
+    def update_monte_carlo_child_network_history(
+        self,
+        it: int,
+        current_time: Time,
+        save_dict: dict,
+    ):
+        """
+        Updates the history dictionary for the child networks
+        in the Monte Carlo simulation
+    
+        Parameters
+        ----------
+        it : int
+            The iteration number
+        current_time : Time
+            Current time
+        save_dict : dict
+            Dictionary with simulation results
+    
+        Returns
+        ----------
+        save_dict : dict
+            Dictionary with simulation results
+    
+        """
+        for network in self.child_network_list:
+            network_state_dict = {
+                "acc_p_energy_shed": network.acc_p_energy_shed,
+                "acc_q_energy_shed": network.acc_q_energy_shed,
+                "SAIFI": SAIFI(network),
+                "SAIDI": SAIDI(network),
+                "CAIDI": CAIDI(network),
+                "ASAI": ASAI(network, current_time),
+                "ASUI": ASUI(network, current_time),
+                "ENS": ENS(network),
+                "EV_Index": EV_Index(network),
+                "EV_Interruption": EV_Interruption(network),
+                "EV_Duration": EV_Duration(network),
+            }
+            for state_var, value in network_state_dict.items():
+                save_dict[network.name][state_var][it] = value
+        return save_dict
+    
+    def update_monte_carlo_comp_history(
+        self,
+        it: int,
+        save_dict: dict,
+    ):
+        """
+        Updates the component values for the system
+        from the Monte Carlo simulation
+    
+        Parameters
+        ----------
+        it : int
+            The iteration number
+        save_dict : dict
+            Dictionary with simulation results
+    
+        Returns
+        ----------
+        save_dict : dict
+            Dictionary with simulation results
+    
+        """
+        for bus in self.buses:
+            bus_state_dict = {
+                "acc_p_energy_shed": bus.acc_p_energy_shed,
+                "acc_q_energy_shed": bus.acc_q_energy_shed,
+                "avg_outage_time": bus.avg_outage_time.get_hours(),
+                "acc_outage_time": bus.acc_outage_time.get_hours(),
+                "interruption_fraction": bus.interruption_fraction,
+                "acc_interruptions": bus.acc_interruptions,
+            }
+            for state_var, value in bus_state_dict.items():
+                save_dict[bus.name][state_var][it] = value
+            if bus.ev_park is not None:
+                ev_park_state_dict = {
+                    "acc_num_interruptions": bus.ev_park.acc_num_interruptions,
+                    "acc_exp_interruptions": bus.ev_park.acc_exp_interruptions,
+                    "acc_exp_car_interruptions": bus.ev_park.acc_exp_car_interruptions,
+                    "acc_interruption_duration": bus.ev_park.acc_interruption_duration.get_hours(),
+                    "acc_available_num_cars": bus.ev_park.acc_available_num_cars,
+                    "num_cars": bus.ev_park.num_cars,
+                }
+                for state_var, value in ev_park_state_dict.items():
+                    save_dict[bus.ev_park.name][state_var][it] = value
+        return save_dict
 
     def get_history(self, attribute):
         """

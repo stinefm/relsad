@@ -591,7 +591,9 @@ class Bus(Component):
 
     def update_fail_status(self, dt: Time):
         """
-        Updates the fail status of the transformer. Sets the fail status to failed if the transformer is failed or the fail status to not failed if the transformer is not failed
+        Updates the fail status of the transformer.
+        Sets the fail status to failed if the transformer is failed
+        or the fail status to not failed if the transformer is not failed
 
         Parameters
         ----------

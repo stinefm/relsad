@@ -73,7 +73,7 @@ class ICTLine(Component):
     lineCount = 0
 
     ## Visual attributes
-    linestyle = "-"
+    linestyle = "dotted"
     handle = mlines.Line2D([], [], linestyle=linestyle)
 
     ## Random instance

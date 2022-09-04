@@ -136,6 +136,8 @@ class IntelligentSwitch(Component):
         self.disconnector = disconnector
         disconnector.intelligent_switch = self
         self.ict_node = ict_node
+        if ict_node is not None:
+            ict_node.coordinate = self.disconnector.coordinate
         self.fail_rate_per_year = fail_rate_per_year
         self.remaining_repair_time = Time(0)
         self.manual_repair_time = manual_repair_time

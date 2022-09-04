@@ -20,6 +20,8 @@ class Disconnector(Component, Switch):
         ----------
         name : string
             Name of the disconnector
+        coordinate : list
+            The coordinate of the disconnector
         initial_state : bool
             The initial state of the disconnector (open or colsed)
         is_open : bool

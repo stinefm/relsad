@@ -42,6 +42,8 @@ class Sensor(Component):
         Name of the sensor
     line : Line
         The line the sensor is connected to
+    coordinate : list
+        The coordinate of the sensor
     ict_node : ICTNode
         The ICT node connected to the sensor
     fail_rate_per_year : float
@@ -147,7 +149,18 @@ class Sensor(Component):
         self.name = name
         self.line = line
         line.sensor = self
+
+        # Define coordinate
+        x1, y1 = line.fbus.coordinate
+        x2, y2 = line.tbus.coordinate
+
+        x = (x1 + x2) / 2
+        y = (y1 + y2) / 2
+
+        self.coordinate = [x, y]
         self.ict_node = ict_node
+        if ict_node is not None:
+            ict_node.coordinate = self.coordinate
         self.fail_rate_per_year = fail_rate_per_year
         self.p_fail_repair_new_signal = p_fail_repair_new_signal
         self.p_fail_repair_reboot = p_fail_repair_reboot

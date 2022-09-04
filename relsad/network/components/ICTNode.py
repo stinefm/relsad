@@ -1,10 +1,9 @@
 import matplotlib.lines as mlines
 import numpy as np
 
-from relsad.load.bus import CostFunction
 from relsad.StatDist import StatDist, StatDistType, UniformParameters
-from relsad.Time import Time, TimeUnit
-from relsad.utils import convert_yearly_fail_rate, interpolate, random_choice
+from relsad.utils import convert_yearly_fail_rate, random_choice
+from relsad.Time import Time
 
 from .Component import Component
 
@@ -86,8 +85,8 @@ class ICTNode(Component):
     """
 
     ## Visual attributes
-    marker = "|"
-    size = 4**2
+    marker = "."
+    size = 1.5**2
     handle = mlines.Line2D(
         [],
         [],
@@ -121,9 +120,9 @@ class ICTNode(Component):
         ## Topological attributes
         self.toline = None
         self.fromline = None
-        self.toline_list = list()
-        self.fromline_list = list()
-        self.connected_lines = list()
+        self.toline_list = []
+        self.fromline_list = []
+        self.connected_lines = []
         self.parent_network = None
 
         ## Reliabilility attributes
