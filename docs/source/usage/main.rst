@@ -11,5 +11,5 @@ run and analyze the provided examples.
    :maxdepth: 2
    :caption: Contents:
 
-   tutorial
+   tutorial/main
    CINELDI_example

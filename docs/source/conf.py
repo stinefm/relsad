@@ -39,9 +39,10 @@ author = u"Stine Fleischer Myhre"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
-    'sphinx.ext.autodoc',  # Core library for html generation from docstrings
-    'sphinx.ext.autosummary',  # Create neat summary tables
+    "sphinx.ext.autodoc",  # Core library for html generation from docstrings
+    "sphinx.ext.autosummary",  # Create neat summary tables
     "sphinx.ext.viewcode",
+    "sphinx_copybutton",
     "sphinx.ext.napoleon",
     "sphinxcontrib.bibtex",
 ]
