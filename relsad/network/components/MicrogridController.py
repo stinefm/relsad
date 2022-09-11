@@ -313,7 +313,11 @@ class MicrogridController(Component, Controller):
         ]
         for section in disconnected_sections:
             sensors = unique(
-                [switch.line.sensor for switch in section.switches]
+                [
+                    switch.line.sensor
+                    for switch in section.switches
+                    if switch.line.sensor is not None
+                ]
             )
             num_fails = 0
             need_manual_attention = False
@@ -356,7 +360,11 @@ class MicrogridController(Component, Controller):
         # Loop connected sections
         for section in connected_sections:
             sensors = unique(
-                [switch.line.sensor for switch in section.switches]
+                [
+                    switch.line.sensor
+                    for switch in section.switches
+                    if switch.line.sensor is not None
+                ]
             )
             num_fails = 0
             need_manual_attention = False
