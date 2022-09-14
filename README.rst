@@ -87,11 +87,18 @@ If you have questions, feel free to contact the author.
    :target: https://github.com/stinefm/relsad/graphs/contributors
 
 .. |language tab| image:: https://img.shields.io/github/languages/top/stinefm/relsad
+   :target: https://www.python.org/
 
 .. |python version tab| image:: https://img.shields.io/pypi/pyversions/relsad
 
 .. |relsad version tab| image:: https://img.shields.io/pypi/v/relsad
+   :target: https://pypi.org/project/relsad/
 
 .. |build tab| image:: https://img.shields.io/github/workflow/status/stinefm/relsad/ci-cd
+   :target: https://github.com/stinefm/relsad/actions
+
+.. |docs tab| image:: https://readthedocs.org/projects/relsad/badge/?version=latest
+   :target: https://relsad.readthedocs.io/en/latest/
 
 .. |license tab| image:: https://img.shields.io/github/license/stinefm/relsad
+   :target: https://github.com/stinefm/relsad/blob/main/LICENSE
