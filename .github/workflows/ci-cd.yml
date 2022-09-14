@@ -15,7 +15,7 @@ jobs:
         python-version: 3.9
 
     - name: Check-out repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@master
 
     - name: Install poetry
       uses: snok/install-poetry@v1
@@ -27,7 +27,6 @@ jobs:
       run: poetry run pytest --cov=relsad --cov-report=xml
 
     - name: Use Codecov to track coverage
-      uses: actions/checkout@master
       uses: codecov/codecov-action@v3
       with:
         files: ./coverage.xml   # coverage report
