@@ -90,7 +90,7 @@ If you have questions, feel free to contact the author.
 .. |language tab| image:: https://img.shields.io/github/languages/top/stinefm/relsad
    :target: https://www.python.org/
 
-.. |code coverage tag| image:: https://img.shields.io/codecov/c/github/stinefm/relsad
+.. |code coverage tab| image:: https://img.shields.io/codecov/c/github/stinefm/relsad
    :target: https://app.codecov.io/github/stinefm/relsad
 
 .. |python version tab| image:: https://img.shields.io/pypi/pyversions/relsad
