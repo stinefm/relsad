@@ -2,6 +2,8 @@
 RELSAD
 ######
 
+|language tab| |contributors tab| |python version tab| |relsad version tab| |build tab| |license tab|
+
 .. overview_start
 
 `RELSAD` -- RELiability tool for Smart and Active Distribution networks,
@@ -71,7 +73,7 @@ The official documentation is hosted on Read the Docs: https://relsad.readthedoc
 Contributors
 ============
 
-We welcome and recognize all contributions. You can see a list of current contributors in the [contributors tab](https://img.shields.io/github/contributors/stinefm/relsad).
+We welcome and recognize all contributions. You can see a list of current contributors in the contributors tab.
 
 
 ====
@@ -80,3 +82,16 @@ Help
 
 If you have questions, feel free to contact the author.
 
+
+.. |contributors tab| image:: https://img.shields.io/github/contributors/stinefm/relsad
+   :target: https://github.com/stinefm/relsad/graphs/contributors
+
+.. |language tab| image:: https://img.shields.io/github/languages/top/stinefm/relsad
+
+.. |python version tab| image:: https://img.shields.io/pypi/pyversions/relsad
+
+.. |relsad version tab| image:: https://img.shields.io/pypi/v/relsad
+
+.. |build tab| image:: https://img.shields.io/github/workflow/status/stinefm/relsad/ci-cd
+
+.. |license tab| image:: https://img.shields.io/github/license/stinefm/relsad

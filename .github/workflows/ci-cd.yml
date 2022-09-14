@@ -27,9 +27,12 @@ jobs:
       run: poetry run pytest --cov=relsad --cov-report=xml
 
     - name: Use Codecov to track coverage
-      uses: codecov/codecov-action@v2
+      uses: actions/checkout@master
+      uses: codecov/codecov-action@v3
       with:
         files: ./coverage.xml   # coverage report
+        fail_ci_if_error: true
+        verbose: true
   cd:
     # Only run this job if the "ci" job passes
     needs: ci
@@ -57,7 +60,7 @@ jobs:
 
     - name: Install package
       run: poetry install
-    
+
     - name: Use Python Semantic Release to prepare release
       env:
         GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
