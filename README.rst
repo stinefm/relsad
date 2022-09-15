@@ -1,5 +1,6 @@
 
-|language tab| |code coverage tab| |contributors tab| |python version tab| |relsad version tab| |build tab| |license tab|
+|language badge| |code coverage badge| |contributors badge| |python version badge|
+|relsad version badge| |build badge| |docs badge| |license badge| |joss badge|
 
 ######
 RELSAD
@@ -84,25 +85,28 @@ Help
 If you have questions, feel free to contact the author.
 
 
-.. |contributors tab| image:: https://img.shields.io/github/contributors/stinefm/relsad
+.. |contributors badge| image:: https://img.shields.io/github/contributors/stinefm/relsad
    :target: https://github.com/stinefm/relsad/graphs/contributors
 
-.. |language tab| image:: https://img.shields.io/github/languages/top/stinefm/relsad
+.. |language badge| image:: https://img.shields.io/github/languages/top/stinefm/relsad
    :target: https://www.python.org/
 
-.. |code coverage tab| image:: https://img.shields.io/codecov/c/github/stinefm/relsad
+.. |code coverage badge| image:: https://img.shields.io/codecov/c/github/stinefm/relsad
    :target: https://app.codecov.io/github/stinefm/relsad
 
-.. |python version tab| image:: https://img.shields.io/pypi/pyversions/relsad
+.. |python version badge| image:: https://img.shields.io/pypi/pyversions/relsad
 
-.. |relsad version tab| image:: https://img.shields.io/pypi/v/relsad
+.. |relsad version badge| image:: https://img.shields.io/pypi/v/relsad
    :target: https://pypi.org/project/relsad/
 
-.. |build tab| image:: https://img.shields.io/github/workflow/status/stinefm/relsad/ci-cd
+.. |build badge| image:: https://img.shields.io/github/workflow/status/stinefm/relsad/ci-cd
    :target: https://github.com/stinefm/relsad/actions
 
-.. |docs tab| image:: https://readthedocs.org/projects/relsad/badge/?version=latest
+.. |docs badge| image:: https://readthedocs.org/projects/relsad/badge/?version=latest
    :target: https://relsad.readthedocs.io/en/latest/
 
-.. |license tab| image:: https://img.shields.io/github/license/stinefm/relsad
+.. |license badge| image:: https://img.shields.io/github/license/stinefm/relsad
    :target: https://github.com/stinefm/relsad/blob/main/LICENSE
+
+.. |joss badge| image:: https://joss.theoj.org/papers/89b8a25755bb2641370bf83b70666e0a/status.svg
+   :target: https://joss.theoj.org/papers/89b8a25755bb2641370bf83b70666e0a
