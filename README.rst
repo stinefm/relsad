@@ -63,7 +63,7 @@ Usage
 =====
 
 Examples using well known test networks are included and presented in
-https://relsad.readthedocs.io/en/latest/usage.html.
+https://relsad.readthedocs.io/en/latest/usage/main.html.
 
 =============
 Documentation
