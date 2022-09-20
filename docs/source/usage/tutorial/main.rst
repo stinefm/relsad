@@ -13,6 +13,7 @@ shown. Finally, we show a way of visualizing the results.
    :maxdepth: 2
    :caption: Contents:
 
+   traditional_power_system/system_setup
    traditional_power_system/monte_carlo_simulation
    traditional_power_system/sequential_simulation
    active_power_systems
