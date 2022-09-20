@@ -10,7 +10,7 @@ RELSAD
 
 `RELSAD` -- RELiability tool for Smart and Active Distribution networks,
 is a Python-based reliability assessment tool that aims to function as
-a foundation for reliabilitycalculation of modern distribution systems.
+a foundation for reliability calculation of modern distribution systems.
 The tool allows for Monte Carlo simulation based reliability analysis of modern
 distribution networks, and sequential simulation of the network
 behavior with user-defined loading and failure evolution to investigate the impact
