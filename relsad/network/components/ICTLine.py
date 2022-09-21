@@ -237,6 +237,7 @@ class ICTLine(Component):
         self.failed = True
         self.parent_network.failed_line = True
         self.remaining_outage_time = self.draw_repair_time(dt)
+        self.disconnect()
 
     def not_fail(self):
         """
@@ -257,6 +258,7 @@ class ICTLine(Component):
         ):
             self.parent_network.failed_line = False
         self.failed = False
+        self.connect()
 
     def change_direction(self):
         """
