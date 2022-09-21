@@ -38,7 +38,7 @@ def initialize_network(
     fail_rate_hardware: float = 0.2,
     fail_rate_software: float = 12,
     fail_rate_sensor: float = 0.023,
-    fail_rate_ict_line: float = 0.07,
+    fail_rate_ict_line: float = 0.068,
     p_fail_repair_new_signal: float = 1 - 0.95,
     p_fail_repair_reboot: float = 1 - 0.9,
     outage_time_trafo: Time = Time(8, TimeUnit.HOUR),
@@ -254,19 +254,19 @@ def initialize_network(
         )
         ICTNA5 = ICTNode(
             name="ICTNA5",
-            coordinate=[2.25, 1.5],
+            coordinate=[2.15, 1.5],
         )
         ICTNA6 = ICTNode(
             name="ICTNA6",
-            coordinate=[2.5, 1.5],
+            coordinate=[2.4, 1.5],
         )
         ICTNA7 = ICTNode(
             name="ICTNA7",
-            coordinate=[2.5, 1.75],
+            coordinate=[2.4, 1.75],
         )
         ICTNA8 = ICTNode(
             name="ICTNA8",
-            coordinate=[2.25, 1.75],
+            coordinate=[2.15, 1.75],
         )
         ict_nodes.extend(
             [
@@ -300,7 +300,7 @@ def initialize_network(
         )
         ICTN5 = ICTNode(
             name="ICTN5",
-            coordinate=[2.25, 1.75],
+            coordinate=[2.25, 1.85],
         )
         ICTN6 = ICTNode(
             name="ICTN6",
@@ -1164,6 +1164,7 @@ if __name__ == "__main__":
         include_ev=False,
         include_backup=True,
     )
+
     fig = plot_topology(
         buses=ps.buses,
         lines=ps.lines,
