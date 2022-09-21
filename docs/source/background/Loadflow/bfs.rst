@@ -5,10 +5,10 @@ Backward-Forward sweep
 ======================
 
 Forward-Backward sweep (FBS) is a load flow approach suitable for radial operated power systems. 
-The benefit of using an FBS approach is that the load flow is calculated iteratively and do not need to go through the Jacobian matrix, as in the Newton-Rapshon method. 
-In this way, convergence problems related to an ill conditioned matrix of weak networks can be avoided. :cite:`haque1996load`
+The benefit of using an FBS approach is that the load flow is calculated iteratively and does not need to go through the Jacobian matrix, as in the Newton-Rapshon method. 
+In this way, convergence problems related to an ill-conditioned matrix of weak networks can be avoided. :cite:`haque1996load`
 
-In an FBS approach, the load flow is calculated by updating the power flow through a backward sweep before the buses voltage magnitude and angle are updated and calculated in the forward sweep. 
+In an FBS approach, the load flow is calculated by updating the power flow through a backward sweep before the bus's voltage magnitude and angle are updated and calculated in the forward sweep. 
 
 ..............
 Backward sweep
@@ -80,7 +80,7 @@ Here, :math:`R_{l}` is the line resistance while :math:`X_{l}` is the line react
 Forward sweep
 ..............
 
-After a backward sweep, the forward sweep is conducted. In the forward sweep, the buses voltage magnitude and angle are updated by utilizing the updated active and reactive power from the backward sweep.
+After a backward sweep, the forward sweep is conducted. In the forward sweep, the bus's voltage magnitude and angle are updated by utilizing the updated active and reactive power from the backward sweep.
 Here, the voltage magnitude at bus *i* in relation to the voltage magnitude at bus *j* for iteration *k* can be calculated battery
 
 .. math::

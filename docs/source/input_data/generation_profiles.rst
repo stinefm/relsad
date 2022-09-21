@@ -4,9 +4,9 @@
 Wind power preparation
 ......................
 
-Wind power data can be generated from the power curve of a specific wind turbine. Figure LEGG INN FIGUR, illustrates a typical idealized power curve for a wind turbine. From the cut-in wind speed :math:`V_{C}` until the rated wind speed :math:`V_{R}`, the delivered power will increase for increased wind speed. After :math:`V_{R}`, the wind turbine is not able to give more power for increased wind speed due to generator limitations. When the wind speed reaches the cut-out wind speed :math:`V_{F}`, the wind is too strong for the wind turbine and the rotor shaft is locked so that no power can be produced. The power curve differs for different types of wind turbines. 
+Wind power data can be generated from the power curve of a specific wind turbine. From the cut-in wind speed :math:`V_{C}` until the rated wind speed :math:`V_{R}`, the delivered power will increase for increased wind speed. After :math:`V_{R}`, the wind turbine is not able to give more power for increased wind speed due to generator limitations. When the wind speed reaches the cut-out wind speed :math:`V_{F}`, the wind is too strong for the wind turbine, and the rotor shaft is locked so that no power can be produced. The power curve differs for different types of wind turbines. 
 
-From the power curve, the produced power can be calculated with the use of wind speed data. For a given wind speed :math:`v_{i}`, the output power :math:`P_{i}` can be estimated based on interpolation for wind speeds between :math:`V_{C}` and :math:`V_{R}` for the analyzed wind turbine. Legg inn figur, see figure
+From the power curve, the produced power can be calculated with the use of wind speed data. For a given wind speed :math:`v_{i}`, the output power :math:`P_{i}` can be estimated based on interpolation for wind speeds between :math:`V_{C}` and :math:`V_{R}` for the analyzed wind turbine. 
 
 .. math::
     :label: eq:windpower

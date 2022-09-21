@@ -30,7 +30,7 @@ Load- and generation-oriented indices
 .....................................
 
 
-Load- and generation-oriented indices aim to give the electrical consequence of a failure in the system. In relsad, two indices in this category are considered.
+Load- and generation-oriented indices aim to give the electrical consequence of a failure in the system. In RELSAD, two indices in this category are considered.
 
 
 
@@ -60,7 +60,7 @@ CENS gives the cost of interruption in the system. :math:`c_{i}` is the specific
 Customer-oriented indices
 .....................................
 
-Customer-oriented indices aim to give the reliability of the distribution system by the frequency and duration of interruptions experienced by the customers. In relsad, three different customer-oriented indices are considered. 
+Customer-oriented indices aim to give the reliability of the distribution system by the frequency and duration of interruptions experienced by the customers. In RELSAD, three different customer-oriented indices are considered. 
 
 1. System Average Interruption Frequency Index
 

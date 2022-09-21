@@ -2,7 +2,7 @@
 Switches
 ======================
 
-There are three type of switches that are implemented in RELSAD. Here, some information about the switches is provided.
+There are three types of switches that are implemented in RELSAD. Here, some information about the switches is provided.
 
 ................
 Circuit breaker
@@ -25,4 +25,4 @@ In RELSAD, the disconnectors can be placed on any line segment in the system, an
 Intelligent switch
 ..................
 
-In RELSAD, intelligent switches are implemented to make the system more automated. The intelligent switch objects can be placed on disconnectors in the system and by that be used to automatically control the disconnectors. An intelligent switch can receive commands about the switch position from a controller and automatically open/close the switch.h. 
+In RELSAD, intelligent switches are implemented to make the system more automated. The intelligent switch objects can be placed on disconnectors in the system and by that be used to automatically control the disconnectors. An intelligent switch can receive commands about the switch position from a controller and automatically open/close the switch.
