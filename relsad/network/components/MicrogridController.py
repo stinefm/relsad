@@ -54,8 +54,6 @@ class MicrogridController(Component, Controller):
         The ICT node connected to the controller
     fail_rate : float
         The failure rate of the microgrid controller
-    outage_time : float
-        The outage time of the microgrid controller
     state : ControllerState
         The state of the microgrid controller
     sectioning_time : Time
@@ -144,14 +142,12 @@ class MicrogridController(Component, Controller):
         name: str,
         power_network,
         fail_rate: float = 0,
-        outage_time: Time = Time(1, TimeUnit.HOUR),
         state: ControllerState = ControllerState.OK,
     ):
 
         self.name = name
         self.ict_node = None
         self.fail_rate = fail_rate
-        self.outage_time = outage_time
         self.state = state
         self.sectioning_time = Time(0)
         self.parent_sectioning_time = Time(0)
@@ -286,7 +282,8 @@ class MicrogridController(Component, Controller):
         in the respective section.
         If a section was disconnected and no longer includes any failed sensor,
         it is connected.
-        If a section was connected and now includes a failed sensor, it is disconnected.
+        If a section was connected and now includes a failed sensor,
+        it is disconnected.
         The total sectioning time is summed from each section.
 
         Parameters
@@ -479,13 +476,13 @@ class MicrogridController(Component, Controller):
         ]
         # Loop disconnected sections
         for section in disconnected_sections:
-            if sum([x.failed for x in section.lines]) == 0:
+            if sum(x.failed for x in section.lines) == 0:
                 section.connect_manually()
                 if section in self.failed_sections:
                     self.failed_sections.remove(section)
         # Loop connected sections
         for section in connected_sections:
-            if sum([x.failed for x in section.lines]) > 0:
+            if sum(x.failed for x in section.lines) > 0:
                 section.state = SectionState.DISCONNECTED
                 self.failed_sections.append(section)
                 self.failed_sections = unique(self.failed_sections)
@@ -654,7 +651,6 @@ class MicrogridController(Component, Controller):
         None
 
         """
-        pass
 
     def reset_status(self, save_flag: bool):
         """
@@ -670,7 +666,6 @@ class MicrogridController(Component, Controller):
         None
 
         """
-        self.prev_open_time = Time(0)
         self.sectioning_time = Time(0)
         if save_flag:
             self.initialize_history()

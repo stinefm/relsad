@@ -32,8 +32,6 @@ class Disconnector(Component, Switch):
             The failure rate of the disconnector [no. of fails per year]
         outage_time : Time
             The outage time of the diconnector
-        prev_open_time : Time
-            The time of the previous time step
         line : Line
             The line the disconnecor is connected to
         base_bus : Bus
@@ -118,7 +116,6 @@ class Disconnector(Component, Switch):
         self.failed = False
         self.fail_rate = fail_rate
         self.outage_time = outage_time
-        self.prev_open_time = Time(0)
         self.line = line
 
         ## Set coordinate
@@ -337,8 +334,6 @@ class Disconnector(Component, Switch):
         None
 
         """
-        self.prev_open_time = Time(0)
-
         self.not_fail()
         if save_flag:
             self.initialize_history()

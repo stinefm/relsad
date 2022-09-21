@@ -26,8 +26,6 @@ class DistributionController(Component, Controller):
         The ICT node connected to the controller
     fail_rate : float
         The failure rate of the distribution system controller
-    outage_time : float
-        The outage time of the distribution system controller
     state : ControllerState
         The state of the distribution system controller
     sectioning_time : Time
@@ -114,14 +112,12 @@ class DistributionController(Component, Controller):
         name: str,
         power_network,
         fail_rate: float = 0,
-        outage_time: Time = Time(1, TimeUnit.HOUR),
         state: ControllerState = ControllerState.OK,
     ):
 
         self.name = name
         self.ict_node = None
         self.fail_rate = fail_rate
-        self.outage_time = outage_time
         self.state = state
         self.sectioning_time = Time(0)
         self.check_components = False
@@ -445,13 +441,13 @@ class DistributionController(Component, Controller):
         ]
         # Loop disconnected sections
         for section in disconnected_sections:
-            if sum([x.failed for x in section.lines]) == 0:
+            if sum(x.failed for x in section.lines) == 0:
                 section.connect_manually()
                 if section in self.failed_sections:
                     self.failed_sections.remove(section)
         # Loop connected sections
         for section in connected_sections:
-            if sum([x.failed for x in section.lines]) > 0:
+            if sum(x.failed for x in section.lines) > 0:
                 section.state = SectionState.DISCONNECTED
                 self.failed_sections.append(section)
                 self.failed_sections = unique(self.failed_sections)
@@ -498,7 +494,9 @@ class DistributionController(Component, Controller):
 
     def set_sectioning_time(self, sectioning_time):
         """
-        Sets the sectioning time of the distribuiton system based on the max value of the distribution sectioning time and the sectioning time set by the controller
+        Sets the sectioning time of the distribuiton system based on
+        the max value of the distribution sectioning time and the
+        sectioning time set by the controller
 
         Parameters
         ----------
@@ -517,7 +515,8 @@ class DistributionController(Component, Controller):
 
     def spread_sectioning_time_to_children(self):
         """
-        Returns the children power network of the distribution system the same sectioning time
+        Returns the children power network of the distribution system
+        the same sectioning time
 
         Parameters
         ----------
@@ -624,7 +623,6 @@ class DistributionController(Component, Controller):
         None
 
         """
-        pass
 
     def reset_status(self, save_flag: bool):
         """
