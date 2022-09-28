@@ -280,18 +280,6 @@ def initialize_network(
         fail_rate_density_per_year=fail_rate_line,
     )
 
-    if include_backup:
-        L10 = Line(
-            "L10",
-            B4,
-            B8,
-            r=0.7114,
-            x=0.2351,
-            repair_time_dist=line_repair_time_stat_dist,
-            fail_rate_density_per_year=fail_rate_line,
-            capacity=6,
-        )
-
     CircuitBreaker("E1", L1)
 
     DL1a = Disconnector("L1a", L1, B1)
@@ -314,6 +302,16 @@ def initialize_network(
     DL9b = Disconnector("L9b", L9, B10)
 
     if include_backup:
+        L10 = Line(
+            "L10",
+            B4,
+            B8,
+            r=0.7114,
+            x=0.2351,
+            repair_time_dist=line_repair_time_stat_dist,
+            fail_rate_density_per_year=fail_rate_line,
+            capacity=6,
+        )
         DL10a = Disconnector("L10a", L10, B4)
         DL10b = Disconnector("L10b", L10, B8)
 
@@ -323,19 +321,19 @@ def initialize_network(
         M1 = Bus(
             "M1",
             n_customers=0,
-            coordinate=[-1, -2],
+            coordinate=[6, 0],
             fail_rate_per_year=fail_rate_trafo,
         )
         M2 = Bus(
             "M2",
             n_customers=0,
-            coordinate=[-2, -3],
+            coordinate=[7, 0],
             fail_rate_per_year=fail_rate_trafo,
         )
         M3 = Bus(
             "M3",
             n_customers=40,
-            coordinate=[-1, -3],
+            coordinate=[7, -1],
             fail_rate_per_year=fail_rate_trafo,
         )
 
@@ -616,7 +614,7 @@ def initialize_network(
 
 
 if __name__ == "__main__":
-    ps, _, _, _ = initialize_network()
+    ps = initialize_network()
     fig = plot_topology(ps.buses, ps.lines)
 
     fig.savefig(
