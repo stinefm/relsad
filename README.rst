@@ -24,7 +24,9 @@ To evaluate smart power systems, ICT (Information and Communication Technology)
 components such as automated switches, sensors, and control systems
 for the power grid are also implemented.
 In addition to component implementation, in order to evaluate the reliability
-of such complex systems, the complexity, dependencies within a system, and interdependencies between systems and components are accounted for.
+of such complex systems, the complexity, dependencies within a system,
+and interdependencies between systems and components are accounted for.
+For now, only radial systems are supported.
 
 The tool can be used in modern distribution network development to evaluate
 the influence of active components on the network reliability. Relevant use cases
