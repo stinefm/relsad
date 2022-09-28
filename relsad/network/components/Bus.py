@@ -193,6 +193,8 @@ class Bus(Component):
         Resets the variables used in the load flow analysis
     get_monte_carlo_history(attribute)
         Returns a specified history variable from the Monte Carlo simulation
+    get_neighbor_buses()
+        Returns the neighboring buses of the bus
     """
 
     ## Visual attributes
@@ -995,3 +997,25 @@ class Bus(Component):
             The specified history variable from the Monte Carlo simulation
         """
         return self.monte_carlo_history[attribute]
+
+    def get_neighbor_buses(self):
+        """
+        Returns the neighboring buses of the bus
+
+        Parameters
+        ---------
+        None
+
+        Returns
+        --------
+        neighbor_buses : list
+            List of neighboring buses
+        """
+        neighbor_buses = []
+        for line in self.connected_lines:
+            if line.connected is True:
+                for bus in [line.fbus, line.tbus]:
+                    if bus not in neighbor_buses and bus != self:
+                        neighbor_buses.append(bus)
+
+        return neighbor_buses

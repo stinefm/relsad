@@ -185,3 +185,47 @@ def get_topology_bus_list(downstream_bus_list: list):
     topology_bus_list = topology_bus_list[0]
 
     return topology_bus_list
+
+
+def is_cyclic(network):
+    """
+    Function that checks if the network contains cycles
+    using a depth first search
+
+    Parameters
+    ----------
+    network : PowerNetwork
+        Power network
+
+    Returns
+    -------
+    cyclic : bool
+        Boolean variable stating whether the network contains
+        cycles
+
+    """
+    cyclic = False
+
+    visited_buses = {bus: False for bus in network.buses}
+    stack = []
+
+    for bus in network.buses:
+
+        if visited_buses[bus] is True:
+            continue
+
+        stack.append([bus, None])
+
+        while len(stack) > 0:
+            curr_bus, parent_bus = stack.pop()
+            visited_buses[curr_bus] = True
+
+            for neighbor_bus in curr_bus.get_neighbor_buses():
+                if visited_buses[neighbor_bus] is False:
+                    stack.append([neighbor_bus, curr_bus])
+                    visited_buses[neighbor_bus] = True
+                elif neighbor_bus != parent_bus:
+                    cyclic = True
+                    return cyclic
+
+    return cyclic

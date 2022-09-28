@@ -1,14 +1,19 @@
 import numpy as np
 
 from relsad.network.systems.PowerNetwork import PowerNetwork
-from relsad.topology.load_flow.bfs import configure_bfs_load_flow_setup
+from relsad.topology.load_flow.bfs import (
+    configure_bfs_load_flow_setup,
+    is_cyclic,
+)
 
 
 def run_bfs_load_flow(network: PowerNetwork, maxit: int = 5):
     """
     Solves the load flow with a specified number of iterations
-    The two first septs are to set up additions topology information and to build the main structure
-    Next, it is switched between forward sweeps (Voltage updates) and backward sweeps(load update and loss calcuation)
+    The two first septs are to set up additions topology information
+    and to build the main structure
+    Next, it is switched between forward sweeps (Voltage updates)
+    and backward sweeps(load update and loss calcuation)
 
     See :doc:`/theory/bfs` for more details.
 
@@ -24,9 +29,16 @@ def run_bfs_load_flow(network: PowerNetwork, maxit: int = 5):
     network.buses : list
         List of network buses
     """
+    # Check if network is radial
+    if is_cyclic(network) is True:
+        raise Exception("The network is not radial, cannot run BFS")
+
+    # Configure topology list
     topology_list, network.buses = configure_bfs_load_flow_setup(
         network.buses, network.lines
     )
+
+    # Run Backward Forward Sweep
     for _ in range(maxit):
         accumulate_load(topology_list)
         update_voltage(topology_list)
@@ -35,9 +47,12 @@ def run_bfs_load_flow(network: PowerNetwork, maxit: int = 5):
 
 def accumulate_load(topology_list):
     """
-    Calculates the accumulated downstream active and reactive load at all buses
-    and calculates the active and reactive losses of lines and make an accumulated equivalent load at the buses
-    The function returns the accumulated loads and the accumulated power losses from a branch in the system
+    Calculates the accumulated downstream active and
+    reactive load at all buses and calculates the active
+    and reactive losses of lines and make an accumulated
+    equivalent load at the buses
+    The function returns the accumulated loads and the
+    accumulated power losses from a branch in the system
 
     Parameters
     ----------
