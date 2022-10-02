@@ -5,7 +5,8 @@ Markov models
 A Markov model is a stochastic model used to describe the random change
 of systems. The system can change between different states that are not
 dependent on past states where all the possible states and the probability
-and rate of transition between the different states are described in the model. 
+and rate of transition between the different states are described in the model 
+:cite:`ccinlar2011probability`.
 
 In RELSAD, Markov models are used as a basis for constructing the states
 of the power system components. A simple three-state model as seen in
