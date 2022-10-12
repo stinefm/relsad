@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "relsad"
-version = "0.2.11"
+version = "0.2.12"
 description = "A package that facilitates reliability investigations of power systems"
 readme = "README.rst"
 repository = "https://github.com/stinefm/relsad"
