@@ -38,7 +38,7 @@ version_variable = [
     "relsad/__init__.py:__version__",
 ]                                           # version location
 branch = "main"                             # branch to make releases of
-changelog_file = "CHANGELOG.rst"            # changelog file
+changelog_file = "CHANGELOG.md"             # changelog file
 build_command = "poetry build"              # build dists
 dist_path = "dist/"                         # where to put dists
 upload_to_release = true                    # auto-create GitHub release
