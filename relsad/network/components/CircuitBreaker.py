@@ -17,48 +17,49 @@ class CircuitBreaker(Component, Switch):
 
     ...
 
-        Attributes
-        ----------
-        name : string
-            Name of the circuit breaker
-        line : Line
-            The line the circuit breaker is connected to
-        is_open : bool
-            Indicates if the circuit breaker is open or closed
-        fail_rate : float
-            The failure rate of the circuit breaker [no. of fails per year]
-        outage_time : Time
-            The outage time of the circuit breaker
-        coordinate : list
-            Coordinate of the circuit breaker
-        initial_state : bool
-            The initial state of the circuit breaker
-        failed : bool
-            True if the circuit breaker is in a failed state, False if not
-        history : dict
-            Dictonary attribute that stores the historic variables
+    Attributes
+    ----------
+    name : string
+        Name of the circuit breaker
+    line : Line
+        The line the circuit breaker is connected to
+    is_open : bool
+        Indicates if the circuit breaker is open or closed
+    outage_time : Time
+        The outage time of the circuit breaker
+    coordinate : list
+        Coordinate of the circuit breaker
+    initial_state : bool
+        The initial state of the circuit breaker
+    failed : bool
+        True if the circuit breaker is in a failed state, False if not
+    history : dict
+        Dictonary attribute that stores the historic variables
 
-        Methods
-        ----------
-        close()
-            Closes the circuit breaker and the disconnectors connected to the host line
-        open()
-            Opens the circuit breaker and the disconnectors connected to the host line
-        update_fail_status(dt)
-            Updates the failure status of the circuit breaker
-        initialize_history()
-            Initializes the history variables
-        update_history(prev_time, curr_time, save_flag)
-            Updates the history variables
-        get_history(attribute)
-            Returns the history variables of an attribute
-        add_random_instance(random_gen)
-            Adds global random seed
-        print_status()
-            Prints the status
-        reset_status(save_flag)
-            Resets and sets the status of the system parameters
-
+    Methods
+    ----------
+    close()
+        Closes the circuit breaker and the disconnectors connected to the host line
+    open()
+        Opens the circuit breaker and the disconnectors connected to the host line
+    fail()
+        Sets the circuit breaker to failed and opens the circuit breaker
+    not_fail()
+        Sets the circuit breaker to not failed and closes the circuit breaker
+    update_fail_status(dt)
+        Updates the failure status of the circuit breaker
+    initialize_history()
+        Initializes the history variables
+    update_history(prev_time, curr_time, save_flag)
+        Updates the history variables
+    get_history(attribute)
+        Returns the history variables of an attribute
+    add_random_instance(random_gen)
+        Adds global random seed
+    print_status()
+        Prints the status
+    reset_status(save_flag)
+        Resets and sets the status of the system parameters
 
     """
 
@@ -184,6 +185,38 @@ class CircuitBreaker(Component, Switch):
         if self.line.connected:
             self.line.disconnect()
 
+    def fail(self):
+        """
+        Sets the circuit breaker to failed and opens the circuit breaker
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
+        self.failed = True
+        self.open()
+
+    def not_fail(self):
+        """
+        Sets the circuit breaker to not failed and closes the circuit breaker
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        ----------
+        None
+
+        """
+        self.failed = False
+        self.close()
+
     def update_fail_status(self, dt: Time):
         """
         Updates the failuer status of the circuit breaker
@@ -198,7 +231,6 @@ class CircuitBreaker(Component, Switch):
         None
 
         """
-        pass
 
     def initialize_history(self):
         """

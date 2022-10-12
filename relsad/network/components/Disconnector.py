@@ -16,51 +16,51 @@ class Disconnector(Component, Switch):
 
     ...
 
-        Attributes
-        ----------
-        name : string
-            Name of the disconnector
-        coordinate : list
-            The coordinate of the disconnector
-        initial_state : bool
-            The initial state of the disconnector (open or colsed)
-        is_open : bool
-            Tells if the switch is open (True) or closed (False)
-        failed : bool
-            True if the disconnector is in a failed state, False if not
-        fail_rate : float
-            The failure rate of the disconnector [no. of fails per year]
-        outage_time : Time
-            The outage time of the diconnector
-        line : Line
-            The line the disconnecor is connected to
-        base_bus : Bus
-            Wich bus the disconnector is closes to (for setting coordinates)
-        intelligent_switch : IntelligentSwitch
-            Returns the intelligent switch connected to the disconnector if any
-        history : dict
-            Dictonary attribute that stores the historic variables
+    Attributes
+    ----------
+    name : string
+        Name of the disconnector
+    coordinate : list
+        The coordinate of the disconnector
+    initial_state : bool
+        The initial state of the disconnector (open or colsed)
+    is_open : bool
+        Tells if the switch is open (True) or closed (False)
+    failed : bool
+        True if the disconnector is in a failed state, False if not
+    fail_rate : float
+        The failure rate of the disconnector [no. of fails per year]
+    outage_time : Time
+        The outage time of the diconnector
+    line : Line
+        The line the disconnecor is connected to
+    base_bus : Bus
+        Wich bus the disconnector is closes to (for setting coordinates)
+    intelligent_switch : IntelligentSwitch
+        Returns the intelligent switch connected to the disconnector if any
+    history : dict
+        Dictonary attribute that stores the historic variables
 
-        Methods
-        ----------
-        close()
-            Closes the disconnector
-        open()
-            Opens the disconnector
-        fail()
-            Sets the disconnector to failed and opens the disconnector
-        not_fail()
-            Sets the doconnector to not failed and closes the disconnector
-        initialize_history()
-            Initializes the history variables
-        update_history(prev_time, curr_time, save_flag)
-            Updates the history variables
-        get_history(attribute)
-            Returns the history variables of an attribute
-        add_random_instance(random_gen)
-            Adds global random seed
-        reset_status(save_falg)
-            Resets and sets the status of the system parameters
+    Methods
+    ----------
+    close()
+        Closes the disconnector
+    open()
+        Opens the disconnector
+    fail()
+        Sets the disconnector to failed and opens the disconnector
+    not_fail()
+        Sets the doconnector to not failed and closes the disconnector
+    initialize_history()
+        Initializes the history variables
+    update_history(prev_time, curr_time, save_flag)
+        Updates the history variables
+    get_history(attribute)
+        Returns the history variables of an attribute
+    add_random_instance(random_gen)
+        Adds global random seed
+    reset_status(save_falg)
+        Resets and sets the status of the system parameters
 
     """
 
@@ -148,8 +148,7 @@ class Disconnector(Component, Switch):
     def __eq__(self, other):
         if hasattr(other, "name"):
             return self.name == other.name and isinstance(other, Disconnector)
-        else:
-            return False
+        return False
 
     def __hash__(self):
         return hash(self.name)
@@ -192,7 +191,7 @@ class Disconnector(Component, Switch):
 
     def fail(self):
         """
-        Sets the disconnecotr to failed and opens the disconnector
+        Sets the disconnector to failed and opens the disconnector
 
         Parameters
         ----------
@@ -208,7 +207,7 @@ class Disconnector(Component, Switch):
 
     def not_fail(self):
         """
-        Sets the disconnector to not failed and closes the disconnecotr
+        Sets the disconnector to not failed and closes the disconnector
 
         Parameters
         ----------
