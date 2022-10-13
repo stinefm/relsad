@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.14 (2022-10-13)
+### Documentation
+* Feedback from reviewer ([`12dfde0`](https://github.com/stinefm/relsad/commit/12dfde046787ef751fa88308a360b0d29bf8164f))
+
 ## v0.2.13 (2022-10-12)
 
 
