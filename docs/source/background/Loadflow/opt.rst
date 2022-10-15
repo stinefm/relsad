@@ -24,6 +24,8 @@ is a production unit at node *j*, otherwise :math:`\lambda_{j}` is 0.
 :math:`\mu_{k}` is 0. 
 
 .. math::
+   :nowrap:
+
     \begin{align}
         &\underset{P^{s}_{n}}{\text{minimize}}
         \quad \mathcal{P}_s = \sum_{n = 1}^{N_n}   C_{n}\cdot P^{s}_{n} \label{eq:min}\\
